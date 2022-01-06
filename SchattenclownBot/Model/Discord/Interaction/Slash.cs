@@ -29,7 +29,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             {
                 Title = "Help",
                 Description = "This is the command help for the Schattenclown Bot",
-                Color = new DiscordColor(245, 107, 0)
+                Color = DiscordColor.Purple
             };
             eb.AddField("/invite", "Send´s an invite link!");
             eb.AddField("/levelsystem", "Shows the levelsystem!");
@@ -77,7 +77,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             DiscordEmbedBuilder eb = new DiscordEmbedBuilder
             {
                 Title = "Your alarms",
-                Color = DiscordColor.Azure,
+                Color = DiscordColor.Purple,
                 Description = $"<@{ic.Member.Id}>"
             };
             bool noTimers = true;
@@ -125,7 +125,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             DiscordEmbedBuilder eb = new DiscordEmbedBuilder
             {
                 Title = "Your timers",
-                Color = DiscordColor.Azure,
+                Color = DiscordColor.Purple,
                 Description = $"<@{ic.Member.Id}>"
             };
             bool noTimers = true;
@@ -284,7 +284,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 ImageUrl = user.BannerHash != null ? user.BannerUrl : null
             }.
             WithThumbnail(user.AvatarUrl).
-            WithColor(user.BannerColor ?? DiscordColor.Aquamarine).
+            WithColor(user.BannerColor ?? DiscordColor.Purple).
             WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(eb.Build()));
