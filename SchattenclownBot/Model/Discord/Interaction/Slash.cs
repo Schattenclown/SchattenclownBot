@@ -187,11 +187,25 @@ namespace SchattenclownBot.Model.Discord.Interaction
                     var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
 
                     int totalXp = dcLevelSystem.OnlineTicks * 125 / 60;
-                    int totalLevel = totalXp / 1000;
-                    int modXp = totalXp % 1000;
-                    string level = $"Level {totalLevel} ";
-                    string xp = $"{modXp}xp/1000xp&data1={modXp}";
 
+                    int totalLevel, modXp;
+                    string level, xp;
+
+                    if (totalXp > 0)
+                    {
+                        totalLevel = totalXp / 1000;
+                        modXp = totalXp % 1000;
+                        level = $"Level {totalLevel}  ";
+                        xp = $"{modXp}xp/1000xp&data1={modXp}";
+                    }
+                    else
+                    {
+                        totalLevel = 0;
+                        modXp = 0;
+                        level = $"Level {totalLevel}  ";
+                        xp = $"{modXp}xp/1000xp&data1={modXp}";
+                    }
+                    
                     uriString += $"{level} {discordUser.Username} {xp,50}";
                     break;
                 }
