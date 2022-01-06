@@ -152,7 +152,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             dcUserLevelSystemListSorted.Reverse();
 
             string liststring = "```css\n" +
-                                "{time: 365.21:19:45} | [discordUser.Username]\n";
+                                "365.21:19:45 [Username]\n\n";
             foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
                 var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
@@ -161,12 +161,43 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
                 TimeSpan timeSpan = date2 - date1;
 
-                liststring += "{time: " + $"{timeSpan,-12:ddd\\.hh\\:mm\\:ss}" + "}" + $" | [{discordUser.Username}]\n";
+                liststring += $"{timeSpan,-12:ddd\\.hh\\:mm\\:ss} [{discordUser.Username}]\n";
             }
             liststring += "\n```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
             discordEmbedBuilder.Title = "LevelSystem";
             discordEmbedBuilder.Description = liststring;
+            discordEmbedBuilder.Color = DiscordColor.Purple;
+
+            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        }
+
+        [SlashCommand("Level", "Look up your level!", true)]
+        public static async Task Level(InteractionContext interactionContext)
+        {
+            List<DcUserLevelSystem> dcUserLevelSystemList = DcUserLevelSystem.Read(interactionContext.Guild.Id);
+
+            //https://quickchart.io/chart/render/zm-61647abc-3b66-47ef-8823-dbef4d19642f?title=titlet&labels=Q1,Q2,Q3,Q4&data1=50,40,30,20
+            string uriString = "https://quickchart.io/chart/render/zm-61647abc-3b66-47ef-8823-dbef4d19642f?title=";
+
+            foreach (var dcLevelSystem in dcUserLevelSystemList)
+            {
+                if(dcLevelSystem.MemberId == interactionContext.Member.Id)
+                {
+                    var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
+
+                    int totalXp = dcLevelSystem.OnlineTicks * 125 / 60;
+                    int totalLevel = totalXp / 1000;
+                    int modXp = totalXp % 1000;
+
+                    uriString += $"{discordUser.Username.PadRight(20, ' ')}Level{totalLevel} | {modXp}xp/1000xp&data1={modXp}";
+                    break;
+                }
+            }
+            Uri uri = new Uri(uriString);
+            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
+            discordEmbedBuilder.Title = "LevelSystem";
+            discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
             discordEmbedBuilder.Color = DiscordColor.Purple;
 
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));

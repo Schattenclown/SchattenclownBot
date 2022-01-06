@@ -7,15 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\Discord\ChoiceProvider\**" />
+    <EmbeddedResource Remove="Model\Discord\ChoiceProvider\**" />
+    <None Remove="Model\Discord\ChoiceProvider\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DisCatSharp" Version="9.8.2" />
     <PackageReference Include="DisCatSharp.ApplicationCommands" Version="9.8.2" />
     <PackageReference Include="DisCatSharp.CommandsNext" Version="9.8.2" />
     <PackageReference Include="DisCatSharp.Interactivity" Version="9.8.2" />
     <PackageReference Include="MySql.Data" Version="8.0.26" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Model\Discord\ChoiceProvider\" />
   </ItemGroup>
 
 </Project>
