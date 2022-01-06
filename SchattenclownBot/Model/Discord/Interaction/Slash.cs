@@ -182,16 +182,15 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
             int totalXp = 0;
             int totalLevel, modXp;
-            string username = "";
             string level, xp;
+
+            var discordUser = await Discord.DiscordBot.Client.GetUserAsync(interactionContext.Member.Id);
+            string username = discordUser.Username;
 
             foreach (var dcLevelSystem in dcUserLevelSystemList)
             {
-
                 if(dcLevelSystem.MemberId == interactionContext.Member.Id)
                 {
-                    var discordUser = await Discord.DiscordBot.Client.GetUserAsync(interactionContext.Member.Id);
-                    username = discordUser.Username;
                     totalXp = dcLevelSystem.OnlineTicks * 125 / 60;
                     break;
                 }
