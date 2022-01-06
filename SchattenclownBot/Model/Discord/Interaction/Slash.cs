@@ -32,6 +32,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Color = new DiscordColor(245, 107, 0)
             };
             eb.AddField("/invite", "Send´s an invite link!");
+            eb.AddField("/levelsystem", "Shows the levelsystem!");
             eb.AddField("/timer", "Set´s a timer!");
             eb.AddField("/mytimers", "Look up your timers!");
             eb.AddField("/alarmclock", "Set an alarm for a spesific time!");
@@ -150,12 +151,17 @@ namespace SchattenclownBot.Model.Discord.Interaction
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
 
-            string liststring = "```css\n";
+            string liststring = "```css\n" +
+                                "{time: 365.21:19:45} | [discordUser.Username]\n";
             foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
                 var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
-                
-                liststring += $"{dcLevelSystem.OnlineTicks,8} #minutes.connected | [{discordUser.Username}]\n";
+
+                DateTime date1 = new DateTime(1969, 4, 20, 4, 20, 0);
+                DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
+                TimeSpan timeSpan = date2 - date1;
+
+                liststring += "{time: " + $"{timeSpan,-12:ddd\\.hh\\:mm\\:ss}" + "}" + $" | [{discordUser.Username}]\n";
             }
             liststring += "\n```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
