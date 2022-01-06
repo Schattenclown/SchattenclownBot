@@ -152,7 +152,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             dcUserLevelSystemListSorted.Reverse();
 
             string liststring = "```css\n" +
-                                "{365.21:19:45}[Username]\n\n";
+                                "{365.21:19}[Username]\n\n";
             foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
                 var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
@@ -161,7 +161,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
                 TimeSpan timeSpan = date2 - date1;
 
-                liststring += "{" + $"{timeSpan,-12:ddd\\.hh\\:mm\\:ss}" + "}" + $"[{discordUser.Username}]\n";
+                liststring += "{ " + $"{timeSpan,-12:dd\\.hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
             }
             liststring += "\n```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
