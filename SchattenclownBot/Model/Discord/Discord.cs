@@ -229,7 +229,7 @@ namespace SchattenclownBot.Model.Discord
                         }
                     }
 
-                    if(DateTime.Now.Second == 15)
+                    if (DateTime.Now.Second == 15)
                         scTimers = DB_ScTimers.ReadAll();
 
                     await Task.Delay(1000 * 1);
@@ -305,17 +305,23 @@ namespace SchattenclownBot.Model.Discord
 
                 while (true)
                 {
+                    while (DateTime.Now.Second != 59)
+                    {
+                        await Task.Delay(1000);
+                    }
+
                     var guildsList = Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
                     {
                         List<DcLevelSystem> dcLevelSystemsList = new List<DcLevelSystem>();
                         dcLevelSystemsList = DcLevelSystem.Read(guildItem.Value.Id);
-                        
+
                         var guildMembers = guildItem.Value.Members;
                         foreach (var memberItem in guildMembers)
                         {
                             DcLevelSystem dcLevelSystem = new DcLevelSystem();
                             bool found = false;
+
                             foreach (DcLevelSystem dcLevelSystemItem in dcLevelSystemsList)
                             {
                                 if (memberItem.Value.Id == dcLevelSystemItem.MemberId)
@@ -344,11 +350,6 @@ namespace SchattenclownBot.Model.Discord
                                 DcLevelSystem.Change(guildItem.Value.Id, dcLevelSystem);
                             }
                         }
-                    }
-
-                    while (DateTime.Now.Second != 59)
-                    {
-                        await Task.Delay(1000);
                     }
                 }
             });
