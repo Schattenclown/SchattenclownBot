@@ -319,35 +319,35 @@ namespace SchattenclownBot.Model.Discord
                         var guildMembers = guildItem.Value.Members;
                         foreach (var memberItem in guildMembers)
                         {
-                            DcLevelSystem dcLevelSystem = new DcLevelSystem();
-                            bool found = false;
-
-                            foreach (DcLevelSystem dcLevelSystemItem in dcLevelSystemsList)
+                            if (memberItem.Value.VoiceState != null)
                             {
-                                if (memberItem.Value.Id == dcLevelSystemItem.MemberId)
+                                DcLevelSystem dcLevelSystem = new DcLevelSystem();
+                                bool found = false;
+
+                                foreach (DcLevelSystem dcLevelSystemItem in dcLevelSystemsList)
                                 {
-                                    dcLevelSystem.MemberId = dcLevelSystemItem.MemberId;
-                                    dcLevelSystem.OnlineTicks = dcLevelSystemItem.OnlineTicks;
+                                    if (memberItem.Value.Id == dcLevelSystemItem.MemberId)
+                                    {
+                                        dcLevelSystem.MemberId = dcLevelSystemItem.MemberId;
+                                        dcLevelSystem.OnlineTicks = dcLevelSystemItem.OnlineTicks;
 
-                                    found = true;
+                                        found = true;
+                                    }
                                 }
-                            }
 
-                            if (!found)
-                            {
-                                if (memberItem.Value.VoiceState != null)
+                                if (!found)
                                 {
                                     dcLevelSystem.MemberId = memberItem.Value.Id;
                                     dcLevelSystem.OnlineTicks = 1;
 
                                     DcLevelSystem.Add(guildItem.Value.Id, dcLevelSystem);
                                 }
-                            }
 
-                            if (found)
-                            {
-                                dcLevelSystem.OnlineTicks++;
-                                DcLevelSystem.Change(guildItem.Value.Id, dcLevelSystem);
+                                if (found)
+                                {
+                                    dcLevelSystem.OnlineTicks++;
+                                    DcLevelSystem.Change(guildItem.Value.Id, dcLevelSystem);
+                                }
                             }
                         }
                     }
