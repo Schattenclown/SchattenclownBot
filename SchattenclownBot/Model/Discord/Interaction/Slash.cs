@@ -145,16 +145,19 @@ namespace SchattenclownBot.Model.Discord.Interaction
         [SlashCommand("LevelSystem", "Look up the LevelSystem!", true)]
         public static async Task LevelSystem(InteractionContext interactionContext)
         {
-            List<DcLevelSystem> dcLevelSystemsList = new List<DcLevelSystem>();
-            dcLevelSystemsList = DcLevelSystem.Read(interactionContext.Guild.Id);
+            List<DcUserLevelSystem> dcUserLevelSystemList = DcUserLevelSystem.Read(interactionContext.Guild.Id);
 
-            string liststring = "";
+            List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+            dcUserLevelSystemListSorted.Reverse();
 
-            foreach (var dcLevelSystem in dcLevelSystemsList)
+            string liststring = "```css\n";
+            foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
-                liststring += $"<@{dcLevelSystem.MemberId}>,   {dcLevelSystem.OnlineTicks} connected minutes!\n";
+                var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
+                
+                liststring += $"{dcLevelSystem.OnlineTicks,8} #minutes.connected | [{discordUser.Username}]\n";
             }
-
+            liststring += "\n```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
             discordEmbedBuilder.Title = "LevelSystem";
             discordEmbedBuilder.Description = liststring;

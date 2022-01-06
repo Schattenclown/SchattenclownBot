@@ -8,35 +8,36 @@ using SchattenclownBot.HelpClasses;
 
 namespace SchattenclownBot.Model.Persistence
 {
-    public static class DB_DcLevelSystem
+    public static class DB_DcUserLevelSystem
     {
-        public static List<DcLevelSystem> Read(ulong guildId)
+        public static List<DcUserLevelSystem> Read(ulong guildId)
         {
             string sqlCommand = $"SELECT * FROM `{guildId}`";
-            List<DcLevelSystem> dcLevelSystemList = new List<DcLevelSystem>();
+            List<DcUserLevelSystem> dcUserLevelSystemList = new List<DcUserLevelSystem>();
             MySqlConnection mySqlConnection = DB_Connection.OpenDB();
             MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
-                DcLevelSystem dcLevelSystemObj = new DcLevelSystem()
+                DcUserLevelSystem dcUserLevelSystemObj = new DcUserLevelSystem()
                 {
                     MemberId = mySqlDataReader.GetUInt64("MemberId"),
-                    OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")
+                    OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")                    
                 };
-                dcLevelSystemList.Add(dcLevelSystemObj);
+
+                dcUserLevelSystemList.Add(dcUserLevelSystemObj);
             }
 
             DB_Connection.CloseDB(mySqlConnection);
-            return dcLevelSystemList;
+            return dcUserLevelSystemList;
         }
-        public static void Add(ulong guildId, DcLevelSystem dcLevelSystem)
+        public static void Add(ulong guildId, DcUserLevelSystem dcLevelSystem)
         {
-            string sqlCommand = $"INSERT INTO `{guildId}` (MemberId, OnlineTicks) " +
-                                $"VALUES ({dcLevelSystem.MemberId}, {dcLevelSystem.OnlineTicks})";
+            string sqlCommand = $"INSERT INTO `{guildId}` (MemberId, OnlineTicks, OnlineTime) " +
+                                $"VALUES ({dcLevelSystem.MemberId}, {dcLevelSystem.OnlineTicks}, '{dcLevelSystem.OnlineTime}')";
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
-        public static void Change(ulong guildId, DcLevelSystem dcLevelSystem)
+        public static void Change(ulong guildId, DcUserLevelSystem dcLevelSystem)
         {
             string sqlCommand = $"UPDATE `{guildId}` SET OnlineTicks={dcLevelSystem.OnlineTicks} WHERE MemberId={dcLevelSystem.MemberId}";
             DB_Connection.ExecuteNonQuery(sqlCommand);
@@ -58,6 +59,7 @@ namespace SchattenclownBot.Model.Persistence
                                 $"CREATE TABLE IF NOT EXISTS `{guildsId}` (" +
                                 "`MemberId` BIGINT NOT NULL," +
                                 "`OnlineTicks` INT NOT NULL," +
+                                "`OnlineTime` varchar(69) NOT NULL," +
                                 "PRIMARY KEY (MemberId)" +
                                 ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 

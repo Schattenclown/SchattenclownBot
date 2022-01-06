@@ -294,14 +294,19 @@ namespace SchattenclownBot.Model.Discord
                             var guildsList = Client.Guilds.ToList();
                             foreach (var guildItem in guildsList)
                             {
-                                DcLevelSystem.CreateTable(guildItem.Value.Id);
+                                
                             }
                             levelSystemVirign = false;
                         }
                     }
-
                     await Task.Delay(1000);
                 } while (levelSystemVirign);
+
+                while (DateTime.Now.Second != 59)
+                {
+                    await Task.Delay(1000);
+                }
+                Console.WriteLine("LevelSystem is now ready!");
 
                 while (true)
                 {
@@ -313,24 +318,25 @@ namespace SchattenclownBot.Model.Discord
                     var guildsList = Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
                     {
-                        List<DcLevelSystem> dcLevelSystemsList = new List<DcLevelSystem>();
-                        dcLevelSystemsList = DcLevelSystem.Read(guildItem.Value.Id);
+                        DcUserLevelSystem.CreateTable(guildItem.Value.Id);
+                        List<DcUserLevelSystem> dcUserLevelSystemList = new List<DcUserLevelSystem>();
+                        dcUserLevelSystemList = DcUserLevelSystem.Read(guildItem.Value.Id);
 
                         var guildMembers = guildItem.Value.Members;
                         foreach (var memberItem in guildMembers)
                         {
                             if (memberItem.Value.VoiceState != null)
                             {
-                                DcLevelSystem dcLevelSystem = new DcLevelSystem();
-                                dcLevelSystem.MemberId = memberItem.Value.Id;
-                                dcLevelSystem.OnlineTicks = 0;
+                                DcUserLevelSystem dcUserLevelSystemObj = new DcUserLevelSystem();
+                                dcUserLevelSystemObj.MemberId = memberItem.Value.Id;
+                                dcUserLevelSystemObj.OnlineTicks = 0;
                                 bool found = false;
 
-                                foreach (DcLevelSystem dcLevelSystemItem in dcLevelSystemsList)
+                                foreach (DcUserLevelSystem dcUserLevelSystemItem in dcUserLevelSystemList)
                                 {
-                                    if (memberItem.Value.Id == dcLevelSystemItem.MemberId)
+                                    if (memberItem.Value.Id == dcUserLevelSystemItem.MemberId)
                                     {
-                                        dcLevelSystem.OnlineTicks = dcLevelSystemItem.OnlineTicks;
+                                        dcUserLevelSystemObj.OnlineTicks = dcUserLevelSystemItem.OnlineTicks;
                                         found = true;
                                         break;
                                     }
@@ -338,14 +344,18 @@ namespace SchattenclownBot.Model.Discord
 
                                 if (found)
                                 {
-                                    dcLevelSystem.OnlineTicks++;
-                                    DcLevelSystem.Change(guildItem.Value.Id, dcLevelSystem);
+                                    dcUserLevelSystemObj.OnlineTicks++;
+                                    DcUserLevelSystem.Change(guildItem.Value.Id, dcUserLevelSystemObj);
                                 }
 
                                 if (!found)
                                 {
-                                    dcLevelSystem.OnlineTicks = 1;
-                                    DcLevelSystem.Add(guildItem.Value.Id, dcLevelSystem);
+                                    DateTime date1 = new DateTime(1969, 4, 20, 4, 20, 0);
+                                    DateTime date2 = new DateTime(1969, 4, 20, 4, 21, 0);
+                                    TimeSpan timeSpan = date2 - date1;
+                                    dcUserLevelSystemObj.OnlineTime = timeSpan;
+                                    dcUserLevelSystemObj.OnlineTicks = 1;
+                                    DcUserLevelSystem.Add(guildItem.Value.Id, dcUserLevelSystemObj);
                                 }
                             }
                         }

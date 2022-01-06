@@ -23,23 +23,21 @@ namespace SchattenclownBot
         /// <returns>Nothing</returns>
         static async Task Main()
         {
-            try
+            await Task.Run(async () =>
             {
                 DB_ScTimers.CreateTable_ScTimers();
                 DB_ScAlarmClocks.CreateTable_ScAlarmClocks();
 
                 dBot = new DiscordBot();
-                await dBot.RunAsync();
+#pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
+                dBot.RunAsync();
+#pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
                 await Task.Delay(1000 * 60 * 60 * 24);
                 Program p = new Program();
                 await p.RestartProgram();
-            }
-            catch
-            {
-                Program p = new Program();
-                await p.RestartProgram();
-            }
+
+            });
         }
 
         /// <summary>
