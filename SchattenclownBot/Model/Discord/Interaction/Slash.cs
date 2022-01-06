@@ -189,14 +189,15 @@ namespace SchattenclownBot.Model.Discord.Interaction
                     int totalXp = dcLevelSystem.OnlineTicks * 125 / 60;
                     int totalLevel = totalXp / 1000;
                     int modXp = totalXp % 1000;
+                    string level = $"Level {totalLevel} ";
+                    string xp = $"{modXp}xp/1000xp&data1={modXp}";
 
-                    uriString += $"{discordUser.Username.PadRight(20, ' ')}Level{totalLevel} | {modXp}xp/1000xp&data1={modXp}";
+                    uriString += $"{level} {discordUser.Username} {xp,50}";
                     break;
                 }
             }
             Uri uri = new Uri(uriString);
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
-            discordEmbedBuilder.Title = "LevelSystem";
             discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
             discordEmbedBuilder.Color = DiscordColor.Purple;
 
