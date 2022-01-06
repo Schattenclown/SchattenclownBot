@@ -180,36 +180,40 @@ namespace SchattenclownBot.Model.Discord.Interaction
             //https://quickchart.io/chart/render/zm-61647abc-3b66-47ef-8823-dbef4d19642f?title=titlet&labels=Q1,Q2,Q3,Q4&data1=50,40,30,20
             string uriString = "https://quickchart.io/chart/render/zm-61647abc-3b66-47ef-8823-dbef4d19642f?title=";
 
+            int totalXp = 0;
+            int totalLevel, modXp;
+            string username = "";
+            string level, xp;
+
             foreach (var dcLevelSystem in dcUserLevelSystemList)
             {
+
                 if(dcLevelSystem.MemberId == interactionContext.Member.Id)
                 {
                     var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
-
-                    int totalXp = dcLevelSystem.OnlineTicks * 125 / 60;
-
-                    int totalLevel, modXp;
-                    string level, xp;
-
-                    if (totalXp > 0)
-                    {
-                        totalLevel = totalXp / 1000;
-                        modXp = totalXp % 1000;
-                        level = $"Level {totalLevel}  ";
-                        xp = $"{modXp}xp/1000xp&data1={modXp}";
-                    }
-                    else
-                    {
-                        totalLevel = 0;
-                        modXp = 0;
-                        level = $"Level {totalLevel}  ";
-                        xp = $"{modXp}xp/1000xp&data1={modXp}";
-                    }
-                    
-                    uriString += $"{level} {discordUser.Username} {xp,50}";
+                    username = discordUser.Username;
+                    totalXp = dcLevelSystem.OnlineTicks * 125 / 60;
                     break;
                 }
             }
+
+            if (totalXp > 0)
+            {
+                totalLevel = totalXp / 1000;
+                modXp = totalXp % 1000;
+                level = $"Level {totalLevel}  ";
+                xp = $"{modXp}xp/1000xp&data1={modXp}";
+            }
+            else
+            {
+                totalLevel = 0;
+                modXp = 0;
+                level = $"Level {totalLevel}  ";
+                xp = $"{modXp}xp/1000xp&data1={modXp}";
+            }
+
+            uriString += $"{level} {username} {xp,50}";
+
             Uri uri = new Uri(uriString);
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
             discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
