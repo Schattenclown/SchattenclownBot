@@ -305,11 +305,6 @@ namespace SchattenclownBot.Model.Discord
 
                 while (true)
                 {
-                    while (DateTime.Now.Second != 59)
-                    {
-                        await Task.Delay(1000);
-                    }
-
                     var guildsList = Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
                     {
@@ -322,34 +317,35 @@ namespace SchattenclownBot.Model.Discord
                             if (memberItem.Value.VoiceState != null)
                             {
                                 DcLevelSystem dcLevelSystem = new DcLevelSystem();
+                                dcLevelSystem.MemberId = memberItem.Value.Id;
                                 bool found = false;
 
                                 foreach (DcLevelSystem dcLevelSystemItem in dcLevelSystemsList)
                                 {
                                     if (memberItem.Value.Id == dcLevelSystemItem.MemberId)
                                     {
-                                        dcLevelSystem.MemberId = dcLevelSystemItem.MemberId;
-                                        dcLevelSystem.OnlineTicks = dcLevelSystemItem.OnlineTicks;
-
+                                        dcLevelSystem.OnlineTicks = dcLevelSystemItem.OnlineTicks + 1;
                                         found = true;
                                     }
                                 }
 
                                 if (!found)
                                 {
-                                    dcLevelSystem.MemberId = memberItem.Value.Id;
                                     dcLevelSystem.OnlineTicks = 1;
-
                                     DcLevelSystem.Add(guildItem.Value.Id, dcLevelSystem);
                                 }
 
                                 if (found)
                                 {
-                                    dcLevelSystem.OnlineTicks++;
                                     DcLevelSystem.Change(guildItem.Value.Id, dcLevelSystem);
                                 }
                             }
                         }
+                    }
+
+                    while (DateTime.Now.Second != 59)
+                    {
+                        await Task.Delay(1000);
                     }
                 }
             });
