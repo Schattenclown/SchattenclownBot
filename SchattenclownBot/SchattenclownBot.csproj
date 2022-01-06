@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ApplicationIcon>schattenclown.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DisCatSharp" Version="9.8.2" />
+    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="9.8.2" />
+    <PackageReference Include="DisCatSharp.CommandsNext" Version="9.8.2" />
+    <PackageReference Include="DisCatSharp.Interactivity" Version="9.8.2" />
+    <PackageReference Include="MySql.Data" Version="8.0.26" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Model\Discord\ChoiceProvider\" />
+  </ItemGroup>
+
+</Project>
