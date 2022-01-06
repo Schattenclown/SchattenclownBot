@@ -187,9 +187,11 @@ namespace SchattenclownBot.Model.Discord
             Console.WriteLine($"Starting with Prefix {prefix}");
             Console.WriteLine($"Starting {Client.CurrentUser.Username}");
 
-            await LevelSystem();
-            await ScTimersRunAsync();
-            await ScAlarmClocksRunAsync();
+#pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
+            LevelSystem();
+            ScTimersRunAsync();
+            ScAlarmClocksRunAsync();
+#pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
             {
@@ -209,11 +211,9 @@ namespace SchattenclownBot.Model.Discord
             {
                 while (true)
                 {
-                    DateTime dateTimeNow = DateTime.Now;
-
                     foreach (var scTimer in scTimers)
                     {
-                        if (scTimer.NotificationTime < dateTimeNow)
+                        if (scTimer.NotificationTime < DateTime.Now)
                         {
                             var chn = await Client.GetChannelAsync(scTimer.ChannelId);
                             DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
@@ -236,6 +236,10 @@ namespace SchattenclownBot.Model.Discord
                 }
             });
         }
+        public void ScTimersDBRefresh()
+        {
+            scTimers = DB_ScTimers.ReadAll();
+        }
 
         public async Task ScAlarmClocksRunAsync()
         {
@@ -245,11 +249,9 @@ namespace SchattenclownBot.Model.Discord
             {
                 while (true)
                 {
-                    DateTime dateTimeNow = DateTime.Now;
-
                     foreach (var scAlarmClock in scAlarmClocks)
                     {
-                        if (scAlarmClock.NotificationTime < dateTimeNow)
+                        if (scAlarmClock.NotificationTime < DateTime.Now)
                         {
                             var chn = await Client.GetChannelAsync(scAlarmClock.ChannelId);
                             DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
@@ -271,6 +273,10 @@ namespace SchattenclownBot.Model.Discord
                     await Task.Delay(1000 * 1);
                 }
             });
+        }
+        public void ScAlarmClocksDBRefresh()
+        {
+            scAlarmClocks = DB_ScAlarmClocks.ReadAll();
         }
 
         public async Task LevelSystem()
@@ -304,13 +310,12 @@ namespace SchattenclownBot.Model.Discord
                     {
                         List<DcLevelSystem> dcLevelSystemsList = new List<DcLevelSystem>();
                         dcLevelSystemsList = DcLevelSystem.Read(guildItem.Value.Id);
-                        bool found = false;
-
+                        
                         var guildMembers = guildItem.Value.Members;
                         foreach (var memberItem in guildMembers)
                         {
                             DcLevelSystem dcLevelSystem = new DcLevelSystem();
-
+                            bool found = false;
                             foreach (DcLevelSystem dcLevelSystemItem in dcLevelSystemsList)
                             {
                                 if (memberItem.Value.Id == dcLevelSystemItem.MemberId)

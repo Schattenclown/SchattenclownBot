@@ -19,10 +19,12 @@ namespace SchattenclownBot.Model.Objects
         public static void Add(ScAlarmClock alarmClock)
         {
             DB_ScAlarmClocks.Add(alarmClock);
+            dbot.ScAlarmClocksDBRefresh();
         }
         public static void Delete(ScAlarmClock alarmClock)
         {
             DB_ScAlarmClocks.Delete(alarmClock);
+            dbot.ScAlarmClocksDBRefresh();
         }
         public static List<ScTimer> ReadAll()
         {
