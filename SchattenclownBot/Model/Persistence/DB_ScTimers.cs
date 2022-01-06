@@ -33,6 +33,7 @@ namespace SchattenclownBot.Model.Persistence
                 }
             }
 
+            DB_Connection.CloseDB(connection);
             return lstScTimers;
         }
         public static void Add(ScTimer scTimer)
