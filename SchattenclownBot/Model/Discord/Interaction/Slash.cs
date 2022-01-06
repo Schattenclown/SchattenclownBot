@@ -161,7 +161,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
                 TimeSpan timeSpan = date2 - date1;
 
-                liststring += "{ " + $"{timeSpan,-12:dd\\.hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
+                liststring += "{" + $"{timeSpan,10:dd\\D hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
             }
             liststring += "\n```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
