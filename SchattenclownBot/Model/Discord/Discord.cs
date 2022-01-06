@@ -294,7 +294,7 @@ namespace SchattenclownBot.Model.Discord
                             var guildsList = Client.Guilds.ToList();
                             foreach (var guildItem in guildsList)
                             {
-                                
+                                DcUserLevelSystem.CreateTable(guildItem.Value.Id);
                             }
                             levelSystemVirign = false;
                         }
@@ -318,7 +318,6 @@ namespace SchattenclownBot.Model.Discord
                     var guildsList = Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
                     {
-                        DcUserLevelSystem.CreateTable(guildItem.Value.Id);
                         List<DcUserLevelSystem> dcUserLevelSystemList = new List<DcUserLevelSystem>();
                         dcUserLevelSystemList = DcUserLevelSystem.Read(guildItem.Value.Id);
 
