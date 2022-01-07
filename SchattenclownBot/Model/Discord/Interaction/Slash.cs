@@ -195,7 +195,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             {
                 if(dcUserLevelSystemItem.MemberId == interactionContext.Member.Id)
                 {
-                    rank = dcUserLevelSystemListSorted.IndexOf(dcUserLevelSystemItem).ToString();
+                    rank = (dcUserLevelSystemListSorted.IndexOf(dcUserLevelSystemItem) + 1).ToString();
                     totalXp = dcUserLevelSystemItem.OnlineTicks * 125 / 60;
                     break;
                 }
