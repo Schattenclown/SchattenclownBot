@@ -31,12 +31,13 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Description = "This is the command help for the Schattenclown Bot",
                 Color = DiscordColor.Purple
             };
-            eb.AddField("/invite", "Send´s an invite link!");
+            eb.AddField("/level", "Shows your level!");
             eb.AddField("/levelsystem", "Shows the levelsystem!");
             eb.AddField("/timer", "Set´s a timer!");
             eb.AddField("/mytimers", "Look up your timers!");
             eb.AddField("/alarmclock", "Set an alarm for a spesific time!");
             eb.AddField("/myalarms", "Look up your alarms!");
+            eb.AddField("/invite", "Send´s an invite link!");
             eb.WithAuthor("Schattenclown help");
             eb.WithFooter("(✿◠‿◠) thanks for using me");
             eb.WithTimestamp(DateTime.Now);
