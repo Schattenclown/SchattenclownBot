@@ -324,7 +324,7 @@ namespace SchattenclownBot.Model.Discord
                         var guildMembers = guildItem.Value.Members;
                         foreach (var memberItem in guildMembers)
                         {
-                            if (memberItem.Value.VoiceState != null)
+                            if (memberItem.Value.VoiceState != null && !memberItem.Value.IsDeafened && !memberItem.Value.IsMuted)
                             {
                                 DcUserLevelSystem dcUserLevelSystemObj = new DcUserLevelSystem();
                                 dcUserLevelSystemObj.MemberId = memberItem.Value.Id;
