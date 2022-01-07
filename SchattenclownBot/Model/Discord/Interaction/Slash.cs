@@ -185,7 +185,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
             int totalXp = 0;
             int totalLevel, modXp;
-            int rank = 1;
+            string rank = "N/A";
             string level, xp;
 
             var discordUser = await Discord.DiscordBot.Client.GetUserAsync(interactionContext.Member.Id);
@@ -195,7 +195,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             {
                 if(dcUserLevelSystemItem.MemberId == interactionContext.Member.Id)
                 {
-                    rank = dcUserLevelSystemList.IndexOf(dcUserLevelSystemItem);
+                    rank = dcUserLevelSystemList.IndexOf(dcUserLevelSystemItem).ToString();
                     totalXp = dcUserLevelSystemItem.OnlineTicks * 125 / 60;
                     break;
                 }
