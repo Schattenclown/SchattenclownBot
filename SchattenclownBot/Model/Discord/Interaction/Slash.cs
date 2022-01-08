@@ -180,7 +180,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
 
-            string uriString = "https://quickchart.io/chart/render/zm-39e61095-4af8-49db-b8ce-2c63d9711ec7?data1=";
+            string uriString = "https://quickchart.io/chart/render/zm-72ebd874-76f5-40d6-a89e-c23e0bc32667?data1=";
 
             int totalXp = 0;
             int totalLevel, modXp;
@@ -215,10 +215,11 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 xp = $"{modXp}/1000xp";
             }
 
-            string xppad = xp.PadLeft(11);
-            string levelpad = level.PadLeft(8);
+            string xppad = xp.PadLeft(11, ' ');
+            string levelpad = level.PadLeft(8, ' ');
             string temp = xppad + levelpad;
-            string temppad = ("<@" + interactionContext.Member.Id + ">").PadRight(48, ' ') + temp;
+            string temppad = ("<@" + interactionContext.Member.Id + ">").PadRight(38, ' ') + temp;
+            //string temppad = ("1").PadRight(38, ' ') + temp;
 
             //uriString += $"{level} {username} {xp,50}";
             uriString += $"{modXp}";
@@ -226,7 +227,8 @@ namespace SchattenclownBot.Model.Discord.Interaction
             Uri uri = new Uri(uriString);
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
             discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
-            discordEmbedBuilder.WithDescription(temppad);
+            discordEmbedBuilder.WithTitle(temp);
+            discordEmbedBuilder.WithDescription("<@" + interactionContext.Member.Id + ">");
             discordEmbedBuilder.WithFooter("Rank #" + rank);
             discordEmbedBuilder.Color = DiscordColor.Purple;
 
