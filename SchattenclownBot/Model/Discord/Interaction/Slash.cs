@@ -180,7 +180,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
 
-            string uriString = "https://quickchart.io/chart/render/zm-72ebd874-76f5-40d6-a89e-c23e0bc32667?data1=";
+            string uriString = "https://quickchart.io/chart/render/zm-f5102ee5-782a-4808-8fa8-7cc7ff4250f2?data1=";
 
             int totalXp = 0;
             int totalLevel, modXp;
