@@ -180,8 +180,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
 
-            //https://quickchart.io/chart/render/zm-61647abc-3b66-47ef-8823-dbef4d19642f?title=titlet&labels=Q1,Q2,Q3,Q4&data1=50,40,30,20
-            string uriString = "https://quickchart.io/chart/render/zm-61647abc-3b66-47ef-8823-dbef4d19642f?title=";
+            string uriString = "https://quickchart.io/chart/render/zm-39e61095-4af8-49db-b8ce-2c63d9711ec7?data1=";
 
             int totalXp = 0;
             int totalLevel, modXp;
@@ -205,23 +204,30 @@ namespace SchattenclownBot.Model.Discord.Interaction
             {
                 totalLevel = totalXp / 1000;
                 modXp = totalXp % 1000;
-                level = $"Level {totalLevel}  ";
-                xp = $"{modXp}xp/1000xp&data1={modXp}";
+                level = $"Level {totalLevel}";
+                xp = $"{modXp}/1000xp";
             }
             else
             {
                 totalLevel = 0;
                 modXp = 0;
-                level = $"Level {totalLevel}  ";
-                xp = $"{modXp}xp/1000xp&data1={modXp}";
+                level = $"Level {totalLevel}";
+                xp = $"{modXp}/1000xp";
             }
 
-            uriString += $"{level} {username} {xp,50}";
+            string xppad = xp.PadLeft(11);
+            string levelpad = level.PadLeft(8);
+            string temp = xppad + levelpad;
+            string temppad = ("<@" + interactionContext.Member.Id + ">").PadRight(48, ' ') + temp;
+
+            //uriString += $"{level} {username} {xp,50}";
+            uriString += $"{modXp}";
 
             Uri uri = new Uri(uriString);
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
-            discordEmbedBuilder.WithFooter($"Rank #{rank}");
             discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
+            discordEmbedBuilder.WithDescription(temppad);
+            discordEmbedBuilder.WithFooter("Rank #" + rank);
             discordEmbedBuilder.Color = DiscordColor.Purple;
 
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
