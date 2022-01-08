@@ -187,7 +187,6 @@ namespace SchattenclownBot.Model.Discord.Interaction
             string rank = "N/A";
             string level, xp;
 
-
             var discordUser = await Discord.DiscordBot.Client.GetUserAsync(interactionContext.Member.Id);
             string username = discordUser.Username;
 
