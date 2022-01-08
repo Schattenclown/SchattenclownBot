@@ -2,14 +2,12 @@
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using SchattenclownBot.Model.Objects;
+using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
-using DisCatSharp.CommandsNext.Attributes;
-using DisCatSharp.CommandsNext;
 
 namespace SchattenclownBot.Model.Discord.Interaction
 {
@@ -158,7 +156,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                                 "{365/24:60}[Username]\n\n";
             foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
-                var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
+                var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId, true);
 
                 DateTime date1 = new DateTime(1969, 4, 20, 4, 20, 0);
                 DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
@@ -194,7 +192,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
             foreach (var dcUserLevelSystemItem in dcUserLevelSystemListSorted)
             {
-                if(dcUserLevelSystemItem.MemberId == interactionContext.Member.Id)
+                if (dcUserLevelSystemItem.MemberId == interactionContext.Member.Id)
                 {
                     rank = (dcUserLevelSystemListSorted.IndexOf(dcUserLevelSystemItem) + 1).ToString();
                     totalXp = dcUserLevelSystemItem.OnlineTicks * 125 / 60;

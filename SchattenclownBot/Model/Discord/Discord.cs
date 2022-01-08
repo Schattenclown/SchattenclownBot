@@ -3,32 +3,22 @@ using DisCatSharp.ApplicationCommands;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.EventHandling;
 using DisCatSharp.Interactivity.Extensions;
-
 using Microsoft.Extensions.Logging;
-
+using SchattenclownBot.Model.Objects;
+using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
-
 using static SchattenclownBot.Model.Discord.Events.ApplicationCommandsEvents;
 using static SchattenclownBot.Model.Discord.Events.ClientEvents;
 using static SchattenclownBot.Model.Discord.Events.GuildEvents;
-using DisCatSharp.CommandsNext.Attributes;
 
 namespace SchattenclownBot.Model.Discord
 {
