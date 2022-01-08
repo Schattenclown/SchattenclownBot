@@ -153,7 +153,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             dcUserLevelSystemListSorted.Reverse();
 
             string liststring = "```css\n" +
-                                "{365.24:60}[Username]\n\n";
+                                "{365/24:60}[Username]\n\n";
             foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
                 var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId);
@@ -162,7 +162,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
                 TimeSpan timeSpan = date2 - date1;
 
-                liststring += "{" + $"{timeSpan,9:ddd\\.hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
+                liststring += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
             }
             liststring += "\n```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
@@ -194,7 +194,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             {
                 if(dcUserLevelSystemItem.MemberId == interactionContext.Member.Id)
                 {
-                    rank = dcUserLevelSystemList.IndexOf(dcUserLevelSystemItem).ToString();
+                    rank = (dcUserLevelSystemListSorted.IndexOf(dcUserLevelSystemItem) + 1).ToString();
                     totalXp = dcUserLevelSystemItem.OnlineTicks * 125 / 60;
                     break;
                 }
