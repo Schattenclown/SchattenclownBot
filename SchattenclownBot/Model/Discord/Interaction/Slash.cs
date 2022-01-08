@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
+using DisCatSharp.CommandsNext.Attributes;
+using DisCatSharp.CommandsNext;
 
 namespace SchattenclownBot.Model.Discord.Interaction
 {

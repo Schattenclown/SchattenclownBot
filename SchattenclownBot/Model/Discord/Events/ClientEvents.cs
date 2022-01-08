@@ -1,5 +1,6 @@
 ﻿using DisCatSharp;
 using DisCatSharp.CommandsNext;
+using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 
 using System;
@@ -27,6 +28,12 @@ namespace SchattenclownBot.Model.Discord.Events
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Bot ready!");
             Console.ForegroundColor = ConsoleColor.Gray;
+            DiscordActivity activity = new DiscordActivity()
+            {
+                Name = DiscordBot.custom ? DiscordBot.customstate : $"{DiscordBot.prefix}help",
+                ActivityType = ActivityType.Playing
+            };
+            await dcl.UpdateStatusAsync(activity: activity, userStatus: DiscordBot.custom ? DiscordBot.customstatus : UserStatus.Online, idleSince: null);
             await Task.Delay(100);
         }
 

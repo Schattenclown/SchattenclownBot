@@ -28,6 +28,7 @@ using SchattenclownBot.Model.Persistence;
 using static SchattenclownBot.Model.Discord.Events.ApplicationCommandsEvents;
 using static SchattenclownBot.Model.Discord.Events.ClientEvents;
 using static SchattenclownBot.Model.Discord.Events.GuildEvents;
+using DisCatSharp.CommandsNext.Attributes;
 
 namespace SchattenclownBot.Model.Discord
 {
@@ -89,6 +90,9 @@ namespace SchattenclownBot.Model.Discord
         public static CancellationTokenSource ShutdownRequest;
         public static readonly ulong testguild = 881868642600505354;
         public static string prefix = "sc/";
+        public static bool custom = false;
+        public static UserStatus customstatus = UserStatus.Online;
+        public static string customstate = $"{prefix}help";
 
         /// <summary>
         /// Binarie to text.
@@ -170,6 +174,7 @@ namespace SchattenclownBot.Model.Discord
             RegisterCommands(CNext, ApplicationCommands);
 
         }
+
         public void Dispose()
         {
             Client.Dispose();
