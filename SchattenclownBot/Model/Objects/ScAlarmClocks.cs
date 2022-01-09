@@ -1,34 +1,70 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
+﻿using DisCatSharp.Entities;
+using SchattenclownBot.Model.Discord;
 using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using SchattenclownBot.Model.Discord;
 
 namespace SchattenclownBot.Model.Objects
 {
     public class ScAlarmClock
     {
-        private static DiscordBot dbot = new DiscordBot();
         public int DBEntryID { get; set; }
         public DateTime NotificationTime { get; set; }
         public ulong ChannelId { get; set; }
         public ulong MemberId { get; set; }
+
+        public static List<ScAlarmClock> scAlarmClocks;
         public static void Add(ScAlarmClock alarmClock)
         {
             DB_ScAlarmClocks.Add(alarmClock);
-            dbot.ScAlarmClocksDBRefresh();
+            ScAlarmClocksDBRefresh();
         }
         public static void Delete(ScAlarmClock alarmClock)
         {
             DB_ScAlarmClocks.Delete(alarmClock);
-            dbot.ScAlarmClocksDBRefresh();
+            ScAlarmClocksDBRefresh();
         }
         public static List<ScTimer> ReadAll()
         {
             return DB_ScTimers.ReadAll();
+        }
+        public static async Task ScAlarmClocksRunAsync()
+        {
+            scAlarmClocks = DB_ScAlarmClocks.ReadAll();
+
+            await Task.Run(async () =>
+            {
+                while (true)
+                {
+                    foreach (var scAlarmClock in scAlarmClocks)
+                    {
+                        if (scAlarmClock.NotificationTime < DateTime.Now)
+                        {
+                            var chn = await DiscordBot.Client.GetChannelAsync(scAlarmClock.ChannelId);
+                            DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
+                            eb.Color = DiscordColor.Red;
+                            eb.WithDescription($"<@{scAlarmClock.MemberId}> Alarm for {scAlarmClock.NotificationTime} rings!");
+
+                            ScAlarmClock.Delete(scAlarmClock);
+                            for (int i = 0; i < 3; i++)
+                            {
+                                await chn.SendMessageAsync(eb.Build());
+                                await Task.Delay(50);
+                            }
+                        }
+                    }
+
+                    if (DateTime.Now.Second == 30)
+                        scAlarmClocks = DB_ScAlarmClocks.ReadAll();
+
+                    await Task.Delay(1000 * 1);
+                }
+            });
+        }
+        public static void ScAlarmClocksDBRefresh()
+        {
+            scAlarmClocks = DB_ScAlarmClocks.ReadAll();
         }
     }
 }

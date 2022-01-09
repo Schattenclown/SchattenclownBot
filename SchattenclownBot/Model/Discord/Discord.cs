@@ -9,10 +9,8 @@ using DisCatSharp.Interactivity.EventHandling;
 using DisCatSharp.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,8 +70,6 @@ namespace SchattenclownBot.Model.Discord
         public static string token = "";
         public static int virgin = 0;
         public static DiscordClient Client { get; internal set; }
-        public static List<ScTimer> scTimers;
-        public static List<ScAlarmClock> scAlarmClocks;
         public static ApplicationCommandsExtension ApplicationCommands { get; internal set; }
         public static CommandsNextExtension CNext { get; internal set; }
         public static InteractivityExtension INext { get; internal set; }
@@ -81,8 +77,8 @@ namespace SchattenclownBot.Model.Discord
         public static readonly ulong testguild = 881868642600505354;
         public static string prefix = "sc/";
         public static bool custom = false;
-        public static UserStatus customstatus = UserStatus.Online;
-        public static string customstate = $"{prefix}help";
+        public static UserStatus customstatus = UserStatus.Streaming;
+        public static string customstate = $"/help";
 
         /// <summary>
         /// Binarie to text.
@@ -183,9 +179,9 @@ namespace SchattenclownBot.Model.Discord
             Console.WriteLine($"Starting {Client.CurrentUser.Username}");
 
 #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
-            LevelSystem();
-            ScTimersRunAsync();
-            ScAlarmClocksRunAsync();
+            DcUserLevelSystem.LevelSystem();
+            ScTimer.ScTimersRunAsync();
+            ScAlarmClock.ScAlarmClocksRunAsync();
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
@@ -196,168 +192,6 @@ namespace SchattenclownBot.Model.Discord
             await Client.DisconnectAsync();
             await Task.Delay(2500);
             Dispose();
-        }
-
-        public async Task ScTimersRunAsync()
-        {
-            scTimers = DB_ScTimers.ReadAll();
-
-            await Task.Run(async () =>
-            {
-                while (true)
-                {
-                    foreach (var scTimer in scTimers)
-                    {
-                        if (scTimer.NotificationTime < DateTime.Now)
-                        {
-                            var chn = await Client.GetChannelAsync(scTimer.ChannelId);
-                            DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
-                            eb.Color = DiscordColor.Red;
-                            eb.WithDescription($"<@{scTimer.MemberId}> Timer for {scTimer.NotificationTime} is up!");
-
-                            ScTimer.Delete(scTimer);
-                            for (int i = 0; i < 3; i++)
-                            {
-                                await chn.SendMessageAsync(eb.Build());
-                                await Task.Delay(50);
-                            }
-                        }
-                    }
-
-                    if (DateTime.Now.Second == 15)
-                        scTimers = DB_ScTimers.ReadAll();
-
-                    await Task.Delay(1000 * 1);
-                }
-            });
-        }
-        public void ScTimersDBRefresh()
-        {
-            scTimers = DB_ScTimers.ReadAll();
-        }
-
-        public async Task ScAlarmClocksRunAsync()
-        {
-            scAlarmClocks = DB_ScAlarmClocks.ReadAll();
-
-            await Task.Run(async () =>
-            {
-                while (true)
-                {
-                    foreach (var scAlarmClock in scAlarmClocks)
-                    {
-                        if (scAlarmClock.NotificationTime < DateTime.Now)
-                        {
-                            var chn = await Client.GetChannelAsync(scAlarmClock.ChannelId);
-                            DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
-                            eb.Color = DiscordColor.Red;
-                            eb.WithDescription($"<@{scAlarmClock.MemberId}> Alarm for {scAlarmClock.NotificationTime} rings!");
-
-                            ScAlarmClock.Delete(scAlarmClock);
-                            for (int i = 0; i < 3; i++)
-                            {
-                                await chn.SendMessageAsync(eb.Build());
-                                await Task.Delay(50);
-                            }
-                        }
-                    }
-
-                    if (DateTime.Now.Second == 30)
-                        scAlarmClocks = DB_ScAlarmClocks.ReadAll();
-
-                    await Task.Delay(1000 * 1);
-                }
-            });
-        }
-        public void ScAlarmClocksDBRefresh()
-        {
-            scAlarmClocks = DB_ScAlarmClocks.ReadAll();
-        }
-
-        public async Task LevelSystem()
-        {
-            bool levelSystemVirign = true;
-
-            await Task.Run(async () =>
-            {
-                do
-                {
-                    if (Client.Guilds.ToList().Count != 0)
-                    {
-                        if (levelSystemVirign)
-                        {
-                            var guildsList = Client.Guilds.ToList();
-                            foreach (var guildItem in guildsList)
-                            {
-                                DcUserLevelSystem.CreateTable(guildItem.Value.Id);
-                            }
-                            levelSystemVirign = false;
-                        }
-                    }
-                    await Task.Delay(1000);
-                } while (levelSystemVirign);
-
-                while (DateTime.Now.Second != 59)
-                {
-                    await Task.Delay(1000);
-                }
-                Console.WriteLine("LevelSystem is now ready!");
-
-                while (true)
-                {
-                    while (DateTime.Now.Second != 59)
-                    {
-                        await Task.Delay(1000);
-                    }
-
-                    var guildsList = Client.Guilds.ToList();
-                    foreach (var guildItem in guildsList)
-                    {
-                        List<DcUserLevelSystem> dcUserLevelSystemList = new List<DcUserLevelSystem>();
-                        dcUserLevelSystemList = DcUserLevelSystem.Read(guildItem.Value.Id);
-
-                        var guildMembers = guildItem.Value.Members;
-                        foreach (var memberItem in guildMembers)
-                        {
-                            if (memberItem.Value.VoiceState != null && !memberItem.Value.VoiceState.IsSelfMuted)
-                            {
-                                DcUserLevelSystem dcUserLevelSystemObj = new DcUserLevelSystem();
-                                dcUserLevelSystemObj.MemberId = memberItem.Value.Id;
-                                dcUserLevelSystemObj.OnlineTicks = 0;
-                                bool found = false;
-
-                                foreach (DcUserLevelSystem dcUserLevelSystemItem in dcUserLevelSystemList)
-                                {
-                                    if (memberItem.Value.Id == dcUserLevelSystemItem.MemberId)
-                                    {
-                                        dcUserLevelSystemObj.OnlineTicks = dcUserLevelSystemItem.OnlineTicks;
-                                        found = true;
-                                        break;
-                                    }
-                                }
-
-                                if (found)
-                                {
-                                    dcUserLevelSystemObj.OnlineTicks++;
-                                    DcUserLevelSystem.Change(guildItem.Value.Id, dcUserLevelSystemObj);
-                                }
-
-                                if (!found)
-                                {
-                                    DateTime date1 = new DateTime(1969, 4, 20, 4, 20, 0);
-                                    DateTime date2 = new DateTime(1969, 4, 20, 4, 21, 0);
-                                    TimeSpan timeSpan = date2 - date1;
-                                    dcUserLevelSystemObj.OnlineTime = timeSpan;
-                                    dcUserLevelSystemObj.OnlineTicks = 1;
-                                    DcUserLevelSystem.Add(guildItem.Value.Id, dcUserLevelSystemObj);
-                                }
-                            }
-                        }
-                    }
-
-                    await Task.Delay(2000);
-                }
-            });
         }
 
         #region Register Commands & Events
