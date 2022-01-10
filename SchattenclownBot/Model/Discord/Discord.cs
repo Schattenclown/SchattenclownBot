@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SchattenclownBot.Model.HelpClasses;
 using static SchattenclownBot.Model.Discord.Events.ApplicationCommandsEvents;
 using static SchattenclownBot.Model.Discord.Events.ClientEvents;
 using static SchattenclownBot.Model.Discord.Events.GuildEvents;
@@ -182,6 +183,7 @@ namespace SchattenclownBot.Model.Discord
             DcUserLevelSystem.LevelSystem();
             ScTimer.ScTimersRunAsync();
             ScAlarmClock.ScAlarmClocksRunAsync();
+            IdResolver.Resolve(444152594898878474);
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
