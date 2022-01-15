@@ -152,7 +152,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
 
-            int top15 = 1;
+            int top15 = 0;
 
             string liststring = "```css\n" +
                                 "{365/24:60}[Username]\n\n";
@@ -166,7 +166,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
                 liststring += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
                 top15++;
-                if (top15 == 15)
+                if (top15 == 20)
                     break;
             }
             liststring += "\n```";
