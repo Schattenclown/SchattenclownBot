@@ -32,7 +32,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Color = DiscordColor.Purple
             };
             eb.AddField("/level", "Shows your level!");
-            eb.AddField("/levelsystem", "Shows the levelsystem!");
+            eb.AddField("/leaderboard", "Shows the levelsystem!");
             eb.AddField("/timer", "Set´s a timer!");
             eb.AddField("/mytimers", "Look up your timers!");
             eb.AddField("/alarmclock", "Set an alarm for a spesific time!");
@@ -144,13 +144,15 @@ namespace SchattenclownBot.Model.Discord.Interaction
             await ic.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(eb.Build()));
         }
 
-        [SlashCommand("LevelSystem", "Look up the LevelSystem!", true)]
-        public static async Task LevelSystem(InteractionContext interactionContext)
+        [SlashCommand("leaderboard", "Look up the leaderboard!", true)]
+        public static async Task Leaderboard(InteractionContext interactionContext)
         {
             List<DcUserLevelSystem> dcUserLevelSystemList = DcUserLevelSystem.Read(interactionContext.Guild.Id);
 
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
+
+            int top15 = 1;
 
             string liststring = "```css\n" +
                                 "{365/24:60}[Username]\n\n";
@@ -163,6 +165,9 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 TimeSpan timeSpan = date2 - date1;
 
                 liststring += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
+                top15++;
+                if (top15 == 15)
+                    break;
             }
             liststring += "\n```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
