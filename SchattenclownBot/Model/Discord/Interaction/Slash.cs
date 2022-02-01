@@ -288,11 +288,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(bot_invite.AbsoluteUri));
         }
 
-        /// <summary>
-        /// Gets the user's avatar & banner.
-        /// </summary>
-        /// <param name="contextMenuContext">The contextmenu context.</param>
-        [ContextMenu(ApplicationCommandType.User, "Poke a user")]
+        [ContextMenu(ApplicationCommandType.User, "Poke a user", true)]
         public static async Task Poke(ContextMenuContext contextMenuContext)
         {
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -303,18 +299,17 @@ namespace SchattenclownBot.Model.Discord.Interaction
             }.
             WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl);
 
-            DiscordChannel targetMemberId = contextMenuContext.TargetMember.VoiceState.Channel;
-            DiscordChannel afkChannelId = contextMenuContext.Guild.AfkChannel;
+            await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(eb.Build()));
+            DiscordChannel currentChannel = contextMenuContext.TargetMember.VoiceState.Channel;
+            DiscordChannel afkChannel = contextMenuContext.Guild.AfkChannel;
 
             for (int i = 0; i < 3; i++)
             {
-                await contextMenuContext.TargetMember.PlaceInAsync(afkChannelId);
-                await Task.Delay(250);
-                await contextMenuContext.TargetMember.PlaceInAsync(targetMemberId);
-                await Task.Delay(250);
+                await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = afkChannel);
+                await Task.Delay(100);
+                await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
+                await Task.Delay(100);
             }
-
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(eb.Build()));
         }
 
         /// <summary>
