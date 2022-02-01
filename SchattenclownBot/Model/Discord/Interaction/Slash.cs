@@ -4,6 +4,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Discord;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -275,16 +276,45 @@ namespace SchattenclownBot.Model.Discord.Interaction
         /// <summary>
         /// Generates an Invite link.
         /// </summary>
-        /// <param name="ic">The ic.</param>
+        /// <param name="interactionContext">The ic.</param>
         /// <returns>A Task.</returns>
         [SlashCommand("invite", "Invite ListforgeNotify", true)]
-        public static async Task InviteAsync(InteractionContext ic)
+        public static async Task InviteAsync(InteractionContext interactionContext)
         {
-            await ic.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            var bot_invite = ic.Client.GetInAppOAuth(Permissions.Administrator);
+            var bot_invite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
 
-            await ic.EditResponseAsync(new DiscordWebhookBuilder().WithContent(bot_invite.AbsoluteUri));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(bot_invite.AbsoluteUri));
+        }
+
+        /// <summary>
+        /// Gets the user's avatar & banner.
+        /// </summary>
+        /// <param name="contextMenuContext">The contextmenu context.</param>
+        [ContextMenu(ApplicationCommandType.User, "Poke a user")]
+        public static async Task Poke(ContextMenuContext contextMenuContext)
+        {
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"Poke"
+            }.
+            WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl);
+
+            DiscordChannel targetMemberId = contextMenuContext.TargetMember.VoiceState.Channel;
+            DiscordChannel afkChannelId = contextMenuContext.Guild.AfkChannel;
+
+            for (int i = 0; i < 3; i++)
+            {
+                await contextMenuContext.TargetMember.PlaceInAsync(afkChannelId);
+                await Task.Delay(250);
+                await contextMenuContext.TargetMember.PlaceInAsync(targetMemberId);
+                await Task.Delay(250);
+            }
+
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(eb.Build()));
         }
 
         /// <summary>
