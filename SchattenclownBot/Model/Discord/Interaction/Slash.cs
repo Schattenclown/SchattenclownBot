@@ -4,7 +4,6 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
-using SchattenclownBot.Model.Discord;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,40 +19,40 @@ namespace SchattenclownBot.Model.Discord.Interaction
         /// <summary>
         /// Send the help of this bot.
         /// </summary>
-        /// <param name="ic">The interaction context.</param>
+        /// <param name="interactionContext">The interaction context.</param>
         [SlashCommand("help", "Schattenclown Help", true)]
-        public static async Task HelpAsync(InteractionContext ic)
+        public static async Task HelpAsync(InteractionContext interactionContext)
         {
-            await ic.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            DiscordEmbedBuilder eb = new DiscordEmbedBuilder()
+            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder()
             {
                 Title = "Help",
                 Description = "This is the command help for the Schattenclown Bot",
                 Color = DiscordColor.Purple
             };
-            eb.AddField("/level", "Shows your level!");
-            eb.AddField("/leaderboard", "Shows the levelsystem!");
-            eb.AddField("/timer", "Set´s a timer!");
-            eb.AddField("/mytimers", "Look up your timers!");
-            eb.AddField("/alarmclock", "Set an alarm for a spesific time!");
-            eb.AddField("/myalarms", "Look up your alarms!");
-            eb.AddField("/invite", "Send´s an invite link!");
-            eb.WithAuthor("Schattenclown help");
-            eb.WithFooter("(✿◠‿◠) thanks for using me");
-            eb.WithTimestamp(DateTime.Now);
+            discordEmbedBuilder.AddField("/level", "Shows your level!");
+            discordEmbedBuilder.AddField("/leaderboard", "Shows the levelsystem!");
+            discordEmbedBuilder.AddField("/timer", "Set´s a timer!");
+            discordEmbedBuilder.AddField("/mytimers", "Look up your timers!");
+            discordEmbedBuilder.AddField("/alarmclock", "Set an alarm for a spesific time!");
+            discordEmbedBuilder.AddField("/myalarms", "Look up your alarms!");
+            discordEmbedBuilder.AddField("/invite", "Send´s an invite link!");
+            discordEmbedBuilder.WithAuthor("Schattenclown help");
+            discordEmbedBuilder.WithFooter("(✿◠‿◠) thanks for using me");
+            discordEmbedBuilder.WithTimestamp(DateTime.Now);
 
-            await ic.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(eb.Build()));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("alarmclock", "Set an alarm for a spesific time!", true)]
-        public static async Task AlarmClock(InteractionContext ic, [Option("hourofday", "0-23")] double hour, [Option("minuteofday", "0-59")] double minute)
+        public static async Task AlarmClock(InteractionContext interactionContext, [Option("hourofday", "0-23")] double hour, [Option("minuteofday", "0-59")] double minute)
         {
-            await ic.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
+            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
 
             if (!TimeFormat(hour, minute))
             {
-                await ic.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Wrong format for hour or minute!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Wrong format for hour or minute!"));
                 return;
             }
 
@@ -65,89 +64,95 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
             ScAlarmClock scAlarmClock = new ScAlarmClock
             {
-                ChannelId = ic.Channel.Id,
-                MemberId = ic.Member.Id,
+                ChannelId = interactionContext.Channel.Id,
+                MemberId = interactionContext.Member.Id,
                 NotificationTime = alarm
             };
             ScAlarmClock.Add(scAlarmClock);
-            await ic.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {scAlarmClock.NotificationTime}!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {scAlarmClock.NotificationTime}!"));
         }
         [SlashCommand("myalarms", "Look up your alarms!", true)]
-        public static async Task AlarmClockLookup(InteractionContext ic)
+        public static async Task AlarmClockLookup(InteractionContext interactionContext)
         {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
             List<ScAlarmClock> lstScAlarmClocks = DB_ScAlarmClocks.ReadAll();
-            DiscordEmbedBuilder eb = new DiscordEmbedBuilder
+            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
             {
                 Title = "Your alarms",
                 Color = DiscordColor.Purple,
-                Description = $"<@{ic.Member.Id}>"
+                Description = $"<@{interactionContext.Member.Id}>"
             };
             bool noTimers = true;
             foreach (var scAlarmClock in lstScAlarmClocks)
             {
-                if (scAlarmClock.MemberId == ic.Member.Id)
+                if (scAlarmClock.MemberId == interactionContext.Member.Id)
                 {
                     noTimers = false;
-                    eb.AddField($"{scAlarmClock.NotificationTime}", $"Alarm with ID {scAlarmClock.DBEntryID}");
+                    discordEmbedBuilder.AddField($"{scAlarmClock.NotificationTime}", $"Alarm with ID {scAlarmClock.DBEntryID}");
                 }
             }
             if (noTimers)
-                eb.Title = "No alarms set!";
+                discordEmbedBuilder.Title = "No alarms set!";
 
-            await ic.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(eb.Build()));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("timer", "Set a timer!", true)]
-        public static async Task Timer(InteractionContext ic, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
+        public static async Task Timer(InteractionContext interactionContext, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
         {
-            await ic.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
+            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
 
             if (!TimeFormat(hour, minute))
             {
-                await ic.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Wrong format for hour or minute!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Wrong format for hour or minute!"));
                 return;
             }
 
             DateTime dateTimeNow = DateTime.Now;
             ScTimer scTimer = new ScTimer
             {
-                ChannelId = ic.Channel.Id,
-                MemberId = ic.Member.Id,
+                ChannelId = interactionContext.Channel.Id,
+                MemberId = interactionContext.Member.Id,
                 NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
             };
             ScTimer.Add(scTimer);
 
-            await ic.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {scTimer.NotificationTime}!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {scTimer.NotificationTime}!"));
         }
 
         [SlashCommand("mytimers", "Look up your timers!", true)]
-        public static async Task TimerLookup(InteractionContext ic)
+        public static async Task TimerLookup(InteractionContext interactionContext)
         {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
             List<ScTimer> lstScTimers = DB_ScTimers.ReadAll();
-            DiscordEmbedBuilder eb = new DiscordEmbedBuilder
+            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
             {
                 Title = "Your timers",
                 Color = DiscordColor.Purple,
-                Description = $"<@{ic.Member.Id}>"
+                Description = $"<@{interactionContext.Member.Id}>"
             };
             bool noTimers = true;
             foreach (var scTimer in lstScTimers)
             {
-                if (scTimer.MemberId == ic.Member.Id)
+                if (scTimer.MemberId == interactionContext.Member.Id)
                 {
                     noTimers = false;
-                    eb.AddField($"{scTimer.NotificationTime}", $"Timer with ID {scTimer.DBEntryID}");
+                    discordEmbedBuilder.AddField($"{scTimer.NotificationTime}", $"Timer with ID {scTimer.DBEntryID}");
                 }
             }
             if (noTimers)
-                eb.Title = "No timers set!";
+                discordEmbedBuilder.Title = "No timers set!";
 
-            await ic.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(eb.Build()));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("leaderboard", "Look up the leaderboard!", true)]
         public static async Task Leaderboard(InteractionContext interactionContext)
         {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
             List<DcUserLevelSystem> dcUserLevelSystemList = DcUserLevelSystem.Read(interactionContext.Guild.Id);
 
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
@@ -176,12 +181,14 @@ namespace SchattenclownBot.Model.Discord.Interaction
             discordEmbedBuilder.Description = liststring;
             discordEmbedBuilder.Color = DiscordColor.Purple;
 
-            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("Level", "Look up your level!", true)]
         public static async Task Level(InteractionContext interactionContext)
         {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
             List<DcUserLevelSystem> dcUserLevelSystemList = DcUserLevelSystem.Read(interactionContext.Guild.Id);
             List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
@@ -238,7 +245,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             discordEmbedBuilder.WithFooter("Rank #" + rank);
             discordEmbedBuilder.Color = DiscordColor.Purple;
 
-            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
         /// <summary>
@@ -316,22 +323,22 @@ namespace SchattenclownBot.Model.Discord.Interaction
         /// <summary>
         /// Gets the user's avatar & banner.
         /// </summary>
-        /// <param name="ctx">The contextmenu context.</param>
+        /// <param name="contextMenuContext">The contextmenu context.</param>
         [ContextMenu(ApplicationCommandType.User, "Get avatar & banner")]
-        public static async Task GetUserBannerAsync(ContextMenuContext ctx)
+        public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
         {
-            var user = await ctx.Client.GetUserAsync(ctx.TargetUser.Id, true);
+            var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id, true);
 
-            var eb = new DiscordEmbedBuilder
+            var discordEmbedBuilder = new DiscordEmbedBuilder
             {
                 Title = $"Avatar & Banner of {user.Username}",
                 ImageUrl = user.BannerHash != null ? user.BannerUrl : null
             }.
             WithThumbnail(user.AvatarUrl).
             WithColor(user.BannerColor ?? DiscordColor.Purple).
-            WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
+            WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(eb.Build()));
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
     }
 }
