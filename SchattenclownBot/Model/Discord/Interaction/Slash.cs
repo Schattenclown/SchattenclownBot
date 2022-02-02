@@ -291,18 +291,26 @@ namespace SchattenclownBot.Model.Discord.Interaction
         [ContextMenu(ApplicationCommandType.User, "Poke a user", true)]
         public static async Task Poke(ContextMenuContext contextMenuContext)
         {
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"Poke"
+            }.
+            WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl);
+            await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(eb.Build()));
+            await contextMenuContext.DeleteResponseAsync();
+
             DiscordChannel currentChannel = contextMenuContext.TargetMember.VoiceState.Channel;
             DiscordChannel afkChannel = contextMenuContext.Guild.AfkChannel;
 
             for (int i = 0; i < 2; i++)
             {
                 await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = afkChannel);
-                await Task.Delay(100);
+                await Task.Delay(50);
                 await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
-                await Task.Delay(100);
+                await Task.Delay(50);
             }
-            await contextMenuContext.DeleteResponseAsync();
         }
 
         /// <summary>
