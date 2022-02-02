@@ -2,6 +2,7 @@
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using DisCatSharp.CommandsNext.Converters;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
 using System;
@@ -295,8 +296,120 @@ namespace SchattenclownBot.Model.Discord.Interaction
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(bot_invite.AbsoluteUri));
         }
 
+        /// <summary>
+        /// Generates an Invite link.
+        /// </summary>
+        /// <param name="interactionContext">The ic.</param>
+        /// <returns>A Task.</returns>
+        [SlashCommand("Poke", "Poke a user!", true)]
+        public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            
+            DiscordMember discordMember = discordUser as DiscordMember;
+
+            var discordEmbedBuilder = new DiscordEmbedBuilder
+            {
+                Title = $"Poke {discordMember.DisplayName}"
+            }.
+            WithFooter($"Requested by {interactionContext.Member.DisplayName}", interactionContext.Member.AvatarUrl);
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+
+            var rolesList = interactionContext.Member.Roles.ToList();
+            bool rightToMove = false;
+
+            foreach (var roleItem in rolesList)
+            {
+                if (roleItem.Permissions.HasPermission(Permissions.MoveMembers))
+                    rightToMove = true;
+            }
+
+            const int taskDelayShort = 1000;
+            const int taskDelayLong = 2000;
+
+            if (discordMember.VoiceState != null && rightToMove)
+            {
+                DiscordChannel currentChannel = default;
+                DiscordChannel tempCategory = default;
+                DiscordChannel tempChannel2 = default;
+                DiscordChannel tempChannel1 = default;
+
+                try
+                {
+                    tempCategory = interactionContext.Guild.CreateChannelCategoryAsync("%Temp%").Result;
+                    DiscordEmoji discordEmoji = DiscordEmoji.FromName(DiscordBot.Client,  ":no_entry_sign:");
+                    tempChannel1 = interactionContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
+                    tempChannel2 = interactionContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error while creating the channels!";
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await Task.Delay(taskDelayLong);
+                }
+
+                try
+                {
+                    currentChannel = discordMember.VoiceState.Channel;
+
+                    for (int i = 0; i < 1; i++)
+                    {
+                        await discordMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
+                        await Task.Delay(taskDelayShort);
+                        await discordMember.ModifyAsync(x => x.VoiceChannel = tempChannel2);
+                        await Task.Delay(taskDelayShort);
+                    }
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error! User left?";
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await Task.Delay(taskDelayLong);
+                }
+
+                try
+                {
+                    await discordMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error! User left?";
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await Task.Delay(taskDelayLong);
+                }
+
+                try
+                {
+                    await tempCategory.DeleteAsync();
+                    await tempChannel1.DeleteAsync();
+                    await tempChannel2.DeleteAsync();
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error while deleting the channels!";
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await Task.Delay(taskDelayLong);
+                }
+                await interactionContext.DeleteResponseAsync();
+            }
+            else if (discordMember.VoiceState == null)
+            {
+                discordEmbedBuilder.Description = "User is not connected!";
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await Task.Delay(taskDelayLong);
+                await interactionContext.DeleteResponseAsync();
+            }
+            else if (!rightToMove)
+            {
+                discordEmbedBuilder.Description = "Your not allowed to use that!";
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await Task.Delay(taskDelayLong);
+                await interactionContext.DeleteResponseAsync();
+            }
+        }
+
         [ContextMenu(ApplicationCommandType.User, "Poke a user!", true)]
-        public static async Task Poke(ContextMenuContext contextMenuContext)
+        public static async Task AppsPoke(ContextMenuContext contextMenuContext)
         {
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -316,12 +429,12 @@ namespace SchattenclownBot.Model.Discord.Interaction
                     rightToMove = true;
             }
 
-            const int taskDelayShort = 400;
+            const int taskDelayShort = 1000;
             const int taskDelayLong = 2000;
 
             if (contextMenuContext.TargetMember.VoiceState != null && rightToMove)
             {
-                DiscordChannel currentChannel;
+                DiscordChannel currentChannel = default;
                 DiscordChannel tempCategory = default;
                 DiscordChannel tempChannel2 = default;
                 DiscordChannel tempChannel1 = default;
@@ -329,8 +442,9 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 try
                 {
                     tempCategory = contextMenuContext.Guild.CreateChannelCategoryAsync("%Temp%").Result;
-                    tempChannel1 = contextMenuContext.Guild.CreateVoiceChannelAsync($"{contextMenuContext.TargetMember.VoiceState.User.Id}", tempCategory).Result;
-                    tempChannel2 = contextMenuContext.Guild.CreateVoiceChannelAsync($"{contextMenuContext.TargetMember.VoiceState.User.Id}", tempCategory).Result;
+                    DiscordEmoji discordEmoji = DiscordEmoji.FromName(DiscordBot.Client, ":no_entry_sign:");
+                    tempChannel1 = contextMenuContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
+                    tempChannel2 = contextMenuContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
                 }
                 catch
                 {
@@ -343,13 +457,23 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 {
                     currentChannel = contextMenuContext.TargetMember.VoiceState.Channel;
 
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 1; i++)
                     {
                         await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
                         await Task.Delay(taskDelayShort);
                         await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel2);
                         await Task.Delay(taskDelayShort);
                     }
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error! User left?";
+                    await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await Task.Delay(taskDelayLong);
+                }
+
+                try
+                {
                     await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
                 }
                 catch
