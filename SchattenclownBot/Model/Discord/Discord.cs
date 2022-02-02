@@ -131,6 +131,7 @@ namespace SchattenclownBot.Model.Discord
                 DebugStartup = true,
                 ManualOverride = true
             });
+
             CNext = Client.UseCommandsNext(new CommandsNextConfiguration
             {
                 StringPrefixes = new string[] { prefix },
