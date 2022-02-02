@@ -303,12 +303,12 @@ namespace SchattenclownBot.Model.Discord.Interaction
             DiscordChannel currentChannel = contextMenuContext.TargetMember.VoiceState.Channel;
             DiscordChannel afkChannel = contextMenuContext.Guild.AfkChannel;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = afkChannel);
-                await Task.Delay(100);
+                await Task.Delay(250);
                 await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
-                await Task.Delay(100);
+                await Task.Delay(250);
             }
         }
 
