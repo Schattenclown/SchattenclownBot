@@ -376,9 +376,27 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
                 try
                 {
-                    await tempCategory.DeleteAsync();
-                    await tempChannel1.DeleteAsync();
                     await tempChannel2.DeleteAsync();
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error while deleting the channels!";
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                }
+
+                try
+                {
+                    await tempChannel1.DeleteAsync();
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error while deleting the channels!";
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                }
+
+                try
+                {
+                    await tempCategory.DeleteAsync();
                 }
                 catch
                 {
@@ -475,9 +493,29 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
                 try
                 {
-                    await tempCategory.DeleteAsync();
-                    await tempChannel1.DeleteAsync();
                     await tempChannel2.DeleteAsync();
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error while deleting the channels!";
+                    await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await Task.Delay(taskDelayLong);
+                }
+
+                try
+                {
+                    await tempChannel1.DeleteAsync();
+                }
+                catch
+                {
+                    discordEmbedBuilder.Description = "Error while deleting the channels!";
+                    await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await Task.Delay(taskDelayLong);
+                }
+
+                try
+                {
+                    await tempCategory.DeleteAsync();
                 }
                 catch
                 {
