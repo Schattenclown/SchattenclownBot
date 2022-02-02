@@ -125,7 +125,10 @@ namespace SchattenclownBot.Model.Discord
             };
 
             Client = new DiscordClient(cfg);
-            ApplicationCommands = Client.UseApplicationCommands();
+            ApplicationCommands = Client.UseApplicationCommands(new ApplicationCommandsConfiguration()
+            {
+                EnableDefaultHelp = false
+            });
             CNext = Client.UseCommandsNext(new CommandsNextConfiguration
             {
                 StringPrefixes = new string[] { prefix },
