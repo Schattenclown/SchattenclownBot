@@ -250,10 +250,9 @@ namespace SchattenclownBot.Model.Discord
             {
                 perms.AddRole(889266812267663380, true);
             });
-#else
+#endif
             ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);
             ac.RegisterGuildCommands<Discord.Interaction.Slash>(881868642600505354);
-#endif
         }
         #endregion
     }
