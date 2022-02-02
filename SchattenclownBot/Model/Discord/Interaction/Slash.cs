@@ -325,7 +325,6 @@ namespace SchattenclownBot.Model.Discord.Interaction
             }
 
             const int taskDelayShort = 1000;
-            const int taskDelayLong = 2000;
 
             if (discordMember.VoiceState != null && rightToMove)
             {
@@ -345,7 +344,6 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 {
                     discordEmbedBuilder.Description = "Error while creating the channels!";
                     await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    await Task.Delay(taskDelayLong);
                 }
 
                 try
@@ -364,7 +362,6 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 {
                     discordEmbedBuilder.Description = "Error! User left?";
                     await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    await Task.Delay(taskDelayLong);
                 }
 
                 try
@@ -375,7 +372,6 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 {
                     discordEmbedBuilder.Description = "Error! User left?";
                     await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    await Task.Delay(taskDelayLong);
                 }
 
                 try
@@ -388,23 +384,17 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 {
                     discordEmbedBuilder.Description = "Error while deleting the channels!";
                     await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    await Task.Delay(taskDelayLong);
                 }
-                await interactionContext.DeleteResponseAsync();
             }
             else if (discordMember.VoiceState == null)
             {
                 discordEmbedBuilder.Description = "User is not connected!";
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                await Task.Delay(taskDelayLong);
-                await interactionContext.DeleteResponseAsync();
             }
             else if (!rightToMove)
             {
                 discordEmbedBuilder.Description = "Your not allowed to use that!";
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                await Task.Delay(taskDelayLong);
-                await interactionContext.DeleteResponseAsync();
             }
         }
 
