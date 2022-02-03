@@ -118,13 +118,13 @@ namespace SchattenclownBot.Model.Discord
                 MinimumLogLevel = logLevel,
                 ShardCount = 1,
                 ShardId = 0,
-                Intents = DiscordIntents.AllUnprivileged,
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences,
                 MobileStatus = false,
                 UseCanary = false,
                 AutoRefreshChannelCache = false
             };
-
             Client = new DiscordClient(cfg);
+
             ApplicationCommands = Client.UseApplicationCommands(new ApplicationCommandsConfiguration()
             {
                 EnableDefaultHelp = false,

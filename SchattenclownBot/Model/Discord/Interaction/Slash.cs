@@ -17,6 +17,9 @@ namespace SchattenclownBot.Model.Discord.Interaction
     /// </summary>
     internal class Slash : ApplicationCommandsModule
     {
+        internal const int taskDelayShort = 250;
+        internal const int taskDelayLong = 2000;
+        internal const int pokeAmount = 2;
         /// <summary>
         /// Send the help of this bot.
         /// </summary>
@@ -305,7 +308,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
         public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            
+
             DiscordMember discordMember = discordUser as DiscordMember;
 
             var discordEmbedBuilder = new DiscordEmbedBuilder
@@ -324,9 +327,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                     rightToMove = true;
             }
 
-            const int taskDelayShort = 1000;
-
-            if (discordMember.VoiceState != null && rightToMove)
+            if (discordMember.VoiceState != null && rightToMove && !discordMember.Presence.ClientStatus.Mobile.HasValue)
             {
                 DiscordChannel currentChannel = default;
                 DiscordChannel tempCategory = default;
@@ -336,7 +337,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 try
                 {
                     tempCategory = interactionContext.Guild.CreateChannelCategoryAsync("%Temp%").Result;
-                    DiscordEmoji discordEmoji = DiscordEmoji.FromName(DiscordBot.Client,  ":no_entry_sign:");
+                    DiscordEmoji discordEmoji = DiscordEmoji.FromName(DiscordBot.Client, ":no_entry_sign:");
                     tempChannel1 = interactionContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
                     tempChannel2 = interactionContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
                 }
@@ -350,7 +351,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 {
                     currentChannel = discordMember.VoiceState.Channel;
 
-                    for (int i = 0; i < 1; i++)
+                    for (int i = 0; i < pokeAmount; i++)
                     {
                         await discordMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
                         await Task.Delay(taskDelayShort);
@@ -414,6 +415,11 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 discordEmbedBuilder.Description = "Your not allowed to use that!";
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
+            else if (discordMember.Presence.ClientStatus.Mobile.HasValue)
+            {
+                discordEmbedBuilder.Description = "Theatre phone will explode STOP!";
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            }
         }
 
         [ContextMenu(ApplicationCommandType.User, "Poke a user!", true)]
@@ -437,10 +443,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                     rightToMove = true;
             }
 
-            const int taskDelayShort = 1000;
-            const int taskDelayLong = 2000;
-
-            if (contextMenuContext.TargetMember.VoiceState != null && rightToMove)
+            if (contextMenuContext.TargetMember.VoiceState != null && rightToMove && !contextMenuContext.TargetMember.Presence.ClientStatus.Mobile.HasValue)
             {
                 DiscordChannel currentChannel = default;
                 DiscordChannel tempCategory = default;
@@ -465,7 +468,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 {
                     currentChannel = contextMenuContext.TargetMember.VoiceState.Channel;
 
-                    for (int i = 0; i < 1; i++)
+                    for (int i = 0; i < pokeAmount; i++)
                     {
                         await contextMenuContext.TargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
                         await Task.Delay(taskDelayShort);
@@ -538,6 +541,11 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 await Task.Delay(taskDelayLong);
                 await contextMenuContext.DeleteResponseAsync();
+            }
+            else if (contextMenuContext.TargetMember.Presence.ClientStatus.Mobile.HasValue)
+            {
+                discordEmbedBuilder.Description = "Theatre phone will explode STOP!";
+                await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
         }
 
