@@ -246,14 +246,13 @@ namespace SchattenclownBot.Model.Discord
         private static void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension ac)
         {
             cnext.RegisterCommands<Discord.Interaction.Main>();
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(881868642600505354);
 #if DEBUG
             ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild, perms =>
             {
                 perms.AddRole(889266812267663380, true);
             });
-#else
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(881868642600505354);
 #endif
         }
         #endregion

@@ -363,7 +363,21 @@ namespace SchattenclownBot.Model.Discord.Interaction
                     rightToMove = true;
             }
 
-            if (discordTargetMember.VoiceState != null && rightToMove && (((discordTargetMember.Presence.ClientStatus.Desktop.HasValue || discordTargetMember.Presence.ClientStatus.Web.HasValue) && !discordTargetMember.Presence.ClientStatus.Mobile.HasValue) || force))
+            bool desktopHasValue = false;
+            bool webHasValue = false;
+            bool mobileHasValue = false;
+            bool presenceWasNull = false;
+
+            if(discordTargetMember.Presence != null)
+            {
+                desktopHasValue = discordTargetMember.Presence.ClientStatus.Desktop.HasValue;
+                webHasValue = discordTargetMember.Presence.ClientStatus.Web.HasValue;
+                mobileHasValue = discordTargetMember.Presence.ClientStatus.Mobile.HasValue;
+            }
+            else
+                presenceWasNull = true;
+
+            if (discordTargetMember.VoiceState != null && rightToMove && (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
             {
                 DiscordChannel currentChannel = default;
                 DiscordChannel tempCategory = default;
@@ -487,7 +501,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 else
                     await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
-            else if (discordTargetMember.Presence.ClientStatus.Mobile.HasValue)
+            else if(mobileHasValue)
             {
                 string description = "Thear phone will explode STOP!\n";
 
