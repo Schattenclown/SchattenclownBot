@@ -503,7 +503,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             }
             else if(mobileHasValue)
             {
-                string description = "Thear phone will explode STOP!\n";
+                string description = "Their phone will explode STOP!\n";
 
                 DiscordEmoji discordEmoji_white_check_mark = DiscordEmoji.FromName(DiscordBot.Client, ":white_check_mark:");
                 DiscordEmoji discordEmojiCheck_x = DiscordEmoji.FromName(DiscordBot.Client, ":x:");
