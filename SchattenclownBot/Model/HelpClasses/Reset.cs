@@ -11,7 +11,7 @@ namespace SchattenclownBot.Model.HelpClasses
         /// <summary>
         /// Restarts the program.
         /// </summary>
-        public static void RestartProgram()
+        public static void RestartProgram(Exception exception)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
@@ -24,7 +24,7 @@ namespace SchattenclownBot.Model.HelpClasses
             ConsoleForamter.Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
             ConsoleForamter.Center(" ");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            ConsoleForamter.Center("DB IS DEAD");
+            ConsoleForamter.Center(exception.Message);
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
 
             // Get file path of current process 
@@ -35,17 +35,16 @@ namespace SchattenclownBot.Model.HelpClasses
             if (filePath.Contains("Debug"))
             {
                 filePath = WordCutter.RemoveAfterWord(filePath, "Debug", 0);
-                newFilepath = filePath + "Debug\\netcoreapp3.1\\SchattenclownBot.exe";
+                newFilepath = filePath + "Debug\\net6.0\\SchattenclownBot.exe";
             }
             else if (filePath.Contains("Release"))
             {
                 filePath = WordCutter.RemoveAfterWord(filePath, "Release", 0);
-                newFilepath = filePath + "Release\\netcoreapp3.1\\SchattenclownBot.exe";
+                newFilepath = filePath + "Release\\net6.0\\SchattenclownBot.exe";
             }
 
-            Console.WriteLine("Before 120 secound sleep");
+            Console.WriteLine("Sleeping for 60 seconds!");
             Thread.Sleep(1000 * 60);
-            Console.WriteLine("After 120 secound sleep");
             // Start program
             Process.Start(newFilepath);
 

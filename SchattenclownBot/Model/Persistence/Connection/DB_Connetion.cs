@@ -32,8 +32,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 }
                 catch
                 {
-                    ConsoleForamter.Center("DB IS DEAD");
-                    Reset.RestartProgram();
+                    Reset.RestartProgram(new Exception("DB DEAD"));
                     throw;
                 }
             } while (connection == null);
@@ -64,8 +63,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
             }
             catch
             {
-                ConsoleForamter.Center("DB IS DEAD");
-                Reset.RestartProgram();
+                Reset.RestartProgram(new Exception("DB DEAD"));
                 throw;
             }
         }
