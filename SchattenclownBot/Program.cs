@@ -36,9 +36,9 @@ namespace SchattenclownBot
                     await dBot.RunAsync();
     #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Reset.RestartProgram(ex);
+                    Reset.RestartProgram();
                 }
             });
         }
