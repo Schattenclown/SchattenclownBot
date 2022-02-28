@@ -7,20 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Model\Discord\ChoiceProvider\**" />
-    <EmbeddedResource Remove="Model\Discord\ChoiceProvider\**" />
-    <None Remove="Model\Discord\ChoiceProvider\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DisCatSharp" Version="9.8.7-nightly-00280" />
-    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="9.8.7-nightly-00280" />
-    <PackageReference Include="DisCatSharp.CommandsNext" Version="9.8.7-nightly-00280" />
-    <PackageReference Include="DisCatSharp.Interactivity" Version="9.8.7-nightly-00280" />
+    <PackageReference Include="DisCatSharp" Version="10.0.0-nightly-00287" />
+    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.0.0-nightly-00287" />
+    <PackageReference Include="DisCatSharp.CommandsNext" Version="10.0.0-nightly-00287" />
+    <PackageReference Include="DisCatSharp.Interactivity" Version="10.0.0-nightly-00287" />
     <PackageReference Include="MySql.Data" Version="8.0.28" />
   </ItemGroup>
 

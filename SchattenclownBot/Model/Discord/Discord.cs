@@ -139,7 +139,7 @@ namespace SchattenclownBot.Model.Discord
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true,
                 DefaultHelpChecks = null,
-                EnableDefaultHelp = true,
+                EnableDefaultHelp = false,
                 EnableDms = true
             });
 
@@ -187,9 +187,9 @@ namespace SchattenclownBot.Model.Discord
 
 #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
             DcUserLevelSystem.LevelSystem();
+            DcSympathieSystem.SympathieSystem();
             ScTimer.ScTimersRunAsync();
             ScAlarmClock.ScAlarmClocksRunAsync();
-            IdResolver.Resolve(444152594898878474);
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
@@ -246,13 +246,10 @@ namespace SchattenclownBot.Model.Discord
         private static void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension ac)
         {
             cnext.RegisterCommands<Discord.Interaction.Main>();
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(881868642600505354);
 #if DEBUG
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild, perms =>
-            {
-                perms.AddRole(889266812267663380, true);
-            });
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(881868642600505354);
+#else
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);
 #endif
         }
         #endregion

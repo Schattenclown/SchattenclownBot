@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SchattenclownBot.Model.Discord.ChoiceProvider;
 
 namespace SchattenclownBot.Model.Discord.Interaction
 {
@@ -161,8 +162,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
             int top15 = 0;
 
-            string liststring = "```css\n" +
-                                "{365/24:60}[Username]\n\n";
+            string liststring = "```css\n";
             foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
                 var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId, true);
@@ -545,7 +545,13 @@ namespace SchattenclownBot.Model.Discord.Interaction
             }
         }
 
-        /*/// <summary>
+        [SlashCommand("Vote", "Vote for user!", true, null, true)]
+        public static async Task Vote(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser, [Option("Rating", "1-10")] [ChoiceProvider(typeof(VoteRatingChoiceProvider))] string voteRatingChoice)
+        {
+            
+        }
+
+        /// <summary>
         /// Gets the user's avatar & banner.
         /// </summary>
         /// <param name="contextMenuContext">The contextmenu context.</param>
@@ -564,6 +570,6 @@ namespace SchattenclownBot.Model.Discord.Interaction
             WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
-        }*/
+        }
     }
 }

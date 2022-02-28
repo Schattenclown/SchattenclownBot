@@ -13,6 +13,7 @@ namespace SchattenclownBot.Model.Objects
         public ulong GuildId { get; set; }
         public int OnlineTicks { get; set; }
         public TimeSpan OnlineTime { get; set; }
+        public double VoteRatingAvg { get; set; }
         public DcUserLevelSystem()
         {
 
@@ -29,9 +30,9 @@ namespace SchattenclownBot.Model.Objects
         {
             DB_DcUserLevelSystem.Change(guildsId, dcLevelSystem);
         }
-        public static void CreateTable(ulong guildsId)
+        public static void CreateTable_DcUserLevelSystem(ulong guildsId)
         {
-            DB_DcUserLevelSystem.CreateTable(guildsId);
+            DB_DcUserLevelSystem.CreateTable_DcUserLevelSystem(guildsId);
         }
         public static async Task LevelSystem()
         {
@@ -48,7 +49,7 @@ namespace SchattenclownBot.Model.Objects
                             var guildsList = DiscordBot.Client.Guilds.ToList();
                             foreach (var guildItem in guildsList)
                             {
-                                DcUserLevelSystem.CreateTable(guildItem.Value.Id);
+                                DcUserLevelSystem.CreateTable_DcUserLevelSystem(guildItem.Value.Id);
                             }
                             levelSystemVirign = false;
                         }
