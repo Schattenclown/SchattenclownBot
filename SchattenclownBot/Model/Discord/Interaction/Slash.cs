@@ -545,11 +545,11 @@ namespace SchattenclownBot.Model.Discord.Interaction
             }
         }
 
-        [SlashCommand("Vote", "Vote for user!")]
+        /*[SlashCommand("Vote", "Vote for user!")]
         public static async Task Vote(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser, [Option("Rating", "1-10")] [ChoiceProvider(typeof(VoteRatingChoiceProvider))] string voteRatingChoice)
         {
             
-        }
+        }*/
 
         /// <summary>
         /// Gets the user's avatar & banner.
