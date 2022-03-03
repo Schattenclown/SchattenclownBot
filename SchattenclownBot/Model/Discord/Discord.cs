@@ -81,15 +81,6 @@ namespace SchattenclownBot.Model.Discord
         public static UserStatus customstatus = UserStatus.Streaming;
         public static string customstate = $"/help";
 
-        /// <summary>
-        /// Binarie to text.
-        /// </summary>
-        /// <param name="data">The binary data.</param>
-        public static string BinaryToText(byte[] data)
-        {
-            return Encoding.UTF8.GetString(data);
-        }
-
         public DiscordBot()
         {
             if (virgin == 0)
@@ -165,7 +156,6 @@ namespace SchattenclownBot.Model.Discord
 
             RegisterEventListener(Client, ApplicationCommands, CNext);
             RegisterCommands(CNext, ApplicationCommands);
-
         }
 
         public void Dispose()
@@ -246,10 +236,18 @@ namespace SchattenclownBot.Model.Discord
         private static void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension ac)
         {
             cnext.RegisterCommands<Discord.Interaction.Main>();
+
 #if DEBUG
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(881868642600505354);
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild, perms =>
+            {
+                perms.AddRole(889266812267663380, true);
+            });
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild);
 #else
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590, perms =>
+            {
+                perms.AddRole(444152594898878474, true);
+            });
 #endif
         }
         #endregion

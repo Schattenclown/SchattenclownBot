@@ -18,9 +18,9 @@ namespace SchattenclownBot.Model.Discord.ChoiceProvider
         public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            DiscordApplicationCommandOptionChoice[] choices = new DiscordApplicationCommandOptionChoice[10];
+            DiscordApplicationCommandOptionChoice[] choices = new DiscordApplicationCommandOptionChoice[5];
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
                 choices[i] = new DiscordApplicationCommandOptionChoice($"{i + 1}", $"{i + 1}");
             }
