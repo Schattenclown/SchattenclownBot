@@ -136,9 +136,14 @@ namespace SchattenclownBot.Model.Objects
                                         dcSympathieSystemObj = dcSympathieSystemItem;
 
                                         ratingsadded += dcSympathieSystemItem.VoteRating;
-                                        rating = ratingsadded / counts;
-
+                                        rating = Convert.ToDouble(ratingsadded) / Convert.ToDouble(counts);
+                                        
                                         dcSympathieSystemObj.VotedRating = Convert.ToInt32(Math.Round(rating));
+
+                                        if(rating == 1.5 || rating == 2.5 || rating == 3.5 || rating == 4.5)
+                                        {
+                                            dcSympathieSystemObj.VotedRating = Convert.ToInt32(Math.Round(rating, 0, MidpointRounding.ToPositiveInfinity));
+                                        }
 
                                         counts++;
                                     }
