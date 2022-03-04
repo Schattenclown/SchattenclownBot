@@ -236,7 +236,6 @@ namespace SchattenclownBot.Model.Discord
         private static void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension ac)
         {
             cnext.RegisterCommands<Discord.Interaction.Main>();
-
 #if DEBUG
             ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild, perms =>
             {
