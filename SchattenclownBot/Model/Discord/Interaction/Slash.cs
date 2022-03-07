@@ -680,7 +680,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             description += "```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
             {
-                Title = "Your votes",
+                Title = $"Votes for {discordUser.Username}",
                 Color = DiscordColor.Purple,
                 Description = description
             };

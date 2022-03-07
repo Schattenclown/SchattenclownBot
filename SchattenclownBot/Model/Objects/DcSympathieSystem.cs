@@ -66,7 +66,6 @@ namespace SchattenclownBot.Model.Objects
         public static async Task SympathieSystem()
         {
             bool levelSystemVirign = true;
-            bool virgin = true;
 
             await Task.Run(async () =>
             {
@@ -108,22 +107,20 @@ namespace SchattenclownBot.Model.Objects
 
                         foreach (var discordMemberItem in discordMembers)
                         {
-                            if (virgin)
+                            discordRoleList.Clear();
+                            
+                            foreach (var item in dcSymSysRoleInfosList)
                             {
-                                foreach (var item in dcSymSysRoleInfosList)
-                                {
-                                    if (item.RatingOne != 0)
-                                        discordRoleList.Add(discordGuildObj.GetRole(item.RatingOne));
-                                    else if (item.RatingTwo != 0)
-                                        discordRoleList.Add(discordGuildObj.GetRole(item.RatingTwo));
-                                    else if (item.RatingThree != 0)
-                                        discordRoleList.Add(discordGuildObj.GetRole(item.RatingThree));
-                                    else if (item.RatingFour != 0)
-                                        discordRoleList.Add(discordGuildObj.GetRole(item.RatingFour));
-                                    else if (item.RatingFive != 0)
-                                        discordRoleList.Add(discordGuildObj.GetRole(item.RatingFive));
-                                }
-                                virgin = false;
+                                if (item.RatingOne != 0)
+                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingOne));
+                                else if (item.RatingTwo != 0)
+                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingTwo));
+                                else if (item.RatingThree != 0)
+                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingThree));
+                                else if (item.RatingFour != 0)
+                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingFour));
+                                else if (item.RatingFive != 0)
+                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingFive));
                             }
 
                             if (discordRoleList.Count == 5)
