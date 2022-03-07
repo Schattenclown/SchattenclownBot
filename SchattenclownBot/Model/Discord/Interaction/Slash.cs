@@ -667,5 +667,25 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
         }
+        [SlashCommand("Showrating", "Shows the rating of an user!")]
+        public static async Task Showrating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        {
+            string description = "```\n";
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            for (int i = 1; i < 6; i++)
+            {
+                description += $"Rating with {i}: {DcSympathieSystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
+            }
+            description += "```";
+            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
+            {
+                Title = "Your votes",
+                Color = DiscordColor.Purple,
+                Description = description
+            };
+            
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        }
     }
 }

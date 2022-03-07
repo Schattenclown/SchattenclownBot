@@ -53,7 +53,6 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 Console.WriteLine("DEBUG: DB -1");
             CloseDB(connection);
         }
-
         public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
         {
             MySqlCommand sqlCommand = new MySqlCommand(sql, connection);
@@ -61,6 +60,21 @@ namespace SchattenclownBot.Model.Persistence.Connection
             {
                 MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
                 return sqlDataReader;
+            }
+            catch
+            {
+                ConsoleForamter.Center("DB IS DEAD");
+                Reset.RestartProgram();
+                throw;
+            }
+        }
+        public static int ExecuteScalarCount(string sql, MySqlConnection connection)
+        {
+            MySqlCommand sqlCommand = new MySqlCommand(sql, connection);
+            try
+            {
+                int count = Convert.ToInt32(sqlCommand.ExecuteScalar());
+                return count;
             }
             catch
             {

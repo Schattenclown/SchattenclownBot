@@ -53,15 +53,20 @@ namespace SchattenclownBot.Model.Objects
         }
         public static bool CheckRoleInfoExists(ulong guildId, int ratingValue)
         {
-           return DB_DcSympathieSystem.CheckRoleInfoExists(guildId, ratingValue);
+            return DB_DcSympathieSystem.CheckRoleInfoExists(guildId, ratingValue);
         }
         public static void CreateTable_DcSympathieSystemRoleInfo(ulong guildsId)
         {
             DB_DcSympathieSystem.CreateTable_DcSympathieSystemRoleInfo(guildsId);
         }
+        public static int GetUserRatings(ulong guildsId, ulong votedUserID, int voteRating)
+        {
+            return DB_DcSympathieSystem.GetUserRatings(guildsId, votedUserID, voteRating);
+        }
         public static async Task SympathieSystem()
         {
             bool levelSystemVirign = true;
+            bool virgin = true;
 
             await Task.Run(async () =>
             {
@@ -83,13 +88,12 @@ namespace SchattenclownBot.Model.Objects
                     await Task.Delay(1000);
                 } while (levelSystemVirign);
 
-                while(true)
+                while (true)
                 {
-                    while (DateTime.Now.Second != 29)
+                    /*while (DateTime.Now.Second != 29)
                     {
                         await Task.Delay(1000);
-                    }
-                    bool virgin = true;
+                    }*/
 
                     var guildsList = DiscordBot.Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
@@ -137,10 +141,10 @@ namespace SchattenclownBot.Model.Objects
 
                                         ratingsadded += dcSympathieSystemItem.VoteRating;
                                         rating = Convert.ToDouble(ratingsadded) / Convert.ToDouble(counts);
-                                        
+
                                         dcSympathieSystemObj.VotedRating = Convert.ToInt32(Math.Round(rating));
 
-                                        if(rating == 1.5 || rating == 2.5 || rating == 3.5 || rating == 4.5)
+                                        if (rating == 1.5 || rating == 2.5 || rating == 3.5 || rating == 4.5)
                                         {
                                             dcSympathieSystemObj.VotedRating = Convert.ToInt32(Math.Round(rating, 0, MidpointRounding.ToPositiveInfinity));
                                         }

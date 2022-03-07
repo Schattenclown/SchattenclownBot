@@ -185,5 +185,18 @@ namespace SchattenclownBot.Model.Persistence
 
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
+        public static int GetUserRatings(ulong guildId, ulong votedUserID, int voteRating)
+        {
+            string sqlCommand = $"SELECT count(*)" +
+                                $"FROM `{guildId}_votes` " +
+                                $"WHERE VotedUserID={votedUserID} AND VoteRating={voteRating}";
+
+            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
+            int returnnumber = DB_Connection.ExecuteScalarCount(sqlCommand, mySqlConnection);
+
+            DB_Connection.CloseDB(mySqlConnection);
+
+            return returnnumber;
+        }
     }
 }
