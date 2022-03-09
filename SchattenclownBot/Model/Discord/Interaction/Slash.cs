@@ -595,32 +595,39 @@ namespace SchattenclownBot.Model.Discord.Interaction
         public static async Task GiveRatingAsync(ContextMenuContext contextMenuContext, int rating)
         {
             bool found = false;
-
-            DcSympathieSystem dcSympathieSystemObj = new DcSympathieSystem
-            {
-                VotingUserID = contextMenuContext.Member.Id,
-                VotedUserID = contextMenuContext.TargetMember.Id,
-                GuildID = contextMenuContext.Guild.Id,
-                VoteRating = rating,
-            };
-
-            List<DcSympathieSystem> dcSympathieSystemsList = DcSympathieSystem.ReadAll(contextMenuContext.Guild.Id);
-
-            foreach (DcSympathieSystem dcSympathieSystemItem in dcSympathieSystemsList)
-            {
-                if(dcSympathieSystemItem.VotingUserID == dcSympathieSystemObj.VotingUserID && dcSympathieSystemItem.VotedUserID == dcSympathieSystemObj.VotedUserID)
-                    found = true;
-            }
-
-            if(!found)
-                DcSympathieSystem.Add(dcSympathieSystemObj);
-            else if(found)
-                DcSympathieSystem.Change(dcSympathieSystemObj);
-
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
 
-            discordEmbedBuilder.Title = "Rating";
-            discordEmbedBuilder.Description = $"You gave {contextMenuContext.TargetMember.Mention} the Rating {rating}";
+            if (contextMenuContext.Member.Id != contextMenuContext.TargetMember.Id)
+            {
+                DcSympathieSystem dcSympathieSystemObj = new DcSympathieSystem
+                {
+                    VotingUserID = contextMenuContext.Member.Id,
+                    VotedUserID = contextMenuContext.TargetMember.Id,
+                    GuildID = contextMenuContext.Guild.Id,
+                    VoteRating = rating,
+                };
+
+                List<DcSympathieSystem> dcSympathieSystemsList = DcSympathieSystem.ReadAll(contextMenuContext.Guild.Id);
+
+                foreach (DcSympathieSystem dcSympathieSystemItem in dcSympathieSystemsList)
+                {
+                    if(dcSympathieSystemItem.VotingUserID == dcSympathieSystemObj.VotingUserID && dcSympathieSystemItem.VotedUserID == dcSympathieSystemObj.VotedUserID)
+                        found = true;
+                }
+
+                if(!found)
+                    DcSympathieSystem.Add(dcSympathieSystemObj);
+                else if(found)
+                    DcSympathieSystem.Change(dcSympathieSystemObj);
+
+                discordEmbedBuilder.Title = "Rating";
+                discordEmbedBuilder.Description = $"You gave {contextMenuContext.TargetMember.Mention} the Rating {rating}";
+            }
+            else
+            {
+                discordEmbedBuilder.Title = "Rating";
+                discordEmbedBuilder.Description = $"Nonono";
+            }
 
             await contextMenuContext.Member.SendMessageAsync(discordEmbedBuilder.Build());
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

@@ -89,10 +89,10 @@ namespace SchattenclownBot.Model.Objects
 
                 while (true)
                 {
-                    /*while (DateTime.Now.Second != 29)
+                    while (DateTime.Now.Second != 29)
                     {
                         await Task.Delay(1000);
-                    }*/
+                    }
 
                     var guildsList = DiscordBot.Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
