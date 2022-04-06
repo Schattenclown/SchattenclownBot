@@ -30,7 +30,7 @@ namespace SchattenclownBot
                 {
                     DB_ScTimers.CreateTable_ScTimers();
                     DB_ScAlarmClocks.CreateTable_ScAlarmClocks();
-
+                    
                     dBot = new DiscordBot();
     #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
                     await dBot.RunAsync();

@@ -180,6 +180,7 @@ namespace SchattenclownBot.Model.Discord
             DcSympathieSystem.SympathieSystem();
             ScTimer.ScTimersRunAsync();
             ScAlarmClock.ScAlarmClocksRunAsync();
+            BirthdayList.GenerateBirthdayList();
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
