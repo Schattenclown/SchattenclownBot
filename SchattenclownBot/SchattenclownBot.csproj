@@ -11,11 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DisCatSharp" Version="10.0.0-nightly-00305" />
-    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.0.0-nightly-00305" />
-    <PackageReference Include="DisCatSharp.CommandsNext" Version="10.0.0-nightly-00305" />
-    <PackageReference Include="DisCatSharp.Interactivity" Version="10.0.0-nightly-00305" />
-    <PackageReference Include="MySql.Data" Version="8.0.28" />
+    <PackageReference Include="DisCatSharp" Version="10.0.0-nightly-00337" />
+    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.0.0-nightly-00337" />
+    <PackageReference Include="DisCatSharp.CommandsNext" Version="10.0.0-nightly-00337" />
+    <PackageReference Include="DisCatSharp.Interactivity" Version="10.0.0-nightly-00337" />
+    <PackageReference Include="MySql.Data" Version="8.0.29" />
   </ItemGroup>
 
 </Project>

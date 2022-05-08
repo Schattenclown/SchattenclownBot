@@ -49,6 +49,8 @@ namespace SchattenclownBot.Model.Objects
                     break;
                 }
             }
+            if(Birthdays.Count != 0)
+                Birthdays.Sort((ps1, ps2) => DateTime.Compare(ps1.Value.Date, ps2.Value.Date));
 
             string liststring = "";
 
