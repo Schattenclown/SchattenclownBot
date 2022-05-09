@@ -82,11 +82,11 @@ namespace SchattenclownBot.Model.Objects
 
             if(discordMemberRoleList.Contains(zehner0))
                 birthdayday += "0";
-            else if(discordMemberRoleList.Contains(zehner1))
+            if(discordMemberRoleList.Contains(zehner1))
                 birthdayday += "1";
-            else if(discordMemberRoleList.Contains(zehner2))
+            if(discordMemberRoleList.Contains(zehner2))
                 birthdayday += "2";
-            else if(discordMemberRoleList.Contains(zehner3))
+            if(discordMemberRoleList.Contains(zehner3))
                 birthdayday += "3";
 
             DiscordRole einer0 = discordGuildObj.GetRole(945301303649787904);
@@ -102,23 +102,23 @@ namespace SchattenclownBot.Model.Objects
 
             if (discordMemberRoleList.Contains(einer0))
                 birthdayday += "0";
-            else if (discordMemberRoleList.Contains(einer1))
+            if (discordMemberRoleList.Contains(einer1))
                 birthdayday += "1";
-            else if (discordMemberRoleList.Contains(einer2))
+            if (discordMemberRoleList.Contains(einer2))
                 birthdayday += "2";
-            else if (discordMemberRoleList.Contains(einer3))
+            if (discordMemberRoleList.Contains(einer3))
                 birthdayday += "3";
-            else if (discordMemberRoleList.Contains(einer4))
+            if (discordMemberRoleList.Contains(einer4))
                 birthdayday += "4";
-            else if (discordMemberRoleList.Contains(einer5))
+            if (discordMemberRoleList.Contains(einer5))
                 birthdayday += "5";
-            else if (discordMemberRoleList.Contains(einer6))
+            if (discordMemberRoleList.Contains(einer6))
                 birthdayday += "6";
-            else if (discordMemberRoleList.Contains(einer7))
+            if (discordMemberRoleList.Contains(einer7))
                 birthdayday += "7";
-            else if (discordMemberRoleList.Contains(einer8))
+            if (discordMemberRoleList.Contains(einer8))
                 birthdayday += "8";
-            else if (discordMemberRoleList.Contains(einer9))
+            if (discordMemberRoleList.Contains(einer9))
                 birthdayday += "9";
 
             DiscordRole month1 = discordGuildObj.GetRole(945301816285990983);
