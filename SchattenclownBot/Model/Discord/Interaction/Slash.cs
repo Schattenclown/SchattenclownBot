@@ -596,8 +596,20 @@ namespace SchattenclownBot.Model.Discord.Interaction
         {
             bool found = false;
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
+            DiscordGuild discordGuildObj = DiscordBot.Client.GetGuildAsync(contextMenuContext.Guild.Id).Result;
+            DiscordRole discordRole = discordGuildObj.GetRole(980071522427363368);
 
-            if (contextMenuContext.Member.Id != contextMenuContext.TargetMember.Id)
+            if (contextMenuContext.Member.Roles.Contains(discordRole))
+            {
+                discordEmbedBuilder.Title = "Rating";
+                discordEmbedBuilder.Description = $"U are Flagged +91 u cant vote!";
+            }
+            else if (contextMenuContext.Member.Id == contextMenuContext.TargetMember.Id)
+            {
+                discordEmbedBuilder.Title = "Rating";
+                discordEmbedBuilder.Description = $"Nonono we dont do this around here! CHEATER!";
+            }
+            else
             {
                 DcSympathieSystem dcSympathieSystemObj = new DcSympathieSystem
                 {
@@ -622,11 +634,6 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
                 discordEmbedBuilder.Title = "Rating";
                 discordEmbedBuilder.Description = $"You gave {contextMenuContext.TargetMember.Mention} the Rating {rating}";
-            }
-            else
-            {
-                discordEmbedBuilder.Title = "Rating";
-                discordEmbedBuilder.Description = $"Nonono";
             }
 
             await contextMenuContext.Member.SendMessageAsync(discordEmbedBuilder.Build());
