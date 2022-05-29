@@ -113,7 +113,6 @@ namespace SchattenclownBot.Model.Objects
                             }
                         }
                     }
-
                     await Task.Delay(2000);
                 }
             });

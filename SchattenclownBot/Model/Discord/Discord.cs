@@ -120,7 +120,8 @@ namespace SchattenclownBot.Model.Discord
             {
                 EnableDefaultHelp = false,
                 DebugStartup = true,
-                ManualOverride = true
+                ManualOverride = true,
+                CheckAllGuilds = true
             });
 
             CNext = Client.UseCommandsNext(new CommandsNextConfiguration
@@ -238,16 +239,20 @@ namespace SchattenclownBot.Model.Discord
         {
             cnext.RegisterCommands<Discord.Interaction.Main>();
 #if DEBUG
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild, perms =>
-            {
-                
-            });
             ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild);
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);//meina
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(848891653044436992);//aki
 #else
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590, perms =>
+            //sometime but not here
+            /*var discordGuilds = DiscordBot.Client.Guilds;
+            foreach (var discordGuild in discordGuilds)
             {
-                
-            });
+                ac.RegisterGuildCommands<Discord.Interaction.Slash>(discordGuild.Value.Id);
+                Console.WriteLine("register commands for" + discordGuild.Value.Id);
+            }*/
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild);
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);//meina
+            ac.RegisterGuildCommands<Discord.Interaction.Slash>(848891653044436992);//aki
 #endif
         }
         #endregion

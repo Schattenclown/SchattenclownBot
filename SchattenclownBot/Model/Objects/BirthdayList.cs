@@ -45,7 +45,6 @@ namespace SchattenclownBot.Model.Objects
                         if(birthday != dtcompare)
                             Birthdays.Add(new KeyValuePair<ulong, DateTime>(discordMemberItem.Value.Id, birthday));
                     }
-
                     break;
                 }
             }

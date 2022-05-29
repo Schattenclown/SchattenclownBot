@@ -60,7 +60,6 @@ namespace SchattenclownBot.Model.Persistence
                                 "`MemberId` BIGINT NOT NULL," +
                                 "`OnlineTicks` INT NOT NULL," +
                                 "`OnlineTime` varchar(69) NOT NULL," +
-                                "`VoteRatingAvg` DOUBLE NOT NULL," +
                                 "PRIMARY KEY (MemberId)" +
                                 ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
