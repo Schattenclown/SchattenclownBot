@@ -75,6 +75,7 @@ namespace SchattenclownBot.Model.Objects
         public static DateTime GenerateDateTime(DiscordMember discordMember)
         {
             string birthdayday = "";
+            int birthdaydayint = 0;
             int birthdaymonth = 0;
 
             IEnumerable<DiscordRole> discordMemberRoleList = discordMember.Roles;
@@ -165,17 +166,26 @@ namespace SchattenclownBot.Model.Objects
             if (discordMemberRoleList.Contains(month12))
                 birthdaymonth = 12;
 
+            birthdaydayint = Convert.ToInt32(birthdayday);
 
-            try
+            DateTime dt = new();
+
+            if ((birthdaymonth >= 1 && birthdaymonth <= 12) && (birthdaydayint >= 1 && birthdaydayint <= 31))
             {
-                DateTime dt = new DateTime(1, birthdaymonth, Convert.ToInt32(birthdayday));
-                return dt;
+                try
+                {
+                    dt = new DateTime(1, birthdaymonth, birthdaydayint);
+                    return dt;
+                }
+                catch
+                {
+                    dt = new DateTime(9999, 9, 9);
+                    return dt;
+                }
             }
-            catch
-            {
-                DateTime dt = new DateTime(9999, 9, 9);
-                return dt;
-            }
+
+            dt = new DateTime(9999, 9, 9);
+            return dt;
         }
     }
 }

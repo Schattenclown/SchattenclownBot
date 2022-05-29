@@ -75,7 +75,7 @@ namespace SchattenclownBot.Model.Discord
         public static CommandsNextExtension CNext { get; internal set; }
         public static InteractivityExtension INext { get; internal set; }
         public static CancellationTokenSource ShutdownRequest;
-        public static readonly ulong testguild = 881868642600505354;
+        public static readonly ulong devguild = 881868642600505354;
         public static string prefix = "sc/";
         public static bool custom = false;
         public static UserStatus customstatus = UserStatus.Streaming;
@@ -230,29 +230,16 @@ namespace SchattenclownBot.Model.Discord
             cnext.CommandErrored += CNext_CommandErrored;
         }
 
-        /// <summary>
-        /// Registers the commands.
-        /// </summary>
-        /// <param name="cnext">The commands next extension.</param>
-        /// <param name="ac">The application commands extensions.</param>
-        private static void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension ac)
+        private void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension appCommands)
         {
-            cnext.RegisterCommands<Discord.Interaction.Main>();
+            cnext.RegisterCommands<Discord.Interaction.Main>(); // Commands.Main = Ordner.Class
 #if DEBUG
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild);
+            appCommands.RegisterGuildCommands<Discord.Interaction.Slash>(devguild); // use to register on guild
 #else
-            //sometime but not here
-            /*var discordGuilds = DiscordBot.Client.Guilds;
-            foreach (var discordGuild in discordGuilds)
-            {
-                ac.RegisterGuildCommands<Discord.Interaction.Slash>(discordGuild.Value.Id);
-                Console.WriteLine("register commands for" + discordGuild.Value.Id);
-            }*/
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild);
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);//meina
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(848891653044436992);//aki
+            appCommands.RegisterGlobalCommands<Discord.Interaction.Slash>(); // use to register global (can take up to an hour)
 #endif
         }
+
         #endregion
     }
 }

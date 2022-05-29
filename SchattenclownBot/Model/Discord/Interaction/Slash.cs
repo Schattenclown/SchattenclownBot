@@ -595,11 +595,20 @@ namespace SchattenclownBot.Model.Discord.Interaction
         public static async Task GiveRatingAsync(ContextMenuContext contextMenuContext, int rating)
         {
             bool found = false;
+            bool flaged91 = false;
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
-            DiscordGuild discordGuildObj = DiscordBot.Client.GetGuildAsync(contextMenuContext.Guild.Id).Result;
-            DiscordRole discordRole = discordGuildObj.GetRole(980071522427363368);
 
-            if (contextMenuContext.Member.Roles.Contains(discordRole))
+            DiscordGuild discordGuildObj = DiscordBot.Client.GetGuildAsync(contextMenuContext.Guild.Id).Result;
+            if(discordGuildObj.Id == 928930967140331590)
+            {
+                DiscordRole discordRole = discordGuildObj.GetRole(980071522427363368);
+                if (contextMenuContext.Member.Roles.Contains(discordRole))
+                {
+                    flaged91 = true;
+                }
+            }
+
+            if(flaged91)
             {
                 discordEmbedBuilder.Title = "Rating";
                 discordEmbedBuilder.Description = $"U are Flagged +91 u cant vote!";
