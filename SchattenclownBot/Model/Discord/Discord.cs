@@ -240,8 +240,6 @@ namespace SchattenclownBot.Model.Discord
             cnext.RegisterCommands<Discord.Interaction.Main>();
 #if DEBUG
             ac.RegisterGuildCommands<Discord.Interaction.Slash>(testguild);
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(928930967140331590);//meina
-            ac.RegisterGuildCommands<Discord.Interaction.Slash>(848891653044436992);//aki
 #else
             //sometime but not here
             /*var discordGuilds = DiscordBot.Client.Guilds;

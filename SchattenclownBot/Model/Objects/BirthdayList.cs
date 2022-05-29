@@ -48,6 +48,7 @@ namespace SchattenclownBot.Model.Objects
                     break;
                 }
             }
+
             if(Birthdays.Count != 0)
                 Birthdays.Sort((ps1, ps2) => DateTime.Compare(ps1.Value.Date, ps2.Value.Date));
 
@@ -58,12 +59,18 @@ namespace SchattenclownBot.Model.Objects
                 liststring += $"{item.Value.Day.ToString("00")}.{item.Value.Month.ToString("00")} --- <@{item.Key}>\n";
             }
 
-            var chn = await DiscordBot.Client.GetChannelAsync(928938948221366334);
-            DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
-            eb.Color = DiscordColor.Red;
-            eb.WithDescription(liststring);
-            await chn.SendMessageAsync(eb.Build());
-               
+            foreach (var guildItem in guildsList)
+            {
+                if (guildItem.Value.Id == 928930967140331590)
+                {
+                    var chn = await DiscordBot.Client.GetChannelAsync(928938948221366334);
+                    DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
+                    eb.Color = DiscordColor.Red;
+                    eb.WithDescription(liststring);
+                    await chn.SendMessageAsync(eb.Build());
+                    break;
+                }
+            }
         }
         public static DateTime GenerateDateTime(DiscordMember discordMember)
         {
