@@ -1,4 +1,5 @@
 ﻿using System;
+
 using SchattenclownBot.Model.Persistence.Connection;
 
 namespace SchattenclownBot.Model.Objects

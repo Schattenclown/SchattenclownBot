@@ -1,12 +1,14 @@
-﻿using SchattenclownBot.Model.Discord;
-using SchattenclownBot.Model.Persistence;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SchattenclownBot.Model.Objects;
+
 using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -14,18 +16,18 @@ namespace SchattenclownBot.Model.Objects
     {
         public static async Task GenerateBirthdayList()
         {
-            List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.Client.Guilds.ToList();
+            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
             List<KeyValuePair<ulong, DateTime>> Birthdays = new List<KeyValuePair<ulong, DateTime>>();
 
             bool levelSystemVirign = true;
             do
             {
-                if (DiscordBot.Client.Guilds.ToList().Count != 0)
+                if (Bot.Client.Guilds.ToList().Count != 0)
                 {
                     if (levelSystemVirign)
                     {
-                        guildsList = DiscordBot.Client.Guilds.ToList();
-                        
+                        guildsList = Bot.Client.Guilds.ToList();
+
                         levelSystemVirign = false;
                     }
                 }
@@ -34,22 +36,22 @@ namespace SchattenclownBot.Model.Objects
 
             foreach (var guildItem in guildsList)
             {
-                if(guildItem.Value.Id == 928930967140331590)
+                if (guildItem.Value.Id == 928930967140331590)
                 {
-                    DiscordGuild discordGuildObj = DiscordBot.Client.GetGuildAsync(guildItem.Value.Id).Result;
+                    DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
                     IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
                     foreach (var discordMemberItem in discordMembers)
                     {
                         DateTime birthday = GenerateDateTime(discordMemberItem.Value);
                         DateTime dtcompare = new DateTime(9999, 9, 9);
-                        if(birthday != dtcompare)
+                        if (birthday != dtcompare)
                             Birthdays.Add(new KeyValuePair<ulong, DateTime>(discordMemberItem.Value.Id, birthday));
                     }
                     break;
                 }
             }
 
-            if(Birthdays.Count != 0)
+            if (Birthdays.Count != 0)
                 Birthdays.Sort((ps1, ps2) => DateTime.Compare(ps1.Value.Date, ps2.Value.Date));
 
             string liststring = "";
@@ -63,7 +65,7 @@ namespace SchattenclownBot.Model.Objects
             {
                 if (guildItem.Value.Id == 928930967140331590)
                 {
-                    var chn = await DiscordBot.Client.GetChannelAsync(928938948221366334);
+                    var chn = await Bot.Client.GetChannelAsync(928938948221366334);
                     DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
                     eb.Color = DiscordColor.Red;
                     eb.WithDescription(liststring);
@@ -80,20 +82,20 @@ namespace SchattenclownBot.Model.Objects
 
             IEnumerable<DiscordRole> discordMemberRoleList = discordMember.Roles;
 
-            DiscordGuild discordGuildObj = DiscordBot.Client.GetGuildAsync(discordMember.Guild.Id).Result;
+            DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(discordMember.Guild.Id).Result;
 
             DiscordRole zehner0 = discordGuildObj.GetRole(945301296330723348);
             DiscordRole zehner1 = discordGuildObj.GetRole(945301296993427517);
             DiscordRole zehner2 = discordGuildObj.GetRole(945301298012647444);
             DiscordRole zehner3 = discordGuildObj.GetRole(945301298704683048);
 
-            if(discordMemberRoleList.Contains(zehner0))
+            if (discordMemberRoleList.Contains(zehner0))
                 birthdayday += "0";
-            if(discordMemberRoleList.Contains(zehner1))
+            if (discordMemberRoleList.Contains(zehner1))
                 birthdayday += "1";
-            if(discordMemberRoleList.Contains(zehner2))
+            if (discordMemberRoleList.Contains(zehner2))
                 birthdayday += "2";
-            if(discordMemberRoleList.Contains(zehner3))
+            if (discordMemberRoleList.Contains(zehner3))
                 birthdayday += "3";
 
             DiscordRole einer0 = discordGuildObj.GetRole(945301303649787904);

@@ -1,22 +1,25 @@
-﻿using DisCatSharp;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.CommandsNext.Converters;
+
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using SchattenclownBot.Model.Discord.ChoiceProvider;
+using SchattenclownBot.Model.Discord.Main;
 
-namespace SchattenclownBot.Model.Discord.Interaction
+namespace SchattenclownBot.Model.Discord.AppCommands
 {
     /// <summary>
-    /// The slash commands.
+    /// The AppCommands.
     /// </summary>
-    internal class Slash : ApplicationCommandsModule
+    internal class Main : ApplicationCommandsModule
     {
         /// <summary>
         /// Send the help of this bot.
@@ -33,13 +36,13 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Description = "This is the command help for the Schattenclown Bot",
                 Color = DiscordColor.Purple
             };
-            discordEmbedBuilder.AddField("/level", "Shows your level!");
-            discordEmbedBuilder.AddField("/leaderboard", "Shows the levelsystem!");
-            discordEmbedBuilder.AddField("/timer", "Set´s a timer!");
-            discordEmbedBuilder.AddField("/mytimers", "Look up your timers!");
-            discordEmbedBuilder.AddField("/alarmclock", "Set an alarm for a spesific time!");
-            discordEmbedBuilder.AddField("/myalarms", "Look up your alarms!");
-            discordEmbedBuilder.AddField("/invite", "Send´s an invite link!");
+            discordEmbedBuilder.AddField(new DiscordEmbedField("/level", "Shows your level!"));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("/leaderboard", "Shows the levelsystem!"));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("/timer", "Set´s a timer!"));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("/mytimers", "Look up your timers!"));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("/alarmclock", "Set an alarm for a spesific time!"));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("/myalarms", "Look up your alarms!"));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("/invite", "Send´s an invite link!"));
             discordEmbedBuilder.WithAuthor("Schattenclown help");
             discordEmbedBuilder.WithFooter("(✿◠‿◠) thanks for using me");
             discordEmbedBuilder.WithTimestamp(DateTime.Now);
@@ -71,8 +74,10 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 NotificationTime = alarm
             };
             ScAlarmClock.Add(scAlarmClock);
+
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {scAlarmClock.NotificationTime}!"));
         }
+
         [SlashCommand("myalarms", "Look up your alarms!")]
         public static async Task AlarmClockLookup(InteractionContext interactionContext)
         {
@@ -86,14 +91,16 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Description = $"<@{interactionContext.Member.Id}>"
             };
             bool noTimers = true;
+
             foreach (var scAlarmClock in lstScAlarmClocks)
             {
                 if (scAlarmClock.MemberId == interactionContext.Member.Id)
                 {
                     noTimers = false;
-                    discordEmbedBuilder.AddField($"{scAlarmClock.NotificationTime}", $"Alarm with ID {scAlarmClock.DBEntryID}");
+                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{scAlarmClock.NotificationTime}", $"Alarm with ID {scAlarmClock.DBEntryID}"));
                 }
             }
+
             if (noTimers)
                 discordEmbedBuilder.Title = "No alarms set!";
 
@@ -136,12 +143,13 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Description = $"<@{interactionContext.Member.Id}>"
             };
             bool noTimers = true;
+
             foreach (var scTimer in lstScTimers)
             {
                 if (scTimer.MemberId == interactionContext.Member.Id)
                 {
                     noTimers = false;
-                    discordEmbedBuilder.AddField($"{scTimer.NotificationTime}", $"Timer with ID {scTimer.DBEntryID}");
+                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{scTimer.NotificationTime}", $"Timer with ID {scTimer.DBEntryID}"));
                 }
             }
             if (noTimers)
@@ -165,7 +173,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             string liststring = "```css\n";
             foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
             {
-                var discordUser = await Discord.DiscordBot.Client.GetUserAsync(dcLevelSystem.MemberId, true);
+                var discordUser = await Bot.Client.GetUserAsync(dcLevelSystem.MemberId, true);
 
                 DateTime date1 = new DateTime(1969, 4, 20, 4, 20, 0);
                 DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
@@ -201,7 +209,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             string rank = "N/A";
             string level, xp;
 
-            var discordUser = await Discord.DiscordBot.Client.GetUserAsync(interactionContext.Member.Id);
+            var discordUser = await Bot.Client.GetUserAsync(interactionContext.Member.Id);
             string username = discordUser.Username;
 
             foreach (var dcUserLevelSystemItem in dcUserLevelSystemListSorted)
@@ -368,7 +376,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             bool mobileHasValue = false;
             bool presenceWasNull = false;
 
-            if(discordTargetMember.Presence != null)
+            if (discordTargetMember.Presence != null)
             {
                 desktopHasValue = discordTargetMember.Presence.ClientStatus.Desktop.HasValue;
                 webHasValue = discordTargetMember.Presence.ClientStatus.Web.HasValue;
@@ -386,7 +394,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
                 try
                 {
-                    DiscordEmoji discordEmoji = DiscordEmoji.FromName(DiscordBot.Client, ":no_entry_sign:");
+                    DiscordEmoji discordEmoji = DiscordEmoji.FromName(Bot.Client, ":no_entry_sign:");
 
                     if (interactionContext != null)
                     {
@@ -501,12 +509,12 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 else
                     await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
-            else if(mobileHasValue)
+            else if (mobileHasValue)
             {
                 string description = "Their phone will explode STOP!\n";
 
-                DiscordEmoji discordEmoji_white_check_mark = DiscordEmoji.FromName(DiscordBot.Client, ":white_check_mark:");
-                DiscordEmoji discordEmojiCheck_x = DiscordEmoji.FromName(DiscordBot.Client, ":x:");
+                DiscordEmoji discordEmoji_white_check_mark = DiscordEmoji.FromName(Bot.Client, ":white_check_mark:");
+                DiscordEmoji discordEmojiCheck_x = DiscordEmoji.FromName(Bot.Client, ":x:");
 
                 if (discordTargetMember.Presence.ClientStatus.Desktop.HasValue)
                     description += discordEmoji_white_check_mark + " Dektop" + "\n";
@@ -535,7 +543,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             {
                 for (int i = 3; i > 0; i--)
                 {
-                    discordEmbedBuilder.AddField("This message will be deleted in", $"{i} Secounds");
+                    discordEmbedBuilder.AddField(new DiscordEmbedField("This message will be deleted in", $"{i} Secounds"));
                     await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                     await Task.Delay(1000);
                     discordEmbedBuilder.RemoveFieldAt(0);
@@ -598,8 +606,8 @@ namespace SchattenclownBot.Model.Discord.Interaction
             bool flaged91 = false;
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
 
-            DiscordGuild discordGuildObj = DiscordBot.Client.GetGuildAsync(contextMenuContext.Guild.Id).Result;
-            if(discordGuildObj.Id == 928930967140331590)
+            DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(contextMenuContext.Guild.Id).Result;
+            if (discordGuildObj.Id == 928930967140331590)
             {
                 DiscordRole discordRole = discordGuildObj.GetRole(980071522427363368);
                 if (contextMenuContext.Member.Roles.Contains(discordRole))
@@ -608,7 +616,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 }
             }
 
-            if(flaged91)
+            if (flaged91)
             {
                 discordEmbedBuilder.Title = "Rating";
                 discordEmbedBuilder.Description = $"U are Flagged +91 u cant vote!";
@@ -632,13 +640,13 @@ namespace SchattenclownBot.Model.Discord.Interaction
 
                 foreach (DcSympathieSystem dcSympathieSystemItem in dcSympathieSystemsList)
                 {
-                    if(dcSympathieSystemItem.VotingUserID == dcSympathieSystemObj.VotingUserID && dcSympathieSystemItem.VotedUserID == dcSympathieSystemObj.VotedUserID)
+                    if (dcSympathieSystemItem.VotingUserID == dcSympathieSystemObj.VotingUserID && dcSympathieSystemItem.VotedUserID == dcSympathieSystemObj.VotedUserID)
                         found = true;
                 }
 
-                if(!found)
+                if (!found)
                     DcSympathieSystem.Add(dcSympathieSystemObj);
-                else if(found)
+                else if (found)
                     DcSympathieSystem.Change(dcSympathieSystemObj);
 
                 discordEmbedBuilder.Title = "Rating";
@@ -654,7 +662,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
         public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(VoteRatingChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
         {
             bool found = DcSympathieSystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
-            
+
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
 
             DcSympathieSystem dcSympathieSystemObj = new DcSympathieSystem
@@ -685,7 +693,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
             }
             if (!found)
                 DcSympathieSystem.AddRoleInfo(dcSympathieSystemObj);
-            if(found)
+            if (found)
                 DcSympathieSystem.ChangeRoleInfo(dcSympathieSystemObj);
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
@@ -707,7 +715,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Color = DiscordColor.Purple,
                 Description = description
             };
-            
+
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
     }

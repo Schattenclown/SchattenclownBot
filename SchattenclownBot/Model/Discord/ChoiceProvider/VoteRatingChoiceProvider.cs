@@ -1,7 +1,8 @@
-﻿using DisCatSharp.ApplicationCommands;
-using DisCatSharp.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using DisCatSharp.ApplicationCommands;
+using DisCatSharp.Entities;
 
 namespace SchattenclownBot.Model.Discord.ChoiceProvider
 {
@@ -14,9 +15,7 @@ namespace SchattenclownBot.Model.Discord.ChoiceProvider
         /// Providers the choices.
         /// </summary>
         /// <returns>choices</returns>
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             DiscordApplicationCommandOptionChoice[] choices = new DiscordApplicationCommandOptionChoice[5];
 
@@ -24,7 +23,7 @@ namespace SchattenclownBot.Model.Discord.ChoiceProvider
             {
                 choices[i] = new DiscordApplicationCommandOptionChoice($"{i + 1}", $"{i + 1}");
             }
-
+            await Task.Delay(1000).ConfigureAwait(false);
             return choices;
         }
     }

@@ -1,7 +1,9 @@
-﻿using MySql.Data.MySqlClient;
+﻿using System;
+
+using MySql.Data.MySqlClient;
+
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-using System;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
@@ -50,7 +52,11 @@ namespace SchattenclownBot.Model.Persistence.Connection
             MySqlCommand sqlCommand = new MySqlCommand(sql, connection);
             int ret = sqlCommand.ExecuteNonQuery();
             if (ret != -1)
-                Console.WriteLine("DEBUG: DB -1");
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"{sql.Substring(0, Console.WindowWidth - 1)}");
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
             CloseDB(connection);
         }
         public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)

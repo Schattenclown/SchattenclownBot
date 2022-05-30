@@ -1,9 +1,11 @@
-﻿using DisCatSharp.Entities;
-using SchattenclownBot.Model.Discord;
-using SchattenclownBot.Model.Persistence;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Persistence;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -30,6 +32,7 @@ namespace SchattenclownBot.Model.Objects
         }
         public static async Task ScTimersRunAsync()
         {
+            DB_ScTimers.CreateTable_ScTimers();
             scTimers = DB_ScTimers.ReadAll();
 
             await Task.Run(async () =>
@@ -40,7 +43,7 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (scTimer.NotificationTime < DateTime.Now)
                         {
-                            var chn = await DiscordBot.Client.GetChannelAsync(scTimer.ChannelId);
+                            var chn = await Bot.Client.GetChannelAsync(scTimer.ChannelId);
                             DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
                             eb.Color = DiscordColor.Red;
                             eb.WithDescription($"<@{scTimer.MemberId}> Timer for {scTimer.NotificationTime} is up!");

@@ -1,9 +1,11 @@
-﻿using DisCatSharp.Entities;
-using SchattenclownBot.Model.Discord;
-using SchattenclownBot.Model.Persistence;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Persistence;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -31,6 +33,7 @@ namespace SchattenclownBot.Model.Objects
         }
         public static async Task ScAlarmClocksRunAsync()
         {
+            DB_ScAlarmClocks.CreateTable_ScAlarmClocks();
             scAlarmClocks = DB_ScAlarmClocks.ReadAll();
 
             await Task.Run(async () =>
@@ -41,7 +44,7 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (scAlarmClock.NotificationTime < DateTime.Now)
                         {
-                            var chn = await DiscordBot.Client.GetChannelAsync(scAlarmClock.ChannelId);
+                            var chn = await Bot.Client.GetChannelAsync(scAlarmClock.ChannelId);
                             DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
                             eb.Color = DiscordColor.Red;
                             eb.WithDescription($"<@{scAlarmClock.MemberId}> Alarm for {scAlarmClock.NotificationTime} rings!");

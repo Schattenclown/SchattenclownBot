@@ -1,9 +1,12 @@
-﻿using DisCatSharp.CommandsNext;
+﻿using System.Threading.Tasks;
+
+using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
-using System.Threading.Tasks;
 
-namespace SchattenclownBot.Model.Discord.Interaction
+using SchattenclownBot.Model.Discord.Main;
+
+namespace SchattenclownBot.Model.Discord.Commands
 {
     /// <summary>
     /// The MAIN.
@@ -26,7 +29,7 @@ namespace SchattenclownBot.Model.Discord.Interaction
         {
             if (msg == null)
             {
-                msg = $"{DiscordBot.prefix}help";
+                msg = $"{Bot.prefix}help";
             }
 
             var status = sts switch
@@ -46,10 +49,10 @@ namespace SchattenclownBot.Model.Discord.Interaction
                 Platform = status == UserStatus.Streaming ? "twitch" : null,
                 StreamUrl = status == UserStatus.Streaming ? "https://twitch.tv/lulalaby" : null
             };
-            await DiscordBot.Client.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
-            DiscordBot.custom = true;
-            DiscordBot.customstate = msg;
-            DiscordBot.customstatus = status;
+            await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
+            Bot.custom = true;
+            Bot.customstate = msg;
+            Bot.customstatus = status;
 
             await ctx.Message.DeleteAsync("Command Hide");
         }
