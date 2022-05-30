@@ -1,8 +1,9 @@
-﻿using SchattenclownBot.HelpClasses;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
+
+using SchattenclownBot.HelpClasses;
 
 namespace SchattenclownBot.Model.HelpClasses
 {

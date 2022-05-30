@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using MySql.Data.MySqlClient;
+
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
 using SchattenclownBot.HelpClasses;
@@ -46,11 +48,9 @@ namespace SchattenclownBot.Model.Persistence
         {
             Connections connetions = CSV_Connections.ReadAll();
 
-#pragma warning disable CS8604 // Mögliches Nullverweisargument.
             string database = WordCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
 #if DEBUG
             database = WordCutter.RemoveUntilWord(connetions.MySqlConStrDebug, "Database=", 9);
-#pragma warning restore CS8604 // Mögliches Nullverweisargument.
 #endif
             database = WordCutter.RemoveAfterWord(database, "; Uid", 0);
 

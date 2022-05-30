@@ -1,9 +1,10 @@
-﻿using SchattenclownBot.Model.Discord;
-using SchattenclownBot.Model.Persistence;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Persistence;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -42,11 +43,11 @@ namespace SchattenclownBot.Model.Objects
             {
                 do
                 {
-                    if (DiscordBot.Client.Guilds.ToList().Count != 0)
+                    if (Bot.Client.Guilds.ToList().Count != 0)
                     {
                         if (levelSystemVirign)
                         {
-                            var guildsList = DiscordBot.Client.Guilds.ToList();
+                            var guildsList = Bot.Client.Guilds.ToList();
                             foreach (var guildItem in guildsList)
                             {
                                 DcUserLevelSystem.CreateTable_DcUserLevelSystem(guildItem.Value.Id);
@@ -69,7 +70,7 @@ namespace SchattenclownBot.Model.Objects
                         await Task.Delay(1000);
                     }
 
-                    var guildsList = DiscordBot.Client.Guilds.ToList();
+                    var guildsList = Bot.Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
                     {
                         List<DcUserLevelSystem> dcUserLevelSystemList = new List<DcUserLevelSystem>();

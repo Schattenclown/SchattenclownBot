@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using SchattenclownBot.Model.Discord;
+using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Persistence;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.HelpClasses;
@@ -17,7 +17,7 @@ namespace SchattenclownBot
     /// </summary>
     class Program
     {
-        private static DiscordBot dBot;
+        private static Bot bot;
         /// <summary>
         /// the boot task
         /// </summary>
@@ -28,13 +28,9 @@ namespace SchattenclownBot
             {
                 try
                 {
-                    DB_ScTimers.CreateTable_ScTimers();
-                    DB_ScAlarmClocks.CreateTable_ScAlarmClocks();
-                    
-                    dBot = new DiscordBot();
-    #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
-                    await dBot.RunAsync();
-    #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
+                    bot = new Bot();
+                    bot.RunAsync().Wait();
+                    await Task.Delay(1000);
                 }
                 catch
                 {
