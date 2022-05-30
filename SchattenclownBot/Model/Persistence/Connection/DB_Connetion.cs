@@ -32,8 +32,9 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 {
                     connection.Open();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                     ConsoleForamter.Center("DB IS DEAD");
                     Reset.RestartProgram();
                     throw;
@@ -54,7 +55,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
             if (ret != -1)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"{sql.Substring(0, Console.WindowWidth - 1)}");
+                Console.WriteLine($"{sql.Substring(0, Console.WindowWidth - 10)}");
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
             CloseDB(connection);
@@ -67,8 +68,9 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
                 return sqlDataReader;
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 ConsoleForamter.Center("DB IS DEAD");
                 Reset.RestartProgram();
                 throw;
@@ -82,8 +84,9 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 int count = Convert.ToInt32(sqlCommand.ExecuteScalar());
                 return count;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 ConsoleForamter.Center("DB IS DEAD");
                 Reset.RestartProgram();
                 throw;
