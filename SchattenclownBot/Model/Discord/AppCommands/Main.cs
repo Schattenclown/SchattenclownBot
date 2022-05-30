@@ -13,6 +13,7 @@ using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
 using SchattenclownBot.Model.Discord.ChoiceProvider;
 using SchattenclownBot.Model.Discord.Main;
+using DisCatSharp.EventArgs;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -323,7 +324,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await PokeAsync(interactionContext, null, discordMember, false, 2, true);
         }
 
-        /*[ContextMenu(ApplicationCommandType.User, "Poke a user!", true)]
+        [ContextMenu(ApplicationCommandType.User, "Poke a user!", true)]
         public static async Task AppsPoke(ContextMenuContext contextMenuContext)
         {
             await PokeAsync(null, contextMenuContext, contextMenuContext.TargetMember, true, 2, false);
@@ -333,7 +334,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         public static async Task AppsForcePoke(ContextMenuContext contextMenuContext)
         {
             await PokeAsync(null, contextMenuContext, contextMenuContext.TargetMember, true, 2, true);
-        }*/
+        }
 
         public static async Task PokeAsync(InteractionContext interactionContext, ContextMenuContext contextMenuContext, DiscordMember discordTargetMember, bool deleteResponseAsync, int pokeAmount, bool force)
         {
@@ -553,7 +554,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
         }
 
-        /*/// <summary>
+        /// <summary>
         /// Gets the user's avatar & banner.
         /// </summary>
         /// <param name="contextMenuContext">The contextmenu context.</param>
@@ -572,56 +573,81 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
-        }*/
-
-        [ContextMenu(ApplicationCommandType.User, "Give Rating 1")]
-        public static async Task GiveRating1(ContextMenuContext contextMenuContext)
-        {
-            await GiveRatingAsync(contextMenuContext, 1);
         }
 
-        [ContextMenu(ApplicationCommandType.User, "Give Rating 2")]
-        public static async Task GiveRating2(ContextMenuContext contextMenuContext)
+        [ContextMenu(ApplicationCommandType.User, "Give Rating")]
+        public static async Task GiveRating(ContextMenuContext contextMenuContext)
         {
-            await GiveRatingAsync(contextMenuContext, 2);
-        }
-        [ContextMenu(ApplicationCommandType.User, "Give Rating 3")]
-        public static async Task GiveRating3(ContextMenuContext contextMenuContext)
-        {
-            await GiveRatingAsync(contextMenuContext, 3);
-        }
-        [ContextMenu(ApplicationCommandType.User, "Give Rating 4")]
-        public static async Task GiveRating4(ContextMenuContext contextMenuContext)
-        {
-            await GiveRatingAsync(contextMenuContext, 4);
-        }
-        [ContextMenu(ApplicationCommandType.User, "Give Rating 5")]
-        public static async Task GiveRating5(ContextMenuContext contextMenuContext)
-        {
-            await GiveRatingAsync(contextMenuContext, 5);
-        }
-        public static async Task GiveRatingAsync(ContextMenuContext contextMenuContext, int rating)
-        {
-            bool found = false;
-            bool flaged91 = false;
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
+            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
+            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
 
-            DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(contextMenuContext.Guild.Id).Result;
-            if (discordGuildObj.Id == 928930967140331590)
+            var comps = new DiscordSelectComponent("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+
+            await contextMenuContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(comps).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
+        }
+
+        [SlashCommand("GiveRating", "Give an User a rating!")]
+        public static async Task GiveRating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        {
+            DiscordMember discordTargetMember = discordUser as DiscordMember;
+
+            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
+            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
+
+            var comps = new DiscordSelectComponent("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+
+            await interactionContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(comps).WithContent($"Give <@{discordTargetMember.Id}> a Rating!"));
+        }
+
+        public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        {
+            int rating = 0;
+            DiscordMember discordMember = e.User as DiscordMember;
+            DiscordMember discordTargetMember = e.Message.MentionedUsers[0].ConvertToMember(e.Guild).Result;
+            switch (e.Values[0])
             {
-                DiscordRole discordRole = discordGuildObj.GetRole(980071522427363368);
-                if (contextMenuContext.Member.Roles.Contains(discordRole))
-                {
-                    flaged91 = true;
-                }
+                case "rating_1":
+                    rating = 1;
+                    break;
+                case "rating_2":
+                    rating = 2;
+                    break;
+                case "rating_3":
+                    rating = 3;
+                    break;
+                case "rating_4":
+                    rating = 4;
+                    break;
+                case "rating_5":
+                    rating = 5;
+                    break;
             }
 
-            if (flaged91)
+            bool foundTargetMemberInDB = false;
+            bool memberIsFlagged91 = false;
+            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
+
+            if (e.Guild.Id == 928930967140331590)
+            {
+                DiscordRole discordRole = e.Guild.GetRole(980071522427363368);
+                if (discordMember.Roles.Contains(discordRole))
+                    memberIsFlagged91 = true;
+            }
+
+            if (memberIsFlagged91)
             {
                 discordEmbedBuilder.Title = "Rating";
                 discordEmbedBuilder.Description = $"U are Flagged +91 u cant vote!";
             }
-            else if (contextMenuContext.Member.Id == contextMenuContext.TargetMember.Id)
+            else if (discordMember.Id == discordTargetMember.Id)
             {
                 discordEmbedBuilder.Title = "Rating";
                 discordEmbedBuilder.Description = $"Nonono we dont do this around here! CHEATER!";
@@ -630,32 +656,30 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                 DcSympathieSystem dcSympathieSystemObj = new DcSympathieSystem
                 {
-                    VotingUserID = contextMenuContext.Member.Id,
-                    VotedUserID = contextMenuContext.TargetMember.Id,
-                    GuildID = contextMenuContext.Guild.Id,
+                    VotingUserID = discordTargetMember.Id,
+                    VotedUserID = discordTargetMember.Id,
+                    GuildID = e.Guild.Id,
                     VoteRating = rating,
                 };
 
-                List<DcSympathieSystem> dcSympathieSystemsList = DcSympathieSystem.ReadAll(contextMenuContext.Guild.Id);
+                List<DcSympathieSystem> dcSympathieSystemsList = DcSympathieSystem.ReadAll(e.Guild.Id);
 
                 foreach (DcSympathieSystem dcSympathieSystemItem in dcSympathieSystemsList)
                 {
                     if (dcSympathieSystemItem.VotingUserID == dcSympathieSystemObj.VotingUserID && dcSympathieSystemItem.VotedUserID == dcSympathieSystemObj.VotedUserID)
-                        found = true;
+                        foundTargetMemberInDB = true;
                 }
 
-                if (!found)
+                if (!foundTargetMemberInDB)
                     DcSympathieSystem.Add(dcSympathieSystemObj);
-                else if (found)
+                else if (foundTargetMemberInDB)
                     DcSympathieSystem.Change(dcSympathieSystemObj);
 
                 discordEmbedBuilder.Title = "Rating";
-                discordEmbedBuilder.Description = $"You gave {contextMenuContext.TargetMember.Mention} the Rating {rating}";
+                discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";
             }
 
-            await contextMenuContext.Member.SendMessageAsync(discordEmbedBuilder.Build());
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            await contextMenuContext.DeleteResponseAsync();
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("RatingSetup", "Set up the roles for the Ratingsystem!", false)]
