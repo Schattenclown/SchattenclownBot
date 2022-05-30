@@ -139,11 +139,13 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             await Client.ConnectAsync();
 
-            Task LevelSystemRunAsync = DcUserLevelSystem.LevelSystemRunAsync();
-            Task SympathieSystemRunAsync = DcSympathieSystem.SympathieSystemRunAsync();
-            Task ScTimersRunAsync = ScTimer.ScTimersRunAsync();
-            Task ScAlarmClocksRunAsync = ScAlarmClock.ScAlarmClocksRunAsync();
-            Task GenerateBirthdayList = BirthdayList.GenerateBirthdayList();
+#pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
+            DcUserLevelSystem.LevelSystemRunAsync();
+            DcSympathieSystem.SympathieSystemRunAsync();
+            ScTimer.ScTimersRunAsync();
+            ScAlarmClock.ScAlarmClocksRunAsync();
+            BirthdayList.GenerateBirthdayList();
+#pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
             {
