@@ -139,11 +139,11 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             await Client.ConnectAsync();
 
-            await DcUserLevelSystem.LevelSystem().ConfigureAwait(false);
-            await DcSympathieSystem.SympathieSystem().ConfigureAwait(false);
-            await ScTimer.ScTimersRunAsync().ConfigureAwait(false);
-            await ScAlarmClock.ScAlarmClocksRunAsync().ConfigureAwait(false);
-            await BirthdayList.GenerateBirthdayList().ConfigureAwait(false);
+            Task LevelSystemRunAsync = DcUserLevelSystem.LevelSystemRunAsync();
+            Task SympathieSystemRunAsync = DcSympathieSystem.SympathieSystemRunAsync();
+            Task ScTimersRunAsync = ScTimer.ScTimersRunAsync();
+            Task ScAlarmClocksRunAsync = ScAlarmClock.ScAlarmClocksRunAsync();
+            Task GenerateBirthdayList = BirthdayList.GenerateBirthdayList();
 
             while (!ShutdownRequest.IsCancellationRequested)
             {

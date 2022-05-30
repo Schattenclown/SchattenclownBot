@@ -35,7 +35,7 @@ namespace SchattenclownBot.Model.Objects
         {
             DB_DcUserLevelSystem.CreateTable_DcUserLevelSystem(guildsId);
         }
-        public static async Task LevelSystem()
+        public static async Task LevelSystemRunAsync()
         {
             bool levelSystemVirign = true;
 

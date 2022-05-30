@@ -23,7 +23,7 @@ namespace SchattenclownBot.Model.Discord.ChoiceProvider
             {
                 choices[i] = new DiscordApplicationCommandOptionChoice($"{i + 1}", $"{i + 1}");
             }
-            await Task.Delay(1000).ConfigureAwait(false);
+            await Task.Delay(1000);
             return choices;
         }
     }

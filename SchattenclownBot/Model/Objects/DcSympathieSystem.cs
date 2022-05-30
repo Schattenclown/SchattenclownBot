@@ -65,7 +65,7 @@ namespace SchattenclownBot.Model.Objects
         {
             return DB_DcSympathieSystem.GetUserRatings(guildsId, votedUserID, voteRating);
         }
-        public static async Task SympathieSystem()
+        public static async Task SympathieSystemRunAsync()
         {
             bool levelSystemVirign = true;
 
