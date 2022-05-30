@@ -558,7 +558,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// Gets the user's avatar & banner.
         /// </summary>
         /// <param name="contextMenuContext">The contextmenu context.</param>
-        [ContextMenu(ApplicationCommandType.User, "Get avatar & banner")]
+        [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
         public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
         {
             var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id, true);
@@ -575,7 +575,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
-        [ContextMenu(ApplicationCommandType.User, "Give Rating")]
+        [ContextMenu(ApplicationCommandType.User, "Give Rating!")]
         public static async Task GiveRating(ContextMenuContext contextMenuContext)
         {
             DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
@@ -679,7 +679,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";
             }
 
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("RatingSetup", "Set up the roles for the Ratingsystem!", false)]
