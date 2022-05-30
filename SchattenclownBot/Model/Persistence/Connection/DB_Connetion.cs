@@ -55,7 +55,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
             if (ret != -1)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"{sql.Substring(0, Console.WindowWidth - 10)}");
+                Console.WriteLine($"{sqlCommand.CommandText}");
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
             CloseDB(connection);

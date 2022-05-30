@@ -140,10 +140,10 @@ namespace SchattenclownBot.Model.Discord.Main
             await Client.ConnectAsync();
 
 #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
-            DcUserLevelSystem.LevelSystemRunAsync();
-            DcSympathieSystem.SympathieSystemRunAsync();
             ScTimer.ScTimersRunAsync();
             ScAlarmClock.ScAlarmClocksRunAsync();
+            DcUserLevelSystem.LevelSystemRunAsync();
+            DcSympathieSystem.SympathieSystemRunAsync();
             BirthdayList.GenerateBirthdayList();
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 

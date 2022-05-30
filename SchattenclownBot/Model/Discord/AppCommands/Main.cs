@@ -310,27 +310,27 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// </summary>
         /// <param name="interactionContext">The ic.</param>
         /// <returns>A Task.</returns>
-        [SlashCommand("Poke", "Poke a user!")]
+        [SlashCommand("Poke", "Poke user!")]
         public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             DiscordMember discordMember = discordUser as DiscordMember;
             await PokeAsync(interactionContext, null, discordMember, false, 2, false);
         }
 
-        [SlashCommand("ForcePoke", "Poke a user! Forcefully!")]
+        [SlashCommand("ForcePoke", "Poke user! Forcefully!")]
         public static async Task ForcePoke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             DiscordMember discordMember = discordUser as DiscordMember;
             await PokeAsync(interactionContext, null, discordMember, false, 2, true);
         }
 
-        [ContextMenu(ApplicationCommandType.User, "Poke a user!", true)]
+        [ContextMenu(ApplicationCommandType.User, "Poke user!", true)]
         public static async Task AppsPoke(ContextMenuContext contextMenuContext)
         {
             await PokeAsync(null, contextMenuContext, contextMenuContext.TargetMember, true, 2, false);
         }
 
-        [ContextMenu(ApplicationCommandType.User, "Poke a user! Forcefully!", true)]
+        [ContextMenu(ApplicationCommandType.User, "Poke user! Forcefully!", true)]
         public static async Task AppsForcePoke(ContextMenuContext contextMenuContext)
         {
             await PokeAsync(null, contextMenuContext, contextMenuContext.TargetMember, true, 2, true);
