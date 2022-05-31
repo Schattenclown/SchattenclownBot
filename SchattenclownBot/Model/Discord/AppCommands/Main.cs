@@ -232,25 +232,46 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> dcUserLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
 
-            List<UserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
-            dcUserLevelSystemListSorted.Reverse();
+            List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+            userLevelSystemListSorted.Reverse();
 
-            int top15 = 0;
+            int top30 = 0;
+            int totalXp = 0;
+            int totalLevel, modXp;
+            string level, xp;
 
             string liststring = "```css\n";
-            foreach (var dcLevelSystem in dcUserLevelSystemListSorted)
+            foreach (var userLevelSystemItem in userLevelSystemListSorted)
             {
-                var discordUser = await Bot.Client.GetUserAsync(dcLevelSystem.MemberId, true);
+                var discordUser = await Bot.Client.GetUserAsync(userLevelSystemItem.MemberId, true);
 
                 DateTime date1 = new DateTime(1969, 4, 20, 4, 20, 0);
-                DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(dcLevelSystem.OnlineTicks);
+                DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
                 TimeSpan timeSpan = date2 - date1;
 
-                liststring += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $"[{discordUser.Username}]\n";
-                top15++;
-                if (top15 == 20)
+                totalXp = userLevelSystemItem.OnlineTicks * 125 / 60;
+
+                if (totalXp > 0)
+                {
+                    totalLevel = totalXp / 1000;
+                    modXp = totalXp % 1000;
+                    level = $"Level {totalLevel}";
+                    xp = $"{modXp}/1000xp ";
+                }
+                else
+                {
+                    totalLevel = 0;
+                    modXp = 0;
+                    level = $"Level {totalLevel}";
+                    xp = $"{modXp}/1000xp ";
+                }
+
+
+                liststring += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $" Level {totalLevel,4} " + $"[{discordUser.Username}]\n";
+                top30++;
+                if (top30 == 30)
                     break;
             }
             liststring += "\n```";
