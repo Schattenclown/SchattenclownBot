@@ -86,7 +86,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
             Client = new DiscordClient(cfg);
 
-            Client.UseApplicationCommands(new ApplicationCommandsConfiguration()
+            AppCommands = Client.UseApplicationCommands(new ApplicationCommandsConfiguration()
             {
                 EnableDefaultHelp = false,
                 DebugStartup = true,
@@ -104,8 +104,6 @@ namespace SchattenclownBot.Model.Discord.Main
                 EnableDefaultHelp = true,
                 EnableDms = true
             });
-
-            AppCommands = Client.GetApplicationCommands();
 
             INext = Client.UseInteractivity(new InteractivityConfiguration
             {
@@ -182,12 +180,12 @@ namespace SchattenclownBot.Model.Discord.Main
             cnext.CommandErrored += CNext_CommandErrored;
 
             /* Slash Infos */
+            client.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
             client.ApplicationCommandCreated += Discord_ApplicationCommandCreated;
             client.ApplicationCommandDeleted += Discord_ApplicationCommandDeleted;
             client.ApplicationCommandUpdated += Discord_ApplicationCommandUpdated;
             appCommands.SlashCommandErrored += Slash_SlashCommandErrored;
             appCommands.SlashCommandExecuted += Slash_SlashCommandExecuted;
-            client.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
         }
 
         /// <summary>
@@ -198,8 +196,11 @@ namespace SchattenclownBot.Model.Discord.Main
         private void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension appCommands)
         {
             cnext.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
-            // appCommands.RegisterCommands<AppCommands.Main>(devguild); // use to register on guild
+#if DEBUG
+            appCommands.RegisterGuildCommands<AppCommands.Main>(devguild); // use to register on guild
+#else
             appCommands.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
+#endif
         }
 
         private static Task Client_Ready(DiscordClient dcl, ReadyEventArgs e)
@@ -304,7 +305,7 @@ namespace SchattenclownBot.Model.Discord.Main
             Console.ForegroundColor = ConsoleColor.Gray;
             return Task.CompletedTask;
         }
-        #endregion
+#endregion
     }
 }
 
