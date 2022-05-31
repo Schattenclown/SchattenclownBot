@@ -23,45 +23,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
     internal class Main : ApplicationCommandsModule
     {
         /// <summary>
-        /// Send the help of this bot.
-        /// </summary>
-        /// <param name="interactionContext">The interaction context.</param>
-        [SlashCommand("help", "Schattenclown Help")]
-        public static async Task HelpAsync(InteractionContext interactionContext)
-        {
-            //Create a Response.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-            //Create an Embed.
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder()
-            {
-                Title = "Help",
-                Description = "This is the command help for the Schattenclown Bot",
-                Color = DiscordColor.Purple
-            };
-            discordEmbedBuilder.AddField(new DiscordEmbedField("/level", "Shows your level!"));
-            discordEmbedBuilder.AddField(new DiscordEmbedField("/leaderboard", "Shows the levelsystem!"));
-            discordEmbedBuilder.AddField(new DiscordEmbedField("/timer", "Set´s a timer!"));
-            discordEmbedBuilder.AddField(new DiscordEmbedField("/mytimers", "Look up your timers!"));
-            discordEmbedBuilder.AddField(new DiscordEmbedField("/alarmclock", "Set an alarm for a spesific time!"));
-            discordEmbedBuilder.AddField(new DiscordEmbedField("/myalarms", "Look up your alarms!"));
-            discordEmbedBuilder.AddField(new DiscordEmbedField("/invite", "Send´s an invite link!"));
-            discordEmbedBuilder.WithAuthor("Schattenclown help");
-            discordEmbedBuilder.WithFooter("(✿◠‿◠) thanks for using me");
-            discordEmbedBuilder.WithTimestamp(DateTime.Now);
-
-            //Edit the Response to add the Embed in it.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-        }
-
-        /// <summary>
         /// Set an Alarmclock per command.
         /// </summary>
         /// <param name="interactionContext">The interaction context.</param>
         /// <param name="hour">The Houre of the Alarm in the Future.</param>
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
-        [SlashCommand("alarmclock", "Set an alarm for a spesific time!")]
+        [SlashCommand("SetAlarm", "Set an alarm for a spesific time!")]
         public static async Task AlarmClock(InteractionContext interactionContext, [Option("hourofday", "0-23")] double hour, [Option("minuteofday", "0-59")] double minute)
         {
             //Create a Response.
@@ -101,7 +69,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
-        [SlashCommand("myalarms", "Look up your alarms!")]
+        [SlashCommand("MyAlarms", "Look up your alarms!")]
         public static async Task AlarmClockLookup(InteractionContext interactionContext)
         {
             //Create an Response.
@@ -149,7 +117,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="hour">The Houre of the Alarm in the Future.</param>
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
-        [SlashCommand("timer", "Set a timer!")]
+        [SlashCommand("SetTimer", "Set a timer!")]
         public static async Task Timer(InteractionContext interactionContext, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
         {
             //Create a Response.
@@ -181,7 +149,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
-        [SlashCommand("mytimers", "Look up your timers!")]
+        [SlashCommand("MyTimers", "Look up your timers!")]
         public static async Task TimerLookup(InteractionContext interactionContext)
         {
             //Create a Reponse.
@@ -227,7 +195,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
-        [SlashCommand("leaderboard", "Look up the leaderboard!")]
+        [SlashCommand("Leaderboard", "Look up the leaderboard for connectiontime!")]
         public static async Task Leaderboard(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -283,7 +251,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
-        [SlashCommand("Level", "Look up your level!")]
+        [SlashCommand("MyLevel", "Look up your level!")]
         public static async Task Level(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -384,7 +352,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// </summary>
         /// <param name="interactionContext">The ic.</param>
         /// <returns>A Task.</returns>
-        [SlashCommand("invite", "Invite $chattenclown")]
+        [SlashCommand("Invite", "Invite $chattenclown")]
         public static async Task InviteAsync(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -811,7 +779,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
         }
-        [SlashCommand("Showrating", "Shows the rating of an user!")]
+        [SlashCommand("ShowRating", "Shows the rating of an user!")]
         public static async Task Showrating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             string description = "```\n";

@@ -88,7 +88,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
             AppCommands = Client.UseApplicationCommands(new ApplicationCommandsConfiguration()
             {
-                EnableDefaultHelp = false,
+                EnableDefaultHelp = true,
                 DebugStartup = true,
                 ManualOverride = true,
                 CheckAllGuilds = true
