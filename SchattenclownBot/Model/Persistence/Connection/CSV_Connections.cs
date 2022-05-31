@@ -13,39 +13,39 @@ namespace SchattenclownBot.Model.Persistence.Connection
         {
             try
             {
-                Connections cons = new Connections();
-                StreamReader sr = new StreamReader(_filepath.LocalPath);
-                while (!sr.EndOfStream)
+                Connections connections = new Connections();
+                StreamReader streamReader = new StreamReader(_filepath.LocalPath);
+                while (!streamReader.EndOfStream)
                 {
-                    string row = sr.ReadLine();
+                    string row = streamReader.ReadLine();
                     string[] infos = row.Split(';');
 
                     switch (infos[0])
                     {
                         case "DiscordBotKey":
-                            cons.DiscordBotKey = infos[1];
+                            connections.DiscordBotKey = infos[1];
                             break;
                         case "DiscordBotKeyDebug":
-                            cons.DiscordBotDebug = infos[1];
+                            connections.DiscordBotDebug = infos[1];
                             break;
                         case "MySqlConStr":
-                            cons.MySqlConStr = infos[1].Replace(',', ';');
+                            connections.MySqlConStr = infos[1].Replace(',', ';');
                             break;
                         case "MySqlConStrDebug":
-                            cons.MySqlConStrDebug = infos[1].Replace(',', ';');
+                            connections.MySqlConStrDebug = infos[1].Replace(',', ';');
                             break;
                         default:
                             break;
                     }
                 }
-                sr.Close();
-                return cons;
+                streamReader.Close();
+                return connections;
             }
             catch (Exception)
             {
-                DirectoryInfo dir = new DirectoryInfo(_path.LocalPath);
-                if (!dir.Exists)
-                    dir.Create();
+                DirectoryInfo directory = new DirectoryInfo(_path.LocalPath);
+                if (!directory.Exists)
+                    directory.Create();
 
                 StreamWriter streamWriter = new StreamWriter(_filepath.LocalPath);
                 streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +

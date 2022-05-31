@@ -12,7 +12,7 @@ using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Objects
 {
-    public class DcSympathieSystem
+    public class SympathySystem
     {
         public int VoteTableID { get; set; }
         public ulong VotingUserID { get; set; }
@@ -20,52 +20,52 @@ namespace SchattenclownBot.Model.Objects
         public ulong GuildID { get; set; }
         public int VoteRating { get; set; }
         public int VotedRating { get; set; }
-        public DcSymSysRoleInfo RoleInfo { get; set; }
-        public DcSympathieSystem()
+        public RoleInfoSympathySystem RoleInfo { get; set; }
+        public SympathySystem()
         {
 
         }
-        public static List<DcSympathieSystem> ReadAll(ulong guildsId)
+        public static List<SympathySystem> ReadAll(ulong guildId)
         {
-            return DB_DcSympathieSystem.ReadAll(guildsId);
+            return DB_SympathySystem.ReadAll(guildId);
         }
-        public static void Add(DcSympathieSystem dcSympathieSystem)
+        public static void Add(SympathySystem sympathySystem)
         {
-            DB_DcSympathieSystem.Add(dcSympathieSystem);
+            DB_SympathySystem.Add(sympathySystem);
         }
-        public static void Change(DcSympathieSystem dcSympathieSystem)
+        public static void Change(SympathySystem sympathySystem)
         {
-            DB_DcSympathieSystem.Change(dcSympathieSystem);
+            DB_SympathySystem.Change(sympathySystem);
         }
-        public static void CreateTable_DcSympathieSystem(ulong guildsId)
+        public static void CreateTable_SympathySystem(ulong guildId)
         {
-            DB_DcSympathieSystem.CreateTable_DcSympathieSystem(guildsId);
+            DB_SympathySystem.CreateTable_SympathySystem(guildId);
         }
-        public static List<DcSymSysRoleInfo> ReadAllRoleInfo(ulong guildsId)
+        public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
         {
-            return DB_DcSympathieSystem.ReadAllRoleInfo(guildsId);
+            return DB_SympathySystem.ReadAllRoleInfo(guildId);
         }
-        public static void AddRoleInfo(DcSympathieSystem dcSympathieSystem)
+        public static void AddRoleInfo(SympathySystem sympathySystem)
         {
-            DB_DcSympathieSystem.AddRoleInfo(dcSympathieSystem);
+            DB_SympathySystem.AddRoleInfo(sympathySystem);
         }
-        public static void ChangeRoleInfo(DcSympathieSystem dcSympathieSystem)
+        public static void ChangeRoleInfo(SympathySystem sympathySystem)
         {
-            DB_DcSympathieSystem.ChangeRoleInfo(dcSympathieSystem);
+            DB_SympathySystem.ChangeRoleInfo(sympathySystem);
         }
         public static bool CheckRoleInfoExists(ulong guildId, int ratingValue)
         {
-            return DB_DcSympathieSystem.CheckRoleInfoExists(guildId, ratingValue);
+            return DB_SympathySystem.CheckRoleInfoExists(guildId, ratingValue);
         }
-        public static void CreateTable_DcSympathieSystemRoleInfo(ulong guildsId)
+        public static void CreateTable_RoleInfoSympathySystem(ulong guildId)
         {
-            DB_DcSympathieSystem.CreateTable_DcSympathieSystemRoleInfo(guildsId);
+            DB_SympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
         }
-        public static int GetUserRatings(ulong guildsId, ulong votedUserID, int voteRating)
+        public static int GetUserRatings(ulong guildId, ulong votedUserID, int voteRating)
         {
-            return DB_DcSympathieSystem.GetUserRatings(guildsId, votedUserID, voteRating);
+            return DB_SympathySystem.GetUserRatings(guildId, votedUserID, voteRating);
         }
-        public static async Task SympathieSystemRunAsync()
+        public static async Task SympathySystemRunAsync()
         {
             bool levelSystemVirign = true;
 
@@ -80,8 +80,8 @@ namespace SchattenclownBot.Model.Objects
                             var guildsList = Bot.Client.Guilds.ToList();
                             foreach (var guildItem in guildsList)
                             {
-                                DcSympathieSystem.CreateTable_DcSympathieSystem(guildItem.Value.Id);
-                                DcSympathieSystem.CreateTable_DcSympathieSystemRoleInfo(guildItem.Value.Id);
+                                SympathySystem.CreateTable_SympathySystem(guildItem.Value.Id);
+                                SympathySystem.CreateTable_RoleInfoSympathySystem(guildItem.Value.Id);
                             }
                             levelSystemVirign = false;
                         }
@@ -102,16 +102,16 @@ namespace SchattenclownBot.Model.Objects
                         DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
                         var discordMembers = discordGuildObj.Members;
 
-                        List<DcSympathieSystem> dcSympathieSystemsList = DcSympathieSystem.ReadAll(guildItem.Value.Id);
-                        List<DcSympathieSystem> dcSympathieSystemsFinishedList = new();
-                        List<DcSymSysRoleInfo> dcSymSysRoleInfosList = DcSympathieSystem.ReadAllRoleInfo(guildItem.Value.Id);
+                        List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(guildItem.Value.Id);
+                        List<SympathySystem> sympathySystemsFinishedList = new();
+                        List<RoleInfoSympathySystem> roleInfoSympathySystemsList = SympathySystem.ReadAllRoleInfo(guildItem.Value.Id);
                         List<DiscordRole> discordRoleList = new();
 
                         foreach (var discordMemberItem in discordMembers)
                         {
                             discordRoleList.Clear();
                             
-                            foreach (var item in dcSymSysRoleInfosList)
+                            foreach (var item in roleInfoSympathySystemsList)
                             {
                                 if (item.RatingOne != 0)
                                     discordRoleList.Add(discordGuildObj.GetRole(item.RatingOne));
@@ -130,29 +130,29 @@ namespace SchattenclownBot.Model.Objects
                                 int counts = 1;
                                 int ratingsadded = 0;
                                 double rating = 0.0;
-                                DcSympathieSystem dcSympathieSystemObj = new();
+                                SympathySystem sympathySystemObj = new();
 
-                                foreach (DcSympathieSystem dcSympathieSystemItem in dcSympathieSystemsList)
+                                foreach (SympathySystem sympathySystemItem in sympathySystemsList)
                                 {
-                                    if (discordMemberItem.Value.Id == dcSympathieSystemItem.VotedUserID)
+                                    if (discordMemberItem.Value.Id == sympathySystemItem.VotedUserID)
                                     {
-                                        dcSympathieSystemObj = dcSympathieSystemItem;
+                                        sympathySystemObj = sympathySystemItem;
 
-                                        ratingsadded += dcSympathieSystemItem.VoteRating;
+                                        ratingsadded += sympathySystemItem.VoteRating;
                                         rating = Convert.ToDouble(ratingsadded) / Convert.ToDouble(counts);
 
-                                        dcSympathieSystemObj.VotedRating = Convert.ToInt32(Math.Round(rating));
+                                        sympathySystemObj.VotedRating = Convert.ToInt32(Math.Round(rating));
 
                                         if (rating == 1.5 || rating == 2.5 || rating == 3.5 || rating == 4.5)
                                         {
-                                            dcSympathieSystemObj.VotedRating = Convert.ToInt32(Math.Round(rating, 0, MidpointRounding.ToPositiveInfinity));
+                                            sympathySystemObj.VotedRating = Convert.ToInt32(Math.Round(rating, 0, MidpointRounding.ToPositiveInfinity));
                                         }
 
                                         counts++;
                                     }
                                 }
 
-                                if (dcSympathieSystemObj.VotedRating == 1)
+                                if (sympathySystemObj.VotedRating == 1)
                                 {
                                     if (!discordMemberItem.Value.Roles.Contains(discordRoleList[0]))
                                     {
@@ -163,7 +163,7 @@ namespace SchattenclownBot.Model.Objects
                                         await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
                                     }
                                 }
-                                else if (dcSympathieSystemObj.VotedRating == 2)
+                                else if (sympathySystemObj.VotedRating == 2)
                                 {
                                     if (!discordMemberItem.Value.Roles.Contains(discordRoleList[1]))
                                     {
@@ -174,7 +174,7 @@ namespace SchattenclownBot.Model.Objects
                                         await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
                                     }
                                 }
-                                else if (dcSympathieSystemObj.VotedRating == 3)
+                                else if (sympathySystemObj.VotedRating == 3)
                                 {
                                     if (!discordMemberItem.Value.Roles.Contains(discordRoleList[2]))
                                     {
@@ -185,7 +185,7 @@ namespace SchattenclownBot.Model.Objects
                                         await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
                                     }
                                 }
-                                else if (dcSympathieSystemObj.VotedRating == 4)
+                                else if (sympathySystemObj.VotedRating == 4)
                                 {
                                     if (!discordMemberItem.Value.Roles.Contains(discordRoleList[3]))
                                     {
@@ -196,7 +196,7 @@ namespace SchattenclownBot.Model.Objects
                                         await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
                                     }
                                 }
-                                else if (dcSympathieSystemObj.VotedRating == 5)
+                                else if (sympathySystemObj.VotedRating == 5)
                                 {
                                     if (!discordMemberItem.Value.Roles.Contains(discordRoleList[4]))
                                     {

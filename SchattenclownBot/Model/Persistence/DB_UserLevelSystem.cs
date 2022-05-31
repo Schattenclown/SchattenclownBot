@@ -10,49 +10,49 @@ using SchattenclownBot.HelpClasses;
 
 namespace SchattenclownBot.Model.Persistence
 {
-    public static class DB_DcUserLevelSystem
+    public static class DB_UserLevelSystem
     {
-        public static List<DcUserLevelSystem> Read(ulong guildId)
+        public static List<UserLevelSystem> Read(ulong guildId)
         {
             string sqlCommand = $"SELECT * FROM `{guildId}_levelSystem`";
-            List<DcUserLevelSystem> dcUserLevelSystemList = new List<DcUserLevelSystem>();
+            List<UserLevelSystem> userLevelSystemList = new List<UserLevelSystem>();
             MySqlConnection mySqlConnection = DB_Connection.OpenDB();
             MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
-                DcUserLevelSystem dcUserLevelSystemObj = new DcUserLevelSystem()
+                UserLevelSystem userLevelSystemObj = new UserLevelSystem()
                 {
                     MemberId = mySqlDataReader.GetUInt64("MemberId"),
                     OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")                    
                 };
 
-                dcUserLevelSystemList.Add(dcUserLevelSystemObj);
+                userLevelSystemList.Add(userLevelSystemObj);
             }
 
             DB_Connection.CloseDB(mySqlConnection);
-            return dcUserLevelSystemList;
+            return userLevelSystemList;
         }
-        public static void Add(ulong guildId, DcUserLevelSystem dcLevelSystem)
+        public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
         {
             string sqlCommand = $"INSERT INTO `{guildId}_levelSystem` (MemberId, OnlineTicks, OnlineTime) " +
-                                $"VALUES ({dcLevelSystem.MemberId}, {dcLevelSystem.OnlineTicks}, '{dcLevelSystem.OnlineTime}')";
+                                $"VALUES ({userLevelSystem.MemberId}, {userLevelSystem.OnlineTicks}, '{userLevelSystem.OnlineTime}')";
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
-        public static void Change(ulong guildId, DcUserLevelSystem dcLevelSystem)
+        public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
         {
-            string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={dcLevelSystem.OnlineTicks} WHERE MemberId={dcLevelSystem.MemberId}";
+            string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
-        public static void CreateTable_DcUserLevelSystem(ulong guildId)
+        public static void CreateTable_UserLevelSystem(ulong guildId)
         {
             Connections connetions = CSV_Connections.ReadAll();
 
-            string database = WordCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
 #if DEBUG
-            database = WordCutter.RemoveUntilWord(connetions.MySqlConStrDebug, "Database=", 9);
+            database = StringCutter.RemoveUntilWord(connetions.MySqlConStrDebug, "Database=", 9);
 #endif
-            database = WordCutter.RemoveAfterWord(database, "; Uid", 0);
+            database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
             string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
                                 $"USE `{database}`;" +

@@ -16,16 +16,16 @@ namespace SchattenclownBot.Model.HelpClasses
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            ConsoleForamter.Center(" ");
-            ConsoleForamter.Center(@"██████╗ ███████╗███████╗████████╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ ");
-            ConsoleForamter.Center(@"██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ ");
-            ConsoleForamter.Center(@"██████╔╝█████╗  ███████╗   ██║   ███████║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗");
-            ConsoleForamter.Center(@"██╔══██╗██╔══╝  ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║");
-            ConsoleForamter.Center(@"██║  ██║███████╗███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝");
-            ConsoleForamter.Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
-            ConsoleForamter.Center(" ");
+            ConsoleStringFormater.Center(" ");
+            ConsoleStringFormater.Center(@"██████╗ ███████╗███████╗████████╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ ");
+            ConsoleStringFormater.Center(@"██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ ");
+            ConsoleStringFormater.Center(@"██████╔╝█████╗  ███████╗   ██║   ███████║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗");
+            ConsoleStringFormater.Center(@"██╔══██╗██╔══╝  ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║");
+            ConsoleStringFormater.Center(@"██║  ██║███████╗███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝");
+            ConsoleStringFormater.Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
+            ConsoleStringFormater.Center(" ");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            ConsoleForamter.Center("DB IS DEAD");
+            ConsoleStringFormater.Center("DB IS DEAD");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
 
             // Get file path of current process 
@@ -35,12 +35,12 @@ namespace SchattenclownBot.Model.HelpClasses
 
             if (filePath.Contains("Debug"))
             {
-                filePath = WordCutter.RemoveAfterWord(filePath, "Debug", 0);
+                filePath = StringCutter.RemoveAfterWord(filePath, "Debug", 0);
                 newFilepath = filePath + "Debug\\net6.0\\SchattenclownBot.exe";
             }
             else if (filePath.Contains("Release"))
             {
-                filePath = WordCutter.RemoveAfterWord(filePath, "Release", 0);
+                filePath = StringCutter.RemoveAfterWord(filePath, "Release", 0);
                 newFilepath = filePath + "Release\\net6.0\\SchattenclownBot.exe";
             }
 

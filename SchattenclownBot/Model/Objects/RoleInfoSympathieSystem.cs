@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
-    public class DcSymSysRoleInfo
+    public class RoleInfoSympathySystem
     {
         public ulong RatingOne { get; set; }
         public ulong RatingTwo { get; set; }

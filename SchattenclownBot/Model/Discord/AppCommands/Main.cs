@@ -84,13 +84,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 alarm = alarm.AddDays(1);
 
             //Create an AlarmObject and add it to the Database.
-            ScAlarmClock scAlarmClock = new ScAlarmClock
+            BotAlarmClock scAlarmClock = new BotAlarmClock
             {
                 ChannelId = interactionContext.Channel.Id,
                 MemberId = interactionContext.Member.Id,
                 NotificationTime = alarm
             };
-            ScAlarmClock.Add(scAlarmClock);
+            BotAlarmClock.Add(scAlarmClock);
 
             //Let the User know that the Alarm was set Succsefully.
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {scAlarmClock.NotificationTime}!"));
@@ -108,7 +108,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create a List where all Alarms will be Listed if there are any set.
-            List<ScAlarmClock> lstScAlarmClocks = DB_ScAlarmClocks.ReadAll();
+            List<BotAlarmClock> lstScAlarmClocks = DB_BotAlarmClocks.ReadAll();
 
             //Create an Embed.
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
@@ -164,13 +164,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             //Create an TimerObject and add it to the Database.
             DateTime dateTimeNow = DateTime.Now;
-            ScTimer scTimer = new ScTimer
+            BotTimer scTimer = new BotTimer
             {
                 ChannelId = interactionContext.Channel.Id,
                 MemberId = interactionContext.Member.Id,
                 NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
             };
-            ScTimer.Add(scTimer);
+            BotTimer.Add(scTimer);
 
             //Edit the Responce and add the Embed.
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {scTimer.NotificationTime}!"));
@@ -188,7 +188,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create an List with all Timers that where found in the Database.
-            List<ScTimer> lstScTimers = DB_ScTimers.ReadAll();
+            List<BotTimer> lstScTimers = DB_BotTimer.ReadAll();
 
             //Create an Embed.
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
@@ -232,9 +232,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<DcUserLevelSystem> dcUserLevelSystemList = DcUserLevelSystem.Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> dcUserLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
 
-            List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+            List<UserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
 
             int top15 = 0;
@@ -267,8 +267,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<DcUserLevelSystem> dcUserLevelSystemList = DcUserLevelSystem.Read(interactionContext.Guild.Id);
-            List<DcUserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+            List<UserLevelSystem> dcUserLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             dcUserLevelSystemListSorted.Reverse();
 
             string uriString = "https://quickchart.io/chart/render/zm-483cf019-58bf-423e-bd2c-514d8f9b2ff6?data1=";
@@ -722,7 +722,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
             else
             {
-                DcSympathieSystem dcSympathieSystemObj = new DcSympathieSystem
+                SympathySystem dcSympathySystemObj = new SympathySystem
                 {
                     VotingUserID = discordTargetMember.Id,
                     VotedUserID = discordTargetMember.Id,
@@ -730,18 +730,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     VoteRating = rating,
                 };
 
-                List<DcSympathieSystem> dcSympathieSystemsList = DcSympathieSystem.ReadAll(e.Guild.Id);
+                List<SympathySystem> dcSympathySystemsList = SympathySystem.ReadAll(e.Guild.Id);
 
-                foreach (DcSympathieSystem dcSympathieSystemItem in dcSympathieSystemsList)
+                foreach (SympathySystem dcSympathySystemItem in dcSympathySystemsList)
                 {
-                    if (dcSympathieSystemItem.VotingUserID == dcSympathieSystemObj.VotingUserID && dcSympathieSystemItem.VotedUserID == dcSympathieSystemObj.VotedUserID)
+                    if (dcSympathySystemItem.VotingUserID == dcSympathySystemObj.VotingUserID && dcSympathySystemItem.VotedUserID == dcSympathySystemObj.VotedUserID)
                         foundTargetMemberInDB = true;
                 }
 
                 if (!foundTargetMemberInDB)
-                    DcSympathieSystem.Add(dcSympathieSystemObj);
+                    SympathySystem.Add(dcSympathySystemObj);
                 else if (foundTargetMemberInDB)
-                    DcSympathieSystem.Change(dcSympathieSystemObj);
+                    SympathySystem.Change(dcSympathySystemObj);
 
                 discordEmbedBuilder.Title = "Rating";
                 discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";
@@ -751,42 +751,42 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         }
 
         [SlashCommand("RatingSetup", "Set up the roles for the Ratingsystem!", false)]
-        public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(VoteRatingChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
+        public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
         {
-            bool found = DcSympathieSystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
+            bool found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
 
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
 
-            DcSympathieSystem dcSympathieSystemObj = new DcSympathieSystem
+            SympathySystem dcSympathySystemObj = new SympathySystem
             {
                 GuildID = interactionContext.Guild.Id
             };
-            dcSympathieSystemObj.RoleInfo = new();
+            dcSympathySystemObj.RoleInfo = new();
 
             switch (Convert.ToInt32(voteRating))
             {
                 case 1:
-                    dcSympathieSystemObj.RoleInfo.RatingOne = discordRole.Id;
+                    dcSympathySystemObj.RoleInfo.RatingOne = discordRole.Id;
                     break;
                 case 2:
-                    dcSympathieSystemObj.RoleInfo.RatingTwo = discordRole.Id;
+                    dcSympathySystemObj.RoleInfo.RatingTwo = discordRole.Id;
                     break;
                 case 3:
-                    dcSympathieSystemObj.RoleInfo.RatingThree = discordRole.Id;
+                    dcSympathySystemObj.RoleInfo.RatingThree = discordRole.Id;
                     break;
                 case 4:
-                    dcSympathieSystemObj.RoleInfo.RatingFour = discordRole.Id;
+                    dcSympathySystemObj.RoleInfo.RatingFour = discordRole.Id;
                     break;
                 case 5:
-                    dcSympathieSystemObj.RoleInfo.RatingFive = discordRole.Id;
+                    dcSympathySystemObj.RoleInfo.RatingFive = discordRole.Id;
                     break;
                 default:
                     break;
             }
             if (!found)
-                DcSympathieSystem.AddRoleInfo(dcSympathieSystemObj);
+                SympathySystem.AddRoleInfo(dcSympathySystemObj);
             if (found)
-                DcSympathieSystem.ChangeRoleInfo(dcSympathieSystemObj);
+                SympathySystem.ChangeRoleInfo(dcSympathySystemObj);
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
         }
@@ -798,7 +798,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             for (int i = 1; i < 6; i++)
             {
-                description += $"Rating with {i}: {DcSympathieSystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
+                description += $"Rating with {i}: {SympathySystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
             }
             description += "```";
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder

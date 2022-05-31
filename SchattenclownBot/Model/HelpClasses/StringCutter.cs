@@ -7,7 +7,7 @@ namespace SchattenclownBot.HelpClasses
     /// <summary>
     /// Cuts a string until the word given with variation given with an integer
     /// </summary>
-    public class WordCutter
+    public class StringCutter
     {
         /// <summary>
         /// Removes until word.

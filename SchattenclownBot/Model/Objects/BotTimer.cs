@@ -9,46 +9,46 @@ using SchattenclownBot.Model.Persistence;
 
 namespace SchattenclownBot.Model.Objects
 {
-    public class ScTimer
+    public class BotTimer
     {
         public int DBEntryID { get; set; }
         public DateTime NotificationTime { get; set; }
         public ulong ChannelId { get; set; }
         public ulong MemberId { get; set; }
-        public static List<ScTimer> scTimers;
-        public static void Add(ScTimer timer)
+        public static List<BotTimer> botTimerList;
+        public static void Add(BotTimer botTimer)
         {
-            DB_ScTimers.Add(timer);
-            ScTimersDBRefresh();
+            DB_BotTimer.Add(botTimer);
+            BotTimerDBRefresh();
         }
-        public static void Delete(ScTimer timer)
+        public static void Delete(BotTimer botTimer)
         {
-            DB_ScTimers.Delete(timer);
-            ScTimersDBRefresh();
+            DB_BotTimer.Delete(botTimer);
+            BotTimerDBRefresh();
         }
-        public static List<ScTimer> ReadAll()
+        public static List<BotTimer> ReadAll()
         {
-            return DB_ScTimers.ReadAll();
+            return DB_BotTimer.ReadAll();
         }
-        public static async Task ScTimersRunAsync()
+        public static async Task BotTimerRunAsync()
         {
-            DB_ScTimers.CreateTable_ScTimers();
-            scTimers = DB_ScTimers.ReadAll();
+            DB_BotTimer.CreateTable_BotTimer();
+            botTimerList = DB_BotTimer.ReadAll();
 
             await Task.Run(async () =>
             {
                 while (true)
                 {
-                    foreach (var scTimer in scTimers)
+                    foreach (var botTimerItem in botTimerList)
                     {
-                        if (scTimer.NotificationTime < DateTime.Now)
+                        if (botTimerItem.NotificationTime < DateTime.Now)
                         {
-                            var chn = await Bot.Client.GetChannelAsync(scTimer.ChannelId);
+                            var chn = await Bot.Client.GetChannelAsync(botTimerItem.ChannelId);
                             DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
                             eb.Color = DiscordColor.Red;
-                            eb.WithDescription($"<@{scTimer.MemberId}> Timer for {scTimer.NotificationTime} is up!");
+                            eb.WithDescription($"<@{botTimerItem.MemberId}> Timer for {botTimerItem.NotificationTime} is up!");
 
-                            ScTimer.Delete(scTimer);
+                            BotTimer.Delete(botTimerItem);
                             for (int i = 0; i < 3; i++)
                             {
                                 await chn.SendMessageAsync(eb.Build());
@@ -58,15 +58,15 @@ namespace SchattenclownBot.Model.Objects
                     }
 
                     if (DateTime.Now.Second == 15)
-                        scTimers = DB_ScTimers.ReadAll();
+                        botTimerList = DB_BotTimer.ReadAll();
 
                     await Task.Delay(1000 * 1);
                 }
             });
         }
-        public static void ScTimersDBRefresh()
+        public static void BotTimerDBRefresh()
         {
-            scTimers = DB_ScTimers.ReadAll();
+            botTimerList = DB_BotTimer.ReadAll();
         }
     }
 }

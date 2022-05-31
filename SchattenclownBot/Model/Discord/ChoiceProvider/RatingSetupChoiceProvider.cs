@@ -9,7 +9,7 @@ namespace SchattenclownBot.Model.Discord.ChoiceProvider
     /// <summary>
     /// The Abotype choice provider.
     /// </summary>
-    public class VoteRatingChoiceProvider : IChoiceProvider
+    public class RatingSetupChoiceProvider : IChoiceProvider
     {
         /// <summary>
         /// Providers the choices.
