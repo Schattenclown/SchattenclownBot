@@ -34,7 +34,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
-
+            
             //Check if the Give Timeformat is Valid.
             if (!TimeFormat(hour, minute))
             {
@@ -45,23 +45,23 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             //Create a DateTime Variable if the Timeformat was Valid.
             DateTime dateTimeNow = DateTime.Now;
-            DateTime alarm = new DateTime(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
+            DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
 
             //Check if the Alarm has a Time for Tommorow if it is in the Past already Today.
             if (alarm < DateTime.Now)
                 alarm = alarm.AddDays(1);
 
             //Create an AlarmObject and add it to the Database.
-            BotAlarmClock scAlarmClock = new BotAlarmClock
+            BotAlarmClock botAlarmClock = new()
             {
                 ChannelId = interactionContext.Channel.Id,
                 MemberId = interactionContext.Member.Id,
                 NotificationTime = alarm
             };
-            BotAlarmClock.Add(scAlarmClock);
+            BotAlarmClock.Add(botAlarmClock);
 
             //Let the User know that the Alarm was set Succsefully.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {scAlarmClock.NotificationTime}!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {botAlarmClock.NotificationTime}!"));
         }
 
         /// <summary>
@@ -76,10 +76,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create a List where all Alarms will be Listed if there are any set.
-            List<BotAlarmClock> lstScAlarmClocks = DB_BotAlarmClocks.ReadAll();
+            List<BotAlarmClock> botAlarmClockList = DB_BotAlarmClocks.ReadAll();
 
             //Create an Embed.
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
+            DiscordEmbedBuilder discordEmbedBuilder = new()
             {
                 Title = "Your alarms",
                 Color = DiscordColor.Purple,
@@ -90,15 +90,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             bool noTimers = true;
 
             //Search for any Alarms that match the Alarmcreator and Requesting User.
-            foreach (var scAlarmClock in lstScAlarmClocks)
+            foreach (var botAlarmClockItem in botAlarmClockList)
             {
                 //Check if the Alarmcreator and the Requesting User are the same.
-                if (scAlarmClock.MemberId == interactionContext.Member.Id)
+                if (botAlarmClockItem.MemberId == interactionContext.Member.Id)
                 {
                     //Set the swtich to false because at leaset one Alarm was found.
                     noTimers = false;
                     //Add an field to the Embed with the Alarm that was found.
-                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{scAlarmClock.NotificationTime}", $"Alarm with ID {scAlarmClock.DBEntryID}"));
+                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"Alarm with ID {botAlarmClockItem.DBEntryID}"));
                 }
             }
 
@@ -132,16 +132,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             //Create an TimerObject and add it to the Database.
             DateTime dateTimeNow = DateTime.Now;
-            BotTimer scTimer = new BotTimer
+            BotTimer botTimer = new()
             {
                 ChannelId = interactionContext.Channel.Id,
                 MemberId = interactionContext.Member.Id,
                 NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
             };
-            BotTimer.Add(scTimer);
+            BotTimer.Add(botTimer);
 
             //Edit the Responce and add the Embed.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {scTimer.NotificationTime}!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {botTimer.NotificationTime}!"));
         }
 
         /// <summary>
@@ -156,10 +156,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create an List with all Timers that where found in the Database.
-            List<BotTimer> lstScTimers = DB_BotTimer.ReadAll();
+            List<BotTimer> botTimerList = DB_BotTimer.ReadAll();
 
             //Create an Embed.
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
+            DiscordEmbedBuilder discordEmbedBuilder = new()
             {
                 Title = "Your timers",
                 Color = DiscordColor.Purple,
@@ -170,15 +170,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             bool noTimers = true;
 
             //Search for any Timers that match the Timercreator and Requesting User.
-            foreach (var scTimer in lstScTimers)
+            foreach (var botTimerItem in botTimerList)
             {
                 //Check if the Timercreater and the Requesting User are the same.
-                if (scTimer.MemberId == interactionContext.Member.Id)
+                if (botTimerItem.MemberId == interactionContext.Member.Id)
                 {
                     //Set the swtich to false because at leaset one Timer was found.
                     noTimers = false;
                     //Add an field to the Embed with the Timer that was found.
-                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{scTimer.NotificationTime}", $"Timer with ID {scTimer.DBEntryID}"));
+                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.DBEntryID}"));
                 }
             }
 
@@ -215,7 +215,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                 var discordUser = await Bot.Client.GetUserAsync(userLevelSystemItem.MemberId, true);
 
-                DateTime date1 = new DateTime(1969, 4, 20, 4, 20, 0);
+                DateTime date1 = new(1969, 4, 20, 4, 20, 0);
                 DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
                 TimeSpan timeSpan = date2 - date1;
 
@@ -243,10 +243,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     break;
             }
             liststring += "\n```";
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
-            discordEmbedBuilder.Title = "LevelSystem";
-            discordEmbedBuilder.Description = liststring;
-            discordEmbedBuilder.Color = DiscordColor.Purple;
+            DiscordEmbedBuilder discordEmbedBuilder = new()
+            {
+                Title = "LevelSystem",
+                Description = liststring,
+                Color = DiscordColor.Purple
+            };
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
@@ -256,9 +258,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> dcUserLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
-            List<UserLevelSystem> dcUserLevelSystemListSorted = dcUserLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
-            dcUserLevelSystemListSorted.Reverse();
+            List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+            userLevelSystemListSorted.Reverse();
 
             string uriString = "https://quickchart.io/chart/render/zm-483cf019-58bf-423e-bd2c-514d8f9b2ff6?data1=";
 
@@ -270,12 +272,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             var discordUser = await Bot.Client.GetUserAsync(interactionContext.Member.Id);
             string username = discordUser.Username;
 
-            foreach (var dcUserLevelSystemItem in dcUserLevelSystemListSorted)
+            foreach (var userLevelSystemItem in userLevelSystemListSorted)
             {
-                if (dcUserLevelSystemItem.MemberId == interactionContext.Member.Id)
+                if (userLevelSystemItem.MemberId == interactionContext.Member.Id)
                 {
-                    rank = (dcUserLevelSystemListSorted.IndexOf(dcUserLevelSystemItem) + 1).ToString();
-                    totalXp = dcUserLevelSystemItem.OnlineTicks * 125 / 60;
+                    rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
+                    totalXp = userLevelSystemItem.OnlineTicks * 125 / 60;
                     break;
                 }
             }
@@ -304,12 +306,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             //uriString += $"{level} {username} {xp,50}";
             uriString += $"{modXp}";
 
-            Uri uri = new Uri(uriString);
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
-            discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
+            Uri uri = new(uriString);
+            DiscordEmbedBuilder discordEmbedBuilder = new();
             discordEmbedBuilder.WithTitle(temp);
             discordEmbedBuilder.WithDescription("<@" + interactionContext.Member.Id + ">");
             discordEmbedBuilder.WithFooter("Rank #" + rank);
+            discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
             discordEmbedBuilder.Color = DiscordColor.Purple;
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
@@ -347,81 +349,108 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             return true;
         }
 
-        /// <summary>
-        /// Generates an Invite link.
-        /// </summary>
-        /// <param name="interactionContext">The ic.</param>
-        /// <returns>A Task.</returns>
-        [SlashCommand("Invite", "Invite $chattenclown")]
-        public static async Task InviteAsync(InteractionContext interactionContext)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-            var bot_invite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
-
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(bot_invite.AbsoluteUri));
-        }
-
-        /// <summary>
-        /// Generates an Invite link.
-        /// </summary>
-        /// <param name="interactionContext">The ic.</param>
-        /// <returns>A Task.</returns>
         [SlashCommand("Poke", "Poke user!")]
         public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
-            DiscordMember discordMember = discordUser as DiscordMember;
-            await PokeAsync(interactionContext, null, discordMember, false, 2, false);
-        }
+            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
+            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
+            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
-        [SlashCommand("ForcePoke", "Poke user! Forcefully!")]
-        public static async Task ForcePoke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
-        {
-            DiscordMember discordMember = discordUser as DiscordMember;
-            await PokeAsync(interactionContext, null, discordMember, false, 2, true);
+            DiscordSelectComponent discordSelectComponent = new("force", "Select a method!", discordSelectComponentOptionList);
+
+            await interactionContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
         }
 
         [ContextMenu(ApplicationCommandType.User, "Poke user!", true)]
         public static async Task AppsPoke(ContextMenuContext contextMenuContext)
         {
-            await PokeAsync(null, contextMenuContext, contextMenuContext.TargetMember, true, 2, false);
+            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
+            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
+            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
+
+            DiscordSelectComponent discordSelectComponent = new DiscordSelectComponent("force", "Select a method!", discordSelectComponentOptionList);
+
+            await contextMenuContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Poke user <@{contextMenuContext.TargetMember.Id}>!"));
         }
 
-        [ContextMenu(ApplicationCommandType.User, "Poke user! Forcefully!", true)]
-        public static async Task AppsForcePoke(ContextMenuContext contextMenuContext)
+        [SlashCommand("GiveRating", "Give an User a rating!")]
+        public static async Task GiveRating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
-            await PokeAsync(null, contextMenuContext, contextMenuContext.TargetMember, true, 2, true);
+            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
+            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
+
+            DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+
+            await interactionContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Give <@{discordUser.Id}> a Rating!"));
         }
 
-        public static async Task PokeAsync(InteractionContext interactionContext, ContextMenuContext contextMenuContext, DiscordMember discordTargetMember, bool deleteResponseAsync, int pokeAmount, bool force)
+        [ContextMenu(ApplicationCommandType.User, "Give Rating!")]
+        public static async Task GiveRating(ContextMenuContext contextMenuContext)
         {
-            if (interactionContext != null)
-                await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            else
-                await contextMenuContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
+            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
+
+            DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+
+            await contextMenuContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
+        }
+
+        public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs compnentInteractionCreateEventArgs)
+        {
+            switch (compnentInteractionCreateEventArgs.Values[0])
+            {
+                case "rating_1":
+                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 1);
+                    break;
+                case "rating_2":
+                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 2);
+                    break;
+                case "rating_3":
+                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 3);
+                    break;
+                case "rating_4":
+                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 4);
+                    break;
+                case "rating_5":
+                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 5);
+                    break;
+                case "light":
+                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, true);
+                    break;
+                case "hard":
+                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, false);
+                    break;
+            }
+        }
+
+        public static async Task PokeAsync(ComponentInteractionCreateEventArgs compnentInteractionCreateEventArgs, bool deleteResponseAsync, int pokeAmount, bool force)
+        {
+            DiscordMember discordMember = compnentInteractionCreateEventArgs.User as DiscordMember;
+            DiscordMember discordTargetMember = compnentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(compnentInteractionCreateEventArgs.Guild).Result;
+
+            await compnentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             var discordEmbedBuilder = new DiscordEmbedBuilder
             {
                 Title = $"Poke {discordTargetMember.DisplayName}"
             };
 
-            if (interactionContext != null)
-                discordEmbedBuilder.WithFooter($"Requested by {interactionContext.Member.DisplayName}", interactionContext.Member.AvatarUrl);
-            else
-                discordEmbedBuilder.WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl);
+            discordEmbedBuilder.WithFooter($"Requested by {compnentInteractionCreateEventArgs.User.Username}", discordMember.AvatarUrl);
 
-            if (interactionContext != null)
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-            else
-                await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
 
             bool rightToMove = false;
             List<DiscordRole> discordRoleList = new();
 
-            if (interactionContext != null)
-                discordRoleList = interactionContext.Member.Roles.ToList();
-            else
-                discordRoleList = contextMenuContext.Member.Roles.ToList();
+            discordRoleList = discordMember.Roles.ToList();
 
             foreach (DiscordRole discordRoleItem in discordRoleList)
             {
@@ -454,26 +483,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 {
                     DiscordEmoji discordEmoji = DiscordEmoji.FromName(Bot.Client, ":no_entry_sign:");
 
-                    if (interactionContext != null)
-                    {
-                        tempCategory = interactionContext.Guild.CreateChannelCategoryAsync("%Temp%").Result;
-                        tempChannel1 = interactionContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
-                        tempChannel2 = interactionContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
-                    }
-                    else
-                    {
-                        tempCategory = contextMenuContext.Guild.CreateChannelCategoryAsync("%Temp%").Result;
-                        tempChannel1 = contextMenuContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
-                        tempChannel2 = contextMenuContext.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
-                    }
+                    tempCategory = compnentInteractionCreateEventArgs.Interaction.Guild.CreateChannelCategoryAsync("%Temp%").Result;
+                    tempChannel1 = compnentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
+                    tempChannel2 = compnentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
                 }
                 catch
                 {
                     discordEmbedBuilder.Description = "Error while creating the channels!";
-                    if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    else
-                        await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 }
 
                 try
@@ -493,10 +510,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 catch
                 {
                     discordEmbedBuilder.Description = "Error! User left?";
-                    if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    else
-                        await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 }
 
                 try
@@ -506,10 +520,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 catch
                 {
                     discordEmbedBuilder.Description = "Error! User left?";
-                    if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    else
-                        await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 }
 
                 try
@@ -519,10 +530,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 catch
                 {
                     discordEmbedBuilder.Description = "Error while deleting the channels!";
-                    if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    else
-                        await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 }
 
                 try
@@ -532,10 +540,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 catch
                 {
                     discordEmbedBuilder.Description = "Error while deleting the channels!";
-                    if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    else
-                        await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 }
 
                 try
@@ -545,27 +550,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 catch
                 {
                     discordEmbedBuilder.Description = "Error while deleting the channels!";
-                    if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    else
-                        await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 }
             }
             else if (discordTargetMember.VoiceState == null)
             {
                 discordEmbedBuilder.Description = "User is not connected!";
-                if (interactionContext != null)
-                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                else
-                    await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
             else if (!rightToMove)
             {
                 discordEmbedBuilder.Description = "Your not allowed to use that!";
-                if (interactionContext != null)
-                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                else
-                    await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
             else if (mobileHasValue)
             {
@@ -591,10 +587,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 discordEmbedBuilder.Description = description;
 
-                if (interactionContext != null)
-                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                else
-                    await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
 
             if (deleteResponseAsync)
@@ -602,99 +595,27 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 for (int i = 3; i > 0; i--)
                 {
                     discordEmbedBuilder.AddField(new DiscordEmbedField("This message will be deleted in", $"{i} Secounds"));
-                    await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                     await Task.Delay(1000);
                     discordEmbedBuilder.RemoveFieldAt(0);
                 }
 
-                await contextMenuContext.DeleteResponseAsync();
+                await compnentInteractionCreateEventArgs.Interaction.DeleteOriginalResponseAsync();
             }
         }
 
-        /// <summary>
-        /// Gets the user's avatar & banner.
-        /// </summary>
-        /// <param name="contextMenuContext">The contextmenu context.</param>
-        [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
-        public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
+        public static async Task VoteRatingAsync(ComponentInteractionCreateEventArgs compnentInteractionCreateEventArgs, int rating)
         {
-            var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id, true);
-
-            var discordEmbedBuilder = new DiscordEmbedBuilder
-            {
-                Title = $"Avatar & Banner of {user.Username}",
-                ImageUrl = user.BannerHash != null ? user.BannerUrl : null
-            }.
-            WithThumbnail(user.AvatarUrl).
-            WithColor(user.BannerColor ?? DiscordColor.Purple).
-            WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).
-            WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
-        }
-
-        [ContextMenu(ApplicationCommandType.User, "Give Rating!")]
-        public static async Task GiveRating(ContextMenuContext contextMenuContext)
-        {
-            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
-            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
-            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
-            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
-            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
-            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
-
-            var comps = new DiscordSelectComponent("give_rating", "Select a Rating!", discordSelectComponentOptionList);
-
-            await contextMenuContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(comps).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
-        }
-
-        [SlashCommand("GiveRating", "Give an User a rating!")]
-        public static async Task GiveRating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
-        {
-            DiscordMember discordTargetMember = discordUser as DiscordMember;
-
-            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
-            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
-            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
-            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
-            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
-            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
-
-            var comps = new DiscordSelectComponent("give_rating", "Select a Rating!", discordSelectComponentOptionList);
-
-            await interactionContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(comps).WithContent($"Give <@{discordTargetMember.Id}> a Rating!"));
-        }
-
-        public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
-        {
-            int rating = 0;
-            DiscordMember discordMember = e.User as DiscordMember;
-            DiscordMember discordTargetMember = e.Message.MentionedUsers[0].ConvertToMember(e.Guild).Result;
-            switch (e.Values[0])
-            {
-                case "rating_1":
-                    rating = 1;
-                    break;
-                case "rating_2":
-                    rating = 2;
-                    break;
-                case "rating_3":
-                    rating = 3;
-                    break;
-                case "rating_4":
-                    rating = 4;
-                    break;
-                case "rating_5":
-                    rating = 5;
-                    break;
-            }
+            DiscordMember discordMember = compnentInteractionCreateEventArgs.User as DiscordMember;
+            DiscordMember discordTargetMember = compnentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(compnentInteractionCreateEventArgs.Guild).Result;
 
             bool foundTargetMemberInDB = false;
             bool memberIsFlagged91 = false;
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
 
-            if (e.Guild.Id == 928930967140331590)
+            if (compnentInteractionCreateEventArgs.Guild.Id == 928930967140331590)
             {
-                DiscordRole discordRole = e.Guild.GetRole(980071522427363368);
+                DiscordRole discordRole = compnentInteractionCreateEventArgs.Guild.GetRole(980071522427363368);
                 if (discordMember.Roles.Contains(discordRole))
                     memberIsFlagged91 = true;
             }
@@ -711,32 +632,32 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
             else
             {
-                SympathySystem dcSympathySystemObj = new SympathySystem
+                SympathySystem sympathySystemObj = new SympathySystem
                 {
                     VotingUserID = discordTargetMember.Id,
                     VotedUserID = discordTargetMember.Id,
-                    GuildID = e.Guild.Id,
+                    GuildID = compnentInteractionCreateEventArgs.Guild.Id,
                     VoteRating = rating,
                 };
 
-                List<SympathySystem> dcSympathySystemsList = SympathySystem.ReadAll(e.Guild.Id);
+                List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(compnentInteractionCreateEventArgs.Guild.Id);
 
-                foreach (SympathySystem dcSympathySystemItem in dcSympathySystemsList)
+                foreach (SympathySystem sympathySystemItem in sympathySystemsList)
                 {
-                    if (dcSympathySystemItem.VotingUserID == dcSympathySystemObj.VotingUserID && dcSympathySystemItem.VotedUserID == dcSympathySystemObj.VotedUserID)
+                    if (sympathySystemItem.VotingUserID == sympathySystemObj.VotingUserID && sympathySystemItem.VotedUserID == sympathySystemObj.VotedUserID)
                         foundTargetMemberInDB = true;
                 }
 
                 if (!foundTargetMemberInDB)
-                    SympathySystem.Add(dcSympathySystemObj);
+                    SympathySystem.Add(sympathySystemObj);
                 else if (foundTargetMemberInDB)
-                    SympathySystem.Change(dcSympathySystemObj);
+                    SympathySystem.Change(sympathySystemObj);
 
                 discordEmbedBuilder.Title = "Rating";
                 discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";
             }
 
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
+            await compnentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("RatingSetup", "Set up the roles for the Ratingsystem!", false)]
@@ -746,39 +667,40 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
 
-            SympathySystem dcSympathySystemObj = new SympathySystem
+            SympathySystem sympathySystemObj = new SympathySystem
             {
                 GuildID = interactionContext.Guild.Id
             };
-            dcSympathySystemObj.RoleInfo = new();
+            sympathySystemObj.RoleInfo = new();
 
             switch (Convert.ToInt32(voteRating))
             {
                 case 1:
-                    dcSympathySystemObj.RoleInfo.RatingOne = discordRole.Id;
+                    sympathySystemObj.RoleInfo.RatingOne = discordRole.Id;
                     break;
                 case 2:
-                    dcSympathySystemObj.RoleInfo.RatingTwo = discordRole.Id;
+                    sympathySystemObj.RoleInfo.RatingTwo = discordRole.Id;
                     break;
                 case 3:
-                    dcSympathySystemObj.RoleInfo.RatingThree = discordRole.Id;
+                    sympathySystemObj.RoleInfo.RatingThree = discordRole.Id;
                     break;
                 case 4:
-                    dcSympathySystemObj.RoleInfo.RatingFour = discordRole.Id;
+                    sympathySystemObj.RoleInfo.RatingFour = discordRole.Id;
                     break;
                 case 5:
-                    dcSympathySystemObj.RoleInfo.RatingFive = discordRole.Id;
+                    sympathySystemObj.RoleInfo.RatingFive = discordRole.Id;
                     break;
                 default:
                     break;
             }
             if (!found)
-                SympathySystem.AddRoleInfo(dcSympathySystemObj);
+                SympathySystem.AddRoleInfo(sympathySystemObj);
             if (found)
-                SympathySystem.ChangeRoleInfo(dcSympathySystemObj);
+                SympathySystem.ChangeRoleInfo(sympathySystemObj);
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
         }
+
         [SlashCommand("ShowRating", "Shows the rating of an user!")]
         public static async Task Showrating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
@@ -798,6 +720,33 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             };
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        }
+
+        [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
+        public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
+        {
+            var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id, true);
+
+            var discordEmbedBuilder = new DiscordEmbedBuilder
+            {
+                Title = $"Avatar & Banner of {user.Username}",
+                ImageUrl = user.BannerHash != null ? user.BannerUrl : null
+            }.
+            WithThumbnail(user.AvatarUrl).
+            WithColor(user.BannerColor ?? DiscordColor.Purple).
+            WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).
+            WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        }
+
+        [SlashCommand("Invite", "Invite $chattenclown")]
+        public static async Task InviteAsync(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            var bot_invite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
+
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(bot_invite.AbsoluteUri));
         }
     }
 }

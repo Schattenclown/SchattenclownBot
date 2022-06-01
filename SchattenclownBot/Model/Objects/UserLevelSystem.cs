@@ -134,7 +134,7 @@ namespace SchattenclownBot.Model.Objects
                             var guildsList = Bot.Client.Guilds.ToList();
                             foreach (var guildItem in guildsList)
                             {
-                                //DcUserLevelSystem.CreateTable_DcUserLevelSystem(guildItem.Value.Id);
+                                //UserLevelSystem.CreateTable_UserLevelSystem(guildItem.Value.Id);
                             }
                             LevelSystemRoleDistributionVirign = false;
                         }

@@ -180,12 +180,13 @@ namespace SchattenclownBot.Model.Discord.Main
             cnext.CommandErrored += CNext_CommandErrored;
 
             /* Slash Infos */
-            client.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
             client.ApplicationCommandCreated += Discord_ApplicationCommandCreated;
             client.ApplicationCommandDeleted += Discord_ApplicationCommandDeleted;
             client.ApplicationCommandUpdated += Discord_ApplicationCommandUpdated;
             appCommands.SlashCommandErrored += Slash_SlashCommandErrored;
             appCommands.SlashCommandExecuted += Slash_SlashCommandExecuted;
+
+            client.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
         }
 
         /// <summary>
