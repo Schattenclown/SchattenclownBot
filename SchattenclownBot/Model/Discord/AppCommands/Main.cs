@@ -736,7 +736,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             WithColor(user.BannerColor ?? DiscordColor.Purple).
             WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
         }
 
         [SlashCommand("Invite", "Invite $chattenclown")]
