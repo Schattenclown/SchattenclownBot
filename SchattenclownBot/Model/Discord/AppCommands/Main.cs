@@ -423,10 +423,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     await VoteRatingAsync(compnentInteractionCreateEventArgs, 5);
                     break;
                 case "light":
-                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, true);
+                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, false);
                     break;
                 case "hard":
-                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, false);
+                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, true);
                     break;
             }
         }
