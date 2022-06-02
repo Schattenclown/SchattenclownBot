@@ -170,7 +170,7 @@ namespace SchattenclownBot.Model.Objects
                     await Task.Delay(1000);
                 } while (levelSystemRoleDistributionVirgin);
 
-                while (true)
+                while (true && guildObj != null)
                 {
                     while (DateTime.Now.Second != executeSecond)
                     {
