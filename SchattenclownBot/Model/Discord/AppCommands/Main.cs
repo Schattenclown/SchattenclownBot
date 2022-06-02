@@ -220,7 +220,7 @@ internal class Main : ApplicationCommandsModule
                 var calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
                 var calculatedXpOverCurrentLevel = UserLevelSystem.CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
 
-                leaderboardString += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $" Level {calculatedLevel,3} {userLevelSystemItem.OnlineTicks,7} {calculatedXpOverCurrentLevel,6} [{discordMemberObj.DisplayName}]\n";
+                leaderboardString += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $" Level {calculatedLevel,3} TotalXP {userLevelSystemItem.OnlineTicks,6} XPNeeded {calculatedXpOverCurrentLevel,5} [{discordMemberObj.DisplayName}]\n";
                 top30++;
                 if (top30 == 30)
                     break;
