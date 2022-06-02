@@ -223,7 +223,7 @@ namespace SchattenclownBot.Model.Objects
                         }
 
                         var discordMemberRoleList = discordMember.Roles.ToList();
-                        Task.Delay(delayInMs);
+                        await Task.Delay(delayInMs);
 
                         foreach (var revokeRoleItem in discordMemberRoleList.Where(revokeRoleItem => revokeRoleItem.Name.Contains(RoleChannelLevelString) && revokeRoleItem.Name != voiceChannelLevelString))
                         {

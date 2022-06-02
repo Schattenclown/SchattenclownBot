@@ -103,7 +103,6 @@ namespace SchattenclownBot.Model.Objects
                         var discordMembers = discordGuildObj.Members;
 
                         var sympathySystemsList = SympathySystem.ReadAll(guildItem.Value.Id);
-                        List<SympathySystem> sympathySystemsFinishedList = new();
                         var roleInfoSympathySystemsList = SympathySystem.ReadAllRoleInfo(guildItem.Value.Id);
                         List<DiscordRole> discordRoleList = new();
 

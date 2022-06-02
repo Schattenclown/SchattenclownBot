@@ -198,7 +198,7 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             cnext.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
 #if DEBUG
-            appCommands.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
+            //appCommands.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
             appCommands.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
 #else
             appCommands.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
