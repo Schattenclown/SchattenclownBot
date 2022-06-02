@@ -27,11 +27,11 @@ namespace SchattenclownBot.Model.Discord.Main
     {
 
 #if DEBUG
-        public static string prefix = "!";
+        public const string Prefix = "!";
 #else 
-        public static string prefix = "%";
+        public const string Prefix = "%";
 #endif
-        public static readonly ulong devguild = 881868642600505354;
+        public static readonly ulong DevGuild = 881868642600505354;
 
         public static CancellationTokenSource ShutdownRequest;
         public static DiscordClient Client;
@@ -40,38 +40,37 @@ namespace SchattenclownBot.Model.Discord.Main
         private InteractivityExtension INext;
         private CommandsNextExtension CNext;
 
-        public static string token = "";
-        public static int virgin = 0;
-        public static UserStatus customstatus = UserStatus.Streaming;
-        public static bool custom = false;
-        public static string customstate = $"/help";
+        private static string _token = "";
+        private static int _virgin = 0;
+        public static UserStatus CustomStatus = UserStatus.Streaming;
+        public static bool Custom = false;
+        public static string CustomState = $"/help";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Bot"/> class.
         /// </summary>
         public Bot()
         {
-            if (virgin == 0)
+            if (_virgin == 0)
             {
-                Connections connections = Connections.GetConnections();
-                token = connections.DiscordBotKey;
+                var connections = Connections.GetConnections();
+                _token = connections.DiscordBotKey;
 #if DEBUG
-                token = connections.DiscordBotDebug;
+                _token = connections.DiscordBotDebug;
 #endif
-                virgin = 69;
+                _virgin = 69;
             }
 
             ShutdownRequest = new CancellationTokenSource();
 
-            LogLevel logLevel;
 #if DEBUG
-            logLevel = LogLevel.Debug;
+            const LogLevel logLevel = LogLevel.Debug;
 #else
-            logLevel = LogLevel.Error;
+            const LogLevel logLevel = LogLevel.Debug;
 #endif
             var cfg = new DiscordConfiguration
             {
-                Token = token,
+                Token = _token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MessageCacheSize = 2048,
@@ -96,7 +95,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
             CNext = Client.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = new string[] { prefix },
+                StringPrefixes = new string[] { Prefix },
                 CaseSensitive = true,
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true,
@@ -140,8 +139,9 @@ namespace SchattenclownBot.Model.Discord.Main
 #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
-            UserLevelSystem.LevelSystemRunAsync();
-            SympathySystem.SympathySystemRunAsync();
+            UserLevelSystem.LevelSystemRunAsync(29);
+            UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
+            SympathySystem.SympathySystemRunAsync(59);
             BirthdayList.GenerateBirthdayList();
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
@@ -160,7 +160,7 @@ namespace SchattenclownBot.Model.Discord.Main
         /// Registers the event listener.
         /// </summary>
         /// <param name="client">The client.</param>
-        /// <param name="cnext">The commandsnext extension.</param>
+        /// <param name="cnext">The commandsNext extension.</param>
         private void RegisterEventListener(DiscordClient client, ApplicationCommandsExtension appCommands, CommandsNextExtension cnext)
         {
 
@@ -198,7 +198,8 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             cnext.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
 #if DEBUG
-            appCommands.RegisterGuildCommands<AppCommands.Main>(devguild); // use to register on guild
+            appCommands.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
+            appCommands.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
 #else
             appCommands.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
 #endif
@@ -207,7 +208,7 @@ namespace SchattenclownBot.Model.Discord.Main
         private static Task Client_Ready(DiscordClient dcl, ReadyEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Starting with Prefix {prefix} :3");
+            Console.WriteLine($"Starting with Prefix {Prefix} :3");
             Console.WriteLine($"Starting {Client.CurrentUser.Username}");
             Console.WriteLine("Client ready!");
             Console.WriteLine($"Shard {dcl.ShardId}");
@@ -219,12 +220,12 @@ namespace SchattenclownBot.Model.Discord.Main
             {
                 Console.WriteLine($"Command {command.Value.Name} loaded.");
             }
-            DiscordActivity activity = new DiscordActivity()
+            var activity = new DiscordActivity()
             {
-                Name = Bot.custom ? Bot.customstate : $"/help",
+                Name = Bot.Custom ? Bot.CustomState : $"/help",
                 ActivityType = ActivityType.Streaming
             };
-            dcl.UpdateStatusAsync(activity: activity, userStatus: Bot.custom ? Bot.customstatus : UserStatus.Online, idleSince: null);
+            dcl.UpdateStatusAsync(activity: activity, userStatus: Bot.Custom ? Bot.CustomStatus : UserStatus.Online, idleSince: null);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Bot ready!");
             Console.ForegroundColor = ConsoleColor.Gray;
@@ -306,7 +307,7 @@ namespace SchattenclownBot.Model.Discord.Main
             Console.ForegroundColor = ConsoleColor.Gray;
             return Task.CompletedTask;
         }
-#endregion
+        #endregion
     }
 }
 

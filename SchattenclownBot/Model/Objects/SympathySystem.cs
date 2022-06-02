@@ -65,9 +65,9 @@ namespace SchattenclownBot.Model.Objects
         {
             return DB_SympathySystem.GetUserRatings(guildId, votedUserID, voteRating);
         }
-        public static async Task SympathySystemRunAsync()
+        public static async Task SympathySystemRunAsync(int executeSecond)
         {
-            bool levelSystemVirign = true;
+            var levelSystemVirgin = true;
 
             await Task.Run(async () =>
             {
@@ -75,7 +75,7 @@ namespace SchattenclownBot.Model.Objects
                 {
                     if (Bot.Client.Guilds.ToList().Count != 0)
                     {
-                        if (levelSystemVirign)
+                        if (levelSystemVirgin)
                         {
                             var guildsList = Bot.Client.Guilds.ToList();
                             foreach (var guildItem in guildsList)
@@ -83,15 +83,15 @@ namespace SchattenclownBot.Model.Objects
                                 SympathySystem.CreateTable_SympathySystem(guildItem.Value.Id);
                                 SympathySystem.CreateTable_RoleInfoSympathySystem(guildItem.Value.Id);
                             }
-                            levelSystemVirign = false;
+                            levelSystemVirgin = false;
                         }
                     }
                     await Task.Delay(1000);
-                } while (levelSystemVirign);
+                } while (levelSystemVirgin);
 
                 while (true)
                 {
-                    while (DateTime.Now.Second != 29)
+                    while (DateTime.Now.Second != executeSecond)
                     {
                         await Task.Delay(1000);
                     }
@@ -99,18 +99,18 @@ namespace SchattenclownBot.Model.Objects
                     var guildsList = Bot.Client.Guilds.ToList();
                     foreach (var guildItem in guildsList)
                     {
-                        DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
+                        var discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
                         var discordMembers = discordGuildObj.Members;
 
-                        List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(guildItem.Value.Id);
+                        var sympathySystemsList = SympathySystem.ReadAll(guildItem.Value.Id);
                         List<SympathySystem> sympathySystemsFinishedList = new();
-                        List<RoleInfoSympathySystem> roleInfoSympathySystemsList = SympathySystem.ReadAllRoleInfo(guildItem.Value.Id);
+                        var roleInfoSympathySystemsList = SympathySystem.ReadAllRoleInfo(guildItem.Value.Id);
                         List<DiscordRole> discordRoleList = new();
 
                         foreach (var discordMemberItem in discordMembers)
                         {
                             discordRoleList.Clear();
-                            
+
                             foreach (var item in roleInfoSympathySystemsList)
                             {
                                 if (item.RatingOne != 0)
@@ -127,12 +127,12 @@ namespace SchattenclownBot.Model.Objects
 
                             if (discordRoleList.Count == 5)
                             {
-                                int counts = 1;
-                                int ratingsadded = 0;
-                                double rating = 0.0;
+                                var counts = 1;
+                                var ratingsadded = 0;
+                                var rating = 0.0;
                                 SympathySystem sympathySystemObj = new();
 
-                                foreach (SympathySystem sympathySystemItem in sympathySystemsList)
+                                foreach (var sympathySystemItem in sympathySystemsList)
                                 {
                                     if (discordMemberItem.Value.Id == sympathySystemItem.VotedUserID)
                                     {

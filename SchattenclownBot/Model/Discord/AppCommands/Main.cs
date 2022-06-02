@@ -1,752 +1,781 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.CommandsNext.Converters;
-
-using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
+using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.ChoiceProvider;
 using SchattenclownBot.Model.Discord.Main;
-using DisCatSharp.EventArgs;
+using SchattenclownBot.Model.Objects;
+using SchattenclownBot.Model.Persistence;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace SchattenclownBot.Model.Discord.AppCommands
+namespace SchattenclownBot.Model.Discord.AppCommands;
+
+/// <summary>
+///     The AppCommands.
+/// </summary>
+internal class Main : ApplicationCommandsModule
 {
     /// <summary>
-    /// The AppCommands.
+    ///     Set an Alarm clock per command.
     /// </summary>
-    internal class Main : ApplicationCommandsModule
+    /// <param name="interactionContext">The interaction context.</param>
+    /// <param name="hour">The Hour of the Alarm in the Future.</param>
+    /// <param name="minute">The Minute of the Alarm in the Future.</param>
+    /// <returns></returns>
+    [SlashCommand("SetAlarm", "Set an alarm for a specific time!")]
+    public static async Task AlarmClock(InteractionContext interactionContext, [Option("hourofday", "0-23")] double hour, [Option("minuteofday", "0-59")] double minute)
     {
-        /// <summary>
-        /// Set an Alarmclock per command.
-        /// </summary>
-        /// <param name="interactionContext">The interaction context.</param>
-        /// <param name="hour">The Houre of the Alarm in the Future.</param>
-        /// <param name="minute">The Minute of the Alarm in the Future.</param>
-        /// <returns></returns>
-        [SlashCommand("SetAlarm", "Set an alarm for a spesific time!")]
-        public static async Task AlarmClock(InteractionContext interactionContext, [Option("hourofday", "0-23")] double hour, [Option("minuteofday", "0-59")] double minute)
+        //Create a Response.
+        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
+
+        //Check if the given Time format is Valid.
+        if (!TimeFormat(hour, minute))
         {
-            //Create a Response.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
-            
-            //Check if the Give Timeformat is Valid.
-            if (!TimeFormat(hour, minute))
-            {
-                //Tell the User that the Timeformat is not valid and return.
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Wrong format for hour or minute!"));
-                return;
-            }
-
-            //Create a DateTime Variable if the Timeformat was Valid.
-            DateTime dateTimeNow = DateTime.Now;
-            DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
-
-            //Check if the Alarm has a Time for Tommorow if it is in the Past already Today.
-            if (alarm < DateTime.Now)
-                alarm = alarm.AddDays(1);
-
-            //Create an AlarmObject and add it to the Database.
-            BotAlarmClock botAlarmClock = new()
-            {
-                ChannelId = interactionContext.Channel.Id,
-                MemberId = interactionContext.Member.Id,
-                NotificationTime = alarm
-            };
-            BotAlarmClock.Add(botAlarmClock);
-
-            //Let the User know that the Alarm was set Succsefully.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {botAlarmClock.NotificationTime}!"));
+            //Tell the User that the Time format is not valid and return.
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Wrong format for hour or minute!"));
+            return;
         }
 
-        /// <summary>
-        /// To look up what Alarams have been set.
-        /// </summary>
-        /// <param name="interactionContext"></param>
-        /// <returns></returns>
-        [SlashCommand("MyAlarms", "Look up your alarms!")]
-        public static async Task AlarmClockLookup(InteractionContext interactionContext)
+        //Create a DateTime Variable if the Time format was Valid.
+        var dateTimeNow = DateTime.Now;
+        DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
+
+        //Check if the Alarm is a Time for Tomorrow, if it is in the Past already Today.
+        if (alarm < DateTime.Now)
+            alarm = alarm.AddDays(1);
+
+        //Create an AlarmObject and add it to the Database.
+        BotAlarmClock botAlarmClock = new()
         {
-            //Create an Response.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            ChannelId = interactionContext.Channel.Id,
+            MemberId = interactionContext.Member.Id,
+            NotificationTime = alarm
+        };
+        BotAlarmClock.Add(botAlarmClock);
 
-            //Create a List where all Alarms will be Listed if there are any set.
-            List<BotAlarmClock> botAlarmClockList = DB_BotAlarmClocks.ReadAll();
+        //Let the User know that the Alarm was set Successfully.
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {botAlarmClock.NotificationTime}!"));
+    }
 
-            //Create an Embed.
-            DiscordEmbedBuilder discordEmbedBuilder = new()
-            {
-                Title = "Your alarms",
-                Color = DiscordColor.Purple,
-                Description = $"<@{interactionContext.Member.Id}>"
-            };
+    /// <summary>
+    ///     To look up what Alarm´s have been set.
+    /// </summary>
+    /// <param name="interactionContext"></param>
+    /// <returns></returns>
+    [SlashCommand("MyAlarms", "Look up your alarms!")]
+    public static async Task AlarmClockLookup(InteractionContext interactionContext)
+    {
+        //Create an Response.
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            //Switch to check if there are any Timers at all.
-            bool noTimers = true;
+        //Create a List where all Alarms will be Listed if there are any set.
+        var botAlarmClockList = DB_BotAlarmClocks.ReadAll();
 
-            //Search for any Alarms that match the Alarmcreator and Requesting User.
-            foreach (var botAlarmClockItem in botAlarmClockList)
-            {
-                //Check if the Alarmcreator and the Requesting User are the same.
-                if (botAlarmClockItem.MemberId == interactionContext.Member.Id)
-                {
-                    //Set the swtich to false because at leaset one Alarm was found.
-                    noTimers = false;
-                    //Add an field to the Embed with the Alarm that was found.
-                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"Alarm with ID {botAlarmClockItem.DBEntryID}"));
-                }
-            }
+        //Create an Embed.
+        DiscordEmbedBuilder discordEmbedBuilder = new()
+        {
+            Title = "Your alarms",
+            Color = DiscordColor.Purple,
+            Description = $"<@{interactionContext.Member.Id}>"
+        };
 
-            //Set the Title so the User knows no Alarms for him where found.
-            if (noTimers)
-                discordEmbedBuilder.Title = "No alarms set!";
+        //Switch to check if there are any Timers at all.
+        var noTimers = true;
 
-            //Edit the Responce and add the Embed.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        //Search for any Alarms that match the Alarm creator and Requesting User.
+        foreach (var botAlarmClockItem in botAlarmClockList.Where(botAlarmClockItem => botAlarmClockItem.MemberId == interactionContext.Member.Id))
+        {
+            //Set the switch to false because at least one Alarm was found.
+            noTimers = false;
+            //Add an field to the Embed with the Alarm that was found.
+            discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"Alarm with ID {botAlarmClockItem.DBEntryID}"));
         }
 
-        /// <summary>
-        /// Set an Timer per Command.
-        /// </summary>
-        /// <param name="interactionContext">The interactionContext</param>
-        /// <param name="hour">The Houre of the Alarm in the Future.</param>
-        /// <param name="minute">The Minute of the Alarm in the Future.</param>
-        /// <returns></returns>
-        [SlashCommand("SetTimer", "Set a timer!")]
-        public static async Task Timer(InteractionContext interactionContext, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
+        //Set the Title so the User knows no Alarms for him where found.
+        if (noTimers)
+            discordEmbedBuilder.Title = "No alarms set!";
+
+        //Edit the Response and add the Embed.
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+    }
+
+    /// <summary>
+    ///     Set an Timer per Command.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext</param>
+    /// <param name="hour">The Hour of the Alarm in the Future.</param>
+    /// <param name="minute">The Minute of the Alarm in the Future.</param>
+    /// <returns></returns>
+    [SlashCommand("SetTimer", "Set a timer!")]
+    public static async Task Timer(InteractionContext interactionContext, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
+    {
+        //Create a Response.
+        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
+
+        //Check if the Give Time format is Valid.
+        if (!TimeFormat(hour, minute))
         {
-            //Create a Response.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
-
-            //Check if the Give Timeformat is Valid.
-            if (!TimeFormat(hour, minute))
-            {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Wrong format for hour or minute!"));
-                return;
-            }
-
-            //Create an TimerObject and add it to the Database.
-            DateTime dateTimeNow = DateTime.Now;
-            BotTimer botTimer = new()
-            {
-                ChannelId = interactionContext.Channel.Id,
-                MemberId = interactionContext.Member.Id,
-                NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
-            };
-            BotTimer.Add(botTimer);
-
-            //Edit the Responce and add the Embed.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {botTimer.NotificationTime}!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Wrong format for hour or minute!"));
+            return;
         }
 
-        /// <summary>
-        /// To look up what Timers have been set.
-        /// </summary>
-        /// <param name="interactionContext"></param>
-        /// <returns></returns>
-        [SlashCommand("MyTimers", "Look up your timers!")]
-        public static async Task TimerLookup(InteractionContext interactionContext)
+        //Create an TimerObject and add it to the Database.
+        var dateTimeNow = DateTime.Now;
+        BotTimer botTimer = new()
         {
-            //Create a Reponse.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            ChannelId = interactionContext.Channel.Id,
+            MemberId = interactionContext.Member.Id,
+            NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
+        };
+        BotTimer.Add(botTimer);
 
-            //Create an List with all Timers that where found in the Database.
-            List<BotTimer> botTimerList = DB_BotTimer.ReadAll();
+        //Edit the Response and add the Embed.
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {botTimer.NotificationTime}!"));
+    }
 
-            //Create an Embed.
-            DiscordEmbedBuilder discordEmbedBuilder = new()
-            {
-                Title = "Your timers",
-                Color = DiscordColor.Purple,
-                Description = $"<@{interactionContext.Member.Id}>"
-            };
+    /// <summary>
+    ///     To look up what Timers have been set.
+    /// </summary>
+    /// <param name="interactionContext"></param>
+    /// <returns></returns>
+    [SlashCommand("MyTimers", "Look up your timers!")]
+    public static async Task TimerLookup(InteractionContext interactionContext)
+    {
+        //Create a Response.
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            //Switch to check if any Timers where set at all.
-            bool noTimers = true;
+        //Create an List with all Timers that where found in the Database.
+        var botTimerList = DB_BotTimer.ReadAll();
 
-            //Search for any Timers that match the Timercreator and Requesting User.
-            foreach (var botTimerItem in botTimerList)
-            {
-                //Check if the Timercreater and the Requesting User are the same.
-                if (botTimerItem.MemberId == interactionContext.Member.Id)
-                {
-                    //Set the swtich to false because at leaset one Timer was found.
-                    noTimers = false;
-                    //Add an field to the Embed with the Timer that was found.
-                    discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.DBEntryID}"));
-                }
-            }
+        //Create an Embed.
+        DiscordEmbedBuilder discordEmbedBuilder = new()
+        {
+            Title = "Your timers",
+            Color = DiscordColor.Purple,
+            Description = $"<@{interactionContext.Member.Id}>"
+        };
 
-            //Set the Title so the User knows no Timers for him where found.
-            if (noTimers)
-                discordEmbedBuilder.Title = "No timers set!";
+        //Switch to check if any Timers where set at all.
+        var noTimers = true;
 
-            //Edit the Responce and add the Embed.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        //Search for any Timers that match the Timer creator and Requesting User.
+        foreach (var botTimerItem in botTimerList.Where(botTimerItem => botTimerItem.MemberId == interactionContext.Member.Id))
+        {
+            //Set the switch to false because at least one Timer was found.
+            noTimers = false;
+            //Add an field to the Embed with the Timer that was found.
+            discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.DBEntryID}"));
         }
 
-        /// <summary>
-        /// Shows the Leaderboard.
-        /// </summary>
-        /// <param name="interactionContext"></param>
-        /// <returns></returns>
-        [SlashCommand("Leaderboard", "Look up the leaderboard for connectiontime!")]
-        public static async Task Leaderboard(InteractionContext interactionContext)
+        //Set the Title so the User knows no Timers for him where found.
+        if (noTimers)
+            discordEmbedBuilder.Title = "No timers set!";
+
+        //Edit the Response and add the Embed.
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+    }
+
+    /// <summary>
+    ///     Shows the leaderboard.
+    /// </summary>
+    /// <param name="interactionContext"></param>
+    /// <returns></returns>
+    [SlashCommand("Leaderboard", "Look up the leaderboard for connection time!")]
+    public static async Task Leaderboard(InteractionContext interactionContext)
+    {
+        //Create an Response.
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+        DiscordMember discordMemberObj = null;
+
+        //Create List where all users are listed.
+        var userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+
+        //Order the list by online ticks.
+        var userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+        userLevelSystemListSorted.Reverse();
+
+        var top30 = 0;
+        var leaderboardString = "```css\n";
+
+        var discordMemberList = Bot.Client.GetGuildAsync(interactionContext.Guild.Id).Result.Members.Values.ToList();
+
+        //Create the Leaderboard string
+        foreach (var userLevelSystemItem in userLevelSystemListSorted)
         {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-            List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
-
-            List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
-            userLevelSystemListSorted.Reverse();
-
-            int top30 = 0;
-            int totalXp = 0;
-            int totalLevel, modXp;
-            string level, xp;
-
-            string liststring = "```css\n";
-            foreach (var userLevelSystemItem in userLevelSystemListSorted)
+            foreach (var discordMemberItem in discordMemberList.Where(discordMemberItem => discordMemberItem.Id == userLevelSystemItem.MemberId))
             {
-                var discordUser = await Bot.Client.GetUserAsync(userLevelSystemItem.MemberId, true);
+                discordMemberObj = discordMemberItem;
+            }
 
+            if (discordMemberObj != null)
+            {
                 DateTime date1 = new(1969, 4, 20, 4, 20, 0);
-                DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
-                TimeSpan timeSpan = date2 - date1;
+                var date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
+                var timeSpan = date2 - date1;
+                
+                var calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
+                var calculatedXpOverCurrentLevel = UserLevelSystem.CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
 
-                totalXp = userLevelSystemItem.OnlineTicks * 125 / 60;
-
-                if (totalXp > 0)
-                {
-                    totalLevel = totalXp / 1000;
-                    modXp = totalXp % 1000;
-                    level = $"Level {totalLevel}";
-                    xp = $"{modXp}/1000xp ";
-                }
-                else
-                {
-                    totalLevel = 0;
-                    modXp = 0;
-                    level = $"Level {totalLevel}";
-                    xp = $"{modXp}/1000xp ";
-                }
-
-
-                liststring += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $" Level {totalLevel,4} " + $"[{discordUser.Username}]\n";
+                leaderboardString += "{" + $"{timeSpan,9:ddd\\/hh\\:mm}" + "}" + $" Level {calculatedLevel,3} {userLevelSystemItem.OnlineTicks,7} {calculatedXpOverCurrentLevel,6} [{discordMemberObj.DisplayName}]\n";
                 top30++;
                 if (top30 == 30)
                     break;
-            }
-            liststring += "\n```";
-            DiscordEmbedBuilder discordEmbedBuilder = new()
-            {
-                Title = "LevelSystem",
-                Description = liststring,
-                Color = DiscordColor.Purple
-            };
 
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                discordMemberObj = null;
+            }
         }
 
-        [SlashCommand("MyLevel", "Look up your level!")]
-        public static async Task Level(InteractionContext interactionContext)
+        leaderboardString += "\n```";
+        /*DiscordEmbedBuilder discordEmbedBuilder = new()
         {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            Title = "LevelSystem",
+            Description = leaderboardString,
+            Color = DiscordColor.Purple
+        };*/
 
-            List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
-            List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
-            userLevelSystemListSorted.Reverse();
+        //await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(leaderboardString));
+    }
 
-            string uriString = "https://quickchart.io/chart/render/zm-483cf019-58bf-423e-bd2c-514d8f9b2ff6?data1=";
+    /// <summary>
+    ///     Command to view ur connection time Level.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext</param>
+    /// <returns></returns>
+    [SlashCommand("Level", "Look up your level!")]
+    public static async Task Level(InteractionContext interactionContext)
+    {
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            int totalXp = 0;
-            int totalLevel, modXp;
-            string rank = "N/A";
-            string level, xp;
+        var userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+        var userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+        userLevelSystemListSorted.Reverse();
+        const string apiKey = "zm-7c07552d-7ed5-42b6-910c-fc8a92082bc5";
+        var uriString = $"https://quickchart.io/chart/render/{apiKey}?data1=";
+        
+        var rank = "N/A";
+        int xp = 0, calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
+        
 
-            var discordUser = await Bot.Client.GetUserAsync(interactionContext.Member.Id);
-            string username = discordUser.Username;
+        var discordUser = await Bot.Client.GetUserAsync(interactionContext.Member.Id);
 
-            foreach (var userLevelSystemItem in userLevelSystemListSorted)
+        foreach (var userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == interactionContext.Member.Id))
+        {
+            rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
+            calculatedXpOverCurrentLevel = UserLevelSystem.CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
+            calculatedXpSpanToReachNextLevel = UserLevelSystem.CalculateXpSpanToReachNextLevel(userLevelSystemItem.OnlineTicks);
+            xp = userLevelSystemItem.OnlineTicks;
+            level = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
+            break;
+        }
+
+        var xpString = $"{calculatedXpOverCurrentLevel} / {calculatedXpSpanToReachNextLevel} XP ";
+        var levelString = $"Level {level}";
+
+        var xpPadLeft = xpString.PadLeft(11, ' ');
+        var levelPadLeft = levelString.PadLeft(8, ' ');
+        var temp = xpPadLeft + levelPadLeft;
+
+        uriString += $"{calculatedXpOverCurrentLevel}&data2={calculatedXpSpanToReachNextLevel}";
+
+        Uri uri = new(uriString);
+        DiscordEmbedBuilder discordEmbedBuilder = new();
+        discordEmbedBuilder.WithTitle(temp);
+        discordEmbedBuilder.WithDescription("<@" + interactionContext.Member.Id + ">");
+        discordEmbedBuilder.WithFooter("Rank #" + rank);
+        discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
+        discordEmbedBuilder.Color = DiscordColor.Purple;
+
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+    }
+
+    /// <summary>
+    ///     Checks if the given hour and minute are usable to make a datetime object out of them.
+    ///     Returns true if the given arguments are usable.
+    ///     Returns false if the hour or the minute are not usable.
+    /// </summary>
+    /// <param name="hour">The hour.</param>
+    /// <param name="minute">The minute.</param>
+    /// <returns>A bool.</returns>
+    public static bool TimeFormat(double hour, double minute)
+    {
+        var hourformatisright = false;
+        var minuteformatisright = false;
+
+        for (var i = 0; i < 24; i++)
+            if (hour == i)
+                hourformatisright = true;
+        if (!hourformatisright)
+            return false;
+
+        for (var i = 0; i < 60; i++)
+            if (minute == i)
+                minuteformatisright = true;
+
+        return minuteformatisright;
+    }
+
+    /// <summary>
+    ///     Poke an User per command.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext</param>
+    /// <param name="discordUser">the discordUser</param>
+    /// <returns></returns>
+    [SlashCommand("Poke", "Poke user!")]
+    public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+    {
+        var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
+        discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
+        discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
+
+        DiscordSelectComponent discordSelectComponent = new("force", "Select a method!", discordSelectComponentOptionList);
+
+        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
+    }
+
+    /// <summary>
+    ///     Poke an User per contextmenu.
+    /// </summary>
+    /// <param name="contextMenuContext">The contextMenuContext</param>
+    /// <returns></returns>
+    [ContextMenu(ApplicationCommandType.User, "Poke user!")]
+    public static async Task ContextMenuPoke(ContextMenuContext contextMenuContext)
+    {
+        var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
+        discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
+        discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
+
+        var discordSelectComponent = new DiscordSelectComponent("force", "Select a method!", discordSelectComponentOptionList);
+
+        await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{contextMenuContext.TargetMember.Id}>!"));
+    }
+
+    /// <summary>
+    ///     Command to give an User a Rating.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext</param>
+    /// <param name="discordUser">The discordUser</param>
+    /// <returns></returns>
+    [SlashCommand("GiveRating", "Give an User a rating!")]
+    public static async Task GiveRating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+    {
+        var discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
+        discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+        discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+        discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+        discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+        discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
+
+        DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+
+        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{discordUser.Id}> a Rating!"));
+    }
+
+    /// <summary>
+    ///     Poke an User with the Context Menu.
+    /// </summary>
+    /// <param name="contextMenuContext">The contextMenuContext</param>
+    /// <returns></returns>
+    [ContextMenu(ApplicationCommandType.User, "Give Rating!")]
+    public static async Task GiveRating(ContextMenuContext contextMenuContext)
+    {
+        var discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
+        discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+        discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+        discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+        discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+        discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
+
+        DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+
+        await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
+    }
+
+    public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs)
+    {
+        switch (componentInteractionCreateEventArgs.Values[0])
+        {
+            case "rating_1":
+                await VoteRatingAsync(componentInteractionCreateEventArgs, 1);
+                break;
+            case "rating_2":
+                await VoteRatingAsync(componentInteractionCreateEventArgs, 2);
+                break;
+            case "rating_3":
+                await VoteRatingAsync(componentInteractionCreateEventArgs, 3);
+                break;
+            case "rating_4":
+                await VoteRatingAsync(componentInteractionCreateEventArgs, 4);
+                break;
+            case "rating_5":
+                await VoteRatingAsync(componentInteractionCreateEventArgs, 5);
+                break;
+            case "light":
+                await PokeAsync(componentInteractionCreateEventArgs, false, 2, false);
+                break;
+            case "hard":
+                await PokeAsync(componentInteractionCreateEventArgs, false, 2, true);
+                break;
+        }
+    }
+
+    /// <summary>
+    ///     The Poke function.
+    /// </summary>
+    /// <param name="componentInteractionCreateEventArgs">The componentInteractionCreateEventArgs.</param>
+    /// <param name="deleteResponseAsync">If the response should be Deleted after the poke action.</param>
+    /// <param name="pokeAmount">The amount the user gets poked.</param>
+    /// <param name="force">Light or hard slap.</param>
+    /// <returns></returns>
+    public static async Task PokeAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, bool deleteResponseAsync, int pokeAmount, bool force)
+    {
+        var discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
+        var discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
+
+        await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+        var discordEmbedBuilder = new DiscordEmbedBuilder
+        {
+            Title = $"Poke {discordTargetMember.DisplayName}"
+        };
+
+        discordEmbedBuilder.WithFooter($"Requested by {componentInteractionCreateEventArgs.User.Username}", discordMember.AvatarUrl);
+
+        await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+
+        var rightToMove = false;
+
+        var discordRoleList = discordMember.Roles.ToList();
+
+        foreach (var discordRoleItem in discordRoleList.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
+            rightToMove = true;
+
+        var desktopHasValue = false;
+        var webHasValue = false;
+        var mobileHasValue = false;
+        var presenceWasNull = false;
+
+        if (discordTargetMember.Presence != null)
+        {
+            desktopHasValue = discordTargetMember.Presence.ClientStatus.Desktop.HasValue;
+            webHasValue = discordTargetMember.Presence.ClientStatus.Web.HasValue;
+            mobileHasValue = discordTargetMember.Presence.ClientStatus.Mobile.HasValue;
+        }
+        else
+        {
+            presenceWasNull = true;
+        }
+
+        if (discordTargetMember.VoiceState != null && rightToMove && (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
+        {
+            DiscordChannel currentChannel = default;
+            DiscordChannel tempCategory = default;
+            DiscordChannel tempChannel2 = default;
+            DiscordChannel tempChannel1 = default;
+
+            try
             {
-                if (userLevelSystemItem.MemberId == interactionContext.Member.Id)
+                var discordEmojis = DiscordEmoji.FromName(Bot.Client, ":no_entry_sign:");
+
+                tempCategory = componentInteractionCreateEventArgs.Interaction.Guild.CreateChannelCategoryAsync("%Temp%").Result;
+                tempChannel1 = componentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmojis, tempCategory).Result;
+                tempChannel2 = componentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmojis, tempCategory).Result;
+            }
+            catch
+            {
+                discordEmbedBuilder.Description = "Error while creating the channels!";
+                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            }
+
+            try
+            {
+                currentChannel = discordTargetMember.VoiceState.Channel;
+
+                for (var i = 0; i < pokeAmount; i++)
                 {
-                    rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
-                    totalXp = userLevelSystemItem.OnlineTicks * 125 / 60;
-                    break;
-                }
-            }
-
-            if (totalXp > 0)
-            {
-                totalLevel = totalXp / 1000;
-                modXp = totalXp % 1000;
-                level = $"Level {totalLevel}";
-                xp = $"{modXp}/1000xp ";
-            }
-            else
-            {
-                totalLevel = 0;
-                modXp = 0;
-                level = $"Level {totalLevel}";
-                xp = $"{modXp}/1000xp ";
-            }
-
-            string xppad = xp.PadLeft(11, ' ');
-            string levelpad = level.PadLeft(8, ' ');
-            string temp = xppad + levelpad;
-            string temppad = ("<@" + interactionContext.Member.Id + ">").PadRight(38, ' ') + temp;
-            //string temppad = ("1").PadRight(38, ' ') + temp;
-
-            //uriString += $"{level} {username} {xp,50}";
-            uriString += $"{modXp}";
-
-            Uri uri = new(uriString);
-            DiscordEmbedBuilder discordEmbedBuilder = new();
-            discordEmbedBuilder.WithTitle(temp);
-            discordEmbedBuilder.WithDescription("<@" + interactionContext.Member.Id + ">");
-            discordEmbedBuilder.WithFooter("Rank #" + rank);
-            discordEmbedBuilder.WithImageUrl(uri.AbsoluteUri);
-            discordEmbedBuilder.Color = DiscordColor.Purple;
-
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-        }
-
-        /// <summary>
-        /// Checks if the given hour and minute are usable to make a datetime object out of them.
-        /// Returns true if the given arguments are usable.
-        /// Returns false if the hour or the minute are not usable.
-        /// </summary>
-        /// <param name="hour">The hour.</param>
-        /// <param name="minute">The minute.</param>
-        /// <returns>A bool.</returns>
-        public static bool TimeFormat(double hour, double minute)
-        {
-            bool hourformatisright = false;
-            bool minuteformatisright = false;
-
-            for (int i = 0; i < 24; i++)
-            {
-                if (hour == i)
-                    hourformatisright = true;
-            }
-            if (!hourformatisright)
-                return false;
-
-            for (int i = 0; i < 60; i++)
-            {
-                if (minute == i)
-                    minuteformatisright = true;
-            }
-            if (!minuteformatisright)
-                return false;
-
-            return true;
-        }
-
-        [SlashCommand("Poke", "Poke user!")]
-        public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
-        {
-            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
-            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
-            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
-
-            DiscordSelectComponent discordSelectComponent = new("force", "Select a method!", discordSelectComponentOptionList);
-
-            await interactionContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
-        }
-
-        [ContextMenu(ApplicationCommandType.User, "Poke user!", true)]
-        public static async Task AppsPoke(ContextMenuContext contextMenuContext)
-        {
-            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
-            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
-            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
-
-            DiscordSelectComponent discordSelectComponent = new DiscordSelectComponent("force", "Select a method!", discordSelectComponentOptionList);
-
-            await contextMenuContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Poke user <@{contextMenuContext.TargetMember.Id}>!"));
-        }
-
-        [SlashCommand("GiveRating", "Give an User a rating!")]
-        public static async Task GiveRating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
-        {
-            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
-            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
-            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
-            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
-            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
-            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
-
-            DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
-
-            await interactionContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Give <@{discordUser.Id}> a Rating!"));
-        }
-
-        [ContextMenu(ApplicationCommandType.User, "Give Rating!")]
-        public static async Task GiveRating(ContextMenuContext contextMenuContext)
-        {
-            DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
-            discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
-            discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
-            discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
-            discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
-            discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
-
-            DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
-
-            await contextMenuContext.CreateResponseAsync(DisCatSharp.InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
-        }
-
-        public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs compnentInteractionCreateEventArgs)
-        {
-            switch (compnentInteractionCreateEventArgs.Values[0])
-            {
-                case "rating_1":
-                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 1);
-                    break;
-                case "rating_2":
-                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 2);
-                    break;
-                case "rating_3":
-                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 3);
-                    break;
-                case "rating_4":
-                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 4);
-                    break;
-                case "rating_5":
-                    await VoteRatingAsync(compnentInteractionCreateEventArgs, 5);
-                    break;
-                case "light":
-                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, false);
-                    break;
-                case "hard":
-                    await PokeAsync(compnentInteractionCreateEventArgs, false, 2, true);
-                    break;
-            }
-        }
-
-        public static async Task PokeAsync(ComponentInteractionCreateEventArgs compnentInteractionCreateEventArgs, bool deleteResponseAsync, int pokeAmount, bool force)
-        {
-            DiscordMember discordMember = compnentInteractionCreateEventArgs.User as DiscordMember;
-            DiscordMember discordTargetMember = compnentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(compnentInteractionCreateEventArgs.Guild).Result;
-
-            await compnentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-            var discordEmbedBuilder = new DiscordEmbedBuilder
-            {
-                Title = $"Poke {discordTargetMember.DisplayName}"
-            };
-
-            discordEmbedBuilder.WithFooter($"Requested by {compnentInteractionCreateEventArgs.User.Username}", discordMember.AvatarUrl);
-
-            await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-
-            bool rightToMove = false;
-            List<DiscordRole> discordRoleList = new();
-
-            discordRoleList = discordMember.Roles.ToList();
-
-            foreach (DiscordRole discordRoleItem in discordRoleList)
-            {
-                if (discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers))
-                    rightToMove = true;
-            }
-
-            bool desktopHasValue = false;
-            bool webHasValue = false;
-            bool mobileHasValue = false;
-            bool presenceWasNull = false;
-
-            if (discordTargetMember.Presence != null)
-            {
-                desktopHasValue = discordTargetMember.Presence.ClientStatus.Desktop.HasValue;
-                webHasValue = discordTargetMember.Presence.ClientStatus.Web.HasValue;
-                mobileHasValue = discordTargetMember.Presence.ClientStatus.Mobile.HasValue;
-            }
-            else
-                presenceWasNull = true;
-
-            if (discordTargetMember.VoiceState != null && rightToMove && (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
-            {
-                DiscordChannel currentChannel = default;
-                DiscordChannel tempCategory = default;
-                DiscordChannel tempChannel2 = default;
-                DiscordChannel tempChannel1 = default;
-
-                try
-                {
-                    DiscordEmoji discordEmoji = DiscordEmoji.FromName(Bot.Client, ":no_entry_sign:");
-
-                    tempCategory = compnentInteractionCreateEventArgs.Interaction.Guild.CreateChannelCategoryAsync("%Temp%").Result;
-                    tempChannel1 = compnentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
-                    tempChannel2 = compnentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmoji, tempCategory).Result;
-                }
-                catch
-                {
-                    discordEmbedBuilder.Description = "Error while creating the channels!";
-                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                }
-
-                try
-                {
-                    currentChannel = discordTargetMember.VoiceState.Channel;
-
-                    for (int i = 0; i < pokeAmount; i++)
-                    {
-                        await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
-                        await Task.Delay(250);
-                        await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel2);
-                        await Task.Delay(250);
-                    }
                     await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
                     await Task.Delay(250);
-                }
-                catch
-                {
-                    discordEmbedBuilder.Description = "Error! User left?";
-                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                    await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel2);
+                    await Task.Delay(250);
                 }
 
-                try
-                {
-                    await discordTargetMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
-                }
-                catch
-                {
-                    discordEmbedBuilder.Description = "Error! User left?";
-                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                }
-
-                try
-                {
-                    await tempChannel2.DeleteAsync();
-                }
-                catch
-                {
-                    discordEmbedBuilder.Description = "Error while deleting the channels!";
-                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                }
-
-                try
-                {
-                    await tempChannel1.DeleteAsync();
-                }
-                catch
-                {
-                    discordEmbedBuilder.Description = "Error while deleting the channels!";
-                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                }
-
-                try
-                {
-                    await tempCategory.DeleteAsync();
-                }
-                catch
-                {
-                    discordEmbedBuilder.Description = "Error while deleting the channels!";
-                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                }
+                await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
+                await Task.Delay(250);
             }
-            else if (discordTargetMember.VoiceState == null)
+            catch
             {
-                discordEmbedBuilder.Description = "User is not connected!";
-                await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-            }
-            else if (!rightToMove)
-            {
-                discordEmbedBuilder.Description = "Your not allowed to use that!";
-                await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-            }
-            else if (mobileHasValue)
-            {
-                string description = "Their phone will explode STOP!\n";
-
-                DiscordEmoji discordEmoji_white_check_mark = DiscordEmoji.FromName(Bot.Client, ":white_check_mark:");
-                DiscordEmoji discordEmojiCheck_x = DiscordEmoji.FromName(Bot.Client, ":x:");
-
-                if (discordTargetMember.Presence.ClientStatus.Desktop.HasValue)
-                    description += discordEmoji_white_check_mark + " Dektop" + "\n";
-                else
-                    description += discordEmojiCheck_x + " Dektop" + "\n";
-
-                if (discordTargetMember.Presence.ClientStatus.Web.HasValue)
-                    description += discordEmoji_white_check_mark + " Web" + "\n";
-                else
-                    description += discordEmojiCheck_x + " Web" + "\n";
-
-                if (discordTargetMember.Presence.ClientStatus.Mobile.HasValue)
-                    description += discordEmoji_white_check_mark + " Mobile";
-                else
-                    description += discordEmojiCheck_x + " Mobile";
-
-                discordEmbedBuilder.Description = description;
-
-                await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                discordEmbedBuilder.Description = "Error! User left?";
+                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
 
-            if (deleteResponseAsync)
+            try
             {
-                for (int i = 3; i > 0; i--)
-                {
-                    discordEmbedBuilder.AddField(new DiscordEmbedField("This message will be deleted in", $"{i} Secounds"));
-                    await compnentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-                    await Task.Delay(1000);
-                    discordEmbedBuilder.RemoveFieldAt(0);
-                }
+                await discordTargetMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
+            }
+            catch
+            {
+                discordEmbedBuilder.Description = "Error! User left?";
+                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            }
 
-                await compnentInteractionCreateEventArgs.Interaction.DeleteOriginalResponseAsync();
+            try
+            {
+                await tempChannel2.DeleteAsync();
+            }
+            catch
+            {
+                discordEmbedBuilder.Description = "Error while deleting the channels!";
+                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            }
+
+            try
+            {
+                await tempChannel1.DeleteAsync();
+            }
+            catch
+            {
+                discordEmbedBuilder.Description = "Error while deleting the channels!";
+                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            }
+
+            try
+            {
+                await tempCategory.DeleteAsync();
+            }
+            catch
+            {
+                discordEmbedBuilder.Description = "Error while deleting the channels!";
+                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
         }
-
-        public static async Task VoteRatingAsync(ComponentInteractionCreateEventArgs compnentInteractionCreateEventArgs, int rating)
+        else if (discordTargetMember.VoiceState == null)
         {
-            DiscordMember discordMember = compnentInteractionCreateEventArgs.User as DiscordMember;
-            DiscordMember discordTargetMember = compnentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(compnentInteractionCreateEventArgs.Guild).Result;
+            discordEmbedBuilder.Description = "User is not connected!";
+            await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        }
+        else if (!rightToMove)
+        {
+            discordEmbedBuilder.Description = "Your not allowed to use that!";
+            await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        }
+        else if (mobileHasValue)
+        {
+            var description = "Their phone will explode STOP!\n";
 
-            bool foundTargetMemberInDB = false;
-            bool memberIsFlagged91 = false;
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder();
+            var discordEmojisWhiteCheckMark = DiscordEmoji.FromName(Bot.Client, ":white_check_mark:");
+            var discordEmojisCheckX = DiscordEmoji.FromName(Bot.Client, ":x:");
 
-            if (compnentInteractionCreateEventArgs.Guild.Id == 928930967140331590)
-            {
-                DiscordRole discordRole = compnentInteractionCreateEventArgs.Guild.GetRole(980071522427363368);
-                if (discordMember.Roles.Contains(discordRole))
-                    memberIsFlagged91 = true;
-            }
-
-            if (memberIsFlagged91)
-            {
-                discordEmbedBuilder.Title = "Rating";
-                discordEmbedBuilder.Description = $"U are Flagged +91 u cant vote!";
-            }
-            else if (discordMember.Id == discordTargetMember.Id)
-            {
-                discordEmbedBuilder.Title = "Rating";
-                discordEmbedBuilder.Description = $"Nonono we dont do this around here! CHEATER!";
-            }
+            if (discordTargetMember.Presence.ClientStatus.Desktop.HasValue)
+                description += discordEmojisWhiteCheckMark + " Desktop" + "\n";
             else
+                description += discordEmojisCheckX + " Desktop" + "\n";
+
+            if (discordTargetMember.Presence.ClientStatus.Web.HasValue)
+                description += discordEmojisWhiteCheckMark + " Web" + "\n";
+            else
+                description += discordEmojisCheckX + " Web" + "\n";
+
+            if (discordTargetMember.Presence.ClientStatus.Mobile.HasValue)
+                description += discordEmojisWhiteCheckMark + " Mobile";
+            else
+                description += discordEmojisCheckX + " Mobile";
+
+            discordEmbedBuilder.Description = description;
+
+            await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        }
+
+        if (deleteResponseAsync)
+        {
+            for (var i = 3; i > 0; i--)
             {
-                SympathySystem sympathySystemObj = new SympathySystem
-                {
-                    VotingUserID = discordTargetMember.Id,
-                    VotedUserID = discordTargetMember.Id,
-                    GuildID = compnentInteractionCreateEventArgs.Guild.Id,
-                    VoteRating = rating,
-                };
+                discordEmbedBuilder.AddField(new DiscordEmbedField("This message will be deleted in", $"{i} Seconds"));
+                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await Task.Delay(1000);
+                discordEmbedBuilder.RemoveFieldAt(0);
+            }
 
-                List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(compnentInteractionCreateEventArgs.Guild.Id);
+            await componentInteractionCreateEventArgs.Interaction.DeleteOriginalResponseAsync();
+        }
+    }
 
-                foreach (SympathySystem sympathySystemItem in sympathySystemsList)
-                {
-                    if (sympathySystemItem.VotingUserID == sympathySystemObj.VotingUserID && sympathySystemItem.VotedUserID == sympathySystemObj.VotedUserID)
-                        foundTargetMemberInDB = true;
-                }
+    /// <summary>
+    ///     The function that creates or edits the database based on the new rating.
+    /// </summary>
+    /// <param name="componentInteractionCreateEventArgs">The componentInteractionCreateEventArgs.</param>
+    /// <param name="rating">The rating value.</param>
+    /// <returns></returns>
+    public static async Task VoteRatingAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, int rating)
+    {
+        var discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
+        var discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
 
-                if (!foundTargetMemberInDB)
+        var foundTargetMemberInDb = false;
+        var memberIsFlagged91 = false;
+        var discordEmbedBuilder = new DiscordEmbedBuilder();
+
+        if (componentInteractionCreateEventArgs.Guild.Id == 928930967140331590)
+        {
+            var discordRole = componentInteractionCreateEventArgs.Guild.GetRole(980071522427363368);
+            if (discordMember != null && discordMember.Roles.Contains(discordRole))
+            {
+                memberIsFlagged91 = true;
+            }
+        }
+
+        if (memberIsFlagged91)
+        {
+            discordEmbedBuilder.Title = "Rating";
+            discordEmbedBuilder.Description = "U are Flagged +91 u cant vote!";
+        }
+        else if (discordMember.Id == discordTargetMember.Id)
+        {
+            discordEmbedBuilder.Title = "Rating";
+            discordEmbedBuilder.Description = "Nonono we dont do this around here! CHEATER!";
+        }
+        else
+        {
+            var sympathySystemObj = new SympathySystem
+            {
+                VotingUserID = discordTargetMember.Id,
+                VotedUserID = discordTargetMember.Id,
+                GuildID = componentInteractionCreateEventArgs.Guild.Id,
+                VoteRating = rating
+            };
+
+            var sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
+
+            foreach (var sympathySystemItem in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserID == sympathySystemObj.VotingUserID && sympathySystemItem.VotedUserID == sympathySystemObj.VotedUserID))
+                foundTargetMemberInDb = true;
+
+            switch (foundTargetMemberInDb)
+            {
+                case false:
                     SympathySystem.Add(sympathySystemObj);
-                else if (foundTargetMemberInDB)
+                    break;
+                case true:
                     SympathySystem.Change(sympathySystemObj);
-
-                discordEmbedBuilder.Title = "Rating";
-                discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";
+                    break;
             }
 
-            await compnentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
+            discordEmbedBuilder.Title = "Rating";
+            discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";
         }
 
-        [SlashCommand("RatingSetup", "Set up the roles for the Ratingsystem!", false)]
-        public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
+        await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AsEphemeral().AddEmbed(discordEmbedBuilder.Build()));
+    }
+
+    /// <summary>
+    ///     Setup assist for the Rating Roles.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext.</param>
+    /// <param name="voteRating">The RatingValue the role stands for.</param>
+    /// <param name="discordRole">The discordRole.</param>
+    /// <returns></returns>
+    [SlashCommand("RatingSetup", "Set up the roles for the Rating System!")]
+    public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))] [Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
+    {
+        var found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
+
+        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
+
+        var sympathySystemObj = new SympathySystem
         {
-            bool found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
+            GuildID = interactionContext.Guild.Id,
+            RoleInfo = new RoleInfoSympathySystem()
+        };
 
-            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
+        switch (Convert.ToInt32(voteRating))
+        {
+            case 1:
+                sympathySystemObj.RoleInfo.RatingOne = discordRole.Id;
+                break;
+            case 2:
+                sympathySystemObj.RoleInfo.RatingTwo = discordRole.Id;
+                break;
+            case 3:
+                sympathySystemObj.RoleInfo.RatingThree = discordRole.Id;
+                break;
+            case 4:
+                sympathySystemObj.RoleInfo.RatingFour = discordRole.Id;
+                break;
+            case 5:
+                sympathySystemObj.RoleInfo.RatingFive = discordRole.Id;
+                break;
+        }
 
-            SympathySystem sympathySystemObj = new SympathySystem
-            {
-                GuildID = interactionContext.Guild.Id
-            };
-            sympathySystemObj.RoleInfo = new();
-
-            switch (Convert.ToInt32(voteRating))
-            {
-                case 1:
-                    sympathySystemObj.RoleInfo.RatingOne = discordRole.Id;
-                    break;
-                case 2:
-                    sympathySystemObj.RoleInfo.RatingTwo = discordRole.Id;
-                    break;
-                case 3:
-                    sympathySystemObj.RoleInfo.RatingThree = discordRole.Id;
-                    break;
-                case 4:
-                    sympathySystemObj.RoleInfo.RatingFour = discordRole.Id;
-                    break;
-                case 5:
-                    sympathySystemObj.RoleInfo.RatingFive = discordRole.Id;
-                    break;
-                default:
-                    break;
-            }
-            if (!found)
+        switch (found)
+        {
+            case false:
                 SympathySystem.AddRoleInfo(sympathySystemObj);
-            if (found)
+                break;
+            case true:
                 SympathySystem.ChangeRoleInfo(sympathySystemObj);
-
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
+                break;
         }
 
-        [SlashCommand("ShowRating", "Shows the rating of an user!")]
-        public static async Task Showrating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
+    }
+
+    /// <summary>
+    ///     Command to view how many and what ratings a given user has.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext.</param>
+    /// <param name="discordUser">The Discord User.</param>
+    /// <returns></returns>
+    [SlashCommand("ShowRating", "Shows the rating of an user!")]
+    public static async Task ShowRating(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+    {
+        var description = "```\n";
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+        for (var i = 1; i < 6; i++)
+            description += $"Rating with {i}: {SympathySystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
+        description += "```";
+        var discordEmbedBuilder = new DiscordEmbedBuilder
         {
-            string description = "```\n";
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            Title = $"Votes for {discordUser.Username}",
+            Color = DiscordColor.Purple,
+            Description = description
+        };
 
-            for (int i = 1; i < 6; i++)
-            {
-                description += $"Rating with {i}: {SympathySystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
-            }
-            description += "```";
-            DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
-            {
-                Title = $"Votes for {discordUser.Username}",
-                Color = DiscordColor.Purple,
-                Description = description
-            };
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+    }
 
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-        }
+    /// <summary>
+    ///     Get the Avatar and Banner of an User.
+    /// </summary>
+    /// <param name="contextMenuContext">The contextMenuContext.</param>
+    /// <returns></returns>
+    [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
+    public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
+    {
+        var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);
 
-        [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
-        public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
-        {
-            var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id, true);
-
-            var discordEmbedBuilder = new DiscordEmbedBuilder
+        var discordEmbedBuilder = new DiscordEmbedBuilder
             {
                 Title = $"Avatar & Banner of {user.Username}",
                 ImageUrl = user.BannerHash != null ? user.BannerUrl : null
-            }.
-            WithThumbnail(user.AvatarUrl).
-            WithColor(user.BannerColor ?? DiscordColor.Purple).
-            WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).
-            WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).AddEmbed(discordEmbedBuilder.Build()));
-        }
+            }.WithThumbnail(user.AvatarUrl).WithColor(user.BannerColor ?? DiscordColor.Purple).WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+        await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,new DiscordInteractionResponseBuilder().AsEphemeral().AddEmbed(discordEmbedBuilder.Build()));
+    }
 
-        [SlashCommand("Invite", "Invite $chattenclown")]
-        public static async Task InviteAsync(InteractionContext interactionContext)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+    /// <summary>
+    ///     Creates an Invite link.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext.</param>
+    /// <returns></returns>
+    [SlashCommand("Invite", "Invite $chattenclown")]
+    public static async Task InviteAsync(InteractionContext interactionContext)
+    {
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            var bot_invite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
+        var botInvite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
 
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(bot_invite.AbsoluteUri));
-        }
+        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
     }
 }

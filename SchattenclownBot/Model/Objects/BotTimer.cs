@@ -44,12 +44,12 @@ namespace SchattenclownBot.Model.Objects
                         if (botTimerItem.NotificationTime < DateTime.Now)
                         {
                             var chn = await Bot.Client.GetChannelAsync(botTimerItem.ChannelId);
-                            DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
+                            var eb = new DiscordEmbedBuilder();
                             eb.Color = DiscordColor.Red;
                             eb.WithDescription($"<@{botTimerItem.MemberId}> Timer for {botTimerItem.NotificationTime} is up!");
 
                             BotTimer.Delete(botTimerItem);
-                            for (int i = 0; i < 3; i++)
+                            for (var i = 0; i < 3; i++)
                             {
                                 await chn.SendMessageAsync(eb.Build());
                                 await Task.Delay(50);

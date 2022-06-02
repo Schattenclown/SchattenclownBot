@@ -2,7 +2,7 @@
 
 namespace SchattenclownBot.Model.HelpClasses
 {
-    public class ConsoleStringFormater
+    public class ConsoleStringFormatter
     {
         /// <summary>
         /// Centers the console.

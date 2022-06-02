@@ -7,19 +7,19 @@ using DisCatSharp.Entities;
 namespace SchattenclownBot.Model.Discord.ChoiceProvider
 {
     /// <summary>
-    /// The Abotype choice provider.
+    ///     sThe rating value setup choice provider.
     /// </summary>
     public class RatingSetupChoiceProvider : IChoiceProvider
     {
         /// <summary>
-        /// Providers the choices.
+        ///     Providers the choices.
         /// </summary>
         /// <returns>choices</returns>
         public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
         {
-            DiscordApplicationCommandOptionChoice[] choices = new DiscordApplicationCommandOptionChoice[5];
+            var choices = new DiscordApplicationCommandOptionChoice[5];
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 choices[i] = new DiscordApplicationCommandOptionChoice($"{i + 1}", $"{i + 1}");
             }

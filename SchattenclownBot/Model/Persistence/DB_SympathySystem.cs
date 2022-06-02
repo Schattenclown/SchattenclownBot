@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 using MySql.Data.MySqlClient;
-
+using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
-using SchattenclownBot.HelpClasses;
 
 namespace SchattenclownBot.Model.Persistence
 {
@@ -14,15 +13,15 @@ namespace SchattenclownBot.Model.Persistence
     {
         public static List<SympathySystem> ReadAll(ulong guildId)
         {
-            string sqlCommand = $"SELECT * FROM `{guildId}_votes`";
+            var sqlCommand = $"SELECT * FROM `{guildId}_votes`";
 
-            List<SympathySystem> sympathySystemList = new List<SympathySystem>();
-            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-            MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
+            var sympathySystemList = new List<SympathySystem>();
+            var mySqlConnection = DB_Connection.OpenDB();
+            var mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
-                SympathySystem sympathySystemObj = new SympathySystem()
+                var sympathySystemObj = new SympathySystem()
                 {
                     VotingUserID = mySqlDataReader.GetUInt64("VotingUserID"),
                     VotedUserID = mySqlDataReader.GetUInt64("VotedUserID"),
@@ -38,50 +37,50 @@ namespace SchattenclownBot.Model.Persistence
         }
         public static void Add(SympathySystem sympathySystem)
         {
-            string sqlCommand = $"INSERT INTO `{sympathySystem.GuildID}_votes` (VotingUserID, VotedUserID, GuildID, VoteRating)" +
-                                $"VALUES({sympathySystem.VotingUserID}, {sympathySystem.VotedUserID}, {sympathySystem.GuildID}, {sympathySystem.VoteRating})";
+            var sqlCommand = $"INSERT INTO `{sympathySystem.GuildID}_votes` (VotingUserID, VotedUserID, GuildID, VoteRating)" +
+                             $"VALUES({sympathySystem.VotingUserID}, {sympathySystem.VotedUserID}, {sympathySystem.GuildID}, {sympathySystem.VoteRating})";
 
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
         public static void Change(SympathySystem sympathySystem)
         {
-            string sqlCommand = $"UPDATE `{sympathySystem.GuildID}_votes` SET VoteRating={sympathySystem.VoteRating} WHERE VotingUserID={sympathySystem.VotingUserID} AND VotedUserID={sympathySystem.VotedUserID}";
+            var sqlCommand = $"UPDATE `{sympathySystem.GuildID}_votes` SET VoteRating={sympathySystem.VoteRating} WHERE VotingUserID={sympathySystem.VotingUserID} AND VotedUserID={sympathySystem.VotedUserID}";
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
         public static void CreateTable_SympathySystem(ulong guildId)
         {
-            Connections connetions = CSV_Connections.ReadAll();
+            var connetions = CSV_Connections.ReadAll();
 
-            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
+            var database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
 #if DEBUG
             database = StringCutter.RemoveUntilWord(connetions.MySqlConStrDebug, "Database=", 9);
 #endif
             database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
-            string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
-                                $"USE `{database}`;" +
-                                $"CREATE TABLE IF NOT EXISTS `{guildId}_votes` (" +
-                                "`VoteTableID` INT NOT NULL AUTO_INCREMENT," +
-                                "`VotingUserID` BIGINT NOT NULL," +
-                                "`VotedUserID` BIGINT NOT NULL," +
-                                "`GuildID` BIGINT NOT NULL," +
-                                "`VoteRating` INT NOT NULL," +
-                                "PRIMARY KEY (VoteTableID)" +
-                                ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+            var sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
+                             $"USE `{database}`;" +
+                             $"CREATE TABLE IF NOT EXISTS `{guildId}_votes` (" +
+                             "`VoteTableID` INT NOT NULL AUTO_INCREMENT," +
+                             "`VotingUserID` BIGINT NOT NULL," +
+                             "`VotedUserID` BIGINT NOT NULL," +
+                             "`GuildID` BIGINT NOT NULL," +
+                             "`VoteRating` INT NOT NULL," +
+                             "PRIMARY KEY (VoteTableID)" +
+                             ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
         public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
         {
-            string sqlCommand = $"SELECT * FROM `{guildId}_roleinfo`";
+            var sqlCommand = $"SELECT * FROM `{guildId}_roleinfo`";
 
-            List<RoleInfoSympathySystem> roleInfoSympathySystemList = new List<RoleInfoSympathySystem>();
-            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-            MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
+            var roleInfoSympathySystemList = new List<RoleInfoSympathySystem>();
+            var mySqlConnection = DB_Connection.OpenDB();
+            var mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
-                RoleInfoSympathySystem roleInfoSympathySystem = new RoleInfoSympathySystem();
+                var roleInfoSympathySystem = new RoleInfoSympathySystem();
 
                 switch (mySqlDataReader.GetInt32("RatingValue"))
                 {
@@ -112,7 +111,7 @@ namespace SchattenclownBot.Model.Persistence
         }
         public static void AddRoleInfo(SympathySystem sympathySystem)
         {
-            string sqlCommand = $"INSERT INTO `{sympathySystem.GuildID}_roleinfo` (GuildRoleID, RatingValue, GuildID)";
+            var sqlCommand = $"INSERT INTO `{sympathySystem.GuildID}_roleinfo` (GuildRoleID, RatingValue, GuildID)";
 
             if (sympathySystem.RoleInfo.RatingOne != 0)
                 sqlCommand += $"VALUES({sympathySystem.RoleInfo.RatingOne}, 1, {sympathySystem.GuildID})";
@@ -129,7 +128,7 @@ namespace SchattenclownBot.Model.Persistence
         }
         public static void ChangeRoleInfo(SympathySystem sympathySystem)
         {
-            string sqlCommand = $"UPDATE `{sympathySystem.GuildID}_roleinfo` SET GuildRoleID=";
+            var sqlCommand = $"UPDATE `{sympathySystem.GuildID}_roleinfo` SET GuildRoleID=";
 
             if (sympathySystem.RoleInfo.RatingOne != 0)
                 sqlCommand += $"{sympathySystem.RoleInfo.RatingOne} WHERE RatingValue=1";
@@ -146,10 +145,10 @@ namespace SchattenclownBot.Model.Persistence
         }
         public static bool CheckRoleInfoExists(ulong guildId,int RatingValue)
         {
-            string sqlCommand = $"SELECT * FROM `{guildId}_roleinfo` WHERE RatingValue=RatingValue";
+            var sqlCommand = $"SELECT * FROM `{guildId}_roleinfo` WHERE RatingValue=RatingValue";
 
-            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-            MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
+            var mySqlConnection = DB_Connection.OpenDB();
+            var mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
@@ -163,34 +162,34 @@ namespace SchattenclownBot.Model.Persistence
         }
         public static void CreateTable_RoleInfoSympathySystem(ulong guildsId)
         {
-            Connections connetions = CSV_Connections.ReadAll();
+            var connetions = CSV_Connections.ReadAll();
 
-            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
+            var database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
 #if DEBUG
             database = StringCutter.RemoveUntilWord(connetions.MySqlConStrDebug, "Database=", 9);
 #endif
             database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
-            string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
-                                $"USE `{database}`;" +
-                                $"CREATE TABLE IF NOT EXISTS `{guildsId}_roleinfo` (" +
-                                "`RoleInfoID` INT NOT NULL AUTO_INCREMENT," +
-                                "`GuildRoleID` BIGINT NOT NULL," +
-                                "`RatingValue` INT NOT NULL," +
-                                "`GuildID` BIGINT NOT NULL," +
-                                "PRIMARY KEY (RoleInfoID)" +
-                                ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+            var sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
+                             $"USE `{database}`;" +
+                             $"CREATE TABLE IF NOT EXISTS `{guildsId}_roleinfo` (" +
+                             "`RoleInfoID` INT NOT NULL AUTO_INCREMENT," +
+                             "`GuildRoleID` BIGINT NOT NULL," +
+                             "`RatingValue` INT NOT NULL," +
+                             "`GuildID` BIGINT NOT NULL," +
+                             "PRIMARY KEY (RoleInfoID)" +
+                             ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
         public static int GetUserRatings(ulong guildId, ulong votedUserID, int voteRating)
         {
-            string sqlCommand = $"SELECT count(*)" +
-                                $"FROM `{guildId}_votes` " +
-                                $"WHERE VotedUserID={votedUserID} AND VoteRating={voteRating}";
+            var sqlCommand = $"SELECT count(*)" +
+                             $"FROM `{guildId}_votes` " +
+                             $"WHERE VotedUserID={votedUserID} AND VoteRating={voteRating}";
 
-            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-            int returnnumber = DB_Connection.ExecuteScalarCount(sqlCommand, mySqlConnection);
+            var mySqlConnection = DB_Connection.OpenDB();
+            var returnnumber = DB_Connection.ExecuteScalarCount(sqlCommand, mySqlConnection);
 
             DB_Connection.CloseDB(mySqlConnection);
 

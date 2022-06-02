@@ -9,28 +9,32 @@ using SchattenclownBot.Model.Discord.Main;
 namespace SchattenclownBot.Model.Discord.Commands
 {
     /// <summary>
-    /// The MAIN.
+    ///     Old commands.
     /// </summary>
     internal class Main : BaseCommandModule
     {
         /// <summary>
-        /// prob. does nothing
+        ///     Main class for old commands.
         /// </summary>
-        /// <param name="ctx">The ctx.</param>
+        /// <param name="commandContext">The commandContext.</param>
         /// <returns>A Task.</returns>
         [Command("ping"), Description("Ping")]
-        public async Task PingAsync(CommandContext ctx)
+        public async Task PingAsync(CommandContext commandContext)
         {
-            await ctx.RespondAsync($"{ctx.Client.Ping}ms");
+            await commandContext.RespondAsync($"{commandContext.Client.Ping}ms");
         }
 
+        /// <summary>
+        ///     Set a new appearance for the bot per command.
+        /// </summary>
+        /// <param name="commandContext"></param>
+        /// <param name="sts"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
         [Command("mode"), Description("Change the appearance of the bots status")]
-        public async Task SetModeAsync(CommandContext ctx, [Description("Status mode to set. [ 1=offline | 2=online | 3=dnd] ")] int sts = 2, [Description("Status message to set."), RemainingText] string msg = null)
+        public async Task SetModeAsync(CommandContext commandContext, [Description("Status mode to set. [ 1=offline | 2=online | 3=dnd] ")] int sts = 2, [Description("Status message to set."), RemainingText] string msg = null)
         {
-            if (msg == null)
-            {
-                msg = $"{Bot.prefix}help";
-            }
+            msg ??= $"{Bot.Prefix}help";
 
             var status = sts switch
             {
@@ -42,7 +46,7 @@ namespace SchattenclownBot.Model.Discord.Commands
                 _ => UserStatus.Online,
             };
 
-            DiscordActivity activity = new DiscordActivity()
+            var activity = new DiscordActivity()
             {
                 Name = msg,
                 ActivityType = status == UserStatus.Streaming ? ActivityType.Streaming : ActivityType.Watching,
@@ -50,11 +54,11 @@ namespace SchattenclownBot.Model.Discord.Commands
                 StreamUrl = status == UserStatus.Streaming ? "https://twitch.tv/lulalaby" : null
             };
             await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
-            Bot.custom = true;
-            Bot.customstate = msg;
-            Bot.customstatus = status;
+            Bot.Custom = true;
+            Bot.CustomState = msg;
+            Bot.CustomStatus = status;
 
-            await ctx.Message.DeleteAsync("Command Hide");
+            await commandContext.Message.DeleteAsync("Command Hide");
         }
     }
 }

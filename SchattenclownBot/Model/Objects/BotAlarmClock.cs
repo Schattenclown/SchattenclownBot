@@ -41,12 +41,12 @@ namespace SchattenclownBot.Model.Objects
                         if (BotAlarmClockItem.NotificationTime < DateTime.Now)
                         {
                             var chn = await Bot.Client.GetChannelAsync(BotAlarmClockItem.ChannelId);
-                            DiscordEmbedBuilder eb = new DiscordEmbedBuilder();
+                            var eb = new DiscordEmbedBuilder();
                             eb.Color = DiscordColor.Red;
                             eb.WithDescription($"<@{BotAlarmClockItem.MemberId}> Alarm for {BotAlarmClockItem.NotificationTime} rings!");
 
                             BotAlarmClock.Delete(BotAlarmClockItem);
-                            for (int i = 0; i < 3; i++)
+                            for (var i = 0; i < 3; i++)
                             {
                                 await chn.SendMessageAsync(eb.Build());
                                 await Task.Delay(50);

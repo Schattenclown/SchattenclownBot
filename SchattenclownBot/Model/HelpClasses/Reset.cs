@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 
-using SchattenclownBot.HelpClasses;
-
 namespace SchattenclownBot.Model.HelpClasses
 {
     public class Reset
@@ -16,16 +14,16 @@ namespace SchattenclownBot.Model.HelpClasses
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            ConsoleStringFormater.Center(" ");
-            ConsoleStringFormater.Center(@"██████╗ ███████╗███████╗████████╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ ");
-            ConsoleStringFormater.Center(@"██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ ");
-            ConsoleStringFormater.Center(@"██████╔╝█████╗  ███████╗   ██║   ███████║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗");
-            ConsoleStringFormater.Center(@"██╔══██╗██╔══╝  ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║");
-            ConsoleStringFormater.Center(@"██║  ██║███████╗███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝");
-            ConsoleStringFormater.Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
-            ConsoleStringFormater.Center(" ");
+            ConsoleStringFormatter.Center(" ");
+            ConsoleStringFormatter.Center(@"██████╗ ███████╗███████╗████████╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ ");
+            ConsoleStringFormatter.Center(@"██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ ");
+            ConsoleStringFormatter.Center(@"██████╔╝█████╗  ███████╗   ██║   ███████║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗");
+            ConsoleStringFormatter.Center(@"██╔══██╗██╔══╝  ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║");
+            ConsoleStringFormatter.Center(@"██║  ██║███████╗███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝");
+            ConsoleStringFormatter.Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
+            ConsoleStringFormatter.Center(" ");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            ConsoleStringFormater.Center("DB IS DEAD");
+            ConsoleStringFormatter.Center("DB IS DEAD");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
 
             // Get file path of current process 
@@ -44,9 +42,9 @@ namespace SchattenclownBot.Model.HelpClasses
                 newFilepath = filePath + "Release\\net6.0\\SchattenclownBot.exe";
             }
 
-            Console.WriteLine("Before 120 secound sleep");
+            Console.WriteLine("Before 120 second sleep");
             Thread.Sleep(1000 * 60);
-            Console.WriteLine("After 120 secound sleep");
+            Console.WriteLine("After 120 second sleep");
             // Start program
             Process.Start(newFilepath);
 

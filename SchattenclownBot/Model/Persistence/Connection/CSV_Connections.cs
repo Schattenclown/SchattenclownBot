@@ -13,12 +13,12 @@ namespace SchattenclownBot.Model.Persistence.Connection
         {
             try
             {
-                Connections connections = new Connections();
-                StreamReader streamReader = new StreamReader(_filepath.LocalPath);
+                var connections = new Connections();
+                var streamReader = new StreamReader(_filepath.LocalPath);
                 while (!streamReader.EndOfStream)
                 {
-                    string row = streamReader.ReadLine();
-                    string[] infos = row.Split(';');
+                    var row = streamReader.ReadLine();
+                    var infos = row.Split(';');
 
                     switch (infos[0])
                     {
@@ -43,11 +43,11 @@ namespace SchattenclownBot.Model.Persistence.Connection
             }
             catch (Exception)
             {
-                DirectoryInfo directory = new DirectoryInfo(_path.LocalPath);
+                var directory = new DirectoryInfo(_path.LocalPath);
                 if (!directory.Exists)
                     directory.Create();
 
-                StreamWriter streamWriter = new StreamWriter(_filepath.LocalPath);
+                var streamWriter = new StreamWriter(_filepath.LocalPath);
                 streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
                                        "DiscordBotKeyDebug;<API Key here>\n" +
                                        "MySqlConStr;<DBConnectionString here>\n" +
