@@ -723,7 +723,7 @@ internal class Main : ApplicationCommandsModule
         {
             var sympathySystemObj = new SympathySystem
             {
-                VotingUserID = discordTargetMember.Id,
+                VotingUserID = discordMember.Id,
                 VotedUserID = discordTargetMember.Id,
                 GuildID = componentInteractionCreateEventArgs.Guild.Id,
                 VoteRating = rating
