@@ -509,7 +509,15 @@ internal class Main : ApplicationCommandsModule
     /// <returns></returns>
     public static async Task PokeAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, bool deleteResponseAsync, int pokeAmount, bool force)
     {
-        var discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
+		// TODO: Rewrite to use interactivity
+        var msg = componentInteractionCreateEventArgs.Message;
+        var mb = new DiscordMessageBuilder()
+        {
+            Content = "Executing poke"
+        };
+        mb.ClearComponents();
+		await msg.ModifyAsync(mb);
+		var discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
         var discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
 
         await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
