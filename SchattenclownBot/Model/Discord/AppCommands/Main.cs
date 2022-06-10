@@ -409,7 +409,7 @@ internal class Main : ApplicationCommandsModule
 		{
 			var curVoice = member.VoiceState.Channel;
 			var channels = await ctx.Guild.GetChannelsAsync();
-			var voiceChannels = channels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != curVoice.Id);
+			var voiceChannels = channels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != curVoice.Id && !x.Users.Any());
 			foreach (var channel in voiceChannels)
 			{
 				try
