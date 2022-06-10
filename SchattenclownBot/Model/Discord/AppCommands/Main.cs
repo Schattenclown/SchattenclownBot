@@ -3,17 +3,15 @@ using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
-using SchattenclownBot.Model.Discord.ChoiceProvider;
+using DisCatSharp.Interactivity.Extensions;
+
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
+
 using System;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
-using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -439,24 +437,38 @@ internal class Main : ApplicationCommandsModule
 	/// <returns></returns>
 	[SlashCommand("Poke", "Poke user!")]
     public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
-    {
-        var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
+	{
+		var interactivity = interactionContext.Client.GetInteractivity();
+		var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
         DiscordSelectComponent discordSelectComponent = new("force", "Select a method!", discordSelectComponentOptionList);
 
         await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
-    }
+		var msg = await interactionContext.GetOriginalResponseAsync();
+		var intReq = await interactivity.WaitForSelectAsync(msg, "force", TimeSpan.FromMinutes(1));
+		if (!intReq.TimedOut)
+		{
+			var res = intReq.Result.Values.First();
+			await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(discordSelectComponent.Disable()));
+            var targetMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
+			await PokeAsync(intReq.Result.Interaction, interactionContext.Member, targetMember, false, res == "light" ? 2 : 4, res == "hard");
+		}
+		else
+			await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Timed out!"));
 
-    /// <summary>
-    ///     Poke an User per contextmenu.
-    /// </summary>
-    /// <param name="contextMenuContext">The contextMenuContext</param>
-    /// <returns></returns>
-    [ContextMenu(ApplicationCommandType.User, "Poke user!")]
+	}
+
+	/// <summary>
+	///     Poke an User per contextmenu.
+	/// </summary>
+	/// <param name="contextMenuContext">The contextMenuContext</param>
+	/// <returns></returns>
+	[ContextMenu(ApplicationCommandType.User, "Poke user!")]
     public static async Task ContextMenuPoke(ContextMenuContext contextMenuContext)
     {
+        var interactivity = contextMenuContext.Client.GetInteractivity();
         var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
@@ -464,6 +476,16 @@ internal class Main : ApplicationCommandsModule
         var discordSelectComponent = new DiscordSelectComponent("force", "Select a method!", discordSelectComponentOptionList);
 
         await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{contextMenuContext.TargetMember.Id}>!"));
+        var msg = await contextMenuContext.GetOriginalResponseAsync();
+        var intReq = await interactivity.WaitForSelectAsync(msg, "force", TimeSpan.FromMinutes(1));
+        if (!intReq.TimedOut)
+        {
+            var res = intReq.Result.Values.First();
+            await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(discordSelectComponent.Disable()));
+            await PokeAsync(intReq.Result.Interaction, contextMenuContext.Member, contextMenuContext.TargetMember, false, res == "light" ? 2 : 4, res == "hard");
+        }
+        else
+            await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Timed out!"));
     }
 
     /// <summary>
@@ -526,12 +548,6 @@ internal class Main : ApplicationCommandsModule
             case "rating_5":
                 await VoteRatingAsync(componentInteractionCreateEventArgs, 5);
                 break;
-            case "light":
-                await PokeAsync(componentInteractionCreateEventArgs, false, 2, false);
-                break;
-            case "hard":
-                await PokeAsync(componentInteractionCreateEventArgs, false, 2, true);
-                break;
         }
     }
 
@@ -543,33 +559,22 @@ internal class Main : ApplicationCommandsModule
     /// <param name="pokeAmount">The amount the user gets poked.</param>
     /// <param name="force">Light or hard slap.</param>
     /// <returns></returns>
-    public static async Task PokeAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, bool deleteResponseAsync, int pokeAmount, bool force)
+    public static async Task PokeAsync(DiscordInteraction interaction, DiscordMember member, DiscordMember target, bool deleteResponseAsync, int pokeAmount, bool force)
     {
-		// TODO: Rewrite to use interactivity
-        /*var msg = componentInteractionCreateEventArgs.Message;
-        var mb = new DiscordMessageBuilder()
-        {
-            Content = "Executing poke"
-        };
-        mb.ClearComponents();
-		await msg.ModifyAsync(mb);*/
-		var discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
-        var discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
-
-        await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+		await interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
         var discordEmbedBuilder = new DiscordEmbedBuilder
         {
-            Title = $"Poke {discordTargetMember.DisplayName}"
+            Title = $"Poke {target.DisplayName}"
         };
 
-        discordEmbedBuilder.WithFooter($"Requested by {componentInteractionCreateEventArgs.User.Username}", discordMember.AvatarUrl);
+        discordEmbedBuilder.WithFooter($"Requested by {member.DisplayName}", member.AvatarUrl);
 
-        await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+        await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
 
         var rightToMove = false;
 
-        var discordRoleList = discordMember.Roles.ToList();
+        var discordRoleList = member.Roles.ToList();
 
         foreach (var discordRoleItem in discordRoleList.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
             rightToMove = true;
@@ -579,18 +584,18 @@ internal class Main : ApplicationCommandsModule
         var mobileHasValue = false;
         var presenceWasNull = false;
 
-        if (discordTargetMember.Presence != null)
+        if (target.Presence != null)
         {
-            desktopHasValue = discordTargetMember.Presence.ClientStatus.Desktop.HasValue;
-            webHasValue = discordTargetMember.Presence.ClientStatus.Web.HasValue;
-            mobileHasValue = discordTargetMember.Presence.ClientStatus.Mobile.HasValue;
+            desktopHasValue = target.Presence.ClientStatus.Desktop.HasValue;
+            webHasValue = target.Presence.ClientStatus.Web.HasValue;
+            mobileHasValue = target.Presence.ClientStatus.Mobile.HasValue;
         }
         else
         {
             presenceWasNull = true;
         }
 
-        if (discordTargetMember.VoiceState != null && rightToMove && (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
+        if (target.VoiceState != null && rightToMove && (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
         {
             DiscordChannel currentChannel = default;
             DiscordChannel tempCategory = default;
@@ -601,45 +606,45 @@ internal class Main : ApplicationCommandsModule
             {
                 var discordEmojis = DiscordEmoji.FromName(Bot.Client, ":no_entry_sign:");
 
-                tempCategory = componentInteractionCreateEventArgs.Interaction.Guild.CreateChannelCategoryAsync("%Temp%").Result;
-                tempChannel1 = componentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmojis, tempCategory).Result;
-                tempChannel2 = componentInteractionCreateEventArgs.Interaction.Guild.CreateVoiceChannelAsync(discordEmojis, tempCategory).Result;
+                tempCategory = interaction.Guild.CreateChannelCategoryAsync("%Temp%").Result;
+                tempChannel1 = interaction.Guild.CreateVoiceChannelAsync(discordEmojis, tempCategory).Result;
+                tempChannel2 = interaction.Guild.CreateVoiceChannelAsync(discordEmojis, tempCategory).Result;
             }
             catch
             {
                 discordEmbedBuilder.Description = "Error while creating the channels!";
-                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
 
             try
             {
-                currentChannel = discordTargetMember.VoiceState.Channel;
+                currentChannel = target.VoiceState.Channel;
 
                 for (var i = 0; i < pokeAmount; i++)
                 {
-                    await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
+                    await target.PlaceInAsync(tempChannel1);
                     await Task.Delay(250);
-                    await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel2);
-                    await Task.Delay(250);
+					await target.PlaceInAsync(tempChannel2);
+					await Task.Delay(250);
                 }
 
-                await discordTargetMember.ModifyAsync(x => x.VoiceChannel = tempChannel1);
-                await Task.Delay(250);
+				await target.PlaceInAsync(tempChannel1);
+				await Task.Delay(250);
             }
             catch
             {
                 discordEmbedBuilder.Description = "Error! User left?";
-                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
-
+			
             try
             {
-                await discordTargetMember.ModifyAsync(x => x.VoiceChannel = currentChannel);
+                await target.PlaceInAsync(currentChannel);
             }
             catch
             {
                 discordEmbedBuilder.Description = "Error! User left?";
-                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
 
             try
@@ -649,7 +654,7 @@ internal class Main : ApplicationCommandsModule
             catch
             {
                 discordEmbedBuilder.Description = "Error while deleting the channels!";
-                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
 
             try
@@ -659,7 +664,7 @@ internal class Main : ApplicationCommandsModule
             catch
             {
                 discordEmbedBuilder.Description = "Error while deleting the channels!";
-                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
 
             try
@@ -669,18 +674,18 @@ internal class Main : ApplicationCommandsModule
             catch
             {
                 discordEmbedBuilder.Description = "Error while deleting the channels!";
-                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
         }
-        else if (discordTargetMember.VoiceState == null)
+        else if (target.VoiceState == null)
         {
             discordEmbedBuilder.Description = "User is not connected!";
-            await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
         else if (!rightToMove)
         {
             discordEmbedBuilder.Description = "Your not allowed to use that!";
-            await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
         else if (mobileHasValue)
         {
@@ -689,24 +694,24 @@ internal class Main : ApplicationCommandsModule
             var discordEmojisWhiteCheckMark = DiscordEmoji.FromName(Bot.Client, ":white_check_mark:");
             var discordEmojisCheckX = DiscordEmoji.FromName(Bot.Client, ":x:");
 
-            if (discordTargetMember.Presence.ClientStatus.Desktop.HasValue)
+            if (target.Presence.ClientStatus.Desktop.HasValue)
                 description += discordEmojisWhiteCheckMark + " Desktop" + "\n";
             else
                 description += discordEmojisCheckX + " Desktop" + "\n";
 
-            if (discordTargetMember.Presence.ClientStatus.Web.HasValue)
+            if (target.Presence.ClientStatus.Web.HasValue)
                 description += discordEmojisWhiteCheckMark + " Web" + "\n";
             else
                 description += discordEmojisCheckX + " Web" + "\n";
 
-            if (discordTargetMember.Presence.ClientStatus.Mobile.HasValue)
+            if (target.Presence.ClientStatus.Mobile.HasValue)
                 description += discordEmojisWhiteCheckMark + " Mobile";
             else
                 description += discordEmojisCheckX + " Mobile";
 
             discordEmbedBuilder.Description = description;
 
-            await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+            await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
         }
 
         if (deleteResponseAsync)
@@ -714,12 +719,12 @@ internal class Main : ApplicationCommandsModule
             for (var i = 3; i > 0; i--)
             {
                 discordEmbedBuilder.AddField(new DiscordEmbedField("This message will be deleted in", $"{i} Seconds"));
-                await componentInteractionCreateEventArgs.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
+                await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
                 await Task.Delay(1000);
                 discordEmbedBuilder.RemoveFieldAt(0);
             }
 
-            await componentInteractionCreateEventArgs.Interaction.DeleteOriginalResponseAsync();
+            await interaction.DeleteOriginalResponseAsync();
         }
     }
 
