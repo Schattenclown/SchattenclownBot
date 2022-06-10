@@ -395,13 +395,49 @@ internal class Main : ApplicationCommandsModule
         return minuteformatisright;
     }
 
-    /// <summary>
-    ///     Poke an User per command.
-    /// </summary>
-    /// <param name="interactionContext">The interactionContext</param>
-    /// <param name="discordUser">the discordUser</param>
-    /// <returns></returns>
-    [SlashCommand("Poke", "Poke user!")]
+	[SlashCommand("daddys_poke", "Harder daddy!")]
+	public static async Task DaddysPoke(InteractionContext ctx, [Option("user", "@...")] DiscordUser user)
+	{
+        await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
+        var member = await ctx.Guild.GetMemberAsync(user.Id);
+		if (member.VoiceState == null)
+		{
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Not connected"));
+            return;
+		}
+        try
+		{
+			var curVoice = member.VoiceState.Channel;
+			var channels = await ctx.Guild.GetChannelsAsync();
+			var voiceChannels = channels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != curVoice.Id);
+			foreach (var channel in voiceChannels)
+			{
+				try
+				{
+					await member.PlaceInAsync(channel);
+					await Task.Delay(1000);
+				}
+				catch (Exception)
+				{
+					await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Something went wrong!"));
+				}
+			}
+			await member.PlaceInAsync(curVoice);
+			await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Done!"));
+		}
+		catch (Exception)
+		{
+			await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Something went wrong!"));
+		}
+	}	
+
+	/// <summary>
+	///     Poke an User per command.
+	/// </summary>
+	/// <param name="interactionContext">The interactionContext</param>
+	/// <param name="discordUser">the discordUser</param>
+	/// <returns></returns>
+	[SlashCommand("Poke", "Poke user!")]
     public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
     {
         var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
@@ -510,13 +546,13 @@ internal class Main : ApplicationCommandsModule
     public static async Task PokeAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, bool deleteResponseAsync, int pokeAmount, bool force)
     {
 		// TODO: Rewrite to use interactivity
-        var msg = componentInteractionCreateEventArgs.Message;
+        /*var msg = componentInteractionCreateEventArgs.Message;
         var mb = new DiscordMessageBuilder()
         {
             Content = "Executing poke"
         };
         mb.ClearComponents();
-		await msg.ModifyAsync(mb);
+		await msg.ModifyAsync(mb);*/
 		var discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
         var discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
 
