@@ -13,6 +13,9 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using DisCatSharp.ApplicationCommands.Attributes;
+using DisCatSharp.CommandsNext.Attributes;
+using MySql.Data.MySqlClient.Memcached;
 using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
@@ -220,7 +223,7 @@ internal class Main : ApplicationCommandsModule
                 DateTime date1 = new(1969, 4, 20, 4, 20, 0);
                 var date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
                 var timeSpan = date2 - date1;
-                
+
                 var calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
 
                 var daysstring = "Day´s";
@@ -295,7 +298,7 @@ internal class Main : ApplicationCommandsModule
                       $"{calculatedXpSpanToReachNextLevel}" +
                       "}}],\"yAxes\":[{\"stacked\":true,\"time\":{\"displayFormats\":{}}}]},\"plugins\":{\"datalabels\":{\"anchor\":\"end\",\"backgroundColor\":\"%23e241ff\",\"borderColor\":\"%23e241ff\",\"borderRadius\":6,\"padding\":4,\"color\":\"%23282828\",\"font\":{\"family\":\"sans-serif\",\"size\":30,\"style\":\"normal\"}},},}}";
         #endregion
-        
+
         DiscordEmbedBuilder discordEmbedBuilder = new();
         discordEmbedBuilder.WithTitle(temp);
         discordEmbedBuilder.WithDescription("<@" + interactionContext.Member.Id + ">");
@@ -322,7 +325,7 @@ internal class Main : ApplicationCommandsModule
         int xp = 0, calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
 
         var rank = "N/A";
-        
+
         foreach (var userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == discordUser.Id))
         {
             rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
@@ -735,64 +738,85 @@ internal class Main : ApplicationCommandsModule
                     SympathySystem.Change(sympathySystemObj);
                     break;
             }
-            
+
             discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";
         }
 
         await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AsEphemeral().AddEmbed(discordEmbedBuilder.Build()));
     }
 
-/*    /// <summary>
-    ///     Setup assist for the Rating Roles.
-    /// </summary>
-    /// <param name="interactionContext">The interactionContext.</param>
-    /// <param name="voteRating">The RatingValue the role stands for.</param>
-    /// <param name="discordRole">The discordRole.</param>
-    /// <returns></returns>
-    [SlashCommand("RatingSetup", "Set up the roles for the Rating System!")]
-    public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))] [Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
+    /*  /// <summary>
+        ///     Setup assist for the Rating Roles.
+        /// </summary>
+        /// <param name="interactionContext">The interactionContext.</param>
+        /// <param name="voteRating">The RatingValue the role stands for.</param>
+        /// <param name="discordRole">The discordRole.</param>
+        /// <returns></returns>
+        [SlashCommand("RatingSetup", "Set up the roles for the Rating System!")]
+        public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))] [Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
+        {
+            var found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
+
+            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
+
+            var sympathySystemObj = new SympathySystem
+            {
+                GuildID = interactionContext.Guild.Id,
+                RoleInfo = new RoleInfoSympathySystem()
+            };
+
+            switch (Convert.ToInt32(voteRating))
+            {
+                case 1:
+                    sympathySystemObj.RoleInfo.RatingOne = discordRole.Id;
+                    break;
+                case 2:
+                    sympathySystemObj.RoleInfo.RatingTwo = discordRole.Id;
+                    break;
+                case 3:
+                    sympathySystemObj.RoleInfo.RatingThree = discordRole.Id;
+                    break;
+                case 4:
+                    sympathySystemObj.RoleInfo.RatingFour = discordRole.Id;
+                    break;
+                case 5:
+                    sympathySystemObj.RoleInfo.RatingFive = discordRole.Id;
+                    break;
+            }
+
+            switch (found)
+            {
+                case false:
+                    SympathySystem.AddRoleInfo(sympathySystemObj);
+                    break;
+                case true:
+                    SympathySystem.ChangeRoleInfo(sympathySystemObj);
+                    break;
+            }
+
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
+        }*/
+
+    [SlashCommand("Move", "Move the whole channel ur in to a different one!")]
+    public static async Task Move(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)] DiscordChannel discordTargetChannel)
     {
-        var found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
-
-        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
-
-        var sympathySystemObj = new SympathySystem
+        if (interactionContext.Member.VoiceState.Channel != null)
         {
-            GuildID = interactionContext.Guild.Id,
-            RoleInfo = new RoleInfoSympathySystem()
-        };
+            var source = interactionContext.Member.VoiceState.Channel;
 
-        switch (Convert.ToInt32(voteRating))
-        {
-            case 1:
-                sympathySystemObj.RoleInfo.RatingOne = discordRole.Id;
-                break;
-            case 2:
-                sympathySystemObj.RoleInfo.RatingTwo = discordRole.Id;
-                break;
-            case 3:
-                sympathySystemObj.RoleInfo.RatingThree = discordRole.Id;
-                break;
-            case 4:
-                sympathySystemObj.RoleInfo.RatingFour = discordRole.Id;
-                break;
-            case 5:
-                sympathySystemObj.RoleInfo.RatingFive = discordRole.Id;
-                break;
+            var members = source.Users;
+            foreach (var member in members)
+                await member.PlaceInAsync(discordTargetChannel);
+
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Done!"));
         }
-
-        switch (found)
+        else
         {
-            case false:
-                SympathySystem.AddRoleInfo(sympathySystemObj);
-                break;
-            case true:
-                SympathySystem.ChangeRoleInfo(sympathySystemObj);
-                break;
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("U are not connected!"));
         }
-
-        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{discordRole.Id} set for {voteRating}"));
-    }*/
+    }
 
     /// <summary>
     ///     Command to view how many and what ratings a given user has.
@@ -830,11 +854,11 @@ internal class Main : ApplicationCommandsModule
         var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);
 
         var discordEmbedBuilder = new DiscordEmbedBuilder
-            {
-                Title = $"Avatar & Banner of {user.Username}",
-                ImageUrl = user.BannerHash != null ? user.BannerUrl : null
-            }.WithThumbnail(user.AvatarUrl).WithColor(user.BannerColor ?? DiscordColor.Purple).WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-        await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,new DiscordInteractionResponseBuilder().AsEphemeral().AddEmbed(discordEmbedBuilder.Build()));
+        {
+            Title = $"Avatar & Banner of {user.Username}",
+            ImageUrl = user.BannerHash != null ? user.BannerUrl : null
+        }.WithThumbnail(user.AvatarUrl).WithColor(user.BannerColor ?? DiscordColor.Purple).WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+        await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddEmbed(discordEmbedBuilder.Build()));
     }
 
     /// <summary>
