@@ -4,6 +4,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity.Extensions;
+using DisCatSharp.ApplicationCommands.Attributes;
 
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
@@ -12,13 +13,6 @@ using SchattenclownBot.Model.Persistence;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-<<<<<<< HEAD
-using DisCatSharp.ApplicationCommands.Attributes;
-using DisCatSharp.CommandsNext.Attributes;
-using MySql.Data.MySqlClient.Memcached;
-using SchattenclownBot.Model.HelpClasses;
-=======
->>>>>>> 25cdfa3f5cb591e1777667dd4b18a752b5818cdf
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -400,79 +394,79 @@ internal class Main : ApplicationCommandsModule
         return minuteformatisright;
     }
 
-	[SlashCommand("daddys_poke", "Harder daddy!")]
-	public static async Task DaddysPoke(InteractionContext ctx, [Option("user", "@...")] DiscordUser user)
-	{
+    [SlashCommand("daddys_poke", "Harder daddy!")]
+    public static async Task DaddysPoke(InteractionContext ctx, [Option("user", "@...")] DiscordUser user)
+    {
         await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
         var member = await ctx.Guild.GetMemberAsync(user.Id);
-		if (member.VoiceState == null)
-		{
+        if (member.VoiceState == null)
+        {
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Not connected"));
             return;
-		}
+        }
         try
-		{
-			var curVoice = member.VoiceState.Channel;
-			var channels = await ctx.Guild.GetChannelsAsync();
-			var voiceChannels = channels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != curVoice.Id && !x.Users.Any());
-			foreach (var channel in voiceChannels)
-			{
-				try
-				{
-					await member.PlaceInAsync(channel);
-					await Task.Delay(1000);
-				}
-				catch (Exception)
-				{
-					await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Something went wrong!"));
-				}
-			}
-			await member.PlaceInAsync(curVoice);
-			await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Done!"));
-		}
-		catch (Exception)
-		{
-			await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Something went wrong!"));
-		}
-	}	
+        {
+            var curVoice = member.VoiceState.Channel;
+            var channels = await ctx.Guild.GetChannelsAsync();
+            var voiceChannels = channels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != curVoice.Id && !x.Users.Any());
+            foreach (var channel in voiceChannels)
+            {
+                try
+                {
+                    await member.PlaceInAsync(channel);
+                    await Task.Delay(1000);
+                }
+                catch (Exception)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Something went wrong!"));
+                }
+            }
+            await member.PlaceInAsync(curVoice);
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Done!"));
+        }
+        catch (Exception)
+        {
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Something went wrong!"));
+        }
+    }
 
-	/// <summary>
-	///     Poke an User per command.
-	/// </summary>
-	/// <param name="interactionContext">The interactionContext</param>
-	/// <param name="discordUser">the discordUser</param>
-	/// <returns></returns>
-	[SlashCommand("Poke", "Poke user!")]
+    /// <summary>
+    ///     Poke an User per command.
+    /// </summary>
+    /// <param name="interactionContext">The interactionContext</param>
+    /// <param name="discordUser">the discordUser</param>
+    /// <returns></returns>
+    [SlashCommand("Poke", "Poke user!")]
     public static async Task Poke(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
-	{
-		var interactivity = interactionContext.Client.GetInteractivity();
-		var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
+    {
+        var interactivity = interactionContext.Client.GetInteractivity();
+        var discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
         DiscordSelectComponent discordSelectComponent = new("force", "Select a method!", discordSelectComponentOptionList);
 
         await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
-		var msg = await interactionContext.GetOriginalResponseAsync();
-		var intReq = await interactivity.WaitForSelectAsync(msg, "force", TimeSpan.FromMinutes(1));
-		if (!intReq.TimedOut)
-		{
-			var res = intReq.Result.Values.First();
-			await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(discordSelectComponent.Disable()));
+        var msg = await interactionContext.GetOriginalResponseAsync();
+        var intReq = await interactivity.WaitForSelectAsync(msg, "force", TimeSpan.FromMinutes(1));
+        if (!intReq.TimedOut)
+        {
+            var res = intReq.Result.Values.First();
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(discordSelectComponent.Disable()));
             var targetMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
-			await PokeAsync(intReq.Result.Interaction, interactionContext.Member, targetMember, false, res == "light" ? 2 : 4, res == "hard");
-		}
-		else
-			await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Timed out!"));
+            await PokeAsync(intReq.Result.Interaction, interactionContext.Member, targetMember, false, res == "light" ? 2 : 4, res == "hard");
+        }
+        else
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Timed out!"));
 
-	}
+    }
 
-	/// <summary>
-	///     Poke an User per contextmenu.
-	/// </summary>
-	/// <param name="contextMenuContext">The contextMenuContext</param>
-	/// <returns></returns>
-	[ContextMenu(ApplicationCommandType.User, "Poke user!")]
+    /// <summary>
+    ///     Poke an User per contextmenu.
+    /// </summary>
+    /// <param name="contextMenuContext">The contextMenuContext</param>
+    /// <returns></returns>
+    [ContextMenu(ApplicationCommandType.User, "Poke user!")]
     public static async Task ContextMenuPoke(ContextMenuContext contextMenuContext)
     {
         var interactivity = contextMenuContext.Client.GetInteractivity();
@@ -568,7 +562,7 @@ internal class Main : ApplicationCommandsModule
     /// <returns></returns>
     public static async Task PokeAsync(DiscordInteraction interaction, DiscordMember member, DiscordMember target, bool deleteResponseAsync, int pokeAmount, bool force)
     {
-		await interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+        await interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
         var discordEmbedBuilder = new DiscordEmbedBuilder
         {
@@ -631,19 +625,19 @@ internal class Main : ApplicationCommandsModule
                 {
                     await target.PlaceInAsync(tempChannel1);
                     await Task.Delay(250);
-					await target.PlaceInAsync(tempChannel2);
-					await Task.Delay(250);
+                    await target.PlaceInAsync(tempChannel2);
+                    await Task.Delay(250);
                 }
 
-				await target.PlaceInAsync(tempChannel1);
-				await Task.Delay(250);
+                await target.PlaceInAsync(tempChannel1);
+                await Task.Delay(250);
             }
             catch
             {
                 discordEmbedBuilder.Description = "Error! User left?";
                 await interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
-			
+
             try
             {
                 await target.PlaceInAsync(currentChannel);
