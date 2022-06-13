@@ -4,6 +4,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity.Extensions;
+using DisCatSharp.ApplicationCommands.Attributes;
 
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
@@ -12,13 +13,6 @@ using SchattenclownBot.Model.Persistence;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-<<<<<<< HEAD
-using DisCatSharp.ApplicationCommands.Attributes;
-using DisCatSharp.CommandsNext.Attributes;
-using MySql.Data.MySqlClient.Memcached;
-using SchattenclownBot.Model.HelpClasses;
-=======
->>>>>>> 25cdfa3f5cb591e1777667dd4b18a752b5818cdf
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -400,7 +394,11 @@ internal class Main : ApplicationCommandsModule
         return minuteformatisright;
     }
 
+<<<<<<< HEAD
     [SlashCommand("daddys_poke", "Harder daddy!")] n
+=======
+    [SlashCommand("daddys_poke", "Harder daddy!")]
+>>>>>>> e71ed0a3c4c450ab88b8b51a83583b3bb45abdbf
     public static async Task DaddysPoke(InteractionContext ctx, [Option("user", "@...")] DiscordUser user)
     {
         await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
