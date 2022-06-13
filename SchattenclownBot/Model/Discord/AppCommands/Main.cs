@@ -394,11 +394,7 @@ internal class Main : ApplicationCommandsModule
         return minuteformatisright;
     }
 
-<<<<<<< HEAD
-    [SlashCommand("daddys_poke", "Harder daddy!")] n
-=======
     [SlashCommand("daddys_poke", "Harder daddy!")]
->>>>>>> e71ed0a3c4c450ab88b8b51a83583b3bb45abdbf
     public static async Task DaddysPoke(InteractionContext ctx, [Option("user", "@...")] DiscordUser user)
     {
         await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
