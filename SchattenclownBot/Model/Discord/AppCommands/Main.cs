@@ -444,9 +444,9 @@ internal class Main : ApplicationCommandsModule
         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
-        DiscordSelectComponent discordSelectComponent = new("force", "Select a method!", discordSelectComponentOptionList);
+		var discordSelectComponent = new DiscordSelectComponent(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
 
-        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
+		await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
         var msg = await interactionContext.GetOriginalResponseAsync();
         var intReq = await interactivity.WaitForSelectAsync(msg, "force", TimeSpan.FromMinutes(1));
         if (!intReq.TimedOut)
@@ -475,7 +475,7 @@ internal class Main : ApplicationCommandsModule
         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
-        var discordSelectComponent = new DiscordSelectComponent("force", "Select a method!", discordSelectComponentOptionList);
+        var discordSelectComponent = new DiscordSelectComponent(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
 
         await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{contextMenuContext.TargetMember.Id}>!"));
         var msg = await contextMenuContext.GetOriginalResponseAsync();
@@ -507,7 +507,7 @@ internal class Main : ApplicationCommandsModule
         discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
         discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
 
-        DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+        DiscordSelectComponent discordSelectComponent = new("Select a Rating!", discordSelectComponentOptionList, "give_rating");
 
         await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{discordUser.Id}> a Rating!"));
     }
@@ -527,7 +527,7 @@ internal class Main : ApplicationCommandsModule
         discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
         discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
 
-        DiscordSelectComponent discordSelectComponent = new("give_rating", "Select a Rating!", discordSelectComponentOptionList);
+        DiscordSelectComponent discordSelectComponent = new("Select a Rating!", discordSelectComponentOptionList, "give_rating");
 
         await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
     }
