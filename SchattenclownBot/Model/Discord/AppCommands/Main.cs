@@ -530,24 +530,24 @@ internal class Main : ApplicationCommandsModule
         await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
     }
 
-    public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs)
+    public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs cICEArgs)
     {
-        switch (componentInteractionCreateEventArgs.Values[0])
+        switch (cICEArgs.Values[0])
         {
             case "rating_1":
-                await VoteRatingAsync(componentInteractionCreateEventArgs, 1);
+                await VoteRatingAsync(cICEArgs, 1);
                 break;
             case "rating_2":
-                await VoteRatingAsync(componentInteractionCreateEventArgs, 2);
+                await VoteRatingAsync(cICEArgs, 2);
                 break;
             case "rating_3":
-                await VoteRatingAsync(componentInteractionCreateEventArgs, 3);
+                await VoteRatingAsync(cICEArgs, 3);
                 break;
             case "rating_4":
-                await VoteRatingAsync(componentInteractionCreateEventArgs, 4);
+                await VoteRatingAsync(cICEArgs, 4);
                 break;
             case "rating_5":
-                await VoteRatingAsync(componentInteractionCreateEventArgs, 5);
+                await VoteRatingAsync(cICEArgs, 5);
                 break;
         }
     }
@@ -555,7 +555,7 @@ internal class Main : ApplicationCommandsModule
     /// <summary>
     ///     The Poke function.
     /// </summary>
-    /// <param name="componentInteractionCreateEventArgs">The componentInteractionCreateEventArgs.</param>
+    /// <param name="componentInteractionCreateEventArgs">The cICEArgs.</param>
     /// <param name="deleteResponseAsync">If the response should be Deleted after the poke action.</param>
     /// <param name="pokeAmount">The amount the user gets poked.</param>
     /// <param name="force">Light or hard slap.</param>
@@ -732,7 +732,7 @@ internal class Main : ApplicationCommandsModule
     /// <summary>
     ///     The function that creates or edits the database based on the new rating.
     /// </summary>
-    /// <param name="componentInteractionCreateEventArgs">The componentInteractionCreateEventArgs.</param>
+    /// <param name="componentInteractionCreateEventArgs">The cICEArgs.</param>
     /// <param name="rating">The rating value.</param>
     /// <returns></returns>
     public static async Task VoteRatingAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, int rating)
