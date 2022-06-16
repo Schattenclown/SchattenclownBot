@@ -40,7 +40,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                             {
                                 voiceStateAny = true;
                                 var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
-                                
+
                                 var desctiprion = "";
                                 foreach (var discordMemberInChannelItem in discordMemberItem.VoiceState.Channel.Users.ToList())
                                 {
@@ -53,8 +53,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                                         desctiprion += ":speaker: " + discordMemberInChannelItem.DisplayName + "\n";
                                     }
                                 }
-                                
-                                var discordChannelOtherPlaces = mainGuild.GetChannel(981280701066395709);
+
+                                var discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
 
                                 var discordThreads = mainGuild.Threads.Values.ToList();
 
@@ -72,17 +72,16 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                 DiscordEmbedBuilder discordEmbedBuilder = new()
                                 {
-                                    Color = DiscordColor.Purple
+                                    Color = DiscordColor.Purple,
+                                    Title = discordMemberItem.VoiceState.Guild.Name
                                 };
                                 discordEmbedBuilder.WithFooter(discordMemberItem.VoiceState.Guild.Name, discordMemberItem.VoiceState.Guild.IconUrl);
                                 discordEmbedBuilder.WithDescription(desctiprion);
-                                
+
                                 var messages = await discordThreadsChannel.GetMessagesAsync();
 
-                                var inviteLink = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
-
                                 DiscordMessage discordMessage = null;
-                                var content = $"<#{discordMemberItem.VoiceState.Channel.Id}> \n\n {inviteLink} \n\n" + "+3|\\\\/||>";
+                                var content = $"<#{discordMemberItem.VoiceState.Channel.Id}> \n\n" + "+3|\\\\/||>";
 
                                 foreach (var messageItem in messages.Where(x => x.Content.Contains("+3|\\\\/||>")))
                                 {
@@ -91,12 +90,24 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                 if (discordMessage == null)
                                 {
+                                    var inviteLink = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
+                                    discordEmbedBuilder.WithUrl(inviteLink.Url);
+                                    content += $"\n\n{inviteLink}";
                                     await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build());
                                 }
                                 else
                                 {
+                                    var discordInvites = discordMemberItem.VoiceState.Channel.GetInvitesAsync().Result;
+                                    DiscordInvite discordInvite = null;
+                                    foreach (var invite in discordInvites.Where(x => x.Inviter.Id == 890063457246937129))
+                                    {
+                                        discordInvite = invite;
+                                    }
+
+                                    content += $"\n\n{discordInvite}";
+                                    discordEmbedBuilder.WithUrl(discordInvite.Url);
                                     var discordEmbed = discordMessage.Embeds.FirstOrDefault();
-                                    
+
                                     if (discordEmbed.Description != desctiprion || discordMessage.Content != content)
                                     {
                                         await discordMessage.ModifyAsync(content, discordEmbedBuilder.Build());
