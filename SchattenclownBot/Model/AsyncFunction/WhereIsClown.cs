@@ -82,9 +82,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 var inviteLink = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
 
                                 DiscordMessage discordMessage = null;
-                                var content = $"<#{discordMemberItem.VoiceState.Channel.Id}> \n\n {inviteLink} \n\n" + @"+3|\/||>";
+                                var content = $"<#{discordMemberItem.VoiceState.Channel.Id}> \n\n {inviteLink} \n\n" + "+3|\\\\/||>";
 
-                                foreach (var messageItem in messages.Where(x => x.Content.Contains(@"+3|\/||>")))
+                                foreach (var messageItem in messages.Where(x => x.Content.Contains("+3|\\\\/||>")))
                                 {
                                     discordMessage = messageItem;
                                 }
