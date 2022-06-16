@@ -36,7 +36,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         foreach (var discordMemberItem in discordMemberList)
                         {
-                            if (discordMemberItem.Id == 444152594898878474 && discordMemberItem.VoiceState != null)
+                            if (discordMemberItem.Id == 444152594898878474 && discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 928930967140331590)
                             {
                                 voiceStateAny = true;
                                 var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
