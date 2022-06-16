@@ -21,10 +21,10 @@ namespace SchattenclownBot.Model.AsyncFunction
             {
                 while (true)
                 {
-                    while (DateTime.Now.Second != executeSecond)
+                    /*while (DateTime.Now.Second != executeSecond)
                     {
                         await Task.Delay(1000);
-                    }
+                    }*/
 
                     var guildList = Bot.Client.Guilds.Values.ToList();
 
@@ -72,12 +72,10 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                 DiscordEmbedBuilder discordEmbedBuilder = new()
                                 {
-                                    Color = DiscordColor.Purple,
-                                    Title = discordMemberItem.VoiceState.Guild.Name
+                                    Color = DiscordColor.Purple
                                 };
                                 discordEmbedBuilder.WithFooter(discordMemberItem.VoiceState.Guild.Name, discordMemberItem.VoiceState.Guild.IconUrl);
                                 
-
                                 var messages = await discordThreadsChannel.GetMessagesAsync();
 
                                 DiscordMessage discordMessage = null;
@@ -91,9 +89,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 if (discordMessage == null)
                                 {
                                     var discordInvite = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
-                                    discordEmbedBuilder.WithUrl(discordInvite.Url);
-                                    //content += $"\n\n[Invite Link]({discordInvite})";
-                                    desctiprion += $"\n\n[Connect to {discordInvite.Channel.Name}]({discordInvite})";
+                                    desctiprion += $"\n\n[Join Server {discordInvite.Channel.Name}]({discordInvite})";
                                     discordEmbedBuilder.WithDescription(desctiprion);
                                     await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build());
                                 }
@@ -111,10 +107,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                                         discordInvite = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
                                     }
 
-                                    //content += $"\n\n[Invite Link]({discordInvite})";
-                                    desctiprion += $"\n\n[Connect to {discordInvite.Channel.Name}]({discordInvite})";
+                                    desctiprion += $"\n\n[Join Server {discordInvite.Channel.Name}]({discordInvite})";
                                     discordEmbedBuilder.WithDescription(desctiprion);
-                                    discordEmbedBuilder.WithUrl(discordInvite.Url);
                                     var discordEmbed = discordMessage.Embeds.FirstOrDefault();
 
                                     if (discordEmbed.Description != desctiprion || discordMessage.Content != content)
@@ -147,7 +141,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
                     }
 
-                    await Task.Delay(1000 * 1);
+                    await Task.Delay(1000 * 20);
                 }
             });
         }
