@@ -17,7 +17,7 @@ using DisCatSharp.Interactivity.EventHandling;
 using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.EventArgs;
 using DisCatSharp.ApplicationCommands.EventArgs;
-
+using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.HelpClasses;
 
@@ -143,6 +143,7 @@ namespace SchattenclownBot.Model.Discord.Main
             UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
             SympathySystem.SympathySystemRunAsync(59);
             BirthdayList.GenerateBirthdayList();
+            WhereIsClown.WhereIsClownRunAsync(19);
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
