@@ -59,7 +59,7 @@ namespace SchattenclownBot.Model.Objects
         public static int CalculateXpSpanToReachNextLevel(int onlineTicks)
         {
             var level = CalculateLevel(onlineTicks);
-            
+
             var xpToReachThisLevel = Math.Pow(level / 0.69, 1 / 0.38);
             var xpToReachNextLevel = Math.Pow((level + 1) / 0.69, 1 / 0.38);
             var xpSpanToReachNextLevel = Convert.ToInt32(xpToReachNextLevel) - Convert.ToInt32(xpToReachThisLevel);
@@ -191,67 +191,70 @@ namespace SchattenclownBot.Model.Objects
 
                     foreach (var userLevelSystemItem in userLevelSystemListSortedOut)
                     {
-                        //Get the discord user by ID.
-                        var discordMember = guildObj.GetMemberAsync(userLevelSystemItem.MemberId).Result;
-                        await Task.Delay(delayInMs);
-
-                        DiscordRole discordRoleObj = null;
-                        var roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
-                        await Task.Delay(delayInMs);
-
-                        var totalLevel = CalculateLevel(userLevelSystemItem.OnlineTicks);
-
-                        var voiceChannelLevelString = $"{RoleChannelLevelString} {totalLevel}";
-                        var roleExists = false;
-
-
-                        foreach (var discordRoleItem in discordRoleList.Where(role => role.Name == voiceChannelLevelString))
+                        if (userLevelSystemItem.MemberId is 304366130238193664 or 523765246104567808)
                         {
-                            discordRoleObj = discordRoleItem;
-                            roleExists = true;
-                            break;
-                        }
-
-                        if (!roleExists)
-                        {
-                            discordRoleObj = await guildObj.CreateRoleAsync(voiceChannelLevelString, permissions: Permissions.None, DiscordColor.None);
+                            //Get the discord user by ID.
+                            var discordMember = guildObj.GetMemberAsync(userLevelSystemItem.MemberId).Result;
                             await Task.Delay(delayInMs);
-                            await discordRoleObj.ModifyPositionAsync(roleIndex);
-                            await Task.Delay(delayInMs);
-                            discordRoleList = guildObj.Roles.Values.ToList();
-                            await Task.Delay(delayInMs);
-                        }
 
-                        var discordMemberRoleList = discordMember.Roles.ToList();
-                        await Task.Delay(delayInMs);
+                            DiscordRole discordRoleObj = null;
+                            var roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
+                            await Task.Delay(delayInMs);
 
-                        foreach (var revokeRoleItem in discordMemberRoleList.Where(revokeRoleItem => revokeRoleItem.Name.Contains(RoleChannelLevelString) && revokeRoleItem.Name != voiceChannelLevelString))
-                        {
-                            if (revokeRoleItem.Id != 981575801214492752)
+                            var totalLevel = CalculateLevel(userLevelSystemItem.OnlineTicks);
+
+                            var voiceChannelLevelString = $"{RoleChannelLevelString} {totalLevel}";
+                            var roleExists = false;
+
+
+                            foreach (var discordRoleItem in discordRoleList.Where(role => role.Name == voiceChannelLevelString))
                             {
-                                await discordMember.RevokeRoleAsync(revokeRoleItem);
+                                discordRoleObj = discordRoleItem;
+                                roleExists = true;
+                                break;
+                            }
+
+                            if (!roleExists)
+                            {
+                                discordRoleObj = await guildObj.CreateRoleAsync(voiceChannelLevelString, permissions: Permissions.None, DiscordColor.None);
+                                await Task.Delay(delayInMs);
+                                await discordRoleObj.ModifyPositionAsync(roleIndex);
+                                await Task.Delay(delayInMs);
+                                discordRoleList = guildObj.Roles.Values.ToList();
                                 await Task.Delay(delayInMs);
                             }
+
+                            var discordMemberRoleList = discordMember.Roles.ToList();
+                            await Task.Delay(delayInMs);
+
+                            foreach (var revokeRoleItem in discordMemberRoleList.Where(revokeRoleItem => revokeRoleItem.Name.Contains(RoleChannelLevelString) && revokeRoleItem.Name != voiceChannelLevelString))
+                            {
+                                if (revokeRoleItem.Id != 981575801214492752)
+                                {
+                                    await discordMember.RevokeRoleAsync(revokeRoleItem);
+                                    await Task.Delay(delayInMs);
+                                }
+                            }
+
+                            if (!discordMember.Roles.Contains(discordRoleObj))
+                            {
+                                await discordMember.GrantRoleAsync(discordRoleObj);
+                                await Task.Delay(delayInMs);
+                            }
+
+                            await Task.Delay(2000);
                         }
 
-                        if (!discordMember.Roles.Contains(discordRoleObj))
+                        if (sortLevelSystemRolesBool == false)
                         {
-                            await discordMember.GrantRoleAsync(discordRoleObj);
-                            await Task.Delay(delayInMs);
+#pragma warning disable CS4014
+                            UserLevelSystem.SortLevelSystemRolesRunAsync(49);
+#pragma warning restore CS4014
+                            sortLevelSystemRolesBool = true;
                         }
 
                         await Task.Delay(2000);
                     }
-
-                    if (sortLevelSystemRolesBool == false)
-                    {
-#pragma warning disable CS4014
-                        UserLevelSystem.SortLevelSystemRolesRunAsync(49);
-#pragma warning restore CS4014
-                        sortLevelSystemRolesBool = true;
-                    }
-
-                    await Task.Delay(2000);
                 }
             });
         }

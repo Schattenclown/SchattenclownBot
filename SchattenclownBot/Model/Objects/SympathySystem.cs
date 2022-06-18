@@ -124,7 +124,7 @@ namespace SchattenclownBot.Model.Objects
                                     discordRoleList.Add(discordGuildObj.GetRole(item.RatingFive));
                             }
 
-                            if (discordRoleList.Count == 5)
+                            if (discordRoleList.Count == 5 && discordMemberItem.Value.Id != 523765246104567808)
                             {
                                 var counts = 1;
                                 var ratingsadded = 0;

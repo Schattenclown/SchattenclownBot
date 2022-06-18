@@ -45,25 +45,21 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 foreach (var discordMemberInChannelItem in discordMemberItem.VoiceState.Channel.Users.ToList())
                                 {
                                     if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
-                                    {
-                                        desctiprion += ":mute: " + discordMemberInChannelItem.DisplayName.ToString().PadRight(32, ' ');
-                                    }
+                                        desctiprion += ":mute: ";
                                     else
-                                    {
-                                        desctiprion += ":green_circle: " + discordMemberInChannelItem.DisplayName.ToString().PadRight(32, ' ');
-                                    }
+                                        desctiprion += ":green_circle: ";
 
                                     if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
-                                        desctiprion += ":video_camera: ";
+                                        desctiprion += ":video_camera: ";
                                     else
-                                        desctiprion += "  ";
+                                        desctiprion += ":black_medium_square: ";
 
                                     if (discordMemberInChannelItem.VoiceState.IsSelfStream)
-                                        desctiprion += ":tv:";
+                                        desctiprion += ":tv: ";
                                     else
-                                        desctiprion += "";
+                                        desctiprion += ":black_medium_square: ";
 
-                                    desctiprion += "\n";
+                                    desctiprion += discordMemberInChannelItem.DisplayName + "\n";
                                 }
 
                                 var discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
