@@ -222,7 +222,7 @@ internal class Main : ApplicationCommandsModule
 
                 var calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
 
-                var daysstring = "Day´s";
+                var daysstring = "Days";
                 if (Convert.ToInt32($"{timeSpan:ddd}") == 1)
                     daysstring = "Day  ";
 
