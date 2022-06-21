@@ -224,7 +224,7 @@ internal class Main : ApplicationCommandsModule
 
                 var daysstring = "Days";
                 if (Convert.ToInt32($"{timeSpan:ddd}") == 1)
-                    daysstring = "Day  ";
+                    daysstring = "Day ";
 
                 leaderboardString += "{" + $"{Convert.ToInt32($"{timeSpan:ddd}"),3} {daysstring} {timeSpan:hh}:{timeSpan:mm}" + "}" + $" Level {calculatedLevel,2} [{discordMemberObj.DisplayName}]\n";
                 top30++;
