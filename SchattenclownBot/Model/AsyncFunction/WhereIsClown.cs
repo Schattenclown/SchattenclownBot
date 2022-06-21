@@ -10,6 +10,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Interactivity.Extensions;
 using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -27,8 +28,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                     }
 
                     var guildList = Bot.Client.Guilds.Values.ToList();
-
                     var voiceStateAny = false;
+                    var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
+                    var discordThreads = mainGuild.Threads.Values.ToList();
 
                     foreach (var guildItem in guildList)
                     {
@@ -36,10 +38,10 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         foreach (var discordMemberItem in discordMemberList)
                         {
-                            if (discordMemberItem.Id == 444152594898878474 && discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 928930967140331590)
+                            //if (discordMemberItem.Id == 444152594898878474 && discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 928930967140331590)
+                            if (discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 975889218968629298)
                             {
                                 voiceStateAny = true;
-                                var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
 
                                 var desctiprion = "";
                                 foreach (var discordMemberInChannelItem in discordMemberItem.VoiceState.Channel.Users.ToList())
@@ -64,18 +66,16 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                 var discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
 
-                                var discordThreads = mainGuild.Threads.Values.ToList();
-
                                 DiscordThreadChannel discordThreadsChannel = null;
 
-                                foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315cl0wn"))
+                                foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
                                 {
                                     discordThreadsChannel = discordThreadItem;
                                 }
 
                                 if (discordThreadsChannel == null)
                                 {
-                                    discordThreadsChannel = await discordChannelOtherPlaces.CreateThreadAsync("wh3r315cl0wn", ThreadAutoArchiveDuration.OneDay);
+                                    discordThreadsChannel = await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
                                 }
 
                                 DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -87,9 +87,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 var messages = await discordThreadsChannel.GetMessagesAsync();
 
                                 DiscordMessage discordMessage = null;
-                                var content = "+3|\\\\/||>" + $"\n\n<#{discordMemberItem.VoiceState.Channel.Id}>";
+                                var content = discordMemberItem.VoiceState.Channel.Id + " +3|\\\\/||>" + $"\n\n<#{discordMemberItem.VoiceState.Channel.Id}>";
 
-                                foreach (var messageItem in messages.Where(x => x.Content.Contains("+3|\\\\/||>")))
+                                foreach (var messageItem in messages.Where(x => x.Content.Contains(discordMemberItem.VoiceState.Channel.Id + " " + "+3|\\\\/||>")))
                                 {
                                     discordMessage = messageItem;
                                 }
@@ -128,13 +128,25 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
                     }
 
+                    foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
+                    {
+                        var messages = discordThreadItem.GetMessagesAsync().Result;
+
+                        foreach (var messageItem in messages)
+                        {
+                            var mentionedChannels = "";
+                            mentionedChannels = StringCutter.RemoveAfterWord(messageItem.Content, "+3|\\\\/||>", 0);
+                            var discordChannel = Bot.Client.GetChannelAsync(Convert.ToUInt64(mentionedChannels)).Result;
+                            if (!discordChannel.Users.Any())
+                            {
+                                await messageItem.DeleteAsync();
+                            }
+                        }
+                    }
+
                     if (!voiceStateAny)
                     {
-                        var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
-
-                        var discordThreads = mainGuild.Threads.Values.ToList();
-
-                        foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315cl0wn"))
+                        foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
                         {
                             await discordThreadItem.DeleteAsync();
                         }
@@ -143,7 +155,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         var messages = discordChannelOtherPlaces.GetMessagesAsync().Result;
 
-                        foreach (var messageItem in messages.Where(x => x.Content == "wh3r315cl0wn"))
+                        foreach (var messageItem in messages.Where(x => x.Content == "wh3r315"))
                         {
                             await messageItem.DeleteAsync();
                         }

@@ -191,7 +191,7 @@ namespace SchattenclownBot.Model.Objects
 
                     foreach (var userLevelSystemItem in userLevelSystemListSortedOut)
                     {
-                        if (userLevelSystemItem.MemberId is 304366130238193664 or 523765246104567808)
+                        if (userLevelSystemItem.MemberId is not 304366130238193664 and not 523765246104567808)
                         {
                             //Get the discord user by ID.
                             var discordMember = guildObj.GetMemberAsync(userLevelSystemItem.MemberId).Result;
