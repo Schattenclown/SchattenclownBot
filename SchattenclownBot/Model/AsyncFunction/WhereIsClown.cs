@@ -69,14 +69,14 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 DiscordThreadChannel discordThreadsChannel = null;
                                 discordThreads = mainGuild.Threads.Values.ToList();
 
-                                foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315cl0wn"))
+                                foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
                                 {
                                     discordThreadsChannel = discordThreadItem;
                                 }
 
                                 if (discordThreadsChannel == null)
                                 {
-                                    discordThreadsChannel = await discordChannelOtherPlaces.CreateThreadAsync("wh3r315cl0wn", ThreadAutoArchiveDuration.OneDay);
+                                    discordThreadsChannel = await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
                                 }
 
                                 DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -130,7 +130,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                     }
 
                     discordThreads = mainGuild.Threads.Values.ToList();
-                    foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315cl0wn"))
+                    foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
                     {
                         var messages = discordThreadItem.GetMessagesAsync().Result;
 
@@ -148,7 +148,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                     if (!voiceStateAny)
                     {
-                        foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315cl0wn"))
+                        foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
                         {
                             await discordThreadItem.DeleteAsync();
                         }
@@ -157,7 +157,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         var messages = discordChannelOtherPlaces.GetMessagesAsync().Result;
 
-                        foreach (var messageItem in messages.Where(x => x.Content == "wh3r315cl0wn"))
+                        foreach (var messageItem in messages.Where(x => x.Content == "wh3r315"))
                         {
                             await messageItem.DeleteAsync();
                         }
