@@ -24,6 +24,18 @@ namespace SchattenclownBot
         /// <returns>Nothing</returns>
         static async Task Main()
         {
+            #region ConsoleSize
+            try
+            {
+#pragma warning disable CA1416 // Plattformkompatibilität überprüfen
+                Console.SetWindowSize(300, 30);
+            }
+            catch (Exception)
+            {
+                Console.SetWindowSize(100, 10);
+#pragma warning restore CA1416 // Plattformkompatibilität überprüfen
+            }
+            #endregion
             await Task.Run(async () =>
             {
                 try
