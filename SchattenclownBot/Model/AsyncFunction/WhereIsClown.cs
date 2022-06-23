@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.Interactivity.Extensions;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -43,7 +39,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                     var discordInvite = default(DiscordInvite);
                     var getMessagesOncePerGuild = false;
                     var discordMessagesList = new List<DiscordMessage>();
-                    var discordemojis = mainGuild.GetEmojisAsync().Result;
                     var discordMemberConnectedList = new List<DiscordMember>();
                     var lastDiscordMember = default(DiscordMember);
 
@@ -53,16 +48,15 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 975889218968629298));
 
-                        var discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(x => x.VoiceState.Channel.Id).ToList();
+                        var discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
                         foreach (var discordMemberItem in discordMemberConnectedListSorted)
                         {
-                            if (lastDiscordMember == null)
-                                lastDiscordMember = discordMemberItem;
-
-                            if ((discordMemberItem.VoiceState == null || discordMemberItem.Guild.Id == 975889218968629298) || (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem))
-                                continue;
                             voiceStateAny = true;
+                            lastDiscordMember ??= discordMemberItem;
+
+                            if (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem)
+                                continue;
 
                             var discordMembersInChannel = discordMemberItem.VoiceState.Channel.Users.ToList();
                             var discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
@@ -105,17 +99,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 }
 
                                 description += descriptionLineBuilder + "\n";
-
                             }
 
                             discordThreads = mainGuild.Threads.Values.ToList();
 
                             var discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
-
-                            if (discordThreadsChannel == null)
-                            {
-                                discordThreadsChannel = await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
-                            }
+                            discordThreadsChannel ??= await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
 
                             DiscordEmbedBuilder discordEmbedBuilder = new()
                             {
