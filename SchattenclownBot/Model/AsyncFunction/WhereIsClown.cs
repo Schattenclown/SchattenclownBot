@@ -16,7 +16,11 @@ namespace SchattenclownBot.Model.AsyncFunction
         {
             await Task.Run(async () =>
             {
-                await Task.Delay(4000);
+                while (DateTime.Now.Second != executeSecond)
+                {
+                    await Task.Delay(1000);
+                }
+
                 List<DiscordGuild> guildList;
                 do
                 {
@@ -46,120 +50,128 @@ namespace SchattenclownBot.Model.AsyncFunction
                     {
                         var discordMemberList = guildItem.Members.Values.ToList();
 
-                        discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 975889218968629298));
+                        discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
 
                         var discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
                         foreach (var discordMemberItem in discordMemberConnectedListSorted)
                         {
-                            voiceStateAny = true;
-                            lastDiscordMember ??= discordMemberItem;
-
-                            if (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem)
-                                continue;
-
-                            var discordMembersInChannel = discordMemberItem.VoiceState.Channel.Users.ToList();
-                            var discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
-                            discordMembersInChannelSorted.Reverse();
-
-                            var description = "";
-                            foreach (var discordMemberInChannelItem in discordMembersInChannelSorted)
+                            try
                             {
-                                var descriptionLineBuilder = "";
-                                var counter = 5;
-                                var username = RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
-                                if (username is "" or " ")
-                                    username = discordMemberInChannelItem.Discriminator;
-                                description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
+                                voiceStateAny = true;
+                                lastDiscordMember ??= discordMemberItem;
 
-                                if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
+                                if (discordMemberItem.VoiceState == null || lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem)
+                                    continue;
+
+                                var discordMembersInChannel = discordMemberItem.VoiceState.Channel.Users.ToList();
+                                var discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
+                                discordMembersInChannelSorted.Reverse();
+
+                                var description = "";
+                                foreach (var discordMemberInChannelItem in discordMembersInChannelSorted)
                                 {
-                                    descriptionLineBuilder += "<:xx_mute:989518546541346856>";
-                                    counter--;
-                                }
-                                if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
-                                {
-                                    descriptionLineBuilder += "<:xx_deaf:989518540400906270>";
-                                    counter--;
-                                }
-                                if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
-                                {
-                                    descriptionLineBuilder += "<:xx_cam:989518538819645460>";
-                                    counter--;
-                                }
-                                if (discordMemberInChannelItem.VoiceState.IsSelfStream)
-                                {
-                                    descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
-                                    counter--; counter--;
-                                }
+                                    var descriptionLineBuilder = "";
+                                    var counter = 5;
+                                    var username = RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
+                                    if (username is "" or " ")
+                                        username = discordMemberInChannelItem.Discriminator;
+                                    description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
 
-                                for (var i = 0; i < counter; i++)
-                                {
-                                    description += "<:xx_empty:989518542456123442>";
-                                }
-
-                                description += descriptionLineBuilder + "\n";
-                            }
-
-                            discordThreads = mainGuild.Threads.Values.ToList();
-
-                            var discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
-                            discordThreadsChannel ??= await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
-
-                            DiscordEmbedBuilder discordEmbedBuilder = new()
-                            {
-                                Color = new DiscordColor(17, 17, 17)
-                            };
-                            discordEmbedBuilder.WithFooter(discordMemberItem.VoiceState.Guild.Name + " | " + discordMemberItem.VoiceState.Channel.Name, discordMemberItem.VoiceState.Guild.IconUrl);
-
-                            if (!getMessagesOncePerGuild)
-                            {
-                                var messages = await discordThreadsChannel.GetMessagesAsync();
-                                discordMessagesList.AddRange(messages);
-                                getMessagesOncePerGuild = true;
-                            }
-
-                            var discordMessage = default(DiscordMessage);
-                            var content = $"<#{discordMemberItem.VoiceState.Channel.Id}>";
-                            if (discordMessagesList != null)
-                                foreach (var messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
-                                {
-                                    discordMessage = messageItem;
-                                    break;
-                                }
-
-                            if (discordMessage == null)
-                            {
-                                discordInvite = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
-                                discordEmbedBuilder.WithDescription(description + $"\n[Join Server and Channel]({discordInvite})");
-                                discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build()));
-
-                            }
-                            else
-                            {
-                                if (discordInvite == null)
-                                {
-                                    var discordInvites = await discordMemberItem.VoiceState.Channel.GetInvitesAsync();
-
-                                    foreach (var invite in discordInvites.Where(x => x.Inviter.Id == Bot.Client.CurrentUser.Id))
+                                    if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                                     {
-                                        discordInvite = invite;
+                                        descriptionLineBuilder += "<:xx_mute:989518546541346856>";
+                                        counter--;
+                                    }
+                                    if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
+                                    {
+                                        descriptionLineBuilder += "<:xx_deaf:989518540400906270>";
+                                        counter--;
+                                    }
+                                    if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
+                                    {
+                                        descriptionLineBuilder += "<:xx_cam:989518538819645460>";
+                                        counter--;
+                                    }
+                                    if (discordMemberInChannelItem.VoiceState.IsSelfStream)
+                                    {
+                                        descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
+                                        counter--; counter--;
+                                    }
+
+                                    for (var i = 0; i < counter; i++)
+                                    {
+                                        description += "<:xx_empty:989518542456123442>";
+                                    }
+
+                                    description += descriptionLineBuilder + "\n";
+                                }
+
+                                discordThreads = mainGuild.Threads.Values.ToList();
+
+                                var discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
+                                discordThreadsChannel ??= await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
+
+                                DiscordEmbedBuilder discordEmbedBuilder = new()
+                                {
+                                    Color = new DiscordColor(17, 17, 17)
+                                };
+                                discordEmbedBuilder.WithFooter(discordMemberItem.VoiceState.Guild.Name + " | " + discordMemberItem.VoiceState.Channel.Name, discordMemberItem.VoiceState.Guild.IconUrl);
+                                discordEmbedBuilder.WithTimestamp(DateTime.Now);
+
+                                if (!getMessagesOncePerGuild)
+                                {
+                                    var messages = await discordThreadsChannel.GetMessagesAsync();
+                                    discordMessagesList.AddRange(messages);
+                                    getMessagesOncePerGuild = true;
+                                }
+
+                                var discordMessage = default(DiscordMessage);
+                                var content = $"<#{discordMemberItem.VoiceState.Channel.Id}>";
+                                if (discordMessagesList != null)
+                                    foreach (var messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
+                                    {
+                                        discordMessage = messageItem;
                                         break;
                                     }
 
-                                    discordInvite ??= await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
-                                }
-
-                                discordEmbedBuilder.WithDescription(description + $"\n[Join Server and Channel]({discordInvite})");
-                                var discordEmbed = discordMessage.Embeds.FirstOrDefault();
-
-                                if (discordEmbed.Description != description || discordMessage.Content != content)
+                                if (discordMessage == null)
                                 {
+                                    discordInvite = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
+                                    discordEmbedBuilder.WithDescription(description + $"\n[Join Server and Channel]({discordInvite})");
+                                    discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build()));
+
+                                }
+                                else
+                                {
+                                    if (discordInvite == null)
+                                    {
+                                        var discordInvites = await discordMemberItem.VoiceState.Channel.GetInvitesAsync();
+
+                                        foreach (var invite in discordInvites.Where(x => x.Inviter.Id == Bot.Client.CurrentUser.Id))
+                                        {
+                                            discordInvite = invite;
+                                            break;
+                                        }
+
+                                        discordInvite ??= await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
+                                    }
+
+                                    discordEmbedBuilder.WithDescription(description + $"\n[Join Server and Channel]({discordInvite})");
+                                    var discordEmbed = discordMessage.Embeds.FirstOrDefault();
+
                                     await discordMessage.ModifyAsync(content, discordEmbedBuilder.Build());
                                 }
+
+                                lastDiscordMember = discordMemberItem;
+                                await Task.Delay(2000);
                             }
-                            lastDiscordMember = discordMemberItem;
-                            await Task.Delay(2000);
+                            catch (Exception ex)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine(ex.Message);
+                                Console.ForegroundColor = ConsoleColor.Gray;
+                            }
                         }
 
                         discordInvite = null;
@@ -221,7 +233,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
                     }
 
-                    await Task.Delay(5000);
+                    await Task.Delay(1000);
                 }
             });
         }

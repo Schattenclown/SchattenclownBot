@@ -139,11 +139,11 @@ namespace SchattenclownBot.Model.Discord.Main
 #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
+            WhereIsClown.WhereIsClownRunAsync(19);
             UserLevelSystem.LevelSystemRunAsync(29);
             UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
             SympathySystem.SympathySystemRunAsync(59);
-            BirthdayList.GenerateBirthdayList();
-            WhereIsClown.WhereIsClownRunAsync(19);
+            //BirthdayList.GenerateBirthdayList();
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)

@@ -71,6 +71,11 @@ namespace SchattenclownBot.Model.Objects
 
             await Task.Run(async () =>
             {
+                while (DateTime.Now.Second != executeSecond)
+                {
+                    await Task.Delay(1000);
+                }
+
                 do
                 {
                     if (Bot.Client.Guilds.ToList().Count != 0)
