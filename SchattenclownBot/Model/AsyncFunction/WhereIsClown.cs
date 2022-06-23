@@ -20,13 +20,16 @@ namespace SchattenclownBot.Model.AsyncFunction
         {
             await Task.Run(async () =>
             {
+                await Task.Delay(4000);
                 var guildList = Bot.Client.Guilds.Values.ToList();
                 do
                 {
                     guildList = Bot.Client.Guilds.Values.ToList();
                     await Task.Delay(1000);
-
                 } while (guildList.Count == 0);
+
+                var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
+                var discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
 
                 while (true)
                 {
@@ -36,10 +39,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                     }
 
                     var voiceStateAny = false;
-                    var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
                     var discordThreads = mainGuild.Threads.Values.ToList();
-                    var discordEmojiLive = mainGuild.GetEmojisAsync().Result;
-                    var discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
                     var discordInvite = default(DiscordInvite);
                     var getMessagesOncePerGuilde = false;
                     var discordMessagesList = new List<DiscordMessage>();
@@ -58,7 +58,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
 
                         discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(x => x.VoiceState.Channel.Id).ToList();
-
+                        
                         foreach (var discordMemberItem in discordMemberConnectedListSorted)
                         {
                             if(lastDiscordMember == null)
@@ -68,13 +68,19 @@ namespace SchattenclownBot.Model.AsyncFunction
                             {
                                 voiceStateAny = true;
 
+                                List<DiscordMember> discordMembersInChannel = discordMemberItem.VoiceState.Channel.Users.ToList();
+                                List<DiscordMember> discordMembersInChannelSotrted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
+                                discordMembersInChannelSotrted.Reverse();
+
                                 var desctiprion = "";
-                                foreach (var discordMemberInChannelItem in discordMemberItem.VoiceState.Channel.Users.ToList())
+                                foreach (var discordMemberInChannelItem in discordMembersInChannelSotrted)
                                 {
                                     string desctiprionLineBuilder = "";
                                     int counter = 5;
-
-                                    desctiprion += "<:x_talk:988942227004858438> " + "``" + RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName).PadRight(16).Remove(16) + "`` ";
+                                    string username = RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName).PadRight(16).Remove(16);
+                                    if (username == "")
+                                        username = discordMemberInChannelItem.Discriminator;
+                                    desctiprion += "<:x_talk:988942227004858438> " + "``" + username + "`` ";
 
                                     if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                                     {
@@ -179,7 +185,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                     }
                                 }
                                 lastDiscordMember = discordMemberItem;
-                                await Task.Delay(1500);
+                                await Task.Delay(2000);
                             }
                         }
 
