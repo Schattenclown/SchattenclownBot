@@ -143,7 +143,7 @@ namespace SchattenclownBot.Model.Discord.Main
             UserLevelSystem.LevelSystemRunAsync(29);
             UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
             SympathySystem.SympathySystemRunAsync(59);
-            //BirthdayList.GenerateBirthdayList();
+            BirthdayList.GenerateBirthdayList();
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
 
             while (!ShutdownRequest.IsCancellationRequested)
