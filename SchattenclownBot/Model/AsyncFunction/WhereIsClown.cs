@@ -21,7 +21,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             await Task.Run(async () =>
             {
                 await Task.Delay(4000);
-                var guildList = Bot.Client.Guilds.Values.ToList();
+                List<DiscordGuild> guildList;
                 do
                 {
                     guildList = Bot.Client.Guilds.Values.ToList();
@@ -39,160 +39,143 @@ namespace SchattenclownBot.Model.AsyncFunction
                     }
 
                     var voiceStateAny = false;
-                    var discordThreads = mainGuild.Threads.Values.ToList();
+                    List<DiscordThreadChannel> discordThreads;
                     var discordInvite = default(DiscordInvite);
-                    var getMessagesOncePerGuilde = false;
+                    var getMessagesOncePerGuild = false;
                     var discordMessagesList = new List<DiscordMessage>();
+                    var discordemojis = mainGuild.GetEmojisAsync().Result;
                     var discordMemberConnectedList = new List<DiscordMember>();
-                    var discordMemberConnectedListSorted = new List<DiscordMember>();
                     var lastDiscordMember = default(DiscordMember);
 
                     foreach (var guildItem in guildList)
                     {
                         var discordMemberList = guildItem.Members.Values.ToList();
 
-                        foreach (var discordMemberItem in discordMemberList)
-                        {
-                            if (discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 975889218968629298)
-                                discordMemberConnectedList.Add(discordMemberItem);
-                        }
+                        discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 975889218968629298));
 
-                        discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(x => x.VoiceState.Channel.Id).ToList();
-                        
+                        var discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(x => x.VoiceState.Channel.Id).ToList();
+
                         foreach (var discordMemberItem in discordMemberConnectedListSorted)
                         {
-                            if(lastDiscordMember == null)
+                            if (lastDiscordMember == null)
                                 lastDiscordMember = discordMemberItem;
 
-                            if ((discordMemberItem.VoiceState != null && discordMemberItem.Guild.Id != 975889218968629298) && (lastDiscordMember.VoiceState.Channel.Id != discordMemberItem.VoiceState.Channel.Id || lastDiscordMember == discordMemberItem))
+                            if ((discordMemberItem.VoiceState == null || discordMemberItem.Guild.Id == 975889218968629298) || (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem))
+                                continue;
+                            voiceStateAny = true;
+
+                            var discordMembersInChannel = discordMemberItem.VoiceState.Channel.Users.ToList();
+                            var discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
+                            discordMembersInChannelSorted.Reverse();
+
+                            var description = "";
+                            foreach (var discordMemberInChannelItem in discordMembersInChannelSorted)
                             {
-                                voiceStateAny = true;
+                                var descriptionLineBuilder = "";
+                                var counter = 5;
+                                var username = RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
+                                if (username is "" or " ")
+                                    username = discordMemberInChannelItem.Discriminator;
+                                description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
 
-                                List<DiscordMember> discordMembersInChannel = discordMemberItem.VoiceState.Channel.Users.ToList();
-                                List<DiscordMember> discordMembersInChannelSotrted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
-                                discordMembersInChannelSotrted.Reverse();
-
-                                var desctiprion = "";
-                                foreach (var discordMemberInChannelItem in discordMembersInChannelSotrted)
+                                if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                                 {
-                                    string desctiprionLineBuilder = "";
-                                    int counter = 5;
-                                    string username = RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName).PadRight(16).Remove(16);
-                                    if (username == "")
-                                        username = discordMemberInChannelItem.Discriminator;
-                                    desctiprion += "<:x_talk:988942227004858438> " + "``" + username + "`` ";
-
-                                    if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
-                                    {
-                                        desctiprionLineBuilder += "<:x_mute:989191045994668072> ";
-                                        counter--;
-                                    }
-                                    if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
-                                    {
-                                        desctiprionLineBuilder += "<:x_deaf:989191057919066203> ";
-                                        counter--;
-                                    }
-                                    if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
-                                    {
-                                        desctiprionLineBuilder += "<:x_cam:989194342222663680> ";
-                                        counter--;
-                                    }
-                                    if (discordMemberInChannelItem.VoiceState.IsSelfStream)
-                                    {
-                                        desctiprionLineBuilder += "<:x_li:989178879782572062><:x_ve:989178889861472368>";
-                                        counter--; counter--;
-                                    }
-
-                                    for (int i = 0; i < counter; i++)
-                                    {
-                                        desctiprion += "<:x_emty:988948135600599080> ";
-                                    }
-
-                                    desctiprion += desctiprionLineBuilder + "\n";
-
+                                    descriptionLineBuilder += "<:xx_mute:989518546541346856>";
+                                    counter--;
+                                }
+                                if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
+                                {
+                                    descriptionLineBuilder += "<:xx_deaf:989518540400906270>";
+                                    counter--;
+                                }
+                                if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
+                                {
+                                    descriptionLineBuilder += "<:xx_cam:989518538819645460>";
+                                    counter--;
+                                }
+                                if (discordMemberInChannelItem.VoiceState.IsSelfStream)
+                                {
+                                    descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
+                                    counter--; counter--;
                                 }
 
-                                DiscordThreadChannel discordThreadsChannel = null;
-                                discordThreads = mainGuild.Threads.Values.ToList();
-
-                                foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
+                                for (var i = 0; i < counter; i++)
                                 {
-                                    discordThreadsChannel = discordThreadItem;
+                                    description += "<:xx_empty:989518542456123442>";
+                                }
+
+                                description += descriptionLineBuilder + "\n";
+
+                            }
+
+                            discordThreads = mainGuild.Threads.Values.ToList();
+
+                            var discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
+
+                            if (discordThreadsChannel == null)
+                            {
+                                discordThreadsChannel = await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
+                            }
+
+                            DiscordEmbedBuilder discordEmbedBuilder = new()
+                            {
+                                Color = new DiscordColor(17, 17, 17)
+                            };
+                            discordEmbedBuilder.WithFooter(discordMemberItem.VoiceState.Guild.Name + " | " + discordMemberItem.VoiceState.Channel.Name, discordMemberItem.VoiceState.Guild.IconUrl);
+
+                            if (!getMessagesOncePerGuild)
+                            {
+                                var messages = await discordThreadsChannel.GetMessagesAsync();
+                                discordMessagesList.AddRange(messages);
+                                getMessagesOncePerGuild = true;
+                            }
+
+                            var discordMessage = default(DiscordMessage);
+                            var content = $"<#{discordMemberItem.VoiceState.Channel.Id}>";
+                            if (discordMessagesList != null)
+                                foreach (var messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
+                                {
+                                    discordMessage = messageItem;
                                     break;
                                 }
 
-                                if (discordThreadsChannel == null)
-                                {
-                                    discordThreadsChannel = await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
-                                }
+                            if (discordMessage == null)
+                            {
+                                discordInvite = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
+                                discordEmbedBuilder.WithDescription(description + $"\n[Join Server and Channel]({discordInvite})");
+                                discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build()));
 
-                                DiscordEmbedBuilder discordEmbedBuilder = new()
+                            }
+                            else
+                            {
+                                if (discordInvite == null)
                                 {
-                                    Color = new DiscordColor(17, 17, 17)
-                                };
-                                discordEmbedBuilder.WithFooter(discordMemberItem.VoiceState.Guild.Name + " | " + discordMemberItem.VoiceState.Channel.Name, discordMemberItem.VoiceState.Guild.IconUrl);
+                                    var discordInvites = await discordMemberItem.VoiceState.Channel.GetInvitesAsync();
 
-                                if(!getMessagesOncePerGuilde)
-                                {
-                                    var messages = await discordThreadsChannel.GetMessagesAsync();
-                                    foreach (var message in messages)
+                                    foreach (var invite in discordInvites.Where(x => x.Inviter.Id == Bot.Client.CurrentUser.Id))
                                     {
-                                        discordMessagesList.Add(message);
-                                    }
-                                    getMessagesOncePerGuilde = true;
-                                }
-
-                                var discordMessage = default(DiscordMessage);
-                                var content = $"<#{discordMemberItem.VoiceState.Channel.Id}>" + "\n+3|\\\\/||>";
-                                if (discordMessagesList != null)
-                                    foreach (var messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
-                                    {
-                                        discordMessage = messageItem;
+                                        discordInvite = invite;
                                         break;
                                     }
 
-                                if (discordMessage == null)
-                                {
-                                    discordInvite = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
-                                    discordEmbedBuilder.WithDescription(desctiprion + $"\n[Join Server and Channel]({discordInvite})");
-                                    discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build()));
-                                    
+                                    discordInvite ??= await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
                                 }
-                                else
+
+                                discordEmbedBuilder.WithDescription(description + $"\n[Join Server and Channel]({discordInvite})");
+                                var discordEmbed = discordMessage.Embeds.FirstOrDefault();
+
+                                if (discordEmbed.Description != description || discordMessage.Content != content)
                                 {
-                                    if (discordInvite == null)
-                                    {
-                                        var discordInvites = await discordMemberItem.VoiceState.Channel.GetInvitesAsync();
-
-                                        foreach (var invite in discordInvites.Where(x => x.Inviter.Id == Bot.Client.CurrentUser.Id))
-                                        {
-                                            discordInvite = invite;
-                                            break;
-                                        }
-
-                                        if (discordInvite == null)
-                                        {
-                                            discordInvite = await discordMemberItem.VoiceState.Channel.CreateInviteAsync();
-                                        }
-                                    }
-
-                                    discordEmbedBuilder.WithDescription(desctiprion + $"\n[Join Server and Channel]({discordInvite})");
-                                    var discordEmbed = discordMessage.Embeds.FirstOrDefault();
-
-                                    if (discordEmbed.Description != desctiprion || discordMessage.Content != content)
-                                    {
-                                        await discordMessage.ModifyAsync(content, discordEmbedBuilder.Build());
-                                    }
+                                    await discordMessage.ModifyAsync(content, discordEmbedBuilder.Build());
                                 }
-                                lastDiscordMember = discordMemberItem;
-                                await Task.Delay(2000);
                             }
+                            lastDiscordMember = discordMemberItem;
+                            await Task.Delay(2000);
                         }
 
                         discordInvite = null;
-                        getMessagesOncePerGuilde = false;
-                        if (discordMessagesList != null)
-                            discordMessagesList.Clear();
+                        getMessagesOncePerGuild = false;
+                        discordMessagesList?.Clear();
                         discordMemberConnectedList.Clear();
                         discordMemberConnectedListSorted.Clear();
                     }
@@ -208,11 +191,11 @@ namespace SchattenclownBot.Model.AsyncFunction
                             try
                             {
                                 mentionedChannel = StringCutter.RemoveUntilWord(messageItem.Content, "<#", 2);
-                                mentionedChannel = StringCutter.RemoveAfterWord(mentionedChannel, "\n+3|\\\\/||>", -1);
+                                mentionedChannel = StringCutter.RemoveAfterWord(mentionedChannel, ">", 0);
                             }
                             catch
                             {
-
+                                // ignored
                             }
 
                             DiscordChannel discordChannel = null;
@@ -223,7 +206,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                             }
                             catch
                             {
-
+                                // ignored
                             }
 
                             if (discordChannel == null || !discordChannel.Users.Any())
@@ -249,20 +232,16 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
                     }
 
-                    await Task.Delay(1000);
+                    await Task.Delay(5000);
                 }
             });
         }
         public static string RemoveSpecialCharacters(string str)
         {
             StringBuilder sb = new();
-            for (int i = 0; i < str.Length; i++)
+            foreach (var c in str.Where(c => c < 255))
             {
-                char c = str[i];
-                if (c < 255)
-                {
-                    sb.Append(str[i]);
-                }
+                sb.Append(c);
             }
 
             return sb.ToString();
