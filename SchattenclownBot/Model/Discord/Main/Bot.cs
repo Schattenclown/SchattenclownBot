@@ -198,11 +198,11 @@ namespace SchattenclownBot.Model.Discord.Main
         private void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension appCommands)
         {
             cnext.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
-#if DEBUG
+
             appCommands.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
-#else
+
             appCommands.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
-#endif
+
         }
 
         private static Task Client_Ready(DiscordClient dcl, ReadyEventArgs e)
