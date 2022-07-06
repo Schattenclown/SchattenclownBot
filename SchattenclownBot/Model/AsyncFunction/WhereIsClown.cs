@@ -147,7 +147,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                     if (discordMessage == null)
                                     {
                                         discordInvite = await discordVoiceState.Channel.CreateInviteAsync();
-                                        discordEmbedBuilder.WithDescription(description + $"\n[⤵️Join Channel!]({discordInvite})");
+                                        discordEmbedBuilder.WithDescription(description + $"\n[⤵️ Join Channel!]({discordInvite})");
                                         discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build()));
 
                                     }
@@ -166,7 +166,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                             discordInvite ??= await discordVoiceState.Channel.CreateInviteAsync();
                                         }
 
-                                        discordEmbedBuilder.WithDescription(description + $"\n[⤵️Join Channel!]({discordInvite})");
+                                        discordEmbedBuilder.WithDescription(description + $"\n[⤵️ Join Channel!]({discordInvite})");
                                         var discordEmbed = discordMessage.Embeds.FirstOrDefault();
 
                                         await discordMessage.ModifyAsync(content, discordEmbedBuilder.Build());
