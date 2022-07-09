@@ -73,14 +73,17 @@ namespace SchattenclownBot.Model.Discord.Main
                 Token = _token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
-                MessageCacheSize = 2048,
+                MessageCacheSize = 4096,
                 MinimumLogLevel = logLevel,
                 ShardCount = 1,
                 ShardId = 0,
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences,
                 MobileStatus = false,
-                UseCanary = false,
-                AutoRefreshChannelCache = false
+                UseCanary = true,
+                UsePtb = false,
+                AutoRefreshChannelCache = false,
+                HttpTimeout = TimeSpan.FromSeconds(60),
+                ReconnectIndefinitely = true
             };
 
             Client = new DiscordClient(cfg);
