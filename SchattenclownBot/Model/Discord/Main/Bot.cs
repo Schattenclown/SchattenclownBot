@@ -142,9 +142,9 @@ namespace SchattenclownBot.Model.Discord.Main
 #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
-            Client.VoiceStateUpdated += Stalk.StalkEvent;
             Client.ChannelCreated += GetItRightMee6.ItRight;
             //Stalk.StalkAsync(9);
+            GetItRightMee6.CheckHighQualityAvailable(9);
             WhereIsClown.WhereIsClownRunAsync(19);
             UserLevelSystem.LevelSystemRunAsync(29);
             UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
