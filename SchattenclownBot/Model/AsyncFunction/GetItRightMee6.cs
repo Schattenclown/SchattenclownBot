@@ -34,8 +34,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                     await Task.Delay(1000);
                 }
 
-                var bool384kBnotAvaliable = false;
-
                 List<DiscordGuild> guildList;
                 do
                 {
@@ -43,64 +41,68 @@ namespace SchattenclownBot.Model.AsyncFunction
                     await Task.Delay(1000);
                 } while (guildList.Count == 0);
 
-                DiscordGuild mainGuild = null;
-
-                foreach (var guildItem in guildList.Where(x => x.Id == 928930967140331590))
+                while (true)
                 {
-                    mainGuild = guildItem;
-                }
+                    var bool384kBnotAvaliable = false;
+                    DiscordGuild mainGuild = null;
 
-                var discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice);
-
-                foreach (var discordChannelItem in discordChannels)
-                {
-                    try
+                    foreach (var guildItem in guildList.Where(x => x.Id == 928930967140331590))
                     {
-                        if (discordChannelItem.Id != 982330147141218344)
-                            if (discordChannelItem.Bitrate != 384000)
-                            {
-                                await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"Bitrate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                            }
+                        mainGuild = guildItem;
                     }
-                    catch
-                    {
-                        bool384kBnotAvaliable = true;
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Bitrate 384000 not avaliable for guild");
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        break;
-                    }
-                }
 
-                if (bool384kBnotAvaliable == true)
-                {
+                    var discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice);
+
                     foreach (var discordChannelItem in discordChannels)
                     {
                         try
                         {
                             if (discordChannelItem.Id != 982330147141218344)
-                                if (discordChannelItem.Bitrate != 256000)
+                                if (discordChannelItem.Bitrate != 384000)
                                 {
-                                    await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
+                                    await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"Bitrate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!");
+                                    Console.WriteLine($"Bitrate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!");
                                     Console.ForegroundColor = ConsoleColor.Gray;
                                 }
                         }
                         catch
                         {
+                            bool384kBnotAvaliable = true;
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Bitrate 256000 not avaliable for guild");
+                            Console.WriteLine("Bitrate 384000 not avaliable for guild");
                             Console.ForegroundColor = ConsoleColor.Gray;
                             break;
                         }
                     }
-                }
 
-                await Task.Delay(1000);
+                    if (bool384kBnotAvaliable == true)
+                    {
+                        foreach (var discordChannelItem in discordChannels)
+                        {
+                            try
+                            {
+                                if (discordChannelItem.Id != 982330147141218344)
+                                    if (discordChannelItem.Bitrate != 256000)
+                                    {
+                                        await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine($"Bitrate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!");
+                                        Console.ForegroundColor = ConsoleColor.Gray;
+                                    }
+                            }
+                            catch
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Bitrate 256000 not avaliable for guild");
+                                Console.ForegroundColor = ConsoleColor.Gray;
+                                break;
+                            }
+                        }
+                    }
+
+                    await Task.Delay(1000);
+                }
             });
         }
     }
