@@ -20,6 +20,7 @@ using DisCatSharp.ApplicationCommands.EventArgs;
 using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.HelpClasses;
+using DisCatSharp.VoiceNext;
 
 namespace SchattenclownBot.Model.Discord.Main
 {
@@ -39,6 +40,7 @@ namespace SchattenclownBot.Model.Discord.Main
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "<Pending>")]
         private InteractivityExtension INext;
         private CommandsNextExtension CNext;
+        private VoiceNextExtension VNext;
 
         private static string _token = "";
         private static int _virgin = 0;
@@ -113,6 +115,11 @@ namespace SchattenclownBot.Model.Discord.Main
                 PaginationDeletion = PaginationDeletion.DeleteMessage,
                 PollBehaviour = PollBehaviour.DeleteEmojis,
                 ButtonBehavior = ButtonPaginationBehavior.Disable
+            });
+
+            VNext = Client.UseVoiceNext(new VoiceNextConfiguration
+            {
+
             });
 
             RegisterEventListener(Client, AppCommands, CNext);

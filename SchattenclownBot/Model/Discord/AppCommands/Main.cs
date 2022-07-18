@@ -13,6 +13,11 @@ using SchattenclownBot.Model.Persistence;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using DisCatSharp.VoiceNext;
+using System.IO;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -931,5 +936,83 @@ internal class Main : ApplicationCommandsModule
         var botInvite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
 
         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
+    }
+
+    [SlashCommand("Play", "Just playes some Music!")]
+    public async Task Play(InteractionContext interactionContext)
+    {
+        try
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            DiscordChannel discordchannel = null;
+
+            var voiceNext = interactionContext.Client.GetVoiceNext();
+            if (voiceNext == null)
+            {
+                return;
+            }
+
+            var voiceNextConnection = voiceNext.GetConnection(interactionContext.Guild);
+            if (voiceNextConnection != null)
+            {
+                await voiceNextConnection.SendSpeakingAsync(false);
+                voiceNextConnection.Disconnect();
+            }
+
+            var voiceState = interactionContext.Member?.VoiceState;
+            if (voiceState?.Channel == null && discordchannel == null)
+            {
+                return;
+            }
+
+            if (discordchannel == null)
+                discordchannel = voiceState.Channel;
+
+            voiceNextConnection = await voiceNext.ConnectAsync(discordchannel);
+
+            while(true)
+            {
+                var Uri = new Uri(@"M:\");
+                var files = Directory.GetFiles(Uri.AbsolutePath);
+
+                Random random = new Random();
+                int randomInt = random.Next(0, (files.Length - 1));
+                var selectedFile = files[randomInt];
+
+
+                string arg = $@"-i ""{selectedFile}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet";
+
+                try
+                {
+                    await voiceNextConnection.SendSpeakingAsync(true);
+                    var a = voiceNextConnection.AudioFormat;
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{selectedFile}"));
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe"),
+                        Arguments = arg,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false
+                    };
+                    var ffmpeg = Process.Start(psi);
+                    var ffout = ffmpeg.StandardOutput.BaseStream;
+
+                    var txStream = voiceNextConnection.GetTransmitSink();
+                    txStream.VolumeModifier = 0.2;
+                    await ffout.CopyToAsync(txStream);
+                    await txStream.FlushAsync();
+                    await voiceNextConnection.WaitForPlaybackFinishAsync();
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            interactionContext.Client.Logger.LogError(exc.Message);
+        }
     }
 }
