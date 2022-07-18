@@ -972,13 +972,12 @@ internal class Main : ApplicationCommandsModule
 
             voiceNextConnection = await voiceNext.ConnectAsync(discordchannel);
 
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Next!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing Music in {voiceNextConnection.TargetChannel.Mention}!"));
 
             while(true)
             {
                 var Uri = new Uri(@"M:\");
                 var files = Directory.GetFiles(Uri.AbsolutePath);
-
                 Random random = new Random();
                 int randomInt = random.Next(0, (files.Length - 1));
                 var selectedFile = files[randomInt];
@@ -989,8 +988,17 @@ internal class Main : ApplicationCommandsModule
                 {
                     await voiceNextConnection.SendSpeakingAsync(true);
                     var a = voiceNextConnection.AudioFormat;
-                    var str = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(selectedFile, "M:/", 3), ".flac", 0);
-                    await interactionContext.Channel.SendMessageAsync($"{str}");
+                    var selectedFileWOExtention = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(selectedFile, "M:/", 3), ".flac", 0);
+                    //await interactionContext.Channel.SendMessageAsync($"{str}");
+                    //await voiceNextConnection.TargetChannel.SendMessageAsync($"{str}");
+
+                    var activity = new DiscordActivity()
+                    {
+                        Name = $"{selectedFileWOExtention}",
+                        ActivityType = ActivityType.ListeningTo
+                    };
+                    await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
+                    
                     var psi = new ProcessStartInfo
                     {
                         FileName = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe"),

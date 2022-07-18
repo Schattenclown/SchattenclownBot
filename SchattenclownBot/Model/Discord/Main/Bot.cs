@@ -150,6 +150,7 @@ namespace SchattenclownBot.Model.Discord.Main
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
             Client.ChannelCreated += GetItRightMee6.ItRight;
+            Client.VoiceStateUpdated += PlayMusic.ChangeStatus;
             //Stalk.StalkAsync(9);
             GetItRightMee6.CheckHighQualityAvailable(9);
             WhereIsClown.WhereIsClownRunAsync(19);
