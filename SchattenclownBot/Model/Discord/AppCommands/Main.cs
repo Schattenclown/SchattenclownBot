@@ -9,6 +9,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.HelpClasses;
 
 using System;
 using System.Linq;
@@ -938,8 +939,8 @@ internal class Main : ApplicationCommandsModule
         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
     }
 
-    [SlashCommand("Play", "Just playes some Music!")]
-    public async Task Play(InteractionContext interactionContext)
+    [SlashCommand("Next", "Just playes some Music!")]
+    public async Task Next(InteractionContext interactionContext)
     {
         try
         {
@@ -971,6 +972,8 @@ internal class Main : ApplicationCommandsModule
 
             voiceNextConnection = await voiceNext.ConnectAsync(discordchannel);
 
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Next!"));
+
             while(true)
             {
                 var Uri = new Uri(@"M:\");
@@ -980,14 +983,14 @@ internal class Main : ApplicationCommandsModule
                 int randomInt = random.Next(0, (files.Length - 1));
                 var selectedFile = files[randomInt];
 
-
                 string arg = $@"-i ""{selectedFile}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet";
 
                 try
                 {
                     await voiceNextConnection.SendSpeakingAsync(true);
                     var a = voiceNextConnection.AudioFormat;
-                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"{selectedFile}"));
+                    var str = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(selectedFile, "M:/", 3), ".flac", 0);
+                    await interactionContext.Channel.SendMessageAsync($"{str}");
                     var psi = new ProcessStartInfo
                     {
                         FileName = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe"),
