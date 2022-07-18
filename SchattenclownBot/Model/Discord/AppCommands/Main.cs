@@ -995,7 +995,9 @@ internal class Main : ApplicationCommandsModule
                     var activity = new DiscordActivity()
                     {
                         Name = $"{selectedFileWOExtention}",
-                        ActivityType = ActivityType.ListeningTo
+                        ActivityType = ActivityType.ListeningTo,
+                        Platform = "Local drive",
+                        StreamUrl = $"https://www.google.de/search?q={selectedFile}"
                     };
                     await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
                     
