@@ -94,7 +94,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             try
             {
-                playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, false), cancellationToken);
+                playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, true), cancellationToken);
 
             }
             catch (Exception ex)
@@ -170,9 +170,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                         };
                         discordEmbedBuilder.WithAuthor(tagLibSelectedFileToplay.Tag.JoinedPerformers);
                         if (tagLibSelectedFileToplay.Tag.Album != null)
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagLibSelectedFileToplay.Tag.Album));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagLibSelectedFileToplay.Tag.Album, true));
                         if (tagLibSelectedFileToplay.Tag.JoinedGenres != null)
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", tagLibSelectedFileToplay.Tag.JoinedGenres));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", tagLibSelectedFileToplay.Tag.JoinedGenres, true));
 
                         HttpClient httpClient = new();
                         Stream streamForBitmap = null;
@@ -191,7 +191,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         if (streamForBitmap != null)
                         {
                             var bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
-                            if(bitmapAlbumCover != null)
+                            if (bitmapAlbumCover != null)
                             {
                                 Color dominantColor = ColorMath.getDominantColor(bitmapAlbumCover);
                                 discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
@@ -211,7 +211,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                             discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", tagLibSelectedFileToplay.Tag.MusicIpId));
                         }
 
-                        await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
+                        discordEmbedBuilder.Description = $"⏹️ 🔘▬▬▬▬▬▬▬▬▬▬▬▬▬▬ [00:00:00/{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}] 🔉";
+
+                        var discordMessage = await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
 
                         var psi = new ProcessStartInfo
                         {
@@ -228,15 +230,50 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         var ffmpegTask = ffmpegOutput.CopyToAsync(voiceNextTransmition);
 
+                        var counter = 0;
                         while (!ffmpegTask.IsCompleted)
                         {
+                            if (counter % 10 == 0 && counter != 0)
+                            {
+                                TimeSpan timeSpan = TimeSpan.FromSeconds(counter);
+
+                                string[] strings = new string[15];
+                                var thisIsOneHundretPercent = tagLibSelectedFileToplay.Properties.Duration.TotalSeconds;
+
+                                var dotPositionInPercent = 100.0 / thisIsOneHundretPercent * counter;
+
+                                var dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
+
+                                for (int i = 0; i < strings.Length; i++)
+                                {
+                                    if (Convert.ToInt32(dotPositionInInt) == i)
+                                        strings[i] = "🔘";
+                                    else
+                                        strings[i] = "▬";
+                                }
+                                string finischedString = "";
+                                foreach (var item in strings)
+                                {
+                                    finischedString += item;
+                                }
+
+                                discordEmbedBuilder.Description = $"⏹️ {finischedString} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}] 🔉";
+                                await discordMessage.ModifyAsync(x => x.Embed = discordEmbedBuilder.Build());
+                            }
+
                             if (cancellationToken.IsCancellationRequested)
                             {
                                 ffmpegOutput.Close();
                                 break;
                             }
-                            await Task.Delay(500);
+                            counter++;
+                            await Task.Delay(1000);
                         }
+                        string thingy = $"{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}";
+
+                        discordEmbedBuilder.Description = $"⏹️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{thingy}/{thingy}] 🔉";
+                        await discordMessage.ModifyAsync(x => x.Embed = discordEmbedBuilder.Build());
+
                         await voiceNextTransmition.FlushAsync();
                         await voiceNextConnection.WaitForPlaybackFinishAsync();
                     }
