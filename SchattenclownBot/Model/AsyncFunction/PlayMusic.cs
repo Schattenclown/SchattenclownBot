@@ -18,6 +18,9 @@ using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.FileProperties;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -128,9 +131,20 @@ namespace SchattenclownBot.Model.AsyncFunction
                 {
                     var Uri = new Uri(@"M:\");
                     var files = Directory.GetFiles(Uri.AbsolutePath);
+                    
                     Random random = new Random();
                     int randomInt = random.Next(0, (files.Length - 1));
                     var selectedFile = files[randomInt];
+                    StorageFile file = await StorageFile.GetFileFromPathAsync(@$"M:\{selectedFile}");
+                    if (file != null)
+                    {
+                        StringBuilder outputText = new StringBuilder();
+
+                        // Get music properties
+                        MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
+                        outputText.AppendLine("Album: " + musicProperties.Album);
+                        outputText.AppendLine("Rating: " + musicProperties.Rating);
+                    }
 
                     string arg = $@"-i ""{selectedFile}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet";
 
@@ -138,7 +152,14 @@ namespace SchattenclownBot.Model.AsyncFunction
                     {
                         await voiceNextConnection.SendSpeakingAsync(true);
                         var selectedFileWOExtention = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(selectedFile, "M:/", 3), ".flac", 0);
+                        
                         await interactionContext.Channel.SendMessageAsync($"{selectedFileWOExtention}");
+                        DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
+                        {
+                            Title = $"{selectedFileWOExtention}",
+                            Description = selectedFile
+                        };
+
                         //await voiceNextConnection.TargetChannel.SendMessageAsync($"{str}");
 
                         /*var activity = new DiscordActivity()
