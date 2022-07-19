@@ -28,7 +28,7 @@ namespace SchattenclownBot.Model.AsyncFunction
         {
             if (interactionContext.Member.VoiceState == null)
             {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"U have to be connected!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"You have to be connected!"));
                 return;
             }
 
@@ -51,13 +51,13 @@ namespace SchattenclownBot.Model.AsyncFunction
                 t = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, false), cancellationToken);
             }
             else
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I play Music already!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is playing already!"));
         }
         public static async Task NextSongAsync(InteractionContext interactionContext)
         {
             if (interactionContext.Member.VoiceState == null)
             {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"U have to be connected!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"You have to be connected!"));
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 };
                 await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Next song!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skiping!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
                 await Task.Delay(500);
@@ -116,9 +116,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                 voiceNextConnection ??= await voiceNext.ConnectAsync(discordchannel);
 
                 if (isNextSongRequest)
-                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skip song in {voiceNextConnection.TargetChannel.Mention}!"));
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skiped song in {voiceNextConnection.TargetChannel.Mention}!"));
                 else
-                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing Music in {voiceNextConnection.TargetChannel.Mention}!"));
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -204,12 +204,12 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 };
                 await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Stop the Music!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Stop the music!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
             }
             else
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("No Music to stop!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("No music to stop!"));
         }
         internal static Task ChangeStatus(DiscordClient client, VoiceStateUpdateEventArgs e)
         {

@@ -939,21 +939,21 @@ internal class Main : ApplicationCommandsModule
 
         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
     }
-    [SlashCommand("Play", "Just playes some Music!")]
+    [SlashCommand("Play", "Just playes some music!")]
     public async Task Play(InteractionContext interactionContext)
     {
         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
         await PlayMusic.PlayMusicAsync(interactionContext);
     }
-    [SlashCommand("Stop", "Stop the Music!")]
+    [SlashCommand("Stop", "Stop the music!")]
     public async Task Stop(InteractionContext interactionContext)
     {
         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
         await PlayMusic.StopMusicAsync(interactionContext);
     }
 
-    [SlashCommand("Next", "Just playes some Music!")]
-    public async Task Next(InteractionContext interactionContext)
+    [SlashCommand("Skip", "Skip this song!")]
+    public async Task Skip(InteractionContext interactionContext)
     {
         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
         await PlayMusic.NextSongAsync(interactionContext);
