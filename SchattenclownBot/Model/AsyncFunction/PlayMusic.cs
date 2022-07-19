@@ -1,34 +1,25 @@
-﻿using System;
-using System.Threading;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
-using DisCatSharp.EventArgs;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using DisCatSharp.Net.Models;
-using DisCatSharp.Enums;
-using DisCatSharp.ApplicationCommands;
 using DisCatSharp.VoiceNext;
-using System.IO;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
-using TagLib;
+using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-using System.Net.Http;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
-using System.Net;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
     internal class PlayMusic
     {
-        private static List<KeyValuePair<DiscordGuild, CancellationTokenSource>> tokenList = new List<KeyValuePair<DiscordGuild, CancellationTokenSource>>();
+        private static List<KeyValuePair<DiscordGuild, CancellationTokenSource>> tokenList = new();
         public static async Task PlayMusicAsync(InteractionContext interactionContext)
         {
             if (interactionContext.Member.VoiceState == null)
@@ -48,11 +39,19 @@ namespace SchattenclownBot.Model.AsyncFunction
             {
                 var tokenSource = new CancellationTokenSource();
                 var cancellationToken = tokenSource.Token;
-                tokenList.Add(new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource));
+                var keyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource);
+                tokenList.Add(keyPairItem);
 
                 Task playMusicTask;
-
-                playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, false), cancellationToken);
+                try
+                {
+                    playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, false), cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    tokenList.Remove(keyPairItem);
+                }
             }
             else
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is playing already!"));
@@ -88,11 +87,21 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             tokenSource = new CancellationTokenSource();
             var cancellationToken = tokenSource.Token;
-            tokenList.Add(new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource));
+            var keyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource);
+            tokenList.Add(keyPairItem);
 
             Task playMusicTask;
 
-            playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, true), cancellationToken);
+            try
+            {
+                playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, false), cancellationToken);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                tokenList.Remove(keyPairItem);
+            }
         }
         static async Task PlayMusicTask(InteractionContext interactionContext, CancellationToken cancellationToken, bool isNextSongRequest)
         {
@@ -125,23 +134,23 @@ namespace SchattenclownBot.Model.AsyncFunction
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     var Uri = new Uri(@"M:\");
-                    var files = Directory.GetFiles(Uri.AbsolutePath);
+                    var allFiles = Directory.GetFiles(Uri.AbsolutePath);
 
-                    Random random = new Random();
-                    int randomInt = random.Next(0, (files.Length - 1));
-                    var selectedFile = files[randomInt];
+                    Random random = new();
+                    int randomInt = random.Next(0, (allFiles.Length - 1));
+                    var selectedFileToPlay = allFiles[randomInt];
 
-                    var file = TagLib.File.Create(@$"{selectedFile}");
+                    var tagLibSelectedFileToplay = TagLib.File.Create(@$"{selectedFileToPlay}");
                     MusicBrainz.Root musicBrainz = null;
-                    if (file.Tag.MusicBrainzReleaseId != null)
+                    if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId != null)
                     {
-                        Uri uri = new Uri($"https://coverartarchive.org/release/{file.Tag.MusicBrainzReleaseId}");
-                        var client = new HttpClient();
-                        client.DefaultRequestHeaders.Add("User-Agent", "C# console program");
+                        Uri coverArtUrl = new($"https://coverartarchive.org/release/{tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId}");
+                        var httpClient = new HttpClient();
+                        httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
                         try
                         {
-                            string content = client.GetStringAsync(uri).Result;
-                            musicBrainz = MusicBrainz.CreateObj(content);
+                            string httpClientContent = await httpClient.GetStringAsync(coverArtUrl);
+                            musicBrainz = MusicBrainz.CreateObj(httpClientContent);
                         }
                         catch
                         {
@@ -149,7 +158,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
                     }
 
-                    string arg = $@"-i ""{selectedFile}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet";
+                    string ffmpegArguments = $@"-i ""{selectedFileToPlay}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet";
 
                     try
                     {
@@ -157,54 +166,57 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         var discordEmbedBuilder = new DiscordEmbedBuilder
                         {
-                            Title = file.Tag.Title
+                            Title = tagLibSelectedFileToplay.Tag.Title
                         };
-                        discordEmbedBuilder.WithAuthor(file.Tag.JoinedPerformers);
-                        if (file.Tag.Album != null)
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", file.Tag.Album));
-                        if (file.Tag.JoinedGenres != null)
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", file.Tag.JoinedGenres));
+                        discordEmbedBuilder.WithAuthor(tagLibSelectedFileToplay.Tag.JoinedPerformers);
+                        if (tagLibSelectedFileToplay.Tag.Album != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagLibSelectedFileToplay.Tag.Album));
+                        if (tagLibSelectedFileToplay.Tag.JoinedGenres != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", tagLibSelectedFileToplay.Tag.JoinedGenres));
 
                         HttpClient httpClient = new();
-                        Stream streamObj = null;
+                        Stream streamForBitmap = null;
                         if (musicBrainz != null)
                         {
                             discordEmbedBuilder.WithThumbnail(musicBrainz.images.FirstOrDefault().image);
-                            streamObj = httpClient.GetStreamAsync(musicBrainz.images.FirstOrDefault().image).Result;
+                            streamForBitmap = await httpClient.GetStreamAsync(musicBrainz.images.FirstOrDefault().image);
                             discordEmbedBuilder.WithUrl(musicBrainz.release);
                         }
-                        else if (file.Tag.MusicBrainzReleaseGroupId != null)
+                        else if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId != null)
                         {
-                            streamObj = httpClient.GetStreamAsync($"https://coverartarchive.org/release-group/{file.Tag.MusicBrainzReleaseGroupId}/front").Result;
-                            discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{file.Tag.MusicBrainzReleaseGroupId}/front");
+                            streamForBitmap = await httpClient.GetStreamAsync($"https://coverartarchive.org/release-group/{tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId}/front");
+                            discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId}/front");
                         }
 
-                        if(streamObj != null)
+                        if (streamForBitmap != null)
                         {
-                            Bitmap bitmapObj = new(streamObj);
-                            Color dominantColor = ColorMath.getDominantColor(bitmapObj);
-                            discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                            var bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+                            if(bitmapAlbumCover != null)
+                            {
+                                Color dominantColor = ColorMath.getDominantColor(bitmapAlbumCover);
+                                discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                            }
                         }
                         else
                         {
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", file.Tag.MusicBrainzArtistId));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", file.Tag.MusicBrainzDiscId));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", file.Tag.MusicBrainzReleaseArtistId));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", file.Tag.MusicBrainzReleaseCountry));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", file.Tag.MusicBrainzReleaseGroupId));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", file.Tag.MusicBrainzReleaseId));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", file.Tag.MusicBrainzReleaseStatus));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", file.Tag.MusicBrainzReleaseType));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", file.Tag.MusicBrainzTrackId));
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", file.Tag.MusicIpId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", tagLibSelectedFileToplay.Tag.MusicBrainzArtistId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", tagLibSelectedFileToplay.Tag.MusicBrainzDiscId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseArtistId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseCountry));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseStatus));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseType));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", tagLibSelectedFileToplay.Tag.MusicBrainzTrackId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", tagLibSelectedFileToplay.Tag.MusicIpId));
                         }
-                        
+
                         await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
 
                         var psi = new ProcessStartInfo
                         {
                             FileName = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe"),
-                            Arguments = arg,
+                            Arguments = ffmpegArguments,
                             RedirectStandardOutput = true,
                             UseShellExecute = false
                         };
@@ -221,7 +233,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                             if (cancellationToken.IsCancellationRequested)
                             {
                                 ffmpegOutput.Close();
-                                httpClient.Dispose();
                                 break;
                             }
                             await Task.Delay(500);
@@ -259,22 +270,5 @@ namespace SchattenclownBot.Model.AsyncFunction
             else
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to stop!"));
         }
-        /*internal static Task ChangeStatus(DiscordClient client, VoiceStateUpdateEventArgs e)
-        {
-            if (e.User == Bot.Client.CurrentUser)
-            {
-                if (e.Channel == null)
-                {
-                    var activity = new DiscordActivity()
-                    {
-                        Name = $"/help",
-                        ActivityType = ActivityType.Competing
-                    };
-                    Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
-                }
-            }
-
-            return Task.CompletedTask;
-        }*/
     }
 }
