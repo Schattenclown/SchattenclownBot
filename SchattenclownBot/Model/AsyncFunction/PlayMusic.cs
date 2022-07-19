@@ -18,9 +18,9 @@ using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
-using Windows.Storage;
-using Windows.Storage.Pickers;
-using Windows.Storage.FileProperties;
+using TagLib;
+using SchattenclownBot.Model.Objects;
+using System.Net.Http;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -73,13 +73,6 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             if (tokenSource != null)
             {
-                /*var activity = new DiscordActivity()
-                {
-                    Name = $"/help",
-                    ActivityType = ActivityType.Competing,
-
-                };
-                await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);*/
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skiping!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
@@ -131,19 +124,20 @@ namespace SchattenclownBot.Model.AsyncFunction
                 {
                     var Uri = new Uri(@"M:\");
                     var files = Directory.GetFiles(Uri.AbsolutePath);
-                    
+
                     Random random = new Random();
                     int randomInt = random.Next(0, (files.Length - 1));
                     var selectedFile = files[randomInt];
-                    StorageFile file = await StorageFile.GetFileFromPathAsync(@$"M:\{selectedFile}");
-                    if (file != null)
-                    {
-                        StringBuilder outputText = new StringBuilder();
 
-                        // Get music properties
-                        MusicProperties musicProperties = await file.Properties.GetMusicPropertiesAsync();
-                        outputText.AppendLine("Album: " + musicProperties.Album);
-                        outputText.AppendLine("Rating: " + musicProperties.Rating);
+                    var file = TagLib.File.Create(@$"{selectedFile}");
+                    MusicBrainz.Root musicBrainz = null;
+                    if (file.Tag.MusicBrainzReleaseId != null)
+                    {
+                        Uri uri = new Uri($"https://coverartarchive.org/release/{file.Tag.MusicBrainzReleaseId}");
+                        var client = new HttpClient();
+                        client.DefaultRequestHeaders.Add("User-Agent", "C# console program");
+                        string content = await client.GetStringAsync(uri);
+                        musicBrainz = MusicBrainz.CreateObj(content);
                     }
 
                     string arg = $@"-i ""{selectedFile}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet";
@@ -151,25 +145,22 @@ namespace SchattenclownBot.Model.AsyncFunction
                     try
                     {
                         await voiceNextConnection.SendSpeakingAsync(true);
-                        var selectedFileWOExtention = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(selectedFile, "M:/", 3), ".flac", 0);
-                        
-                        await interactionContext.Channel.SendMessageAsync($"{selectedFileWOExtention}");
-                        DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
-                        {
-                            Title = $"{selectedFileWOExtention}",
-                            Description = selectedFile
-                        };
 
-                        //await voiceNextConnection.TargetChannel.SendMessageAsync($"{str}");
-
-                        /*var activity = new DiscordActivity()
+                        var discordEmbedBuilder = new DiscordEmbedBuilder
                         {
-                            Name = $"█ {selectedFileWOExtention} █",
-                            ActivityType = ActivityType.ListeningTo,
-                            Platform = "Local drive",
-                            StreamUrl = $"https://www.google.de/search?q={selectedFile}"
+                            Title = file.Tag.Title
                         };
-                        await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);*/
+                        discordEmbedBuilder.WithAuthor(file.Tag.JoinedPerformers);
+                        discordEmbedBuilder.AddField(new DiscordEmbedField("Album", file.Tag.Album));
+                        discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", file.Tag.JoinedGenres));
+
+                        if (musicBrainz != null)
+                        {
+                            discordEmbedBuilder.WithThumbnail(musicBrainz.images.FirstOrDefault().image);
+                            discordEmbedBuilder.WithUrl(musicBrainz.release);
+                        }
+
+                        await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
 
                         var psi = new ProcessStartInfo
                         {
@@ -221,13 +212,6 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             if (tokenSource != null)
             {
-                /*var activity = new DiscordActivity()
-                {
-                    Name = $"/help",
-                    ActivityType = ActivityType.Competing,
-
-                };
-                await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);*/
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Stop the music!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();

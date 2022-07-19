@@ -19,6 +19,7 @@
     <PackageReference Include="DisCatSharp.VoiceNext" Version="10.0.1-nightly-00416" />
     <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.0.1-nightly-00416" />
     <PackageReference Include="MySql.Data" Version="8.0.29" />
+    <PackageReference Include="TagLibSharp" Version="2.2.0" />
   </ItemGroup>
 
 </Project>
