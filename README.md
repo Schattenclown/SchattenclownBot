@@ -1,8 +1,8 @@
 # SchattenclownBot
 
-Music
-AmazonRating
-Levelsystem
-Timer, Alarm
-Poke
+Music;
+AmazonRating;
+Levelsystem;
+Timer, Alarm;
+Poke;
 MassMove
