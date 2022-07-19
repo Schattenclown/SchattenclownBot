@@ -33,7 +33,6 @@ namespace SchattenclownBot.Model.AsyncFunction
             }
 
             var musicAlreadyPlaying = false;
-
             foreach (var keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
             {
                 musicAlreadyPlaying = true;
@@ -46,9 +45,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                 var cancellationToken = tokenSource.Token;
                 tokenList.Add(new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource));
 
-                Task t;
+                Task playMusicTask;
 
-                t = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, false), cancellationToken);
+                playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, false), cancellationToken);
             }
             else
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is playing already!"));
@@ -71,13 +70,13 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             if (tokenSource != null)
             {
-                var activity = new DiscordActivity()
+                /*var activity = new DiscordActivity()
                 {
                     Name = $"/help",
                     ActivityType = ActivityType.Competing,
 
                 };
-                await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
+                await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);*/
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skiping!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
@@ -85,17 +84,17 @@ namespace SchattenclownBot.Model.AsyncFunction
             }
             else
             {
-
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to skip!"));
+                return;
             }
 
             tokenSource = new CancellationTokenSource();
             var cancellationToken = tokenSource.Token;
             tokenList.Add(new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource));
 
-            Task t;
+            Task playMusicTask;
 
-            t = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, true), cancellationToken);
+            playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, cancellationToken, true), cancellationToken);
         }
         static async Task PlayMusicTask(InteractionContext interactionContext, CancellationToken cancellationToken, bool isNextSongRequest)
         {
@@ -127,7 +126,6 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-
                     var Uri = new Uri(@"M:\");
                     var files = Directory.GetFiles(Uri.AbsolutePath);
                     Random random = new Random();
@@ -140,17 +138,17 @@ namespace SchattenclownBot.Model.AsyncFunction
                     {
                         await voiceNextConnection.SendSpeakingAsync(true);
                         var selectedFileWOExtention = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(selectedFile, "M:/", 3), ".flac", 0);
-                        //await interactionContext.Channel.SendMessageAsync($"{str}");
+                        await interactionContext.Channel.SendMessageAsync($"{selectedFileWOExtention}");
                         //await voiceNextConnection.TargetChannel.SendMessageAsync($"{str}");
 
-                        var activity = new DiscordActivity()
+                        /*var activity = new DiscordActivity()
                         {
                             Name = $"█ {selectedFileWOExtention} █",
                             ActivityType = ActivityType.ListeningTo,
                             Platform = "Local drive",
                             StreamUrl = $"https://www.google.de/search?q={selectedFile}"
                         };
-                        await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
+                        await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);*/
 
                         var psi = new ProcessStartInfo
                         {
@@ -202,13 +200,13 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             if (tokenSource != null)
             {
-                var activity = new DiscordActivity()
+                /*var activity = new DiscordActivity()
                 {
                     Name = $"/help",
                     ActivityType = ActivityType.Competing,
 
                 };
-                await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
+                await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);*/
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Stop the music!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
@@ -216,7 +214,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             else
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to stop!"));
         }
-        internal static Task ChangeStatus(DiscordClient client, VoiceStateUpdateEventArgs e)
+        /*internal static Task ChangeStatus(DiscordClient client, VoiceStateUpdateEventArgs e)
         {
             if (e.User == Bot.Client.CurrentUser)
             {
@@ -225,14 +223,13 @@ namespace SchattenclownBot.Model.AsyncFunction
                     var activity = new DiscordActivity()
                     {
                         Name = $"/help",
-                        ActivityType = ActivityType.Competing,
-
+                        ActivityType = ActivityType.Competing
                     };
                     Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
                 }
             }
 
             return Task.CompletedTask;
-        }
+        }*/
     }
 }

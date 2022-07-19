@@ -44,7 +44,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
         private static string _token = "";
         private static int _virgin = 0;
-        public static UserStatus CustomStatus = UserStatus.Streaming;
+        public static UserStatus CustomStatus = UserStatus.Online;
         public static bool Custom = false;
         public static string CustomState = $"/help";
 
@@ -150,7 +150,7 @@ namespace SchattenclownBot.Model.Discord.Main
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
             Client.ChannelCreated += GetItRightMee6.ItRight;
-            Client.VoiceStateUpdated += PlayMusic.ChangeStatus;
+            //Client.VoiceStateUpdated += PlayMusic.ChangeStatus;
             //Stalk.StalkAsync(9);
             GetItRightMee6.CheckHighQualityAvailable(9);
             WhereIsClown.WhereIsClownRunAsync(19);
@@ -237,7 +237,7 @@ namespace SchattenclownBot.Model.Discord.Main
             var activity = new DiscordActivity()
             {
                 Name = Bot.Custom ? Bot.CustomState : $"/help",
-                ActivityType = ActivityType.Streaming
+                ActivityType = ActivityType.Competing
             };
             dcl.UpdateStatusAsync(activity: activity, userStatus: Bot.Custom ? Bot.CustomStatus : UserStatus.Online, idleSince: null);
             Console.ForegroundColor = ConsoleColor.Green;
