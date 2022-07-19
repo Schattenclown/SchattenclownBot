@@ -21,6 +21,8 @@ using Microsoft.Extensions.Logging;
 using TagLib;
 using SchattenclownBot.Model.Objects;
 using System.Net.Http;
+using System.Drawing;
+using System.Net;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -136,8 +138,15 @@ namespace SchattenclownBot.Model.AsyncFunction
                         Uri uri = new Uri($"https://coverartarchive.org/release/{file.Tag.MusicBrainzReleaseId}");
                         var client = new HttpClient();
                         client.DefaultRequestHeaders.Add("User-Agent", "C# console program");
-                        string content = await client.GetStringAsync(uri);
-                        musicBrainz = MusicBrainz.CreateObj(content);
+                        try
+                        {
+                            string content = client.GetStringAsync(uri).Result;
+                            musicBrainz = MusicBrainz.CreateObj(content);
+                        }
+                        catch
+                        {
+                            //ignore
+                        }
                     }
 
                     string arg = $@"-i ""{selectedFile}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet";
@@ -151,15 +160,45 @@ namespace SchattenclownBot.Model.AsyncFunction
                             Title = file.Tag.Title
                         };
                         discordEmbedBuilder.WithAuthor(file.Tag.JoinedPerformers);
-                        discordEmbedBuilder.AddField(new DiscordEmbedField("Album", file.Tag.Album));
-                        discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", file.Tag.JoinedGenres));
+                        if (file.Tag.Album != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", file.Tag.Album));
+                        if (file.Tag.JoinedGenres != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", file.Tag.JoinedGenres));
 
+                        HttpClient httpClient = new();
+                        Stream streamObj = null;
                         if (musicBrainz != null)
                         {
                             discordEmbedBuilder.WithThumbnail(musicBrainz.images.FirstOrDefault().image);
+                            streamObj = httpClient.GetStreamAsync(musicBrainz.images.FirstOrDefault().image).Result;
                             discordEmbedBuilder.WithUrl(musicBrainz.release);
                         }
+                        else if (file.Tag.MusicBrainzReleaseGroupId != null)
+                        {
+                            streamObj = httpClient.GetStreamAsync($"https://coverartarchive.org/release-group/{file.Tag.MusicBrainzReleaseGroupId}/front").Result;
+                            discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{file.Tag.MusicBrainzReleaseGroupId}/front");
+                        }
 
+                        if(streamObj != null)
+                        {
+                            Bitmap bitmapObj = new(streamObj);
+                            Color dominantColor = ColorMath.getDominantColor(bitmapObj);
+                            discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                        }
+                        else
+                        {
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", file.Tag.MusicBrainzArtistId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", file.Tag.MusicBrainzDiscId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", file.Tag.MusicBrainzReleaseArtistId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", file.Tag.MusicBrainzReleaseCountry));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", file.Tag.MusicBrainzReleaseGroupId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", file.Tag.MusicBrainzReleaseId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", file.Tag.MusicBrainzReleaseStatus));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", file.Tag.MusicBrainzReleaseType));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", file.Tag.MusicBrainzTrackId));
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", file.Tag.MusicIpId));
+                        }
+                        
                         await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
 
                         var psi = new ProcessStartInfo
@@ -182,6 +221,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                             if (cancellationToken.IsCancellationRequested)
                             {
                                 ffmpegOutput.Close();
+                                httpClient.Dispose();
                                 break;
                             }
                             await Task.Delay(500);

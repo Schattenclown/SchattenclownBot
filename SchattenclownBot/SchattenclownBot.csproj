@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="FakesAssemblies\**" />
+    <EmbeddedResource Remove="FakesAssemblies\**" />
+    <None Remove="FakesAssemblies\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
@@ -18,8 +24,14 @@
     <PackageReference Include="DisCatSharp.Lavalink" Version="10.0.1-nightly-00416" />
     <PackageReference Include="DisCatSharp.VoiceNext" Version="10.0.1-nightly-00416" />
     <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.0.1-nightly-00416" />
+    <PackageReference Include="Microsoft.QualityTools.Testing.Fakes" Version="16.11.230815" />
     <PackageReference Include="MySql.Data" Version="8.0.29" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.6.22324.4" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalDesignTimeBuildInput Remove="FakesAssemblies\**" />
   </ItemGroup>
 
 </Project>
