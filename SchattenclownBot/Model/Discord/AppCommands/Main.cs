@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using DisCatSharp.VoiceNext;
 using System.IO;
+using SchattenclownBot.Model.AsyncFunction;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -450,15 +451,15 @@ internal class Main : ApplicationCommandsModule
         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
-		var discordSelectComponent = new DiscordSelectComponent(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
+        var discordSelectComponent = new DiscordSelectComponent(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
 
-		await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
+        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke user <@{discordUser.Id}>!"));
         var msg = await interactionContext.GetOriginalResponseAsync();
         var intReq = await interactivity.WaitForSelectAsync(msg, "force", TimeSpan.FromMinutes(1));
         if (!intReq.TimedOut)
         {
-			await intReq.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
-			var res = intReq.Result.Values.First();
+            await intReq.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
+            var res = intReq.Result.Values.First();
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(discordSelectComponent.Disable()));
             var targetMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
             await PokeAsync(intReq.Result.Interaction, interactionContext.Member, targetMember, false, res == "light" ? 2 : 4, res == "hard");
@@ -938,6 +939,18 @@ internal class Main : ApplicationCommandsModule
 
         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
     }
+    [SlashCommand("Play", "Just playes some Music!")]
+    public async Task Play(InteractionContext interactionContext)
+    {
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+        await PlayMusic.PlayMusicAsync(interactionContext);
+    }
+    [SlashCommand("Stop", "Stop the Music!")]
+    public async Task Stop(InteractionContext interactionContext)
+    {
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+        await PlayMusic.StopMusicAsync(interactionContext);
+    }
 
     [SlashCommand("Next", "Just playes some Music!")]
     public async Task Next(InteractionContext interactionContext)
@@ -974,7 +987,7 @@ internal class Main : ApplicationCommandsModule
 
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing Music in {voiceNextConnection.TargetChannel.Mention}!"));
 
-            while(true)
+            while (true)
             {
                 var Uri = new Uri(@"M:\");
                 var files = Directory.GetFiles(Uri.AbsolutePath);
@@ -994,13 +1007,13 @@ internal class Main : ApplicationCommandsModule
 
                     var activity = new DiscordActivity()
                     {
-                        Name = $"{selectedFileWOExtention}",
+                        Name = $"█ {selectedFileWOExtention} █",
                         ActivityType = ActivityType.ListeningTo,
                         Platform = "Local drive",
                         StreamUrl = $"https://www.google.de/search?q={selectedFile}"
                     };
                     await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: UserStatus.Online, idleSince: null);
-                    
+
                     var psi = new ProcessStartInfo
                     {
                         FileName = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe"),

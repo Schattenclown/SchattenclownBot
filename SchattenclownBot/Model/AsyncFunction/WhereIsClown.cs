@@ -16,6 +16,9 @@ namespace SchattenclownBot.Model.AsyncFunction
         {
             await Task.Run(async () =>
             {
+                if (Bot.Client.CurrentUser.Id != 890063457246937129)
+                    return;
+
                 while (DateTime.Now.Second != executeSecond)
                 {
                     await Task.Delay(1000);

@@ -51,6 +51,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                         mainGuild = guildItem;
                     }
 
+                    if (mainGuild == null)
+                        return;
+                        
                     var discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice);
 
                     foreach (var discordChannelItem in discordChannels)
