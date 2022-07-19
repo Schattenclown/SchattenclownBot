@@ -83,6 +83,11 @@ namespace SchattenclownBot.Model.AsyncFunction
                 tokenSource.Dispose();
                 await Task.Delay(500);
             }
+            else
+            {
+
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to skip!"));
+            }
 
             tokenSource = new CancellationTokenSource();
             var cancellationToken = tokenSource.Token;
@@ -209,7 +214,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                 tokenSource.Dispose();
             }
             else
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("No music to stop!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to stop!"));
         }
         internal static Task ChangeStatus(DiscordClient client, VoiceStateUpdateEventArgs e)
         {
