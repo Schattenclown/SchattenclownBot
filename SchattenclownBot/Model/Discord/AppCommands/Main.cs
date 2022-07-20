@@ -956,6 +956,12 @@ internal class Main : ApplicationCommandsModule
     public async Task Skip(InteractionContext interactionContext)
     {
         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-        await PlayMusic.NextSongAsync(interactionContext);
+        await PlayMusic.NextSongAsync(interactionContext, null, null, null);
+    }
+    [SlashCommand("Next", "Skip this song!")]
+    public async Task Next(InteractionContext interactionContext)
+    {
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+        await PlayMusic.NextSongAsync(interactionContext, null, null, null);
     }
 }
