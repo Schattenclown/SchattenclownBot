@@ -237,7 +237,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         var lastDiscordChannel = voiceNextConnection.TargetChannel;
 
                         var counter = 0;
-                        TimeSpan timeSpan = new TimeSpan(0, 0, 0, 0);
+                        TimeSpan timeSpan = new(0, 0, 0, 0);
                         string playerAdcance = "";
                         while (!ffmpegTask.IsCompleted)
                         {
@@ -290,10 +290,10 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         //algorythmus to create the timeline
                         #region MoteTimeLineAlgo
-                        string thingy = $"{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}";
+                        string durationString = $"{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}";
 
                         if (!cancellationToken.IsCancellationRequested)
-                            discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{thingy}/{thingy}] 🔉";
+                            discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
                         else
                         {
                             string descriotionString = "⏹️";
