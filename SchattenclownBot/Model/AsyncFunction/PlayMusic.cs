@@ -79,7 +79,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skiping!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
-                await Task.Delay(500);
             }
             else
             {
@@ -105,30 +104,17 @@ namespace SchattenclownBot.Model.AsyncFunction
                 tokenList.Remove(keyPairItem);
             }
         }
-        static async Task PlayMusicTask(InteractionContext interactionContext1, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, CancellationToken cancellationToken, bool isNextSongRequest)
+        static async Task PlayMusicTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, CancellationToken cancellationToken, bool isNextSongRequest)
         {
             try
             {
-                VoiceNextExtension voiceNext = null;
-                if (interactionContext1 != null)
-                    voiceNext = interactionContext1.Client.GetVoiceNext();
-                else
-                    voiceNext = client.GetVoiceNext();
+                var voiceNext = interactionContext != null ? interactionContext.Client.GetVoiceNext() : client.GetVoiceNext();
 
                 if (voiceNext == null)
                     return;
 
-                VoiceNextConnection voiceNextConnection = null;
-                if (interactionContext1 != null)
-                    voiceNextConnection = voiceNext.GetConnection(interactionContext1.Guild);
-                else
-                    voiceNextConnection = voiceNext.GetConnection(discordGuild);
-
-                DiscordVoiceState voiceState = null;
-                if (interactionContext1 != null)
-                    voiceState = interactionContext1.Member?.VoiceState;
-                else
-                    voiceState = discordMember?.VoiceState;
+                var voiceNextConnection = interactionContext != null ? voiceNext.GetConnection(interactionContext.Guild) : voiceNext.GetConnection(discordGuild);
+                var voiceState = interactionContext != null ? interactionContext.Member?.VoiceState : discordMember?.VoiceState;
 
                 if (voiceState?.Channel == null)
                     return;
@@ -137,15 +123,15 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 if (isNextSongRequest)
                 {
-                    if (interactionContext1 != null)
-                        await interactionContext1.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skiped song in {voiceNextConnection.TargetChannel.Mention}!"));
+                    if (interactionContext != null)
+                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skiped song in {voiceNextConnection.TargetChannel.Mention}!"));
                     else
                         await interactionChannel.SendMessageAsync($"Skiped song in {voiceNextConnection.TargetChannel.Mention}!");
                 }
                 else
                 {
-                    if (interactionContext1 != null)
-                        await interactionContext1.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
+                    if (interactionContext != null)
+                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
                     else
                         await interactionChannel.SendMessageAsync($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!");
                 }
@@ -244,8 +230,8 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         DiscordMessage discordMessage = null;
 
-                        if (interactionContext1 != null)
-                            discordMessage = await interactionContext1.Channel.SendMessageAsync(discordEmbedBuilder.Build());
+                        if (interactionContext != null)
+                            discordMessage = await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
                         else
                             discordMessage = await interactionChannel.SendMessageAsync(discordEmbedBuilder.Build());
 
@@ -356,8 +342,8 @@ namespace SchattenclownBot.Model.AsyncFunction
             }
             catch (Exception exc)
             {
-                if (interactionContext1 != null)
-                    interactionContext1.Client.Logger.LogError(exc.Message);
+                if (interactionContext != null)
+                    interactionContext.Client.Logger.LogError(exc.Message);
                 else
                     client.Logger.LogError(exc.Message);
             }
