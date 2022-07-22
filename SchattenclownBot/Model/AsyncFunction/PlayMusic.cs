@@ -4,7 +4,6 @@ using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using Microsoft.Extensions.Logging;
-using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using System;
