@@ -250,10 +250,14 @@ namespace SchattenclownBot.Model.AsyncFunction
                         else
                             discordMessage = await interactionChannel.SendMessageAsync(discordEmbedBuilder.Build());
 
-                        DiscordComponentEmoji discordComponentEmoji = new("⏭️");
-                        DiscordButtonComponent discordButtonComponent = new(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Play the next song!", false, discordComponentEmoji);
+                        DiscordComponentEmoji discordComponentEmojiNext = new("⏭️");
+                        DiscordComponentEmoji discordComponentEmojiStop = new("⏹️");
+                        var discordSelectComponentOptionList = new DiscordButtonComponent[2];
+                        discordSelectComponentOptionList[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojiNext);
+                        discordSelectComponentOptionList[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojiStop);
 
-                        await discordMessage.ModifyAsync(x => x.AddComponents(discordButtonComponent));
+
+                        await discordMessage.ModifyAsync(x => x.AddComponents(discordSelectComponentOptionList));
 
 
                         var psi = new ProcessStartInfo
@@ -310,7 +314,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                 descriotionString += $" {playerAdcance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}] 🔉";
                                 discordEmbedBuilder.Description = descriotionString;
-                                await discordMessage.ModifyAsync(x => x.AddComponents(discordButtonComponent).WithEmbed(discordEmbedBuilder.Build()));
+                                await discordMessage.ModifyAsync(x => x.AddComponents(discordSelectComponentOptionList).WithEmbed(discordEmbedBuilder.Build()));
                             }
                             #endregion
 
@@ -329,10 +333,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         string durationString = $"{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}";
 
                         if (!cancellationToken.IsCancellationRequested)
-                        {
                             discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
-                            await discordMessage.ModifyAsync(x => x.AddComponents(discordButtonComponent).WithEmbed(discordEmbedBuilder.Build()));
-                        }
                         else
                         {
                             string descriotionString = "⏹️";
@@ -341,9 +342,8 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                             descriotionString += $" {playerAdcance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}] 🔉";
                             discordEmbedBuilder.Description = descriotionString;
-                            await discordMessage.ModifyAsync(x => x.WithEmbed(discordEmbedBuilder.Build()));
                         }
-
+                        await discordMessage.ModifyAsync(x => x.WithEmbed(discordEmbedBuilder.Build()));
                         #endregion
 
                         await voiceNextTransmition.FlushAsync();
@@ -363,7 +363,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                     client.Logger.LogError(exc.Message);
             }
         }
-        internal static async Task NextSongPerButton(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
+        internal static Task NextSongPerButton(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
         {
 
             if (eventArgs.Id == "next_song")
@@ -372,8 +372,8 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 if (discordMember.VoiceState == null)
                 {
-                    await eventArgs.Channel.SendMessageAsync($"You have to be connected!");
-                    return;
+                    eventArgs.Channel.SendMessageAsync($"You have to be connected!");
+                    return Task.CompletedTask;
                 }
 
                 CancellationTokenSource tokenSource = null;
@@ -386,15 +386,14 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 if (tokenSource != null)
                 {
-                    await eventArgs.Channel.SendMessageAsync($"Skiping!");
+                    eventArgs.Channel.SendMessageAsync($"Skiping!");
                     tokenSource.Cancel();
                     tokenSource.Dispose();
-                    await Task.Delay(500);
                 }
                 else
                 {
-                    await eventArgs.Channel.SendMessageAsync($"Nothing to skip!");
-                    return;
+                    eventArgs.Channel.SendMessageAsync($"Nothing to skip!");
+                    return Task.CompletedTask;
                 }
 
                 tokenSource = new CancellationTokenSource();
@@ -414,9 +413,29 @@ namespace SchattenclownBot.Model.AsyncFunction
                     Console.WriteLine(ex.Message);
                     tokenList.Remove(keyPairItem);
                 }
+            }
+            else if (eventArgs.Id == "stop_song")
+            {
+                CancellationTokenSource tokenSource = null;
+                foreach (var keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                {
+                    tokenSource = keyValuePairItem.Value;
+                    tokenList.Remove(keyValuePairItem);
+                    break;
+                }
+
+                if (tokenSource != null)
+                {
+                    eventArgs.Channel.SendMessageAsync("Stop the music!");
+                    tokenSource.Cancel();
+                    tokenSource.Dispose();
+                }
+                else
+                    eventArgs.Channel.SendMessageAsync("Nothing to stop!");
+
 
             }
-
+            return Task.CompletedTask;
         }
         public static async Task StopMusicAsync(InteractionContext interactionContext)
         {
