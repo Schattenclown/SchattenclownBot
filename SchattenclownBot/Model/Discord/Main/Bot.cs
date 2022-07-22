@@ -152,6 +152,7 @@ namespace SchattenclownBot.Model.Discord.Main
             Client.ChannelCreated += GetItRightMee6.ItRight;
             Client.VoiceStateUpdated += PlayMusic.ResumePlaying;
             Client.VoiceStateUpdated += PlayMusic.GotKicked;
+            Client.ComponentInteractionCreated += PlayMusic.NextSongPerButton;
             GetItRightMee6.CheckHighQualityAvailable(9);
             WhereIsClown.WhereIsClownRunAsync(19);
             UserLevelSystem.LevelSystemRunAsync(29);

@@ -233,7 +233,7 @@ internal class Main : ApplicationCommandsModule
                 if (Convert.ToInt32($"{timeSpan:ddd}") == 1)
                     daysstring = "Day ";
 
-                leaderboardString += "{" + $"{Convert.ToInt32($"{timeSpan:ddd}"),3} {daysstring} {timeSpan:hh}:{timeSpan:mm}" + "}" + $" Level {calculatedLevel,2} [{discordMemberObj.DisplayName}]\n";
+                leaderboardString += "{" + $"{Convert.ToInt32($"{timeSpan:ddd}"),3} {daysstring} {timeSpan:hh}:{timeSpan:mm}" + "}" + $" Level {calculatedLevel,2} [{discordMemberObj.DisplayName.Replace('\'', ' ')}]\n";
                 top30++;
                 if (top30 == 30)
                     break;
@@ -541,23 +541,26 @@ internal class Main : ApplicationCommandsModule
 
     public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs cICEArgs)
     {
-        switch (cICEArgs.Values[0])
+        if (cICEArgs.Values.Length > 0)
         {
-            case "rating_1":
-                await VoteRatingAsync(cICEArgs, 1);
-                break;
-            case "rating_2":
-                await VoteRatingAsync(cICEArgs, 2);
-                break;
-            case "rating_3":
-                await VoteRatingAsync(cICEArgs, 3);
-                break;
-            case "rating_4":
-                await VoteRatingAsync(cICEArgs, 4);
-                break;
-            case "rating_5":
-                await VoteRatingAsync(cICEArgs, 5);
-                break;
+            switch (cICEArgs.Values[0])
+            {
+                case "rating_1":
+                    await VoteRatingAsync(cICEArgs, 1);
+                    break;
+                case "rating_2":
+                    await VoteRatingAsync(cICEArgs, 2);
+                    break;
+                case "rating_3":
+                    await VoteRatingAsync(cICEArgs, 3);
+                    break;
+                case "rating_4":
+                    await VoteRatingAsync(cICEArgs, 4);
+                    break;
+                case "rating_5":
+                    await VoteRatingAsync(cICEArgs, 5);
+                    break;
+            }
         }
     }
 
