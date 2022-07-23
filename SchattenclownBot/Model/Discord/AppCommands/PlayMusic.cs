@@ -21,48 +21,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 {
     internal class PlayMusic : ApplicationCommandsModule
     {
-        /// <summary>
-        ///     Creates an Invite link.
-        /// </summary>
-        /// <param name="interactionContext">The interactionContext.</param>
-        /// <returns></returns>
-        [SlashCommand("Invite", "Invite $chattenclown")]
-        public static async Task InviteAsync(InteractionContext interactionContext)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-            Uri botInvite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
-
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
-        }
-        [SlashCommand("Play", "Just plays some music!")]
-        public async Task Play(InteractionContext interactionContext)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            await PlayMusic.PlayMusicAsync(interactionContext);
-        }
-        [SlashCommand("Stop", "Stop the music!")]
-        public async Task Stop(InteractionContext interactionContext)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            await PlayMusic.StopMusicAsync(interactionContext);
-        }
-
-        [SlashCommand("Skip", "Skip this song!")]
-        public async Task Skip(InteractionContext interactionContext)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            await PlayMusic.NextSongAsync(interactionContext);
-        }
-        [SlashCommand("Next", "Skip this song!")]
-        public async Task Next(InteractionContext interactionContext)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            await PlayMusic.NextSongAsync(interactionContext);
-        }
         private static List<KeyValuePair<DiscordGuild, CancellationTokenSource>> tokenList = new();
-        public static async Task PlayMusicAsync(InteractionContext interactionContext)
+        [SlashCommand("Play", "Just plays some music!")]
+        public async Task PlayAsync(InteractionContext interactionContext)
         {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
             if (interactionContext.Member.VoiceState == null)
             {
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"You have to be connected!"));
@@ -97,6 +61,42 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             else
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is playing already!"));
         }
+        [SlashCommand("Stop", "Stop the music!")]
+        public async Task StopAsync(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            CancellationTokenSource tokenSource = null;
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
+            {
+                tokenSource = keyValuePairItem.Value;
+                tokenList.Remove(keyValuePairItem);
+                break;
+            }
+
+            if (tokenSource != null)
+            {
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Stop the music!"));
+                tokenSource.Cancel();
+                tokenSource.Dispose();
+            }
+            else
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to stop!"));
+        }
+
+        [SlashCommand("Skip", "Skip this song!")]
+        public async Task Skip(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await PlayMusic.NextSongAsync(interactionContext);
+        }
+
+        [SlashCommand("Next", "Skip this song!")]
+        public async Task Next(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await PlayMusic.NextSongAsync(interactionContext);
+        }
+
         public static async Task NextSongAsync(InteractionContext interactionContext)
         {
             if (interactionContext.Member.VoiceState == null)
@@ -143,6 +143,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 tokenList.Remove(keyPairItem);
             }
         }
+
         static async Task PlayMusicTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, CancellationToken cancellationToken, bool isNextSongRequest)
         {
             try
@@ -352,7 +353,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             await Task.Delay(1000);
                         }
 
-                        //algorythmus to create the timeline
+                        //algorithms to create the timeline
                         #region MoteTimeLineAlgo
                         string durationString = $"{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}";
 
@@ -387,6 +388,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     client.Logger.LogError(exc.Message);
             }
         }
+
         internal static Task NextSongPerButton(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
         {
 
@@ -461,25 +463,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
             return Task.CompletedTask;
         }
-        public static async Task StopMusicAsync(InteractionContext interactionContext)
-        {
-            CancellationTokenSource tokenSource = null;
-            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
-            {
-                tokenSource = keyValuePairItem.Value;
-                tokenList.Remove(keyValuePairItem);
-                break;
-            }
 
-            if (tokenSource != null)
-            {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Stop the music!"));
-                tokenSource.Cancel();
-                tokenSource.Dispose();
-            }
-            else
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to stop!"));
-        }
         internal static async Task ResumePlaying(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
         {
             try
@@ -514,6 +498,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 // ignored
             }
         }
+
         internal static async Task GotKicked(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
         {
             try
