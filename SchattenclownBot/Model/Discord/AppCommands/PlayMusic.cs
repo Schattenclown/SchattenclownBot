@@ -19,8 +19,47 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
-    internal class PlayMusic
+    internal class PlayMusic : ApplicationCommandsModule
     {
+        /// <summary>
+        ///     Creates an Invite link.
+        /// </summary>
+        /// <param name="interactionContext">The interactionContext.</param>
+        /// <returns></returns>
+        [SlashCommand("Invite", "Invite $chattenclown")]
+        public static async Task InviteAsync(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            Uri botInvite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
+
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
+        }
+        [SlashCommand("Play", "Just plays some music!")]
+        public async Task Play(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await PlayMusic.PlayMusicAsync(interactionContext);
+        }
+        [SlashCommand("Stop", "Stop the music!")]
+        public async Task Stop(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await PlayMusic.StopMusicAsync(interactionContext);
+        }
+
+        [SlashCommand("Skip", "Skip this song!")]
+        public async Task Skip(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await PlayMusic.NextSongAsync(interactionContext);
+        }
+        [SlashCommand("Next", "Skip this song!")]
+        public async Task Next(InteractionContext interactionContext)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await PlayMusic.NextSongAsync(interactionContext);
+        }
         private static List<KeyValuePair<DiscordGuild, CancellationTokenSource>> tokenList = new();
         public static async Task PlayMusicAsync(InteractionContext interactionContext)
         {
@@ -76,7 +115,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (tokenSource != null)
             {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skiping!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skipping!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
             }
@@ -235,11 +274,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         else
                             discordMessage = await interactionChannel.SendMessageAsync(discordEmbedBuilder.Build());
 
-                        DiscordComponentEmoji discordComponentEmojiNext = new("⏭️");
-                        DiscordComponentEmoji discordComponentEmojiStop = new("⏹️");
+                        DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
+                        DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
                         DiscordButtonComponent[] discordSelectComponentOptionList = new DiscordButtonComponent[2];
-                        discordSelectComponentOptionList[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojiNext);
-                        discordSelectComponentOptionList[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojiStop);
+                        discordSelectComponentOptionList[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojisNext);
+                        discordSelectComponentOptionList[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojisStop);
 
 
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordSelectComponentOptionList));

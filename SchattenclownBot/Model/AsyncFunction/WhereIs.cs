@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
-    internal class WhereIsClown
+    internal class WhereIs
     {
         public static async Task WhereIsClownRunAsync(int executeSecond)
         {
@@ -44,7 +44,6 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         bool voiceStateAny = false;
                         List<DiscordThreadChannel> discordThreads;
-                        DiscordInvite discordInvite = default(DiscordInvite);
                         bool getMessagesOncePerGuild = false;
                         List<DiscordMessage> discordMessagesList = new();
                         List<DiscordMember> discordMemberConnectedList = new();
@@ -58,6 +57,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                             List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
+                            DiscordInvite discordChannelInvite = default(DiscordInvite);
                             foreach (DiscordMember discordMemberItem in discordMemberConnectedListSorted)
                             {
                                 try
@@ -146,32 +146,37 @@ namespace SchattenclownBot.Model.AsyncFunction
                                             break;
                                         }
 
+                                    DiscordComponentEmoji discordComponentEmojisJoinChannel = new("📞");
+                                    DiscordComponentEmoji discordComponentEmojisJoinServer = new("🛡");
+                                    DiscordComponent[] discordComponents = new DiscordComponent[2];
+
+                                    DiscordChannel defaultDiscordChannel = discordVoiceState.Guild.GetDefaultChannel();
+                                    IReadOnlyList<DiscordInvite> discordServerInvites = await defaultDiscordChannel.GetInvitesAsync();
+                                    DiscordInvite discordServerInvite = null;
+                                    discordServerInvite = discordServerInvites.FirstOrDefault(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id && x.Channel.Id == defaultDiscordChannel.Id);
+                                    discordServerInvite ??= await defaultDiscordChannel.CreateInviteAsync();
+
+                                    discordComponents[1] = new DiscordLinkButtonComponent(discordServerInvite.Url, "Join server!", false, discordComponentEmojisJoinServer);
+
                                     if (discordMessage == null)
                                     {
-                                        discordInvite = await discordVoiceState.Channel.CreateInviteAsync();
-                                        discordEmbedBuilder.WithDescription(description + $"\n[⤵️ Join Channel!]({discordInvite})");
-                                        discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(content, discordEmbedBuilder.Build()));
+                                        discordChannelInvite = await discordVoiceState.Channel.CreateInviteAsync();
+                                        discordEmbedBuilder.WithDescription(description);
+                                        discordComponents[0] = new DiscordLinkButtonComponent(discordChannelInvite.Url, "Join channel!", false, discordComponentEmojisJoinChannel);
+
+                                        discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(content).AddEmbed(discordEmbedBuilder.Build())));
 
                                     }
                                     else
                                     {
-                                        if (discordInvite == null)
-                                        {
-                                            IReadOnlyList<DiscordInvite> discordInvites = await discordVoiceState.Channel.GetInvitesAsync();
+                                        IReadOnlyList<DiscordInvite> discordChannelInvites = await discordVoiceState.Channel.GetInvitesAsync();
+                                        discordChannelInvite = discordChannelInvites.FirstOrDefault(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id && x.Channel.Id == discordVoiceState.Channel.Id);
 
-                                            foreach (DiscordInvite invite in discordInvites.Where(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id))
-                                            {
-                                                discordInvite = invite;
-                                                break;
-                                            }
+                                        discordChannelInvite ??= await discordVoiceState.Channel.CreateInviteAsync();
 
-                                            discordInvite ??= await discordVoiceState.Channel.CreateInviteAsync();
-                                        }
-
-                                        discordEmbedBuilder.WithDescription(description + $"\n[⤵️ Join Channel!]({discordInvite})");
-                                        DiscordEmbed discordEmbed = discordMessage.Embeds.FirstOrDefault();
-
-                                        await discordMessage.ModifyAsync(content, discordEmbedBuilder.Build());
+                                        discordEmbedBuilder.WithDescription(description);
+                                        discordComponents[0] = new DiscordLinkButtonComponent(discordChannelInvite.Url, "Join channel!", false, discordComponentEmojisJoinChannel);
+                                        await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(content).WithEmbed(discordEmbedBuilder.Build()));
                                     }
 
                                     lastDiscordMember = discordMemberItem;
@@ -185,7 +190,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 }
                             }
 
-                            discordInvite = null;
+                            discordChannelInvite = null;
                             getMessagesOncePerGuild = false;
                             discordMessagesList?.Clear();
                             discordMemberConnectedList.Clear();

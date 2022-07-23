@@ -144,14 +144,16 @@ namespace SchattenclownBot.Model.Discord.Main
             DiscordClient.VoiceStateUpdated += PlayMusic.ResumePlaying;
             DiscordClient.VoiceStateUpdated += PlayMusic.GotKicked;
             DiscordClient.ComponentInteractionCreated += PlayMusic.NextSongPerButton;
-            _ = BotTimer.BotTimerRunAsync();
-            _ = BotAlarmClock.BotAlarmClockRunAsync();
-            _ = GetItRightMee6.CheckHighQualityAvailable(9);
-            _ = WhereIsClown.WhereIsClownRunAsync(19);
-            _ = UserLevelSystem.LevelSystemRunAsync(29);
-            _ = UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
-            _ = SympathySystem.SympathySystemRunAsync(59);
-            _ = BirthdayList.GenerateBirthdayList();
+#pragma warning disable CS4014
+            BotTimer.BotTimerRunAsync();
+            BotAlarmClock.BotAlarmClockRunAsync();
+            GetItRightMee6.CheckHighQualityAvailable(9);
+            WhereIs.WhereIsClownRunAsync(19);
+            UserLevelSystem.LevelSystemRunAsync(29);
+            UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
+            SympathySystem.SympathySystemRunAsync(59);
+            BirthdayList.GenerateBirthdayList();
+#pragma warning restore CS4014
 
             while (!ShutdownRequest.IsCancellationRequested)
             {
@@ -208,9 +210,26 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             commandsNextExtension.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
 
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
+            /*applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Alarm>(DevGuild); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Move>(DevGuild); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.PlayMusic>(DevGuild); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Poke>(DevGuild); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Timer>(DevGuild); // use to register global (can take up to an hour)
+            //applicationCommandsExtension.RegisterGuildCommands<AppCommands.TriggerHelp>(DevGuild); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.UserLevel>(DevGuild); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.VoteSystem>(DevGuild); // use to register global (can take up to an hour)*/
 
+            applicationCommandsExtension.RegisterGlobalCommands<Alarm>(); // use to register global (can take up to an hour)
             applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGlobalCommands<Move>(); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGlobalCommands<PlayMusic>(); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGlobalCommands<Poke>(); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Timer>(); // use to register global (can take up to an hour)
+            //applicationCommandsExtension.RegisterGlobalCommands<AppCommands.TriggerHelp>(); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGlobalCommands<UserLevel>(); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>(); // use to register global (can take up to an hour)
 
         }
 
