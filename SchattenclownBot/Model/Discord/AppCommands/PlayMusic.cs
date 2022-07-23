@@ -357,6 +357,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             break;
                         }
 
+                        foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == interactionContext.Guild))
+                        {
+                            TokenList.Remove(keyValuePairItem);
+                            break;
+                        }
+
                         await voiceTransmitSink.FlushAsync();
                         await voiceNextConnection.WaitForPlaybackFinishAsync();
                     }
