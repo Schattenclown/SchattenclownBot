@@ -226,8 +226,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         Stream streamForBitmap = null;
                         if (musicBrainz != null)
                         {
-                            discordEmbedBuilder.WithThumbnail(musicBrainz.Images.FirstOrDefault().Image);
-                            streamForBitmap = await httpClient.GetStreamAsync(musicBrainz.Images.FirstOrDefault().Image);
+                            discordEmbedBuilder.WithThumbnail(musicBrainz.Images.FirstOrDefault().ImageString);
+                            streamForBitmap = await httpClient.GetStreamAsync(musicBrainz.Images.FirstOrDefault().ImageString);
                             discordEmbedBuilder.WithUrl(musicBrainz.Release);
                         }
                         else if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId != null)

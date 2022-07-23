@@ -111,12 +111,7 @@ namespace SchattenclownBot.Model.Discord.Main
                 ButtonBehavior = ButtonPaginationBehavior.Disable
             });
 
-            NextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration
-            {
-                AudioFormat = default,
-                EnableIncoming = false,
-                PacketQueueSize = 0
-            });
+            NextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration());
 
             RegisterEventListener(DiscordClient, AppCommands, _commandsNextExtension);
             RegisterCommands(_commandsNextExtension, AppCommands);
