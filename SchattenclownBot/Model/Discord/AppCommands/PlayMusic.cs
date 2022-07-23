@@ -116,7 +116,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     int randomInt = random.Next(0, allFiles.Length - 1);
                     string selectedFileToPlay = allFiles[randomInt];
 
-                    //Metadata
                     #region MetaTags
                     TagLib.File tagLibSelectedFileToPlay = TagLib.File.Create(@$"{selectedFileToPlay}");
                     MusicBrainz.Root musicBrainz = null;
@@ -139,7 +138,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                     try
                     {
-                        //DiscordFormat
                         #region discordEmbedBuilder
                         DiscordEmbedBuilder discordEmbedBuilder = new()
                         {
@@ -199,12 +197,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         }
                         #endregion
 
-                        DiscordMessage discordMessage;
-
-                        if (interactionContext != null)
-                            discordMessage = await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
-                        else
-                            discordMessage = await interactionChannel.SendMessageAsync(discordEmbedBuilder.Build());
+                        DiscordMessage discordMessage = interactionContext != null ? await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build()) : await interactionChannel.SendMessageAsync(discordEmbedBuilder.Build());
 
                         DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
                         DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
@@ -212,32 +205,29 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojisNext);
                         discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojisStop);
 
-
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents));
 
-
-                        ProcessStartInfo psi = new()
+                        ProcessStartInfo processStartInfo = new()
                         {
                             FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\ffmpeg\\ffmpeg.exe",
                             Arguments = $@"-i ""{selectedFileToPlay}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
                             RedirectStandardOutput = true,
                             UseShellExecute = false
                         };
-                        Process ffmpeg = Process.Start(psi);
-                        Stream ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
+                        Process ffmpegProcess = Process.Start(processStartInfo);
+                        Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
 
                         VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
                         voiceTransmitSink.VolumeModifier = 0.2;
 
-                        Task ffmpegTask = ffmpegOutput.CopyToAsync(voiceTransmitSink);
+                        Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
 
                         int counter = 0;
                         TimeSpan timeSpan = new(0, 0, 0, 0);
                         string playerAdvance = "";
-                        while (!ffmpegTask.IsCompleted)
+                        while (!ffmpegCopyTask.IsCompleted)
                         {
                             #region TimeLineAlgo
-                            //algorithms to create the timeline
                             if (counter % 10 == 0)
                             {
                                 timeSpan = TimeSpan.FromSeconds(counter);
@@ -275,7 +265,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                             if (cancellationToken.IsCancellationRequested)
                             {
-                                ffmpegOutput.Close();
+                                ffmpegStream.Close();
                                 break;
                             }
 
@@ -357,10 +347,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 {
                     CancellationTokenSource tokenSource = new();
                     CancellationToken cancellationToken = tokenSource.Token;
-                    KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
-                    TokenList.Add(keyPairItem);
-                    KeyValuePair<DiscordGuild, string> queueListItem = new(interactionContext.Guild, videoUrls[0].Url);
-                    QueueList.Add(queueListItem);
+                    KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext.Guild, tokenSource);
+                    TokenList.Add(tokenKeyPair);
+                    KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url);
+                    QueueList.Add(queueKeyPair);
 
                     try
                     {
@@ -369,21 +359,21 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        TokenList.Remove(keyPairItem);
+                        TokenList.Remove(tokenKeyPair);
                     }
                 }
                 else
                 {
-                    KeyValuePair<DiscordGuild, string> queueListItem = new(interactionContext.Guild, videoUrls[0].Url);
-                    QueueList.Add(queueListItem);
+                    KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url);
+                    QueueList.Add(queueKeyPair);
 
                     await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
                 }
 
                 for (int i = 1; i < videoUrls.Length; i++)
                 {
-                    KeyValuePair<DiscordGuild, string> queueListItem = new(interactionContext.Guild, videoUrls[i].Url);
-                    QueueList.Add(queueListItem);
+                    KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[i].Url);
+                    QueueList.Add(queueKeyPair);
                 }
             }
         }
@@ -410,10 +400,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                 CancellationTokenSource tokenSource = new();
                 CancellationToken cancellationToken = tokenSource.Token;
-                KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
-                TokenList.Add(keyPairItem);
-                KeyValuePair<DiscordGuild, string> queueListItem = new(interactionContext.Guild, youtubeUriString);
-                QueueList.Add(queueListItem);
+                KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext.Guild, tokenSource);
+                TokenList.Add(tokenKeyPair);
+                KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, youtubeUriString);
+                QueueList.Add(queueKeyPair);
 
                 try
                 {
@@ -422,13 +412,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    TokenList.Remove(keyPairItem);
+                    TokenList.Remove(tokenKeyPair);
                 }
             }
             else
             {
-                KeyValuePair<DiscordGuild, string> queueListItem = new(interactionContext.Guild, youtubeUriString);
-                QueueList.Add(queueListItem);
+                KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, youtubeUriString);
+                QueueList.Add(queueKeyPair);
 
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your song is in the queue!"));
             }
@@ -438,11 +428,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         {
             try
             {
-                foreach (KeyValuePair<DiscordGuild, string> queueListItem in QueueList)
+                foreach (KeyValuePair<DiscordGuild, string> queueKeyPairItem in QueueList)
                 {
-                    if (queueListItem.Key == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueListItem.Value == youtubeUriString)
+                    if (queueKeyPairItem.Key == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueKeyPairItem.Value == youtubeUriString)
                     {
-                        QueueList.Remove(queueListItem);
+                        QueueList.Remove(queueKeyPairItem);
                         break;
                     }
                 }
@@ -501,28 +491,28 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUriString));
 
-                    ProcessStartInfo psi = new()
+                    ProcessStartInfo processStartInfo = new()
                     {
                         FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\ffmpeg\\ffmpeg.exe",
                         Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
                         RedirectStandardOutput = true,
                         UseShellExecute = false
                     };
-                    Process ffmpeg = Process.Start(psi);
-                    if (ffmpeg != null)
+                    Process ffmpegProcess = Process.Start(processStartInfo);
+                    if (ffmpegProcess != null)
                     {
-                        Stream ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
+                        Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
 
                         VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
                         voiceTransmitSink.VolumeModifier = 0.2;
 
-                        Task ffmpegTask = ffmpegOutput.CopyToAsync(voiceTransmitSink);
+                        Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
 
-                        while (!ffmpegTask.IsCompleted)
+                        while (!ffmpegCopyTask.IsCompleted)
                         {
                             if (cancellationToken.IsCancellationRequested)
                             {
-                                ffmpegOutput.Close();
+                                ffmpegStream.Close();
                                 break;
                             }
 
@@ -531,9 +521,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         if (!cancellationToken.IsCancellationRequested)
                         {
-                            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == (interactionContext != null ? interactionContext.Guild : discordGuild)))
+                            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair in TokenList.Where(x => x.Key == (interactionContext != null ? interactionContext.Guild : discordGuild)))
                             {
-                                TokenList.Remove(keyValuePairItem);
+                                TokenList.Remove(tokenKeyPair);
                                 break;
                             }
                         }
@@ -541,9 +531,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         await discordMessage.ModifyAsync(x => x.WithContent(youtubeUriString));
 
                         await voiceTransmitSink.FlushAsync();
+                        await voiceNextConnection.WaitForPlaybackFinishAsync();
                     }
-
-                    await voiceNextConnection.WaitForPlaybackFinishAsync();
                 }
                 catch
                 {
@@ -560,18 +549,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                foreach (KeyValuePair<DiscordGuild, string> queueItem in QueueList)
+                foreach (KeyValuePair<DiscordGuild, string> queueKeyPairItem in QueueList)
                 {
-                    if (queueItem.Key == (interactionContext != null ? interactionContext.Guild : discordGuild))
+                    if (queueKeyPairItem.Key == (interactionContext != null ? interactionContext.Guild : discordGuild))
                     {
                         CancellationTokenSource tokenSource = new();
                         CancellationToken newCancellationToken = tokenSource.Token;
-                        KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext != null ? interactionContext.Guild : discordGuild, tokenSource);
-                        TokenList.Add(keyPairItem);
+                        KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext != null ? interactionContext.Guild : discordGuild, tokenSource);
+                        TokenList.Add(tokenKeyPair);
                         if (interactionContext != null)
-                            Task.Run(() => PlayYouTubeMusicTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result, interactionContext.Channel, queueItem.Value, newCancellationToken, false, false));
+                            Task.Run(() => PlayYouTubeMusicTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result, interactionContext.Channel, queueKeyPairItem.Value, newCancellationToken, false, false));
                         else
-                            Task.Run(() => PlayYouTubeMusicTask(interactionContext, client, discordGuild, discordMember, interactionChannel, queueItem.Value, newCancellationToken, false, false));
+                            Task.Run(() => PlayYouTubeMusicTask(interactionContext, client, discordGuild, discordMember, interactionChannel, queueKeyPairItem.Value, newCancellationToken, false, false));
                         break;
                     }
                 }
@@ -622,8 +611,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         tokenSource = new CancellationTokenSource();
                         CancellationToken cancellationToken = tokenSource.Token;
-                        KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(eventArgs.Guild, tokenSource);
-                        TokenList.Add(keyPairItem);
+                        KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(eventArgs.Guild, tokenSource);
+                        TokenList.Add(tokenKeyPair);
 
                         try
                         {
@@ -632,7 +621,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
-                            TokenList.Remove(keyPairItem);
+                            TokenList.Remove(tokenKeyPair);
                         }
 
                         break;
@@ -697,18 +686,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         CancellationTokenSource nextYtTokenSource = new();
                         CancellationToken nextYtCancellationToken = nextYtTokenSource.Token;
-                        KeyValuePair<DiscordGuild, CancellationTokenSource> nextYtKeyPairItem = new();
+                        KeyValuePair<DiscordGuild, CancellationTokenSource> nextKeyPairItem = new();
 
                         try
                         {
-                            foreach (KeyValuePair<DiscordGuild, string> keyValuePair in QueueList)
+                            foreach (KeyValuePair<DiscordGuild, string> queueKeyPairItem in QueueList)
                             {
-                                if (keyValuePair.Key == eventArgs.Guild)
+                                if (queueKeyPairItem.Key == eventArgs.Guild)
                                 {
-                                    nextYtKeyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(eventArgs.Guild, nextYtTokenSource);
-                                    TokenList.Add(nextYtKeyPairItem);
+                                    nextKeyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(eventArgs.Guild, nextYtTokenSource);
+                                    TokenList.Add(nextKeyPairItem);
 
-                                    Task.Run(() => PlayYouTubeMusicTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, keyValuePair.Value, nextYtCancellationToken, true, false), nextYtCancellationToken);
+                                    Task.Run(() => PlayYouTubeMusicTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, queueKeyPairItem.Value, nextYtCancellationToken, true, false), nextYtCancellationToken);
 
                                     break;
                                 }
@@ -717,8 +706,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
-                            if (nextYtKeyPairItem.Value != null)
-                                TokenList.Remove(nextYtKeyPairItem);
+                            if (nextKeyPairItem.Value != null)
+                                TokenList.Remove(nextKeyPairItem);
                         }
 
                         break;
@@ -912,8 +901,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             tokenSource = new CancellationTokenSource();
             CancellationToken cancellationToken = tokenSource.Token;
-            KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
-            TokenList.Add(keyPairItem);
+            KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext.Guild, tokenSource);
+            TokenList.Add(tokenKeyPair);
 
             try
             {
@@ -922,7 +911,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                TokenList.Remove(keyPairItem);
+                TokenList.Remove(tokenKeyPair);
             }
         }
     }
