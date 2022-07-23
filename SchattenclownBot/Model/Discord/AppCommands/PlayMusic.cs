@@ -554,9 +554,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                foreach (KeyValuePair<DiscordGuild, string> keyValuePair in queueList)
+                foreach (KeyValuePair<DiscordGuild, string> queueItem in queueList)
                 {
-                    if (keyValuePair.Key == (interactionContext != null ? interactionContext.Guild : discordGuild))
+                    if (queueItem.Key == (interactionContext != null ? interactionContext.Guild : discordGuild))
                     {
                         CancellationTokenSource tokenSource = new();
                         CancellationToken newCancellationToken = tokenSource.Token;
@@ -564,8 +564,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         TokenList.Add(keyPairItem);
 
 #pragma warning disable CS4014
-                        Task.Run(() => PlayYouTubeMusicTask(interactionContext, null, null, null, null, keyValuePair.Value, newCancellationToken, true));
+                        Task.Run(() => PlayYouTubeMusicTask(interactionContext, null, null, null, null, queueItem.Value, newCancellationToken, true));
 #pragma warning restore CS4014
+                        break;
                     }
                 }
             }
@@ -767,12 +768,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             TokenList.Remove(keyValuePairItem);
                             break;
                         }
-
+                        
                         if (tokenSource != null)
                         {
                             await discordMember.VoiceState.Channel.SendMessageAsync("Stopped the music!");
                             tokenSource.Cancel();
                             tokenSource.Dispose();
+                            queueList.Clear();
                             VoiceNextExtension voiceNext = client.GetVoiceNext();
                             VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
                             voiceNextConnection.Disconnect();
@@ -803,10 +805,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             break;
                         }
 
+
                         if (tokenSource != null)
                         {
                             tokenSource.Cancel();
                             tokenSource.Dispose();
+                            queueList.Clear();
                         }
                     }
                 }
