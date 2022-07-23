@@ -25,7 +25,7 @@
         /// <returns>A string.</returns>
         public static string RemoveAfterWord(string inputString, string word, int keepWordInt)
         {
-            var index = inputString.LastIndexOf(word);
+            int index = inputString.LastIndexOf(word);
             if (index > 0)
                 inputString = inputString.Substring(0, index + keepWordInt);
 

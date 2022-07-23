@@ -1,9 +1,7 @@
-﻿using System;
-
-using MySql.Data.MySqlClient;
-
+﻿using MySql.Data.MySqlClient;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
+using System;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
@@ -13,7 +11,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
         private static int virgin = 0;
         public static void SetDB()
         {
-            var connections = Connections.GetConnections();
+            Connections connections = Connections.GetConnections();
             token = connections.MySqlConStr;
 #if DEBUG
             token = connections.MySqlConStrDebug;
@@ -25,7 +23,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 SetDB();
             virgin = 69;
 
-            var connection = new MySqlConnection(token);
+            MySqlConnection connection = new(token);
             do
             {
                 try
@@ -49,9 +47,9 @@ namespace SchattenclownBot.Model.Persistence.Connection
         }
         public static void ExecuteNonQuery(string sql)
         {
-            var connection = OpenDB();
-            var sqlCommand = new MySqlCommand(sql, connection);
-            var ret = sqlCommand.ExecuteNonQuery();
+            MySqlConnection connection = OpenDB();
+            MySqlCommand sqlCommand = new(sql, connection);
+            int ret = sqlCommand.ExecuteNonQuery();
             if (ret != -1)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
@@ -62,13 +60,13 @@ namespace SchattenclownBot.Model.Persistence.Connection
         }
         public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
         {
-            var sqlCommand = new MySqlCommand(sql, connection);
+            MySqlCommand sqlCommand = new(sql, connection);
             try
             {
-                var sqlDataReader = sqlCommand.ExecuteReader();
+                MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
                 return sqlDataReader;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 ConsoleStringFormatter.Center("DB IS DEAD");
@@ -78,10 +76,10 @@ namespace SchattenclownBot.Model.Persistence.Connection
         }
         public static int ExecuteScalarCount(string sql, MySqlConnection connection)
         {
-            var sqlCommand = new MySqlCommand(sql, connection);
+            MySqlCommand sqlCommand = new(sql, connection);
             try
             {
-                var count = Convert.ToInt32(sqlCommand.ExecuteScalar());
+                int count = Convert.ToInt32(sqlCommand.ExecuteScalar());
                 return count;
             }
             catch (Exception ex)

@@ -1,25 +1,17 @@
 ﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity.Extensions;
-using DisCatSharp.ApplicationCommands.Attributes;
-
+using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
-using SchattenclownBot.Model.HelpClasses;
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using DisCatSharp.VoiceNext;
-using System.IO;
-using SchattenclownBot.Model.AsyncFunction;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -28,165 +20,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands;
 /// </summary>
 internal class Main : ApplicationCommandsModule
 {
-    /// <summary>
-    ///     Set an Alarm clock per command.
-    /// </summary>
-    /// <param name="interactionContext">The interaction context.</param>
-    /// <param name="hour">The Hour of the Alarm in the Future.</param>
-    /// <param name="minute">The Minute of the Alarm in the Future.</param>
-    /// <returns></returns>
-    [SlashCommand("SetAlarm", "Set an alarm for a specific time!")]
-    public static async Task AlarmClock(InteractionContext interactionContext, [Option("hourofday", "0-23")] double hour, [Option("minuteofday", "0-59")] double minute)
-    {
-        //Create a Response.
-        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
-
-        //Check if the given Time format is Valid.
-        if (!TimeFormat(hour, minute))
-        {
-            //Tell the User that the Time format is not valid and return.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Wrong format for hour or minute!"));
-            return;
-        }
-
-        //Create a DateTime Variable if the Time format was Valid.
-        var dateTimeNow = DateTime.Now;
-        DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
-
-        //Check if the Alarm is a Time for Tomorrow, if it is in the Past already Today.
-        if (alarm < DateTime.Now)
-            alarm = alarm.AddDays(1);
-
-        //Create an AlarmObject and add it to the Database.
-        BotAlarmClock botAlarmClock = new()
-        {
-            ChannelId = interactionContext.Channel.Id,
-            MemberId = interactionContext.Member.Id,
-            NotificationTime = alarm
-        };
-        BotAlarmClock.Add(botAlarmClock);
-
-        //Let the User know that the Alarm was set Successfully.
-        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {botAlarmClock.NotificationTime}!"));
-    }
-
-    /// <summary>
-    ///     To look up what Alarm´s have been set.
-    /// </summary>
-    /// <param name="interactionContext"></param>
-    /// <returns></returns>
-    [SlashCommand("MyAlarms", "Look up your alarms!")]
-    public static async Task AlarmClockLookup(InteractionContext interactionContext)
-    {
-        //Create an Response.
-        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-        //Create a List where all Alarms will be Listed if there are any set.
-        var botAlarmClockList = DB_BotAlarmClocks.ReadAll();
-
-        //Create an Embed.
-        DiscordEmbedBuilder discordEmbedBuilder = new()
-        {
-            Title = "Your alarms",
-            Color = DiscordColor.Purple,
-            Description = $"<@{interactionContext.Member.Id}>"
-        };
-
-        //Switch to check if there are any Timers at all.
-        var noTimers = true;
-
-        //Search for any Alarms that match the Alarm creator and Requesting User.
-        foreach (var botAlarmClockItem in botAlarmClockList.Where(botAlarmClockItem => botAlarmClockItem.MemberId == interactionContext.Member.Id))
-        {
-            //Set the switch to false because at least one Alarm was found.
-            noTimers = false;
-            //Add an field to the Embed with the Alarm that was found.
-            discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"Alarm with ID {botAlarmClockItem.DBEntryID}"));
-        }
-
-        //Set the Title so the User knows no Alarms for him where found.
-        if (noTimers)
-            discordEmbedBuilder.Title = "No alarms set!";
-
-        //Edit the Response and add the Embed.
-        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-    }
-
-    /// <summary>
-    ///     Set an Timer per Command.
-    /// </summary>
-    /// <param name="interactionContext">The interactionContext</param>
-    /// <param name="hour">The Hour of the Alarm in the Future.</param>
-    /// <param name="minute">The Minute of the Alarm in the Future.</param>
-    /// <returns></returns>
-    [SlashCommand("SetTimer", "Set a timer!")]
-    public static async Task Timer(InteractionContext interactionContext, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
-    {
-        //Create a Response.
-        await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
-
-        //Check if the Give Time format is Valid.
-        //Create an TimerObject and add it to the Database.
-        if (!TimeFormat(hour, minute))
-        {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Wrong format for hour or minute!"));
-            return;
-        }
-
-        var dateTimeNow = DateTime.Now;
-        BotTimer botTimer = new()
-        {
-            ChannelId = interactionContext.Channel.Id,
-            MemberId = interactionContext.Member.Id,
-            NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
-        };
-        BotTimer.Add(botTimer);
-
-        //Edit the Response and add the Embed.
-        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {botTimer.NotificationTime}!"));
-    }
-
-    /// <summary>
-    ///     To look up what Timers have been set.
-    /// </summary>
-    /// <param name="interactionContext"></param>
-    /// <returns></returns>
-    [SlashCommand("MyTimers", "Look up your timers!")]
-    public static async Task TimerLookup(InteractionContext interactionContext)
-    {
-        //Create a Response.
-        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-        //Create an List with all Timers that where found in the Database.
-        var botTimerList = DB_BotTimer.ReadAll();
-
-        //Create an Embed.
-        DiscordEmbedBuilder discordEmbedBuilder = new()
-        {
-            Title = "Your timers",
-            Color = DiscordColor.Purple,
-            Description = $"<@{interactionContext.Member.Id}>"
-        };
-
-        //Switch to check if any Timers where set at all.
-        var noTimers = true;
-
-        //Search for any Timers that match the Timer creator and Requesting User.
-        foreach (var botTimerItem in botTimerList.Where(botTimerItem => botTimerItem.MemberId == interactionContext.Member.Id))
-        {
-            //Set the switch to false because at least one Timer was found.
-            noTimers = false;
-            //Add an field to the Embed with the Timer that was found.
-            discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.DBEntryID}"));
-        }
-
-        //Set the Title so the User knows no Timers for him where found.
-        if (noTimers)
-            discordEmbedBuilder.Title = "No timers set!";
-
-        //Edit the Response and add the Embed.
-        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
-    }
+    
 
     /// <summary>
     ///     Shows the leaderboard.
@@ -375,31 +209,7 @@ internal class Main : ApplicationCommandsModule
         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
     }
 
-    /// <summary>
-    ///     Checks if the given hour and minute are usable to make a datetime object out of them.
-    ///     Returns true if the given arguments are usable.
-    ///     Returns false if the hour or the minute are not usable.
-    /// </summary>
-    /// <param name="hour">The hour.</param>
-    /// <param name="minute">The minute.</param>
-    /// <returns>A bool.</returns>
-    public static bool TimeFormat(double hour, double minute)
-    {
-        var hourformatisright = false;
-        var minuteformatisright = false;
 
-        for (var i = 0; i < 24; i++)
-            if (hour == i)
-                hourformatisright = true;
-        if (!hourformatisright)
-            return false;
-
-        for (var i = 0; i < 60; i++)
-            if (minute == i)
-                minuteformatisright = true;
-
-        return minuteformatisright;
-    }
 
     [SlashCommand("daddys_poke", "Harder daddy!")]
     public static async Task DaddysPoke(InteractionContext ctx, [Option("user", "@...")] DiscordUser user)

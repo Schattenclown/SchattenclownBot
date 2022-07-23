@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using DisCatSharp.ApplicationCommands;
+﻿using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.ChoiceProvider
 {
@@ -17,9 +16,9 @@ namespace SchattenclownBot.Model.Discord.ChoiceProvider
         /// <returns>choices</returns>
         public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
         {
-            var choices = new DiscordApplicationCommandOptionChoice[5];
+            DiscordApplicationCommandOptionChoice[] choices = new DiscordApplicationCommandOptionChoice[5];
 
-            for (var i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 choices[i] = new DiscordApplicationCommandOptionChoice($"{i + 1}", $"{i + 1}");
             }

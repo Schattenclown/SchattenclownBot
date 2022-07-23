@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using MySql.Data.MySqlClient.Memcached;
 using Org.BouncyCastle.Asn1.IsisMtt.X509;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Persistence;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -43,32 +43,32 @@ namespace SchattenclownBot.Model.Objects
         }
         public static int CalculateLevel(int onlineTicks)
         {
-            var returnInt = 0.69 * Math.Pow(onlineTicks, 0.38);
-            var returnIntRounded = Math.Round(returnInt, MidpointRounding.ToNegativeInfinity);
+            double returnInt = 0.69 * Math.Pow(onlineTicks, 0.38);
+            double returnIntRounded = Math.Round(returnInt, MidpointRounding.ToNegativeInfinity);
             return Convert.ToInt32(returnIntRounded);
         }
         public static int CalculateXpOverCurrentLevel(int onlineTicks)
         {
-            var level = CalculateLevel(onlineTicks);
+            int level = CalculateLevel(onlineTicks);
 
-            var xpToReachThisLevel = Math.Pow(level / 0.69, 1 / 0.38);
-            var calculatedXpOverCurrentLevel = onlineTicks - Convert.ToInt32(xpToReachThisLevel);
+            double xpToReachThisLevel = Math.Pow(level / 0.69, 1 / 0.38);
+            int calculatedXpOverCurrentLevel = onlineTicks - Convert.ToInt32(xpToReachThisLevel);
 
             return calculatedXpOverCurrentLevel;
         }
         public static int CalculateXpSpanToReachNextLevel(int onlineTicks)
         {
-            var level = CalculateLevel(onlineTicks);
+            int level = CalculateLevel(onlineTicks);
 
-            var xpToReachThisLevel = Math.Pow(level / 0.69, 1 / 0.38);
-            var xpToReachNextLevel = Math.Pow((level + 1) / 0.69, 1 / 0.38);
-            var xpSpanToReachNextLevel = Convert.ToInt32(xpToReachNextLevel) - Convert.ToInt32(xpToReachThisLevel);
+            double xpToReachThisLevel = Math.Pow(level / 0.69, 1 / 0.38);
+            double xpToReachNextLevel = Math.Pow((level + 1) / 0.69, 1 / 0.38);
+            int xpSpanToReachNextLevel = Convert.ToInt32(xpToReachNextLevel) - Convert.ToInt32(xpToReachThisLevel);
 
             return xpSpanToReachNextLevel;
         }
         public static async Task LevelSystemRunAsync(int executeSecond)
         {
-            var levelSystemVirgin = true;
+            bool levelSystemVirgin = true;
 
             await Task.Run(async () =>
             {
@@ -83,8 +83,8 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (levelSystemVirgin)
                         {
-                            var guildsList = Bot.Client.Guilds.ToList();
-                            foreach (var guildItem in guildsList)
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                             {
                                 UserLevelSystem.CreateTable_UserLevelSystem(guildItem.Value.Id);
                             }
@@ -101,23 +101,23 @@ namespace SchattenclownBot.Model.Objects
                         await Task.Delay(1000);
                     }
 
-                    var guildsList = Bot.Client.Guilds.ToList();
-                    foreach (var guildItem in guildsList)
+                    List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                    foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        var userLevelSystemList = new List<UserLevelSystem>();
+                        List<UserLevelSystem> userLevelSystemList = new();
                         userLevelSystemList = UserLevelSystem.Read(guildItem.Value.Id);
 
-                        var guildMembers = guildItem.Value.Members;
-                        foreach (var memberItem in guildMembers)
+                        IReadOnlyDictionary<ulong, DiscordMember> guildMembers = guildItem.Value.Members;
+                        foreach (KeyValuePair<ulong, DiscordMember> memberItem in guildMembers)
                         {
                             if (memberItem.Value.VoiceState != null && !memberItem.Value.VoiceState.IsSelfDeafened && !memberItem.Value.VoiceState.IsSuppressed && !memberItem.Value.IsBot)
                             {
-                                var userLevelSystemObj = new UserLevelSystem();
+                                UserLevelSystem userLevelSystemObj = new();
                                 userLevelSystemObj.MemberId = memberItem.Value.Id;
                                 userLevelSystemObj.OnlineTicks = 0;
-                                var found = false;
+                                bool found = false;
 
-                                foreach (var userLevelSystemItem in userLevelSystemList)
+                                foreach (UserLevelSystem userLevelSystemItem in userLevelSystemList)
                                 {
                                     if (memberItem.Value.Id == userLevelSystemItem.MemberId)
                                     {
@@ -135,9 +135,9 @@ namespace SchattenclownBot.Model.Objects
 
                                 if (!found)
                                 {
-                                    var date1 = new DateTime(1969, 4, 20, 4, 20, 0);
-                                    var date2 = new DateTime(1969, 4, 20, 4, 21, 0);
-                                    var timeSpan = date2 - date1;
+                                    DateTime date1 = new(1969, 4, 20, 4, 20, 0);
+                                    DateTime date2 = new(1969, 4, 20, 4, 21, 0);
+                                    TimeSpan timeSpan = date2 - date1;
                                     userLevelSystemObj.OnlineTime = timeSpan;
                                     userLevelSystemObj.OnlineTicks = 1;
                                     UserLevelSystem.Add(guildItem.Value.Id, userLevelSystemObj);
@@ -156,9 +156,9 @@ namespace SchattenclownBot.Model.Objects
                 await Task.Delay(1000);
             }
 
-            var levelSystemRoleDistributionVirgin = true;
+            bool levelSystemRoleDistributionVirgin = true;
             DiscordGuild guildObj = null;
-            var sortLevelSystemRolesBool = false;
+            bool sortLevelSystemRolesBool = false;
             const int delayInMs = 200;
 
             await Task.Run(async () =>
@@ -174,8 +174,8 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (levelSystemRoleDistributionVirgin)
                         {
-                            var guildsList = Bot.Client.Guilds.ToList();
-                            foreach (var guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
                             {
                                 guildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
                             }
@@ -193,36 +193,36 @@ namespace SchattenclownBot.Model.Objects
                     }
 
                     //Create List where all users are listed.
-                    var userLevelSystemList = UserLevelSystem.Read(guildObj.Id);
+                    List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(guildObj.Id);
                     //Order the list by online ticks.
-                    var userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+                    List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
                     userLevelSystemListSorted.Reverse();
 
-                    var guildMemberList = guildObj.Members.Values.ToList();
+                    List<DiscordMember> guildMemberList = guildObj.Members.Values.ToList();
 
-                    var userLevelSystemListSortedOut = guildMemberList.SelectMany(guildMemberItem => userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == guildMemberItem.Id)).ToList();
+                    List<UserLevelSystem> userLevelSystemListSortedOut = guildMemberList.SelectMany(guildMemberItem => userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == guildMemberItem.Id)).ToList();
                     userLevelSystemListSortedOut = userLevelSystemListSortedOut.OrderBy(x => x.OnlineTicks).ToList();
-                    var discordRoleList = guildObj.Roles.Values.ToList();
+                    List<DiscordRole> discordRoleList = guildObj.Roles.Values.ToList();
 
-                    foreach (var userLevelSystemItem in userLevelSystemListSortedOut)
+                    foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSortedOut)
                     {
                         if (userLevelSystemItem.MemberId is not 304366130238193664 and not 523765246104567808)
                         {
                             //Get the discord user by ID.
-                            var discordMember = guildObj.GetMemberAsync(userLevelSystemItem.MemberId).Result;
+                            DiscordMember discordMember = guildObj.GetMemberAsync(userLevelSystemItem.MemberId).Result;
                             await Task.Delay(delayInMs);
 
                             DiscordRole discordRoleObj = null;
-                            var roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
+                            int roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
                             await Task.Delay(delayInMs);
 
-                            var totalLevel = CalculateLevel(userLevelSystemItem.OnlineTicks);
+                            int totalLevel = CalculateLevel(userLevelSystemItem.OnlineTicks);
 
-                            var voiceChannelLevelString = $"{RoleChannelLevelString} {totalLevel}";
-                            var roleExists = false;
+                            string voiceChannelLevelString = $"{RoleChannelLevelString} {totalLevel}";
+                            bool roleExists = false;
 
 
-                            foreach (var discordRoleItem in discordRoleList.Where(role => role.Name == voiceChannelLevelString))
+                            foreach (DiscordRole discordRoleItem in discordRoleList.Where(role => role.Name == voiceChannelLevelString))
                             {
                                 discordRoleObj = discordRoleItem;
                                 roleExists = true;
@@ -239,10 +239,10 @@ namespace SchattenclownBot.Model.Objects
                                 await Task.Delay(delayInMs);
                             }
 
-                            var discordMemberRoleList = discordMember.Roles.ToList();
+                            List<DiscordRole> discordMemberRoleList = discordMember.Roles.ToList();
                             await Task.Delay(delayInMs);
 
-                            foreach (var revokeRoleItem in discordMemberRoleList.Where(revokeRoleItem => revokeRoleItem.Name.Contains(RoleChannelLevelString) && revokeRoleItem.Name != voiceChannelLevelString))
+                            foreach (DiscordRole revokeRoleItem in discordMemberRoleList.Where(revokeRoleItem => revokeRoleItem.Name.Contains(RoleChannelLevelString) && revokeRoleItem.Name != voiceChannelLevelString))
                             {
                                 if (revokeRoleItem.Id != 981575801214492752)
                                 {
@@ -275,7 +275,7 @@ namespace SchattenclownBot.Model.Objects
         }
         public static async Task SortLevelSystemRolesRunAsync(int executeSecond)
         {
-            var levelSystemRoleDistributionVirgin = true;
+            bool levelSystemRoleDistributionVirgin = true;
             DiscordGuild guildObj = null;
 
             await Task.Run(async () =>
@@ -286,8 +286,8 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (levelSystemRoleDistributionVirgin)
                         {
-                            var guildsList = Bot.Client.Guilds.ToList();
-                            foreach (var guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
                             {
                                 guildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
                             }
@@ -304,33 +304,33 @@ namespace SchattenclownBot.Model.Objects
                         await Task.Delay(1000);
                     }
 
-                    var discordRoleList = guildObj.Roles.Values.ToList();
-                    var discordRoleListSortedOut = new List<KeyValuePair<int, DiscordRole>>();
+                    List<DiscordRole> discordRoleList = guildObj.Roles.Values.ToList();
+                    List<KeyValuePair<int, DiscordRole>> discordRoleListSortedOut = new();
 
-                    foreach (var discordRoleItem in discordRoleList.Where(discordRoleItem => discordRoleItem.Name.Contains(RoleChannelLevelString)))
+                    foreach (DiscordRole discordRoleItem in discordRoleList.Where(discordRoleItem => discordRoleItem.Name.Contains(RoleChannelLevelString)))
                     {
                         if (discordRoleItem.Id != 981575801214492752)
                         {
-                            var roleLevelString = discordRoleItem.Name.Substring(RoleChannelLevelString.Length + 1);
-                            var roleLevel = Convert.ToInt32(roleLevelString);
-                            var keyValuePair = new KeyValuePair<int, DiscordRole>(roleLevel, discordRoleItem);
+                            string roleLevelString = discordRoleItem.Name.Substring(RoleChannelLevelString.Length + 1);
+                            int roleLevel = Convert.ToInt32(roleLevelString);
+                            KeyValuePair<int, DiscordRole> keyValuePair = new(roleLevel, discordRoleItem);
                             discordRoleListSortedOut.Add(keyValuePair);
                         }
                     }
 
-                    var discordRoleListSortedOutOrdered = discordRoleListSortedOut.OrderBy(x => x.Key).ToList();
+                    List<KeyValuePair<int, DiscordRole>> discordRoleListSortedOutOrdered = discordRoleListSortedOut.OrderBy(x => x.Key).ToList();
                     discordRoleListSortedOutOrdered.Reverse();
 
-                    var discordRolesInt = guildObj.Roles.Count;
-                    var roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
-                    var index = 0;
+                    int discordRolesInt = guildObj.Roles.Count;
+                    int roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
+                    int index = 0;
 
-                    foreach (var discordRoleItem in discordRoleListSortedOutOrdered)
+                    foreach (KeyValuePair<int, DiscordRole> discordRoleItem in discordRoleListSortedOutOrdered)
                     {
                         if (discordRolesInt != guildObj.Roles.Count)
                             break;
 
-                        var newRoleIndex = roleIndex - index;
+                        int newRoleIndex = roleIndex - index;
                         if (discordRoleItem.Value.Position != newRoleIndex)
                             await discordRoleItem.Value.ModifyPositionAsync(newRoleIndex);
                         await Task.Delay(2000);

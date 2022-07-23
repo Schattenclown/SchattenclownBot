@@ -27,8 +27,8 @@ namespace SchattenclownBot.Model.HelpClasses
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
 
             // Get file path of current process 
-            var filePath = Assembly.GetExecutingAssembly().Location;
-            var newFilepath = "";
+            string filePath = Assembly.GetExecutingAssembly().Location;
+            string newFilepath = "";
             //BotDLL.dll
 
             if (filePath.Contains("Debug"))

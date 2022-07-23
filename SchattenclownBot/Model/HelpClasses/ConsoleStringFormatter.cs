@@ -15,7 +15,7 @@ namespace SchattenclownBot.Model.HelpClasses
                 Console.Write("██");
                 Console.SetCursorPosition((Console.WindowWidth - centerString.Length) / 2, Console.CursorTop);
                 Console.Write(centerString);
-                Console.SetCursorPosition((Console.WindowWidth - 4), Console.CursorTop);
+                Console.SetCursorPosition(Console.WindowWidth - 4, Console.CursorTop);
                 Console.WriteLine("██");
             }
             catch
@@ -23,7 +23,7 @@ namespace SchattenclownBot.Model.HelpClasses
                 centerString = "Console to small!";
                 Console.SetCursorPosition((Console.WindowWidth - centerString.Length) / 2, Console.CursorTop);
                 Console.Write(centerString);
-                Console.SetCursorPosition((Console.WindowWidth - 4), Console.CursorTop);
+                Console.SetCursorPosition(Console.WindowWidth - 4, Console.CursorTop);
                 Console.WriteLine("██");
             }
         }

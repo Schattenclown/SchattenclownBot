@@ -1,26 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.Extensions.Logging;
-
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.EventHandling;
 using DisCatSharp.Interactivity.Extensions;
-using DisCatSharp.EventArgs;
-using DisCatSharp.ApplicationCommands.EventArgs;
-using SchattenclownBot.Model.AsyncFunction;
-using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.HelpClasses;
 using DisCatSharp.VoiceNext;
+using Microsoft.Extensions.Logging;
+using SchattenclownBot.Model.AsyncFunction;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Objects;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.Main
 {
@@ -55,7 +53,7 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             if (_virgin == 0)
             {
-                var connections = Connections.GetConnections();
+                Connections connections = Connections.GetConnections();
                 _token = connections.DiscordBotKey;
 #if DEBUG
                 _token = connections.DiscordBotDebug;
@@ -70,7 +68,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #else
             const LogLevel logLevel = LogLevel.Debug;
 #endif
-            var cfg = new DiscordConfiguration
+            DiscordConfiguration cfg = new()
             {
                 Token = _token,
                 TokenType = TokenType.Bot,
@@ -230,12 +228,12 @@ namespace SchattenclownBot.Model.Discord.Main
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Loading Commands...");
             Console.ForegroundColor = ConsoleColor.Magenta;
-            var commandlist = dcl.GetCommandsNext().RegisteredCommands;
-            foreach (var command in commandlist)
+            IReadOnlyDictionary<string, Command> commandlist = dcl.GetCommandsNext().RegisteredCommands;
+            foreach (KeyValuePair<string, Command> command in commandlist)
             {
                 Console.WriteLine($"Command {command.Value.Name} loaded.");
             }
-            var activity = new DiscordActivity()
+            DiscordActivity activity = new()
             {
                 Name = Bot.Custom ? Bot.CustomState : $"/help",
                 ActivityType = ActivityType.Competing

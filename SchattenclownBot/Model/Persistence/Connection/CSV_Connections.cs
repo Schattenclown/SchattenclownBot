@@ -1,24 +1,23 @@
-﻿using System;
+﻿using SchattenclownBot.Model.Objects;
+using System;
 using System.IO;
-
-using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
     public class CSV_Connections
     {
-        private static Uri _path = new Uri($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
-        private static Uri _filepath = new Uri($"{_path}/Connections.csv");
+        private static Uri _path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
+        private static Uri _filepath = new($"{_path}/Connections.csv");
         public static Connections ReadAll()
         {
             try
             {
-                var connections = new Connections();
-                var streamReader = new StreamReader(_filepath.LocalPath);
+                Connections connections = new();
+                StreamReader streamReader = new(_filepath.LocalPath);
                 while (!streamReader.EndOfStream)
                 {
-                    var row = streamReader.ReadLine();
-                    var infos = row.Split(';');
+                    string row = streamReader.ReadLine();
+                    string[] infos = row.Split(';');
 
                     switch (infos[0])
                     {
@@ -43,11 +42,11 @@ namespace SchattenclownBot.Model.Persistence.Connection
             }
             catch (Exception)
             {
-                var directory = new DirectoryInfo(_path.LocalPath);
+                DirectoryInfo directory = new(_path.LocalPath);
                 if (!directory.Exists)
                     directory.Create();
 
-                var streamWriter = new StreamWriter(_filepath.LocalPath);
+                StreamWriter streamWriter = new(_filepath.LocalPath);
                 streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
                                        "DiscordBotKeyDebug;<API Key here>\n" +
                                        "MySqlConStr;<DBConnectionString here>\n" +

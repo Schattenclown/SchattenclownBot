@@ -39,8 +39,8 @@ namespace SchattenclownBot.Model.Objects
 
         public static MusicBrainz.Root CreateObj(string content)
         {
-            var lst = JsonConvert.DeserializeObject<MusicBrainz.Root>(content);
-            var obj = new MusicBrainz.Root
+            Root lst = JsonConvert.DeserializeObject<MusicBrainz.Root>(content);
+            Root obj = new()
             {
                 images = lst.images,
                 release = lst.release

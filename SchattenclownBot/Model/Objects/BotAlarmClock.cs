@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using DisCatSharp.Entities;
-
+﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Persistence;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -36,17 +34,17 @@ namespace SchattenclownBot.Model.Objects
             {
                 while (true)
                 {
-                    foreach (var BotAlarmClockItem in BotAlarmClockList)
+                    foreach (BotAlarmClock BotAlarmClockItem in BotAlarmClockList)
                     {
                         if (BotAlarmClockItem.NotificationTime < DateTime.Now)
                         {
-                            var chn = await Bot.Client.GetChannelAsync(BotAlarmClockItem.ChannelId);
-                            var eb = new DiscordEmbedBuilder();
+                            DiscordChannel chn = await Bot.Client.GetChannelAsync(BotAlarmClockItem.ChannelId);
+                            DiscordEmbedBuilder eb = new();
                             eb.Color = DiscordColor.Red;
                             eb.WithDescription($"<@{BotAlarmClockItem.MemberId}> Alarm for {BotAlarmClockItem.NotificationTime} rings!");
 
                             BotAlarmClock.Delete(BotAlarmClockItem);
-                            for (var i = 0; i < 3; i++)
+                            for (int i = 0; i < 3; i++)
                             {
                                 await chn.SendMessageAsync(eb.Build());
                                 await Task.Delay(50);

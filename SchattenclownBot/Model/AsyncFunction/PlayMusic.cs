@@ -30,8 +30,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                 return;
             }
 
-            var musicAlreadyPlaying = false;
-            foreach (var keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
+            bool musicAlreadyPlaying = false;
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
             {
                 musicAlreadyPlaying = true;
                 break;
@@ -39,9 +39,9 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             if (!musicAlreadyPlaying)
             {
-                var tokenSource = new CancellationTokenSource();
-                var cancellationToken = tokenSource.Token;
-                var keyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource);
+                CancellationTokenSource tokenSource = new();
+                CancellationToken cancellationToken = tokenSource.Token;
+                KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
                 tokenList.Add(keyPairItem);
 
                 Task playMusicTask;
@@ -67,7 +67,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             }
 
             CancellationTokenSource tokenSource = null;
-            foreach (var keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
             {
                 tokenSource = keyValuePairItem.Value;
                 tokenList.Remove(keyValuePairItem);
@@ -87,8 +87,8 @@ namespace SchattenclownBot.Model.AsyncFunction
             }
 
             tokenSource = new CancellationTokenSource();
-            var cancellationToken = tokenSource.Token;
-            var keyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(interactionContext.Guild, tokenSource);
+            CancellationToken cancellationToken = tokenSource.Token;
+            KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
             tokenList.Add(keyPairItem);
 
             Task playMusicTask;
@@ -108,13 +108,13 @@ namespace SchattenclownBot.Model.AsyncFunction
         {
             try
             {
-                var voiceNext = interactionContext != null ? interactionContext.Client.GetVoiceNext() : client.GetVoiceNext();
+                VoiceNextExtension voiceNext = interactionContext != null ? interactionContext.Client.GetVoiceNext() : client.GetVoiceNext();
 
                 if (voiceNext == null)
                     return;
 
-                var voiceNextConnection = interactionContext != null ? voiceNext.GetConnection(interactionContext.Guild) : voiceNext.GetConnection(discordGuild);
-                var voiceState = interactionContext != null ? interactionContext.Member?.VoiceState : discordMember?.VoiceState;
+                VoiceNextConnection voiceNextConnection = interactionContext != null ? voiceNext.GetConnection(interactionContext.Guild) : voiceNext.GetConnection(discordGuild);
+                DiscordVoiceState voiceState = interactionContext != null ? interactionContext.Member?.VoiceState : discordMember?.VoiceState;
 
                 if (voiceState?.Channel == null)
                     return;
@@ -138,21 +138,21 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var Uri = new Uri(@"M:\");
-                    var allFiles = Directory.GetFiles(Uri.AbsolutePath);
+                    Uri Uri = new(@"M:\");
+                    string[] allFiles = Directory.GetFiles(Uri.AbsolutePath);
 
                     Random random = new();
-                    int randomInt = random.Next(0, (allFiles.Length - 1));
-                    var selectedFileToPlay = allFiles[randomInt];
+                    int randomInt = random.Next(0, allFiles.Length - 1);
+                    string selectedFileToPlay = allFiles[randomInt];
 
                     //Metadata
                     #region MetaTags
-                    var tagLibSelectedFileToplay = TagLib.File.Create(@$"{selectedFileToPlay}");
+                    TagLib.File tagLibSelectedFileToplay = TagLib.File.Create(@$"{selectedFileToPlay}");
                     MusicBrainz.Root musicBrainz = null;
                     if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId != null)
                     {
                         Uri coverArtUrl = new($"https://coverartarchive.org/release/{tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId}");
-                        var httpClient = new HttpClient();
+                        HttpClient httpClient = new();
                         httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
                         try
                         {
@@ -170,7 +170,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                     {
                         //DiscordFormat
                         #region discordEmbedBuilder
-                        var discordEmbedBuilder = new DiscordEmbedBuilder
+                        DiscordEmbedBuilder discordEmbedBuilder = new()
                         {
                             Title = tagLibSelectedFileToplay.Tag.Title
                         };
@@ -196,7 +196,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         if (streamForBitmap != null)
                         {
-                            var bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+                            Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
                             if (bitmapAlbumCover != null)
                             {
                                 Color dominantColor = ColorMath.getDominantColor(bitmapAlbumCover);
@@ -237,7 +237,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         DiscordComponentEmoji discordComponentEmojiNext = new("⏭️");
                         DiscordComponentEmoji discordComponentEmojiStop = new("⏹️");
-                        var discordSelectComponentOptionList = new DiscordButtonComponent[2];
+                        DiscordButtonComponent[] discordSelectComponentOptionList = new DiscordButtonComponent[2];
                         discordSelectComponentOptionList[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojiNext);
                         discordSelectComponentOptionList[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojiStop);
 
@@ -245,23 +245,23 @@ namespace SchattenclownBot.Model.AsyncFunction
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordSelectComponentOptionList));
 
 
-                        var psi = new ProcessStartInfo
+                        ProcessStartInfo psi = new()
                         {
-                            FileName = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe"),
+                            FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe",
                             Arguments = $@"-i ""{selectedFileToPlay}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
                             RedirectStandardOutput = true,
                             UseShellExecute = false
                         };
-                        var ffmpeg = Process.Start(psi);
-                        var ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
+                        Process ffmpeg = Process.Start(psi);
+                        Stream ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
 
-                        var voiceNextTransmition = voiceNextConnection.GetTransmitSink();
+                        VoiceTransmitSink voiceNextTransmition = voiceNextConnection.GetTransmitSink();
                         voiceNextTransmition.VolumeModifier = 0.2;
 
-                        var ffmpegTask = ffmpegOutput.CopyToAsync(voiceNextTransmition);
-                        var lastDiscordChannel = voiceNextConnection.TargetChannel;
+                        Task ffmpegTask = ffmpegOutput.CopyToAsync(voiceNextTransmition);
+                        DiscordChannel lastDiscordChannel = voiceNextConnection.TargetChannel;
 
-                        var counter = 0;
+                        int counter = 0;
                         TimeSpan timeSpan = new(0, 0, 0, 0);
                         string playerAdcance = "";
                         while (!ffmpegTask.IsCompleted)
@@ -273,11 +273,11 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 timeSpan = TimeSpan.FromSeconds(counter);
 
                                 string[] strings = new string[15];
-                                var thisIsOneHundretPercent = tagLibSelectedFileToplay.Properties.Duration.TotalSeconds;
+                                double thisIsOneHundretPercent = tagLibSelectedFileToplay.Properties.Duration.TotalSeconds;
 
-                                var dotPositionInPercent = 100.0 / thisIsOneHundretPercent * counter;
+                                double dotPositionInPercent = 100.0 / thisIsOneHundretPercent * counter;
 
-                                var dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
+                                double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
 
                                 for (int i = 0; i < strings.Length; i++)
                                 {
@@ -288,7 +288,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 }
 
                                 playerAdcance = "";
-                                foreach (var item in strings)
+                                foreach (string item in strings)
                                 {
                                     playerAdcance += item;
                                 }
@@ -362,7 +362,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                 }
 
                 CancellationTokenSource tokenSource = null;
-                foreach (var keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
                 {
                     tokenSource = keyValuePairItem.Value;
                     tokenList.Remove(keyValuePairItem);
@@ -382,8 +382,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                 }
 
                 tokenSource = new CancellationTokenSource();
-                var cancellationToken = tokenSource.Token;
-                var keyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(eventArgs.Guild, tokenSource);
+                CancellationToken cancellationToken = tokenSource.Token;
+                KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(eventArgs.Guild, tokenSource);
                 tokenList.Add(keyPairItem);
 
                 Task playMusicTask;
@@ -402,7 +402,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             else if (eventArgs.Id == "stop_song")
             {
                 CancellationTokenSource tokenSource = null;
-                foreach (var keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
                 {
                     tokenSource = keyValuePairItem.Value;
                     tokenList.Remove(keyValuePairItem);
@@ -425,7 +425,7 @@ namespace SchattenclownBot.Model.AsyncFunction
         public static async Task StopMusicAsync(InteractionContext interactionContext)
         {
             CancellationTokenSource tokenSource = null;
-            foreach (var keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
             {
                 tokenSource = keyValuePairItem.Value;
                 tokenList.Remove(keyValuePairItem);
@@ -451,7 +451,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                     if (eventArgs.User == client.CurrentUser && eventArgs.After != null && eventArgs.Before.Channel != eventArgs.After.Channel)
                     {
                         CancellationTokenSource tokenSource = null;
-                        foreach (var keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                        foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
                         {
                             tokenSource = keyValuePairItem.Value;
                             tokenList.Remove(keyValuePairItem);
@@ -463,8 +463,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                             await discordMember.VoiceState.Channel.SendMessageAsync("Stoped the music!");
                             tokenSource.Cancel();
                             tokenSource.Dispose();
-                            var voiceNext = client.GetVoiceNext();
-                            var voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
+                            VoiceNextExtension voiceNext = client.GetVoiceNext();
+                            VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
                             voiceNextConnection.Disconnect();
                         }
                     }
@@ -485,7 +485,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                     if (eventArgs.User == client.CurrentUser)
                     {
                         CancellationTokenSource tokenSource = null;
-                        foreach (var keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                        foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
                         {
                             tokenSource = keyValuePairItem.Value;
                             tokenList.Remove(keyValuePairItem);

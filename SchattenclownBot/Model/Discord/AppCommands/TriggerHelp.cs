@@ -1,11 +1,11 @@
-﻿using System;
+﻿using DisCatSharp;
+using DisCatSharp.ApplicationCommands;
+using DisCatSharp.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using DisCatSharp;
-using DisCatSharp.ApplicationCommands;
-using DisCatSharp.Entities;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -26,7 +26,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             [ChoiceProvider(typeof(TriggerHelpChoiceProvider)), Option("command", "The name of the command to get help on.")] string commandName)
         {
             // Using the TriggerHelpChoiceProvider class, we know that whatever the user gives us *should* be in the Commands dictionary, provided that they use tab completion. If they don't, say we couldn't find the command. 
-            if (!TriggerHelpChoiceProvider.Commands.TryGetValue(commandName, out var command))
+            if (!TriggerHelpChoiceProvider.Commands.TryGetValue(commandName, out MethodInfo command))
             {
                 await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new()
                 {
@@ -37,7 +37,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
 
             // Get the command's description from the SlashCommand attribute we used to register the command.
-            var slashCommandAttribute = command.GetCustomAttribute<SlashCommandAttribute>();
+            SlashCommandAttribute slashCommandAttribute = command.GetCustomAttribute<SlashCommandAttribute>();
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
                 Title = '/' + commandName,
@@ -53,9 +53,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
 
             // Iterate through each of the command's parameters, selecting only the ones that have the Option attribute.
-            foreach (var parameter in command.GetParameters())
+            foreach (ParameterInfo parameter in command.GetParameters())
             {
-                var parameterChoice = parameter.GetCustomAttribute<OptionAttribute>(false);
+                OptionAttribute parameterChoice = parameter.GetCustomAttribute<OptionAttribute>(false);
                 // If the option attribute doesn't exist on the method argument, skip it.
                 if (parameterChoice == null)
                 {
@@ -87,14 +87,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         public static void SearchCommands(Type type, string commandName = "")
         {
             // Get all nested group commands in the type variable/class
-            var nestedTypes = type.GetNestedTypes().Where(type => type?.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
+            IEnumerable<Type> nestedTypes = type.GetNestedTypes().Where(type => type?.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
             // If any nested group commands are available
             if (nestedTypes.Any())
             {
                 // Iterate through each subgroup command
-                foreach (var nestedType in nestedTypes)
+                foreach (Type nestedType in nestedTypes)
                 {
-                    var slashCommandGroupAttribute = nestedType.GetCustomAttribute<SlashCommandGroupAttribute>();
+                    SlashCommandGroupAttribute slashCommandGroupAttribute = nestedType.GetCustomAttribute<SlashCommandGroupAttribute>();
                     // Add the group command to the previous command name. This means it'd look like:
                     // /groupCommand subcommand
                     // instead of:
@@ -107,12 +107,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             else
             {
                 // Get all slash commands in the class
-                var commands = type.GetMethods().Where(method => method.GetCustomAttribute<SlashCommandAttribute>() != null);
+                IEnumerable<MethodInfo> commands = type.GetMethods().Where(method => method.GetCustomAttribute<SlashCommandAttribute>() != null);
                 if (commands.Any())
                 {
-                    foreach (var command in commands)
+                    foreach (MethodInfo command in commands)
                     {
-                        var slashCommandAttribute = command.GetCustomAttribute<SlashCommandAttribute>();
+                        SlashCommandAttribute slashCommandAttribute = command.GetCustomAttribute<SlashCommandAttribute>();
                         // We assign a temporary variable here, because if we added it to commandName, then our commands would look like:
                         // /groupCommand test
                         // /groupCommand test delete
@@ -121,7 +121,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         // /groupCommand test
                         // /groupCommand delete
                         // /groupCommand create
-                        var subCommand = commandName + ' ' + slashCommandAttribute.Name;
+                        string subCommand = commandName + ' ' + slashCommandAttribute.Name;
                         Commands.Add(subCommand.Trim(), command);
                     }
                 }
@@ -137,16 +137,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             List<DiscordApplicationCommandOptionChoice> discordApplicationCommandOptionChoices = new();
 
             // All top level command classes
-            var commandClasses = Assembly.GetEntryAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(ApplicationCommandsModule)) && !type.IsNested);
+            IEnumerable<Type> commandClasses = Assembly.GetEntryAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(ApplicationCommandsModule)) && !type.IsNested);
 
             // Find all command or subgroup commands from the classes
-            foreach (var command in commandClasses)
+            foreach (Type command in commandClasses)
             {
                 SearchCommands(command);
             }
 
             // SearchCommands registers the commands into a Dictionary<string, MethodInfo>. Since we only need the command name, we can just select the keys.
-            foreach (var commandName in Commands.Keys)
+            foreach (string commandName in Commands.Keys)
             {
                 // Create the new choice option: new DiscordApplicationCommandOptionChoice("public name", "value"). Very similar to a dictionary.
                 DiscordApplicationCommandOptionChoice discordApplicationCommandOptionChoice = new(commandName, commandName);

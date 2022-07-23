@@ -1,6 +1,5 @@
-﻿using System;
-
-using SchattenclownBot.Model.Persistence.Connection;
+﻿using SchattenclownBot.Model.Persistence.Connection;
+using System;
 
 namespace SchattenclownBot.Model.Objects
 {

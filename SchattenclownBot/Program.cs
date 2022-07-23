@@ -1,14 +1,13 @@
-﻿using System;
+﻿using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Objects;
+using SchattenclownBot.Model.Persistence;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Persistence;
-using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot
 {

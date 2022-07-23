@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace SchattenclownBot.Model.Persistence
 {
@@ -13,17 +12,17 @@ namespace SchattenclownBot.Model.Persistence
     {
         public static List<UserLevelSystem> Read(ulong guildId)
         {
-            var sqlCommand = $"SELECT * FROM `{guildId}_levelSystem`";
-            var userLevelSystemList = new List<UserLevelSystem>();
-            var mySqlConnection = DB_Connection.OpenDB();
-            var mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
+            string sqlCommand = $"SELECT * FROM `{guildId}_levelSystem`";
+            List<UserLevelSystem> userLevelSystemList = new();
+            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
+            MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
-                var userLevelSystemObj = new UserLevelSystem()
+                UserLevelSystem userLevelSystemObj = new()
                 {
                     MemberId = mySqlDataReader.GetUInt64("MemberId"),
-                    OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")                    
+                    OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")
                 };
 
                 userLevelSystemList.Add(userLevelSystemObj);
@@ -34,26 +33,26 @@ namespace SchattenclownBot.Model.Persistence
         }
         public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
         {
-            var sqlCommand = $"INSERT INTO `{guildId}_levelSystem` (MemberId, OnlineTicks, OnlineTime) " +
+            string sqlCommand = $"INSERT INTO `{guildId}_levelSystem` (MemberId, OnlineTicks, OnlineTime) " +
                              $"VALUES ({userLevelSystem.MemberId}, {userLevelSystem.OnlineTicks}, '{userLevelSystem.OnlineTime}')";
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
         public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
         {
-            var sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
+            string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
             DB_Connection.ExecuteNonQuery(sqlCommand);
         }
         public static void CreateTable_UserLevelSystem(ulong guildId)
         {
-            var connetions = CSV_Connections.ReadAll();
+            Connections connetions = CSV_Connections.ReadAll();
 
-            var database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
 #if DEBUG
             database = StringCutter.RemoveUntilWord(connetions.MySqlConStrDebug, "Database=", 9);
 #endif
             database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
-            var sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
+            string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
                              $"USE `{database}`;" +
                              $"CREATE TABLE IF NOT EXISTS `{guildId}_levelSystem` (" +
                              "`MemberId` BIGINT NOT NULL," +

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
+﻿using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace SchattenclownBot.Model.HelpClasses
 {
@@ -16,11 +14,11 @@ namespace SchattenclownBot.Model.HelpClasses
 
             int total = 0;
 
-            for (int x = 0; x < bmp.Width; x++)
+            for (int x = 0; x < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bmp.Width : 0); x++)
             {
-                for (int y = 0; y < bmp.Height; y++)
+                for (int y = 0; y < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bmp.Width : 0); y++)
                 {
-                    Color clr = bmp.GetPixel(x, y);
+                    Color clr = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bmp.GetPixel(x, y) : Color.Black;
 
                     r += clr.R;
                     g += clr.G;

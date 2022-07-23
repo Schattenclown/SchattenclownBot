@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-
-using DisCatSharp.CommandsNext;
+﻿using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
-
 using SchattenclownBot.Model.Discord.Main;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.Commands
 {
@@ -36,7 +34,7 @@ namespace SchattenclownBot.Model.Discord.Commands
         {
             msg ??= $"{Bot.Prefix}help";
 
-            var status = sts switch
+            UserStatus status = sts switch
             {
                 1 => UserStatus.Invisible,
                 2 => UserStatus.Online,
@@ -46,7 +44,7 @@ namespace SchattenclownBot.Model.Discord.Commands
                 _ => UserStatus.Online,
             };
 
-            var activity = new DiscordActivity()
+            DiscordActivity activity = new()
             {
                 Name = msg,
                 ActivityType = status == UserStatus.Streaming ? ActivityType.Streaming : ActivityType.Watching,

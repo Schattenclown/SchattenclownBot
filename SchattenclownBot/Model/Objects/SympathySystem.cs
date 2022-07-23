@@ -1,14 +1,12 @@
-﻿using System;
+﻿using DisCatSharp.Entities;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Objects;
+using SchattenclownBot.Model.Persistence;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using DisCatSharp.Entities;
-
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Persistence;
-using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -67,7 +65,7 @@ namespace SchattenclownBot.Model.Objects
         }
         public static async Task SympathySystemRunAsync(int executeSecond)
         {
-            var levelSystemVirgin = true;
+            bool levelSystemVirgin = true;
 
             await Task.Run(async () =>
             {
@@ -82,8 +80,8 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (levelSystemVirgin)
                         {
-                            var guildsList = Bot.Client.Guilds.ToList();
-                            foreach (var guildItem in guildsList)
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                             {
                                 SympathySystem.CreateTable_SympathySystem(guildItem.Value.Id);
                                 SympathySystem.CreateTable_RoleInfoSympathySystem(guildItem.Value.Id);
@@ -101,21 +99,21 @@ namespace SchattenclownBot.Model.Objects
                         await Task.Delay(1000);
                     }
 
-                    var guildsList = Bot.Client.Guilds.ToList();
-                    foreach (var guildItem in guildsList)
+                    List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                    foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        var discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
-                        var discordMembers = discordGuildObj.Members;
+                        DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
+                        IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
 
-                        var sympathySystemsList = SympathySystem.ReadAll(guildItem.Value.Id);
-                        var roleInfoSympathySystemsList = SympathySystem.ReadAllRoleInfo(guildItem.Value.Id);
+                        List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(guildItem.Value.Id);
+                        List<RoleInfoSympathySystem> roleInfoSympathySystemsList = SympathySystem.ReadAllRoleInfo(guildItem.Value.Id);
                         List<DiscordRole> discordRoleList = new();
 
-                        foreach (var discordMemberItem in discordMembers)
+                        foreach (KeyValuePair<ulong, DiscordMember> discordMemberItem in discordMembers)
                         {
                             discordRoleList.Clear();
 
-                            foreach (var item in roleInfoSympathySystemsList)
+                            foreach (RoleInfoSympathySystem item in roleInfoSympathySystemsList)
                             {
                                 if (item.RatingOne != 0)
                                     discordRoleList.Add(discordGuildObj.GetRole(item.RatingOne));
@@ -131,12 +129,12 @@ namespace SchattenclownBot.Model.Objects
 
                             if (discordRoleList.Count == 5 && discordMemberItem.Value.Id != 523765246104567808)
                             {
-                                var counts = 1;
-                                var ratingsadded = 0;
-                                var rating = 0.0;
+                                int counts = 1;
+                                int ratingsadded = 0;
+                                double rating = 0.0;
                                 SympathySystem sympathySystemObj = new();
 
-                                foreach (var sympathySystemItem in sympathySystemsList)
+                                foreach (SympathySystem sympathySystemItem in sympathySystemsList)
                                 {
                                     if (discordMemberItem.Value.Id == sympathySystemItem.VotedUserID)
                                     {
