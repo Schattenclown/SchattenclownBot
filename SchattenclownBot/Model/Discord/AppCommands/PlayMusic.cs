@@ -358,9 +358,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                     try
                     {
-    #pragma warning disable CS4014
+#pragma warning disable CS4014
                         Task.Run(() => PlayYouTubeMusicTask(interactionContext, null, null, null, null, videoUrls[0].Url, cancellationToken, false), cancellationToken);
-    #pragma warning restore CS4014
+#pragma warning restore CS4014
                     }
                     catch (Exception ex)
                     {
@@ -564,7 +564,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         TokenList.Add(keyPairItem);
 
 #pragma warning disable CS4014
-                        Task.Run(() => PlayYouTubeMusicTask(interactionContext, null, null, null, null, queueItem.Value, newCancellationToken, true));
+                        if (interactionContext != null)
+                            Task.Run(() => PlayYouTubeMusicTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result, interactionContext.Channel, queueItem.Value, newCancellationToken, false));
+                        else
+                            Task.Run(() => PlayYouTubeMusicTask(interactionContext, client, discordGuild, discordMember, interactionChannel, queueItem.Value, newCancellationToken, false));
 #pragma warning restore CS4014
                         break;
                     }
@@ -768,7 +771,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             TokenList.Remove(keyValuePairItem);
                             break;
                         }
-                        
+
                         if (tokenSource != null)
                         {
                             await discordMember.VoiceState.Channel.SendMessageAsync("Stopped the music!");
