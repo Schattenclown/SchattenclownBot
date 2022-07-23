@@ -161,9 +161,22 @@ namespace SchattenclownBot.Model.Objects
             if (discordMemberRoleList.Contains(month12))
                 birthdayMonth = 12;
 
-            int birthdayDayInt = Convert.ToInt32(birthdayDay);
+            DateTime dateTime = new(9999, 9, 9);
+            int birthdayDayInt;
 
-            DateTime dateTime;
+            try
+            {
+                if (birthdayDay != "" && birthdayDay != "01230123456789")
+                    birthdayDayInt = Convert.ToInt32(birthdayDay);
+                else
+                    return dateTime;
+
+            }
+            catch
+            {
+                return dateTime;
+            }
+
 
             if (birthdayMonth is >= 1 and <= 12 && birthdayDayInt is >= 1 and <= 31)
             {
@@ -174,12 +187,10 @@ namespace SchattenclownBot.Model.Objects
                 }
                 catch
                 {
-                    dateTime = new DateTime(9999, 9, 9);
                     return dateTime;
                 }
             }
 
-            dateTime = new DateTime(9999, 9, 9);
             return dateTime;
         }
     }
