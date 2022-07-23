@@ -53,7 +53,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
         }
 
-        public static async Task Discord_ComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs eventArgs)
+        public static async Task GaveRating(DiscordClient sender, ComponentInteractionCreateEventArgs eventArgs)
         {
             if (eventArgs.Values.Length > 0)
             {

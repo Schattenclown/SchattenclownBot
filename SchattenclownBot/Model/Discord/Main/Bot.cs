@@ -137,10 +137,6 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             await DiscordClient.ConnectAsync();
 
-            DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
-            DiscordClient.VoiceStateUpdated += PlayMusic.ResumePlaying;
-            DiscordClient.VoiceStateUpdated += PlayMusic.GotKicked;
-            DiscordClient.ComponentInteractionCreated += PlayMusic.NextSongPerButton;
 #pragma warning disable CS4014
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
@@ -180,7 +176,6 @@ namespace SchattenclownBot.Model.Discord.Main
             discordClient.Heartbeated += Client_Heartbeat;
             discordClient.Ready += Client_Ready;
             discordClient.Resumed += Client_Resumed;
-
             /* DiscordClient Events */
             //discordClient.GuildUnavailable += Client_GuildUnavailable;
             //discordClient.GuildAvailable += Client_GuildAvailable;
@@ -195,7 +190,12 @@ namespace SchattenclownBot.Model.Discord.Main
             applicationCommandsExtension.SlashCommandErrored += Slash_SlashCommandError;
             applicationCommandsExtension.SlashCommandExecuted += Slash_SlashCommandExecuted;
 
-            //discordClient.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
+            //Custom Events
+            DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
+            DiscordClient.VoiceStateUpdated += PlayMusic.ResumePlaying;
+            DiscordClient.VoiceStateUpdated += PlayMusic.GotKicked;
+            DiscordClient.ComponentInteractionCreated += PlayMusic.NextSongPerButton;
+            DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
         }
 
         /// <summary>
