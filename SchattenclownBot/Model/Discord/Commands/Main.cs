@@ -22,7 +22,7 @@ namespace SchattenclownBot.Model.Discord.Commands
             await commandContext.RespondAsync($"{commandContext.Client.Ping}ms");
         }
 
-        /// <summary>
+        /*/// <summary>
         ///     Set a new appearance for the bot per command.
         /// </summary>
         /// <param name="commandContext"></param>
@@ -51,12 +51,12 @@ namespace SchattenclownBot.Model.Discord.Commands
                 Platform = status == UserStatus.Streaming ? "twitch" : null,
                 StreamUrl = status == UserStatus.Streaming ? "https://twitch.tv/lulalaby" : null
             };
-            await Bot.Client.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
+            await Bot.DiscordClient.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
             Bot.Custom = true;
             Bot.CustomState = msg;
             Bot.CustomStatus = status;
 
             await commandContext.Message.DeleteAsync("Command Hide");
-        }
+        }*/
     }
 }

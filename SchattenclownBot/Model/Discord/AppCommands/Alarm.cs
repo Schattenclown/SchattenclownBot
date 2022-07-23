@@ -20,7 +20,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
         [SlashCommand("SetAlarm", "Set an alarm for a specific time!")]
-        public static async Task AlarmClock(InteractionContext interactionContext, [Option("hourofday", "0-23")] double hour, [Option("minuteofday", "0-59")] double minute)
+        public static async Task SetAlarmAsync(InteractionContext interactionContext, [Option("HourOfDay", "0-23")] double hour, [Option("MinuteOfDay", "0-59")] double minute)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
@@ -32,8 +32,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Wrong format for hour or minute!"));
                 return;
             }
-
-
+            
             //Create a DateTime Variable if the Time format was Valid.
             DateTime dateTimeNow = DateTime.Now;
             DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);

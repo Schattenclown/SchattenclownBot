@@ -5,7 +5,6 @@ using SchattenclownBot.Model.HelpClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
@@ -16,7 +15,7 @@ namespace SchattenclownBot.Model.AsyncFunction
         {
             await Task.Run(async () =>
             {
-                if (Bot.Client.CurrentUser.Id != 890063457246937129)
+                if (Bot.DiscordClient.CurrentUser.Id != 890063457246937129)
                     return;
 
                 while (DateTime.Now.Second != executeSecond)
@@ -27,12 +26,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                 List<DiscordGuild> guildList;
                 do
                 {
-                    guildList = Bot.Client.Guilds.Values.ToList();
+                    guildList = Bot.DiscordClient.Guilds.Values.ToList();
                     await Task.Delay(1000);
                 } while (guildList.Count == 0);
 
-                var mainGuild = Bot.Client.GetGuildAsync(928930967140331590).Result;
-                var discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
+                DiscordGuild mainGuild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
+                DiscordChannel discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
 
                 while (true)
                 {
@@ -43,23 +42,23 @@ namespace SchattenclownBot.Model.AsyncFunction
                             await Task.Delay(1000);
                         }
 
-                        var voiceStateAny = false;
+                        bool voiceStateAny = false;
                         List<DiscordThreadChannel> discordThreads;
-                        var discordInvite = default(DiscordInvite);
-                        var getMessagesOncePerGuild = false;
-                        var discordMessagesList = new List<DiscordMessage>();
-                        var discordMemberConnectedList = new List<DiscordMember>();
-                        var lastDiscordMember = default(DiscordMember);
+                        DiscordInvite discordInvite = default(DiscordInvite);
+                        bool getMessagesOncePerGuild = false;
+                        List<DiscordMessage> discordMessagesList = new();
+                        List<DiscordMember> discordMemberConnectedList = new();
+                        DiscordMember lastDiscordMember = default(DiscordMember);
 
-                        foreach (var guildItem in guildList)
+                        foreach (DiscordGuild guildItem in guildList)
                         {
-                            var discordMemberList = guildItem.Members.Values.ToList();
+                            List<DiscordMember> discordMemberList = guildItem.Members.Values.ToList();
 
                             discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
 
-                            var discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
+                            List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
-                            foreach (var discordMemberItem in discordMemberConnectedListSorted)
+                            foreach (DiscordMember discordMemberItem in discordMemberConnectedListSorted)
                             {
                                 try
                                 {
@@ -76,16 +75,16 @@ namespace SchattenclownBot.Model.AsyncFunction
                                         discordVoiceState = discordMemberItem.VoiceState;
                                     }
 
-                                    var discordMembersInChannel = discordVoiceState.Channel.Users.ToList();
-                                    var discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
+                                    List<DiscordMember> discordMembersInChannel = discordVoiceState.Channel.Users.ToList();
+                                    List<DiscordMember> discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
                                     discordMembersInChannelSorted.Reverse();
 
-                                    var description = "";
-                                    foreach (var discordMemberInChannelItem in discordMembersInChannelSorted)
+                                    string description = "";
+                                    foreach (DiscordMember discordMemberInChannelItem in discordMembersInChannelSorted)
                                     {
-                                        var descriptionLineBuilder = "";
-                                        var counter = 5;
-                                        var username = RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
+                                        string descriptionLineBuilder = "";
+                                        int counter = 5;
+                                        string username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
                                         if (username is "" or " ")
                                             username = discordMemberInChannelItem.Discriminator;
                                         description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
@@ -111,7 +110,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                             counter--; counter--;
                                         }
 
-                                        for (var i = 0; i < counter; i++)
+                                        for (int i = 0; i < counter; i++)
                                         {
                                             description += "<:xx_empty:989518542456123442>";
                                         }
@@ -121,7 +120,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                     discordThreads = mainGuild.Threads.Values.ToList();
 
-                                    var discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
+                                    DiscordThreadChannel discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
                                     discordThreadsChannel ??= await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
 
                                     DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -133,15 +132,15 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                     if (!getMessagesOncePerGuild)
                                     {
-                                        var messages = await discordThreadsChannel.GetMessagesAsync();
+                                        IReadOnlyList<DiscordMessage> messages = await discordThreadsChannel.GetMessagesAsync();
                                         discordMessagesList.AddRange(messages);
                                         getMessagesOncePerGuild = true;
                                     }
 
-                                    var discordMessage = default(DiscordMessage);
-                                    var content = $"<#{discordVoiceState.Channel.Id}>";
+                                    DiscordMessage discordMessage = default(DiscordMessage);
+                                    string content = $"<#{discordVoiceState.Channel.Id}>";
                                     if (discordMessagesList != null)
-                                        foreach (var messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
+                                        foreach (DiscordMessage messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
                                         {
                                             discordMessage = messageItem;
                                             break;
@@ -158,9 +157,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                                     {
                                         if (discordInvite == null)
                                         {
-                                            var discordInvites = await discordVoiceState.Channel.GetInvitesAsync();
+                                            IReadOnlyList<DiscordInvite> discordInvites = await discordVoiceState.Channel.GetInvitesAsync();
 
-                                            foreach (var invite in discordInvites.Where(x => x.Inviter.Id == Bot.Client.CurrentUser.Id))
+                                            foreach (DiscordInvite invite in discordInvites.Where(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id))
                                             {
                                                 discordInvite = invite;
                                                 break;
@@ -170,7 +169,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                         }
 
                                         discordEmbedBuilder.WithDescription(description + $"\n[⤵️ Join Channel!]({discordInvite})");
-                                        var discordEmbed = discordMessage.Embeds.FirstOrDefault();
+                                        DiscordEmbed discordEmbed = discordMessage.Embeds.FirstOrDefault();
 
                                         await discordMessage.ModifyAsync(content, discordEmbedBuilder.Build());
                                     }
@@ -194,13 +193,13 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
 
                         discordThreads = mainGuild.Threads.Values.ToList();
-                        foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
+                        foreach (DiscordThreadChannel discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
                         {
-                            var messages = discordThreadItem.GetMessagesAsync().Result;
+                            IReadOnlyList<DiscordMessage> messages = discordThreadItem.GetMessagesAsync().Result;
 
-                            foreach (var messageItem in messages)
+                            foreach (DiscordMessage messageItem in messages)
                             {
-                                var mentionedChannel = "";
+                                string mentionedChannel = "";
                                 try
                                 {
                                     mentionedChannel = StringCutter.RemoveUntilWord(messageItem.Content, "<#", 2);
@@ -215,7 +214,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 try
                                 {
                                     if (mentionedChannel != null)
-                                        discordChannel = Bot.Client.GetChannelAsync(Convert.ToUInt64(mentionedChannel)).Result;
+                                        discordChannel = Bot.DiscordClient.GetChannelAsync(Convert.ToUInt64(mentionedChannel)).Result;
                                 }
                                 catch
                                 {
@@ -232,14 +231,14 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                         if (!voiceStateAny)
                         {
-                            foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
+                            foreach (DiscordThreadChannel discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
                             {
                                 await discordThreadItem.DeleteAsync();
                             }
 
-                            var messages = discordChannelOtherPlaces.GetMessagesAsync().Result;
+                            IReadOnlyList<DiscordMessage> messages = discordChannelOtherPlaces.GetMessagesAsync().Result;
 
-                            foreach (var messageItem in messages.Where(x => x.Content == "wh3r315"))
+                            foreach (DiscordMessage messageItem in messages.Where(x => x.Content == "wh3r315"))
                             {
                                 await messageItem.DeleteAsync();
                             }
@@ -255,16 +254,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                     }
                 }
             });
-        }
-        public static string RemoveSpecialCharacters(string str)
-        {
-            StringBuilder sb = new();
-            foreach (var c in str.Where(c => c < 255))
-            {
-                sb.Append(c);
-            }
-
-            return sb.ToString();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace SchattenclownBot.Model.HelpClasses
+﻿using System;
+
+namespace SchattenclownBot.Model.HelpClasses
 {
     public static class TimeFormatCheck
     {
@@ -12,20 +14,20 @@
         /// <returns>A bool.</returns>
         public static bool TimeFormat(double hour, double minute)
         {
-            bool hourformatisright = false;
-            bool minuteformatisright = false;
+            bool hourFormatIsRight = false;
+            bool minuteFormatIsRight = false;
 
             for (int i = 0; i < 24; i++)
-                if (hour == i)
-                    hourformatisright = true;
-            if (!hourformatisright)
+                if (Math.Abs(hour - i) < 0)
+                    hourFormatIsRight = true;
+            if (!hourFormatIsRight)
                 return false;
 
             for (int i = 0; i < 60; i++)
-                if (minute == i)
-                    minuteformatisright = true;
+                if (Math.Abs(minute - i) < 0)
+                    minuteFormatIsRight = true;
 
-            return minuteformatisright;
+            return minuteFormatIsRight;
         }
     }
 }

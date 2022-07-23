@@ -1,14 +1,10 @@
 ﻿using DisCatSharp;
 using DisCatSharp.Entities;
-using DisCatSharp.EventArgs;
-using MySql.Data.MySqlClient.Memcached;
-using Org.BouncyCastle.Asn1.IsisMtt.X509;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
@@ -79,11 +75,11 @@ namespace SchattenclownBot.Model.Objects
 
                 do
                 {
-                    if (Bot.Client.Guilds.ToList().Count != 0)
+                    if (Bot.DiscordClient.Guilds.ToList().Count != 0)
                     {
                         if (levelSystemVirgin)
                         {
-                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                             {
                                 UserLevelSystem.CreateTable_UserLevelSystem(guildItem.Value.Id);
@@ -101,7 +97,7 @@ namespace SchattenclownBot.Model.Objects
                         await Task.Delay(1000);
                     }
 
-                    List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                    List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
                         List<UserLevelSystem> userLevelSystemList = new();
@@ -170,14 +166,14 @@ namespace SchattenclownBot.Model.Objects
 
                 do
                 {
-                    if (Bot.Client.Guilds.ToList().Count != 0)
+                    if (Bot.DiscordClient.Guilds.ToList().Count != 0)
                     {
                         if (levelSystemRoleDistributionVirgin)
                         {
-                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
                             {
-                                guildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
+                                guildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
                             }
                             levelSystemRoleDistributionVirgin = false;
                         }
@@ -282,14 +278,14 @@ namespace SchattenclownBot.Model.Objects
             {
                 do
                 {
-                    if (Bot.Client.Guilds.ToList().Count != 0)
+                    if (Bot.DiscordClient.Guilds.ToList().Count != 0)
                     {
                         if (levelSystemRoleDistributionVirgin)
                         {
-                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
                             {
-                                guildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
+                                guildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
                             }
                             levelSystemRoleDistributionVirgin = false;
                         }

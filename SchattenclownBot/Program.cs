@@ -1,12 +1,6 @@
 ﻿using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot
@@ -14,14 +8,14 @@ namespace SchattenclownBot
     /// <summary>
     /// The program boot class.
     /// </summary>
-    class Program
+    internal class Program
     {
         private static Bot bot;
         /// <summary>
         /// the boot task
         /// </summary>
         /// <returns>Nothing</returns>
-        static async Task Main()
+        private static async Task Main()
         {
             #region ConsoleSize
             try

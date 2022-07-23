@@ -1,11 +1,9 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
@@ -76,11 +74,11 @@ namespace SchattenclownBot.Model.Objects
 
                 do
                 {
-                    if (Bot.Client.Guilds.ToList().Count != 0)
+                    if (Bot.DiscordClient.Guilds.ToList().Count != 0)
                     {
                         if (levelSystemVirgin)
                         {
-                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                             {
                                 SympathySystem.CreateTable_SympathySystem(guildItem.Value.Id);
@@ -99,10 +97,10 @@ namespace SchattenclownBot.Model.Objects
                         await Task.Delay(1000);
                     }
 
-                    List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+                    List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
+                        DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
                         IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
 
                         List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(guildItem.Value.Id);

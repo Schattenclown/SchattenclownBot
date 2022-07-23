@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.Entities;
+using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using DisCatSharp.Net.Models;
-using DisCatSharp.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -37,26 +34,26 @@ namespace SchattenclownBot.Model.AsyncFunction
                 List<DiscordGuild> guildList;
                 do
                 {
-                    guildList = Bot.Client.Guilds.Values.ToList();
+                    guildList = Bot.DiscordClient.Guilds.Values.ToList();
                     await Task.Delay(1000);
                 } while (guildList.Count == 0);
 
                 while (true)
                 {
-                    var bool384kBnotAvaliable = false;
+                    bool bool384KBnotAvaliable = false;
                     DiscordGuild mainGuild = null;
 
-                    foreach (var guildItem in guildList.Where(x => x.Id == 928930967140331590))
+                    foreach (DiscordGuild guildItem in guildList.Where(x => x.Id == 928930967140331590))
                     {
                         mainGuild = guildItem;
                     }
 
                     if (mainGuild == null)
                         return;
-                        
-                    var discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice);
 
-                    foreach (var discordChannelItem in discordChannels)
+                    IEnumerable<DiscordChannel> discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice);
+
+                    foreach (DiscordChannel discordChannelItem in discordChannels)
                     {
                         try
                         {
@@ -71,7 +68,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
                         catch
                         {
-                            bool384kBnotAvaliable = true;
+                            bool384KBnotAvaliable = true;
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Bitrate 384000 not avaliable for guild");
                             Console.ForegroundColor = ConsoleColor.Gray;
@@ -79,9 +76,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                         }
                     }
 
-                    if (bool384kBnotAvaliable == true)
+                    if (bool384KBnotAvaliable == true)
                     {
-                        foreach (var discordChannelItem in discordChannels)
+                        foreach (DiscordChannel discordChannelItem in discordChannels)
                         {
                             try
                             {

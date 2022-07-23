@@ -1,11 +1,8 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
@@ -14,15 +11,15 @@ namespace SchattenclownBot.Model.Objects
     {
         public static async Task GenerateBirthdayList()
         {
-            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.Client.Guilds.ToList();
+            List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
             List<KeyValuePair<ulong, DateTime>> Birthdays = new();
 
             bool levelSystemVirgin = true;
             do
             {
-                if (Bot.Client.Guilds.ToList().Count != 0)
+                if (Bot.DiscordClient.Guilds.ToList().Count != 0)
                 {
-                    guildsList = Bot.Client.Guilds.ToList();
+                    guildsList = Bot.DiscordClient.Guilds.ToList();
 
                     levelSystemVirgin = false;
                 }
@@ -33,7 +30,7 @@ namespace SchattenclownBot.Model.Objects
             {
                 if (guildItem.Value.Id == 928930967140331590)
                 {
-                    DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(guildItem.Value.Id).Result;
+                    DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
                     IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
                     foreach (KeyValuePair<ulong, DiscordMember> discordMemberItem in discordMembers)
                     {
@@ -60,7 +57,7 @@ namespace SchattenclownBot.Model.Objects
             {
                 if (guildItem.Value.Id == 928930967140331590)
                 {
-                    DiscordChannel chn = await Bot.Client.GetChannelAsync(928938948221366334);
+                    DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(928938948221366334);
                     DiscordEmbedBuilder eb = new();
                     eb.Color = DiscordColor.Red;
                     eb.WithDescription(liststring);
@@ -77,7 +74,7 @@ namespace SchattenclownBot.Model.Objects
 
             List<DiscordRole> discordMemberRoleList = discordMember.Roles.ToList();
 
-            DiscordGuild discordGuildObj = Bot.Client.GetGuildAsync(discordMember.Guild.Id).Result;
+            DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(discordMember.Guild.Id).Result;
 
             DiscordRole zehner0 = discordGuildObj.GetRole(945301296330723348);
             DiscordRole zehner1 = discordGuildObj.GetRole(945301296993427517);

@@ -17,7 +17,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SchattenclownBot.Model.AsyncFunction
+namespace SchattenclownBot.Model.Discord.AppCommands
 {
     internal class PlayMusic
     {
@@ -472,7 +472,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             }
             catch
             {
-
+                // ignored
             }
         }
         internal static async Task GotKicked(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)

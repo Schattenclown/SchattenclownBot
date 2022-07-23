@@ -41,7 +41,7 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (botTimerItem.NotificationTime < DateTime.Now)
                         {
-                            DiscordChannel chn = await Bot.Client.GetChannelAsync(botTimerItem.ChannelId);
+                            DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(botTimerItem.ChannelId);
                             DiscordEmbedBuilder eb = new();
                             eb.Color = DiscordColor.Red;
                             eb.WithDescription($"<@{botTimerItem.MemberId}> Timer for {botTimerItem.NotificationTime} is up!");

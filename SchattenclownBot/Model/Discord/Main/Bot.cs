@@ -3,20 +3,17 @@ using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.Entities;
-using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
-using DisCatSharp.Interactivity.EventHandling;
 using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.VoiceNext;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.AsyncFunction;
-using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Objects;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,12 +30,11 @@ namespace SchattenclownBot.Model.Discord.Main
         public static readonly ulong DevGuild = 881868642600505354;
 
         public static CancellationTokenSource ShutdownRequest;
-        public static DiscordClient Client;
+        public static DiscordClient DiscordClient;
         public static ApplicationCommandsExtension AppCommands;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "<Pending>")]
-        private InteractivityExtension INext;
-        private CommandsNextExtension CNext;
-        private VoiceNextExtension VNext;
+        private InteractivityExtension _interactivityExtension;
+        private CommandsNextExtension _commandsNextExtension;
+        private VoiceNextExtension _voiceNextExtension;
 
         private static string _token = "";
         private static int _virgin = 0;
@@ -68,7 +64,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #else
             const LogLevel logLevel = LogLevel.Debug;
 #endif
-            DiscordConfiguration cfg = new()
+            DiscordConfiguration discordConfiguration = new()
             {
                 Token = _token,
                 TokenType = TokenType.Bot,
@@ -86,9 +82,9 @@ namespace SchattenclownBot.Model.Discord.Main
                 ReconnectIndefinitely = true
             };
 
-            Client = new DiscordClient(cfg);
+            DiscordClient = new DiscordClient(discordConfiguration);
 
-            AppCommands = Client.UseApplicationCommands(new ApplicationCommandsConfiguration()
+            AppCommands = DiscordClient.UseApplicationCommands(new ApplicationCommandsConfiguration()
             {
                 EnableDefaultHelp = true,
                 DebugStartup = true,
@@ -96,7 +92,7 @@ namespace SchattenclownBot.Model.Discord.Main
                 CheckAllGuilds = true
             });
 
-            CNext = Client.UseCommandsNext(new CommandsNextConfiguration
+            _commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
             {
                 StringPrefixes = new string[] { Prefix },
                 CaseSensitive = true,
@@ -107,7 +103,7 @@ namespace SchattenclownBot.Model.Discord.Main
                 EnableDms = true
             });
 
-            INext = Client.UseInteractivity(new InteractivityConfiguration
+            _interactivityExtension = DiscordClient.UseInteractivity(new InteractivityConfiguration
             {
                 PaginationBehaviour = PaginationBehaviour.WrapAround,
                 PaginationDeletion = PaginationDeletion.DeleteMessage,
@@ -115,13 +111,13 @@ namespace SchattenclownBot.Model.Discord.Main
                 ButtonBehavior = ButtonPaginationBehavior.Disable
             });
 
-            VNext = Client.UseVoiceNext(new VoiceNextConfiguration
+            _voiceNextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration
             {
 
             });
 
-            RegisterEventListener(Client, AppCommands, CNext);
-            RegisterCommands(CNext, AppCommands);
+            RegisterEventListener(DiscordClient, AppCommands, _commandsNextExtension);
+            RegisterCommands(_commandsNextExtension, AppCommands);
         }
 
         /// <summary>
@@ -129,10 +125,10 @@ namespace SchattenclownBot.Model.Discord.Main
         /// </summary>
         public void Dispose()
         {
-            Client.Dispose();
-            INext = null;
-            CNext = null;
-            Client = null;
+            DiscordClient.Dispose();
+            _interactivityExtension = null;
+            _commandsNextExtension = null;
+            DiscordClient = null;
             AppCommands = null;
             Environment.Exit(0);
         }
@@ -142,181 +138,181 @@ namespace SchattenclownBot.Model.Discord.Main
         /// </summary>
         public async Task RunAsync()
         {
-            await Client.ConnectAsync();
+            await DiscordClient.ConnectAsync();
 
-#pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
-            BotTimer.BotTimerRunAsync();
-            BotAlarmClock.BotAlarmClockRunAsync();
-            Client.ChannelCreated += GetItRightMee6.ItRight;
-            Client.VoiceStateUpdated += PlayMusic.ResumePlaying;
-            Client.VoiceStateUpdated += PlayMusic.GotKicked;
-            Client.ComponentInteractionCreated += PlayMusic.NextSongPerButton;
-            GetItRightMee6.CheckHighQualityAvailable(9);
-            WhereIsClown.WhereIsClownRunAsync(19);
-            UserLevelSystem.LevelSystemRunAsync(29);
-            UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
-            SympathySystem.SympathySystemRunAsync(59);
-            BirthdayList.GenerateBirthdayList();
-#pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
+            DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
+            DiscordClient.VoiceStateUpdated += PlayMusic.ResumePlaying;
+            DiscordClient.VoiceStateUpdated += PlayMusic.GotKicked;
+            DiscordClient.ComponentInteractionCreated += PlayMusic.NextSongPerButton;
+            _ = BotTimer.BotTimerRunAsync();
+            _ = BotAlarmClock.BotAlarmClockRunAsync();
+            _ = GetItRightMee6.CheckHighQualityAvailable(9);
+            _ = WhereIsClown.WhereIsClownRunAsync(19);
+            _ = UserLevelSystem.LevelSystemRunAsync(29);
+            _ = UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
+            _ = SympathySystem.SympathySystemRunAsync(59);
+            _ = BirthdayList.GenerateBirthdayList();
 
             while (!ShutdownRequest.IsCancellationRequested)
             {
                 await Task.Delay(2000);
             }
-            await Client.UpdateStatusAsync(activity: null, userStatus: UserStatus.Offline, idleSince: null);
-            await Client.DisconnectAsync();
+            await DiscordClient.UpdateStatusAsync(activity: null, userStatus: UserStatus.Offline, idleSince: null);
+            await DiscordClient.DisconnectAsync();
             await Task.Delay(2500);
             Dispose();
         }
 
         #region Register Commands & Events
+
         /// <summary>
         /// Registers the event listener.
         /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="cnext">The commandsNext extension.</param>
-        private void RegisterEventListener(DiscordClient client, ApplicationCommandsExtension appCommands, CommandsNextExtension cnext)
+        /// <param name="discordClient">The discordClient.</param>
+        /// <param name="applicationCommandsExtension"></param>
+        /// <param name="commandsNextExtension">The commandsNext extension.</param>
+        private static void RegisterEventListener(DiscordClient discordClient, ApplicationCommandsExtension applicationCommandsExtension, CommandsNextExtension commandsNextExtension)
         {
 
-            /* Client Basic Events */
-            client.SocketOpened += Client_SocketOpened;
-            client.SocketClosed += Client_SocketClosed;
-            client.SocketErrored += Client_SocketErrored;
-            client.Heartbeated += Client_Heartbeated;
-            client.Ready += Client_Ready;
-            client.Resumed += Client_Resumed;
+            /* DiscordClient Basic Events */
+            discordClient.SocketOpened += Client_SocketOpened;
+            discordClient.SocketClosed += Client_SocketClosed;
+            discordClient.SocketErrored += Client_SocketErrored;
+            discordClient.Heartbeated += Client_Heartbeated;
+            discordClient.Ready += Client_Ready;
+            discordClient.Resumed += Client_Resumed;
 
-            /* Client Events */
-            //client.GuildUnavailable += Client_GuildUnavailable;
-            //client.GuildAvailable += Client_GuildAvailable;
+            /* DiscordClient Events */
+            //discordClient.GuildUnavailable += Client_GuildUnavailable;
+            //discordClient.GuildAvailable += Client_GuildAvailable;
 
             /* CommandsNext Error */
-            cnext.CommandErrored += CNext_CommandErrored;
+            commandsNextExtension.CommandErrored += CNext_CommandErrored;
 
             /* Slash Infos */
-            client.ApplicationCommandCreated += Discord_ApplicationCommandCreated;
-            client.ApplicationCommandDeleted += Discord_ApplicationCommandDeleted;
-            client.ApplicationCommandUpdated += Discord_ApplicationCommandUpdated;
-            appCommands.SlashCommandErrored += Slash_SlashCommandErrored;
-            appCommands.SlashCommandExecuted += Slash_SlashCommandExecuted;
+            discordClient.ApplicationCommandCreated += Discord_ApplicationCommandCreated;
+            discordClient.ApplicationCommandDeleted += Discord_ApplicationCommandDeleted;
+            discordClient.ApplicationCommandUpdated += Discord_ApplicationCommandUpdated;
+            applicationCommandsExtension.SlashCommandErrored += Slash_SlashCommandErrored;
+            applicationCommandsExtension.SlashCommandExecuted += Slash_SlashCommandExecuted;
 
-            client.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
+            //discordClient.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
         }
 
         /// <summary>
         /// Registers the commands.
         /// </summary>
-        /// <param name="cnext">The commandsnext extension.</param>
-        /// <param name="appCommands">The appcommands extension.</param>
-        private void RegisterCommands(CommandsNextExtension cnext, ApplicationCommandsExtension appCommands)
+        /// <param name="commandsNextExtension">The commandsnext extension.</param>
+        /// <param name="applicationCommandsExtension">The appcommands extension.</param>
+        private static void RegisterCommands(CommandsNextExtension commandsNextExtension, ApplicationCommandsExtension applicationCommandsExtension)
         {
-            cnext.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
+            commandsNextExtension.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
 
-            appCommands.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
 
-            appCommands.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
+            applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
 
         }
 
-        private static Task Client_Ready(DiscordClient dcl, ReadyEventArgs e)
+        private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Starting with Prefix {Prefix} :3");
-            Console.WriteLine($"Starting {Client.CurrentUser.Username}");
-            Console.WriteLine("Client ready!");
-            Console.WriteLine($"Shard {dcl.ShardId}");
+            Console.WriteLine($"Starting {DiscordClient.CurrentUser.Username}");
+            Console.WriteLine("DiscordClient ready!");
+            Console.WriteLine($"Shard {discordClient.ShardId}");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Loading Commands...");
             Console.ForegroundColor = ConsoleColor.Magenta;
-            IReadOnlyDictionary<string, Command> commandlist = dcl.GetCommandsNext().RegisteredCommands;
-            foreach (KeyValuePair<string, Command> command in commandlist)
+            IReadOnlyDictionary<string, Command> registeredCommands = discordClient.GetCommandsNext().RegisteredCommands;
+            foreach (KeyValuePair<string, Command> command in registeredCommands)
             {
                 Console.WriteLine($"Command {command.Value.Name} loaded.");
             }
-            DiscordActivity activity = new()
+            DiscordActivity discordActivity = new()
             {
                 Name = Bot.Custom ? Bot.CustomState : $"/help",
                 ActivityType = ActivityType.Competing
             };
-            dcl.UpdateStatusAsync(activity: activity, userStatus: Bot.Custom ? Bot.CustomStatus : UserStatus.Online, idleSince: null);
+            discordClient.UpdateStatusAsync(activity: discordActivity, userStatus: Bot.Custom ? Bot.CustomStatus : UserStatus.Online, idleSince: null);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Bot ready!");
             Console.ForegroundColor = ConsoleColor.Gray;
             return Task.CompletedTask;
         }
 
-        private static Task Client_Resumed(DiscordClient dcl, ReadyEventArgs e)
+        private static Task Client_Resumed(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Bot resumed!");
             return Task.CompletedTask;
         }
 
-        private static Task Discord_ApplicationCommandUpdated(DiscordClient sender, ApplicationCommandEventArgs e)
+        private static Task Discord_ApplicationCommandUpdated(DiscordClient discordClient, ApplicationCommandEventArgs applicationCommandEventArgs)
         {
-            sender.Logger.LogInformation($"Shard {sender.ShardId} sent application command updated: {e.Command.Name}: {e.Command.Id} for {e.Command.ApplicationId}");
+            discordClient.Logger.LogInformation($"Shard {discordClient.ShardId} sent application command updated: {applicationCommandEventArgs.Command.Name}: {applicationCommandEventArgs.Command.Id} for {applicationCommandEventArgs.Command.ApplicationId}");
             return Task.CompletedTask;
         }
-        private static Task Discord_ApplicationCommandDeleted(DiscordClient sender, ApplicationCommandEventArgs e)
+        private static Task Discord_ApplicationCommandDeleted(DiscordClient discordClient, ApplicationCommandEventArgs applicationCommandEventArgs)
         {
-            sender.Logger.LogInformation($"Shard {sender.ShardId} sent application command deleted: {e.Command.Name}: {e.Command.Id} for {e.Command.ApplicationId}");
+            discordClient.Logger.LogInformation($"Shard {discordClient.ShardId} sent application command deleted: {applicationCommandEventArgs.Command.Name}: {applicationCommandEventArgs.Command.Id} for {applicationCommandEventArgs.Command.ApplicationId}");
             return Task.CompletedTask;
         }
-        private static Task Discord_ApplicationCommandCreated(DiscordClient sender, ApplicationCommandEventArgs e)
+        private static Task Discord_ApplicationCommandCreated(DiscordClient discordClient, ApplicationCommandEventArgs applicationCommandEventArgs)
         {
-            sender.Logger.LogInformation($"Shard {sender.ShardId} sent application command created: {e.Command.Name}: {e.Command.Id} for {e.Command.ApplicationId}");
+            discordClient.Logger.LogInformation($"Shard {discordClient.ShardId} sent application command created: {applicationCommandEventArgs.Command.Name}: {applicationCommandEventArgs.Command.Id} for {applicationCommandEventArgs.Command.ApplicationId}");
             return Task.CompletedTask;
         }
-        private static Task Slash_SlashCommandExecuted(ApplicationCommandsExtension sender, SlashCommandExecutedEventArgs e)
+        private static Task Slash_SlashCommandExecuted(ApplicationCommandsExtension applicationCommandsExtension, SlashCommandExecutedEventArgs slashCommandExecutedEventArgs)
         {
-            Console.WriteLine($"Slash/Info: {e.Context.CommandName}");
-            return Task.CompletedTask;
-        }
-
-        private static Task Slash_SlashCommandErrored(ApplicationCommandsExtension sender, SlashCommandErrorEventArgs e)
-        {
-            Console.WriteLine($"Slash/Error: {e.Exception.Message} | CN: {e.Context.CommandName} | IID: {e.Context.InteractionId}");
+            Console.WriteLine($"Slash/Info: {slashCommandExecutedEventArgs.Context.CommandName}");
             return Task.CompletedTask;
         }
 
-        private static Task CNext_CommandErrored(CommandsNextExtension ex, CommandErrorEventArgs e)
+        private static Task Slash_SlashCommandErrored(ApplicationCommandsExtension applicationCommandsExtension, SlashCommandErrorEventArgs slashCommandErrorEventArgs)
         {
-            if (e.Command == null)
+            Console.WriteLine($"Slash/Error: {slashCommandErrorEventArgs.Exception.Message} | CN: {slashCommandErrorEventArgs.Context.CommandName} | IID: {slashCommandErrorEventArgs.Context.InteractionId}");
+            return Task.CompletedTask;
+        }
+
+        private static Task CNext_CommandErrored(CommandsNextExtension commandsNextExtension, CommandErrorEventArgs commandErrorEventArgs)
+        {
+            if (commandErrorEventArgs.Command == null)
             {
-                Console.WriteLine($"{e.Exception.Message}");
+                Console.WriteLine($"{commandErrorEventArgs.Exception.Message}");
             }
             else
             {
-                Console.WriteLine($"{e.Command.Name}: {e.Exception.Message}");
+                Console.WriteLine($"{commandErrorEventArgs.Command.Name}: {commandErrorEventArgs.Exception.Message}");
             }
             return Task.CompletedTask;
         }
 
-        private static Task Client_SocketOpened(DiscordClient dcl, SocketEventArgs e)
+        private static Task Client_SocketOpened(DiscordClient discordClient, SocketEventArgs socketEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Socket opened");
             return Task.CompletedTask;
         }
 
-        private static Task Client_SocketErrored(DiscordClient dcl, SocketErrorEventArgs e)
+        private static Task Client_SocketErrored(DiscordClient discordClient, SocketErrorEventArgs socketErrorEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("Socket has an error! " + e.Exception.Message.ToString());
+            Console.WriteLine("Socket has an error! " + socketErrorEventArgs.Exception.Message.ToString());
             return Task.CompletedTask;
         }
 
-        private static Task Client_SocketClosed(DiscordClient dcl, SocketCloseEventArgs e)
+        private static Task Client_SocketClosed(DiscordClient discordClient, SocketCloseEventArgs socketCloseEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Socket closed: " + e.CloseMessage);
+            Console.WriteLine("Socket closed: " + socketCloseEventArgs.CloseMessage);
             return Task.CompletedTask;
         }
 
-        private static Task Client_Heartbeated(DiscordClient dcl, HeartbeatEventArgs e)
+        private static Task Client_Heartbeated(DiscordClient discordClient, HeartbeatEventArgs heartbeatEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Received Heartbeat:" + e.Ping);
+            Console.WriteLine("Received Heartbeat:" + heartbeatEventArgs.Ping);
             Console.ForegroundColor = ConsoleColor.Gray;
             return Task.CompletedTask;
         }

@@ -2,9 +2,7 @@
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SchattenclownBot.Model.Persistence
 {

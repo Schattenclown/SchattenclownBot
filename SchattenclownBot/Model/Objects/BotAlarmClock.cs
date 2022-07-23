@@ -38,7 +38,7 @@ namespace SchattenclownBot.Model.Objects
                     {
                         if (BotAlarmClockItem.NotificationTime < DateTime.Now)
                         {
-                            DiscordChannel chn = await Bot.Client.GetChannelAsync(BotAlarmClockItem.ChannelId);
+                            DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(BotAlarmClockItem.ChannelId);
                             DiscordEmbedBuilder eb = new();
                             eb.Color = DiscordColor.Red;
                             eb.WithDescription($"<@{BotAlarmClockItem.MemberId}> Alarm for {BotAlarmClockItem.NotificationTime} rings!");

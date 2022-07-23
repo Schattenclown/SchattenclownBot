@@ -1,31 +1,31 @@
 ﻿namespace SchattenclownBot.Model.HelpClasses
 {
     /// <summary>
-    /// Cuts a string until the word given with variation given with an integer
+    /// Cuts a string until the keyWord given with variation given with an integer
     /// </summary>
     public class StringCutter
     {
         /// <summary>
-        /// Removes until word.
+        /// Removes until keyWord.
         /// </summary>
         /// <param name="inputString">The string.</param>
-        /// <param name="word">The word.</param>
-        /// <param name="removeWordInt">The integer +/- from the word.</param>
+        /// <param name="keyWord">The keyWord.</param>
+        /// <param name="removeWordInt">The integer +/- from the keyWord.</param>
         /// <returns>A string.</returns>
-        public static string RemoveUntilWord(string inputString, string word, int removeWordInt)
+        public static string RemoveUntilWord(string inputString, string keyWord, int removeWordInt)
         {
-            return inputString.Substring(inputString.IndexOf(word) + removeWordInt);
+            return inputString.Substring(inputString.IndexOf(keyWord) + removeWordInt);
         }
         /// <summary>
-        /// Removes the after word.
+        /// Removes the after keyWord.
         /// </summary>
         /// <param name="inputString">The string.</param>
-        /// <param name="word">The word.</param>
-        /// <param name="keepWordInt">The integer +/- from the word.</param>
+        /// <param name="keyWord">The keyWord.</param>
+        /// <param name="keepWordInt">The integer +/- from the keyWord.</param>
         /// <returns>A string.</returns>
-        public static string RemoveAfterWord(string inputString, string word, int keepWordInt)
+        public static string RemoveAfterWord(string inputString, string keyWord, int keepWordInt)
         {
-            int index = inputString.LastIndexOf(word);
+            int index = inputString.LastIndexOf(keyWord);
             if (index > 0)
                 inputString = inputString.Substring(0, index + keepWordInt);
 
