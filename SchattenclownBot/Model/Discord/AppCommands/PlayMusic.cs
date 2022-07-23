@@ -16,6 +16,9 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using YoutubeDLSharp;
+using YoutubeDLSharp.Options;
+
 // ReSharper disable MethodSupportsCancellation
 // ReSharper disable UnusedMember.Global
 
@@ -24,6 +27,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
     internal class PlayMusic : ApplicationCommandsModule
     {
         private static readonly List<KeyValuePair<DiscordGuild, CancellationTokenSource>> TokenList = new();
+        private static readonly List<KeyValuePair<DiscordGuild, string>> QueList = new();
         [SlashCommand("Play", "Just plays some music!")]
         public async Task PlayAsync(InteractionContext interactionContext)
         {
@@ -64,6 +68,313 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             else
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already!"));
         }
+
+        [SlashCommand("YtPlay", "Just plays some music!")]
+        public async Task YtPlayAsync(InteractionContext interactionContext, [Option("YouTubeLink", "Link of the youtube video!")] string youtubeUriString)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+            if (interactionContext.Member.VoiceState == null)
+            {
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
+                return;
+            }
+
+            bool musicAlreadyPlaying = false;
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> dummy in TokenList.Where(x => x.Key == interactionContext.Guild))
+            {
+                musicAlreadyPlaying = true;
+                break;
+            }
+
+            if (!musicAlreadyPlaying)
+            {
+                CancellationTokenSource tokenSource = new();
+                CancellationToken cancellationToken = tokenSource.Token;
+                KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
+                TokenList.Add(keyPairItem);
+                KeyValuePair<DiscordGuild, string> queListItem = new KeyValuePair<DiscordGuild, string>(interactionContext.Guild, youtubeUriString);
+                QueList.Add(queListItem);
+
+                try
+                {
+#pragma warning disable CS4014
+                    Task.Run(() => YtPlayMusicTask(interactionContext, null, null, null, null, youtubeUriString, cancellationToken, false), cancellationToken);
+#pragma warning restore CS4014
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    TokenList.Remove(keyPairItem);
+                }
+            }
+            else
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already!"));
+        }
+
+        static async Task YtPlayMusicTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, string youtubeUriString, CancellationToken cancellationToken, bool isNextSongRequest)
+        {
+            try
+            {
+                VoiceNextExtension voiceNext = interactionContext != null ? interactionContext.Client.GetVoiceNext() : client.GetVoiceNext();
+
+                if (voiceNext == null)
+                    return;
+
+                VoiceNextConnection voiceNextConnection = interactionContext != null ? voiceNext.GetConnection(interactionContext.Guild) : voiceNext.GetConnection(discordGuild);
+                DiscordVoiceState voiceState = interactionContext != null ? interactionContext.Member?.VoiceState : discordMember?.VoiceState;
+
+                if (voiceState?.Channel == null)
+                    return;
+
+                voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
+
+                if (interactionContext != null)
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
+                else
+                    await interactionChannel.SendMessageAsync($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!");
+
+
+                do
+                {
+                    Uri uri = new(@"N:\");
+
+                    YoutubeDL youtubeDl = new()
+                    {
+                        YoutubeDLPath = "..\\..\\..\\youtube-dl\\yt-dlp.exe",
+                        FFmpegPath = "..\\..\\..\\ffmpeg\\ffmpeg.exe",
+                        OutputFolder = uri.AbsolutePath,
+                        RestrictFilenames = true,
+                        OverwriteFiles = false,
+                        IgnoreDownloadErrors = false
+                    };
+
+                    RunResult<string> a = await youtubeDl.RunAudioDownload(youtubeUriString, AudioConversionFormat.Best);
+
+                    //Metadata
+
+                    #region MetaTags
+
+                    /*TagLib.File tagLibSelectedFileToPlay = TagLib.File.Create(@$"{selectedFileToPlay}");
+                    MusicBrainz.Root musicBrainz = null;
+                    if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId != null)
+                    {
+                        Uri coverArtUrl = new($"https://coverartarchive.org/release/{tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId}");
+                        HttpClient httpClient = new();
+                        httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
+                        try
+                        {
+                            string httpClientContent = await httpClient.GetStringAsync(coverArtUrl);
+                            musicBrainz = MusicBrainz.CreateObj(httpClientContent);
+                        }
+                        catch
+                        {
+                            //ignore
+                        }
+                    }*/
+
+                    #endregion
+
+                    try
+                    {
+                        //DiscordFormat
+                        DiscordEmbedBuilder discordEmbedBuilder = new()
+                        {
+                            Title = "youtube"
+                        };
+
+                        #region discordEmbedBuilder
+
+                        /*DiscordEmbedBuilder discordEmbedBuilder = new()
+                        {
+                            Title = tagLibSelectedFileToPlay.Tag.Title
+                        };
+                        discordEmbedBuilder.WithAuthor(tagLibSelectedFileToPlay.Tag.JoinedPerformers);
+                        if (tagLibSelectedFileToPlay.Tag.Album != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagLibSelectedFileToPlay.Tag.Album, true));
+                        if (tagLibSelectedFileToPlay.Tag.JoinedGenres != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", tagLibSelectedFileToPlay.Tag.JoinedGenres, true));
+
+                        HttpClient httpClient = new();
+                        Stream streamForBitmap = null;
+                        if (musicBrainz != null)
+                        {
+                            discordEmbedBuilder.WithThumbnail(musicBrainz.Images.FirstOrDefault().ImageString);
+                            streamForBitmap = await httpClient.GetStreamAsync(musicBrainz.Images.FirstOrDefault().ImageString);
+                            discordEmbedBuilder.WithUrl(musicBrainz.Release);
+                        }
+                        else if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
+                        {
+                            discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId}/front");
+                            streamForBitmap = await httpClient.GetStreamAsync($"https://coverartarchive.org/release-group/{tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId}/front");
+                        }
+
+                        if (streamForBitmap != null)
+                        {
+                            Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+                            if (bitmapAlbumCover != null)
+                            {
+                                Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+                                discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                            }
+                        }
+                        else
+                        {
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzArtistId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", tagLibSelectedFileToPlay.Tag.MusicBrainzArtistId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzDiscId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", tagLibSelectedFileToPlay.Tag.MusicBrainzDiscId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseArtistId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseArtistId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseCountry != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseCountry));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseStatus != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseStatus));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseType != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseType));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzTrackId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", tagLibSelectedFileToPlay.Tag.MusicBrainzTrackId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicIpId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", tagLibSelectedFileToPlay.Tag.MusicIpId));
+                        }*/
+
+                        #endregion
+
+                        DiscordMessage discordMessage;
+
+                        if (interactionContext != null)
+                            discordMessage =
+                                await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
+                        else
+                            discordMessage = await interactionChannel.SendMessageAsync(discordEmbedBuilder.Build());
+
+                        DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
+                        DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
+                        DiscordComponent[] discordComponents = new DiscordComponent[2];
+                        discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Next!", false, discordComponentEmojisNext);
+                        discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", false, discordComponentEmojisStop);
+
+                        await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents));
+
+                        ProcessStartInfo psi = new()
+                        {
+                            FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\ffmpeg\\ffmpeg.exe",
+                            Arguments = $@"-i ""{a.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
+                            RedirectStandardOutput = true,
+                            UseShellExecute = false
+                        };
+                        Process ffmpeg = Process.Start(psi);
+                        Stream ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
+
+                        VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
+                        voiceTransmitSink.VolumeModifier = 0.2;
+
+                        Task ffmpegTask = ffmpegOutput.CopyToAsync(voiceTransmitSink);
+
+                        /*int counter = 0;
+                        TimeSpan timeSpan = new(0, 0, 0, 0);
+                        string playerAdvance = "";*/
+                        while (!ffmpegTask.IsCompleted)
+                        {
+                            //algorithms to create the timeline
+
+                            #region TimeLineAlgo
+
+                            /*if (counter % 10 == 0)
+                            {
+                                timeSpan = TimeSpan.FromSeconds(counter);
+
+                                string[] strings = new string[15];
+                                double thisIsOneHundredPercent = tagLibSelectedFileToPlay.Properties.Duration.TotalSeconds;
+
+                                double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * counter;
+
+                                double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
+
+                                for (int i = 0; i < strings.Length; i++)
+                                {
+                                    if (Convert.ToInt32(dotPositionInInt) == i)
+                                        strings[i] = "🔘";
+                                    else
+                                        strings[i] = "▬";
+                                }
+
+                                playerAdvance = "";
+                                foreach (string item in strings)
+                                {
+                                    playerAdvance += item;
+                                }
+
+                                string descriptionString = "⏹️";
+                                if (cancellationToken.IsCancellationRequested)
+                                    descriptionString = "▶️";
+
+                                descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToPlay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Seconds:#00}] 🔉";
+                                discordEmbedBuilder.Description = descriptionString;
+                                await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithEmbed(discordEmbedBuilder.Build()));
+                            }*/
+
+                            #endregion
+
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                ffmpegOutput.Close();
+                                break;
+                            }
+
+                            //counter++;
+                            await Task.Delay(1000);
+                        }
+
+                        //algorithms to create the timeline
+
+                        #region MoteTimeLineAlgo
+
+                        /*string durationString = $"{tagLibSelectedFileToPlay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Seconds:#00}";
+
+                        if (!cancellationToken.IsCancellationRequested)
+                            discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
+                        else
+                        {
+                            string descriptionString = "⏹️";
+                            if (cancellationToken.IsCancellationRequested)
+                                descriptionString = "▶️";
+
+                            descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToPlay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Seconds:#00}] 🔉";
+                            discordEmbedBuilder.Description = descriptionString;
+                        }
+                        await discordMessage.ModifyAsync(x => x.WithEmbed(discordEmbedBuilder.Build()));*/
+
+                        #endregion
+
+                        foreach (var queListItem in QueList.Where(x => x.Key == (interactionContext != null ? interactionContext.Guild : discordGuild) && x.Value == youtubeUriString))
+                        {
+                            QueList.Remove(queListItem);
+                            break;
+                        }
+
+                        await voiceTransmitSink.FlushAsync();
+                        await voiceNextConnection.WaitForPlaybackFinishAsync();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                } while (!cancellationToken.IsCancellationRequested && QueList.Any());
+            }
+            catch (Exception exc)
+            {
+                if (interactionContext != null)
+                    interactionContext.Client.Logger.LogError(exc.Message);
+                else
+                    client.Logger.LogError(exc.Message);
+            }
+        }
+
         [SlashCommand("Stop", "Stop the music!")]
         public async Task StopAsync(InteractionContext interactionContext)
         {
