@@ -478,7 +478,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 };
 
                 RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUriString, AudioConversionFormat.Opus);
-
+                
                 try
                 {
                     DiscordMessage discordMessage = interactionContext != null ? await interactionContext.Channel.SendMessageAsync(youtubeUriString) : await interactionChannel.SendMessageAsync(youtubeUriString);
@@ -528,7 +528,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             }
                         }
 
-                        await discordMessage.ModifyAsync(x => x.WithContent(youtubeUriString));
+                        await discordMessage.ModifyAsync(youtubeUriString);
 
                         await voiceTransmitSink.FlushAsync();
                         await voiceNextConnection.WaitForPlaybackFinishAsync();
