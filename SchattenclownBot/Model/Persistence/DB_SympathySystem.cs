@@ -51,7 +51,7 @@ namespace SchattenclownBot.Model.Persistence
 #if DEBUG
             string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
 #endif
             database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
@@ -163,7 +163,7 @@ namespace SchattenclownBot.Model.Persistence
 #if DEBUG
             string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
 #endif
             database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 

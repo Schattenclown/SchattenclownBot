@@ -192,9 +192,9 @@ namespace SchattenclownBot.Model.Discord.Main
 
             //Custom Events
             DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
-            DiscordClient.VoiceStateUpdated += PlayMusic.ResumePlaying;
+            DiscordClient.VoiceStateUpdated += PlayMusic.PanicLeave;
             DiscordClient.VoiceStateUpdated += PlayMusic.GotKicked;
-            DiscordClient.ComponentInteractionCreated += PlayMusic.NextSongPerButton;
+            DiscordClient.ComponentInteractionCreated += PlayMusic.ButtonPressEvent;
             DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
         }
 
