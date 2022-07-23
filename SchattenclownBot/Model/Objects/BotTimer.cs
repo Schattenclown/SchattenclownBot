@@ -9,35 +9,35 @@ namespace SchattenclownBot.Model.Objects
 {
     public class BotTimer
     {
-        public int DBEntryID { get; set; }
+        public int DbEntryId { get; set; }
         public DateTime NotificationTime { get; set; }
         public ulong ChannelId { get; set; }
         public ulong MemberId { get; set; }
-        public static List<BotTimer> botTimerList;
+        public static List<BotTimer> BotTimerList;
         public static void Add(BotTimer botTimer)
         {
-            DB_BotTimer.Add(botTimer);
-            BotTimerDBRefresh();
+            DbBotTimer.Add(botTimer);
+            BotTimerDbRefresh();
         }
         public static void Delete(BotTimer botTimer)
         {
-            DB_BotTimer.Delete(botTimer);
-            BotTimerDBRefresh();
+            DbBotTimer.Delete(botTimer);
+            BotTimerDbRefresh();
         }
         public static List<BotTimer> ReadAll()
         {
-            return DB_BotTimer.ReadAll();
+            return DbBotTimer.ReadAll();
         }
         public static async Task BotTimerRunAsync()
         {
-            DB_BotTimer.CreateTable_BotTimer();
-            botTimerList = DB_BotTimer.ReadAll();
+            DbBotTimer.CreateTable_BotTimer();
+            BotTimerList = DbBotTimer.ReadAll();
 
             await Task.Run(async () =>
             {
                 while (true)
                 {
-                    foreach (BotTimer botTimerItem in botTimerList)
+                    foreach (BotTimer botTimerItem in BotTimerList)
                     {
                         if (botTimerItem.NotificationTime < DateTime.Now)
                         {
@@ -56,15 +56,16 @@ namespace SchattenclownBot.Model.Objects
                     }
 
                     if (DateTime.Now.Second == 15)
-                        botTimerList = DB_BotTimer.ReadAll();
+                        BotTimerList = DbBotTimer.ReadAll();
 
                     await Task.Delay(1000 * 1);
                 }
+                // ReSharper disable once FunctionNeverReturns
             });
         }
-        public static void BotTimerDBRefresh()
+        public static void BotTimerDbRefresh()
         {
-            botTimerList = DB_BotTimer.ReadAll();
+            BotTimerList = DbBotTimer.ReadAll();
         }
     }
 }

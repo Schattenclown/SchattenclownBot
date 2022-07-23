@@ -5,6 +5,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using System.Linq;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -16,7 +17,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             System.Collections.Generic.List<DiscordRole> discordPermissions = interactionContext.Member.Roles.ToList();
             bool rightToMove = false;
 
-            foreach (DiscordRole discordRoleItem in discordPermissions.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
+            foreach (DiscordRole dummy in discordPermissions.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
                 rightToMove = true;
 
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

@@ -6,14 +6,14 @@ using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence
 {
-    public static class DB_UserLevelSystem
+    public static class DbUserLevelSystem
     {
         public static List<UserLevelSystem> Read(ulong guildId)
         {
             string sqlCommand = $"SELECT * FROM `{guildId}_levelSystem`";
             List<UserLevelSystem> userLevelSystemList = new();
-            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-            MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
+            MySqlConnection mySqlConnection = DbConnection.OpenDb();
+            MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
@@ -26,27 +26,28 @@ namespace SchattenclownBot.Model.Persistence
                 userLevelSystemList.Add(userLevelSystemObj);
             }
 
-            DB_Connection.CloseDB(mySqlConnection);
+            DbConnection.CloseDb(mySqlConnection);
             return userLevelSystemList;
         }
         public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
         {
             string sqlCommand = $"INSERT INTO `{guildId}_levelSystem` (MemberId, OnlineTicks, OnlineTime) " +
                              $"VALUES ({userLevelSystem.MemberId}, {userLevelSystem.OnlineTicks}, '{userLevelSystem.OnlineTime}')";
-            DB_Connection.ExecuteNonQuery(sqlCommand);
+            DbConnection.ExecuteNonQuery(sqlCommand);
         }
         public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
         {
             string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
-            DB_Connection.ExecuteNonQuery(sqlCommand);
+            DbConnection.ExecuteNonQuery(sqlCommand);
         }
         public static void CreateTable_UserLevelSystem(ulong guildId)
         {
-            Connections connetions = CSV_Connections.ReadAll();
+            Connections connections = CsvConnections.ReadAll();
 
-            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
 #if DEBUG
-            database = StringCutter.RemoveUntilWord(connetions.MySqlConStrDebug, "Database=", 9);
+            string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
+#else
+            string database = StringCutter.RemoveUntilWord(connetions.MySqlConStr, "Database=", 9);
 #endif
             database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
@@ -59,7 +60,7 @@ namespace SchattenclownBot.Model.Persistence
                              "PRIMARY KEY (MemberId)" +
                              ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
-            DB_Connection.ExecuteNonQuery(sqlCommand);
+            DbConnection.ExecuteNonQuery(sqlCommand);
         }
     }
 }

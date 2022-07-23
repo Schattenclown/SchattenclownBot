@@ -57,14 +57,13 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                             List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
-                            DiscordInvite discordChannelInvite = default(DiscordInvite);
                             foreach (DiscordMember discordMemberItem in discordMemberConnectedListSorted)
                             {
                                 try
                                 {
                                     voiceStateAny = true;
                                     lastDiscordMember ??= discordMemberItem;
-                                    DiscordVoiceState discordVoiceState = null;
+                                    DiscordVoiceState discordVoiceState;
                                     if (lastDiscordMember.VoiceState == null || discordMemberItem.VoiceState == null || (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem))
                                     {
                                         lastDiscordMember = discordMemberItem;
@@ -152,12 +151,12 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                                     DiscordChannel defaultDiscordChannel = discordVoiceState.Guild.GetDefaultChannel();
                                     IReadOnlyList<DiscordInvite> discordServerInvites = await defaultDiscordChannel.GetInvitesAsync();
-                                    DiscordInvite discordServerInvite = null;
-                                    discordServerInvite = discordServerInvites.FirstOrDefault(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id && x.Channel.Id == defaultDiscordChannel.Id);
+                                    DiscordInvite discordServerInvite = discordServerInvites.FirstOrDefault(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id && x.Channel.Id == defaultDiscordChannel.Id);
                                     discordServerInvite ??= await defaultDiscordChannel.CreateInviteAsync();
 
                                     discordComponents[1] = new DiscordLinkButtonComponent(discordServerInvite.Url, "Join server!", false, discordComponentEmojisJoinServer);
 
+                                    DiscordInvite discordChannelInvite;
                                     if (discordMessage == null)
                                     {
                                         discordChannelInvite = await discordVoiceState.Channel.CreateInviteAsync();
@@ -165,7 +164,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                                         discordComponents[0] = new DiscordLinkButtonComponent(discordChannelInvite.Url, "Join channel!", false, discordComponentEmojisJoinChannel);
 
                                         discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(content).AddEmbed(discordEmbedBuilder.Build())));
-
                                     }
                                     else
                                     {
@@ -190,7 +188,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 }
                             }
 
-                            discordChannelInvite = null;
                             getMessagesOncePerGuild = false;
                             discordMessagesList?.Clear();
                             discordMemberConnectedList.Clear();

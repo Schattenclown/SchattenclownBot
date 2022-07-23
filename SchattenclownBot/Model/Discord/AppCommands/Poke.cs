@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -28,8 +29,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             try
             {
                 DiscordChannel currentDiscordChannel = discordMember.VoiceState.Channel;
-                System.Collections.Generic.IReadOnlyList<DiscordChannel> discordChannels = await interactionContext.Guild.GetChannelsAsync();
-                System.Collections.Generic.IEnumerable<DiscordChannel> discordVoiceChannels = discordChannels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != currentDiscordChannel.Id && !x.Users.Any());
+                IReadOnlyList<DiscordChannel> discordChannels = await interactionContext.Guild.GetChannelsAsync();
+                IEnumerable<DiscordChannel> discordVoiceChannels = discordChannels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != currentDiscordChannel.Id && !x.Users.Any());
                 foreach (DiscordChannel discordChannel in discordVoiceChannels)
                 {
                     try
@@ -136,7 +137,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             List<DiscordRole> discordRoleList = discordMember.Roles.ToList();
 
-            foreach (DiscordRole discordRoleItem in discordRoleList.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
+            foreach (DiscordRole dummy in discordRoleList.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
                 rightToMove = true;
 
             bool desktopHasValue = false;

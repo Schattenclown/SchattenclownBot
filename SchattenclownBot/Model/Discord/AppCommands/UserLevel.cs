@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -29,7 +30,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             string rank = "N/A";
 
-            DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(interactionContext.Member.Id);
+            await Bot.DiscordClient.GetUserAsync(interactionContext.Member.Id);
 
             foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == interactionContext.Member.Id))
             {
@@ -180,11 +181,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                     int calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
 
-                    string daysstring = "Days";
+                    string daysString = "Days";
                     if (Convert.ToInt32($"{timeSpan:ddd}") == 1)
-                        daysstring = "Day ";
+                        daysString = "Day ";
 
-                    leaderboardString += "{" + $"{Convert.ToInt32($"{timeSpan:ddd}"),3} {daysstring} {timeSpan:hh}:{timeSpan:mm}" + "}" + $" Level {calculatedLevel,2} [{discordMember.DisplayName.Replace('\'', ' ')}]\n";
+                    leaderboardString += "{" + $"{Convert.ToInt32($"{timeSpan:ddd}"),3} {daysString} {timeSpan:hh}:{timeSpan:mm}" + "}" + $" Level {calculatedLevel,2} [{discordMember.DisplayName.Replace('\'', ' ')}]\n";
                     top30++;
                     if (top30 == 30)
                         break;

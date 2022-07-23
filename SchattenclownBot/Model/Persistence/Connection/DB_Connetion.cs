@@ -5,49 +5,47 @@ using System;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
-    class DB_Connection
+    class DbConnection
     {
-        private static string token = "";
-        private static int virgin = 0;
-        public static void SetDB()
+        private static string _token = "";
+        private static int _virgin;
+        public static void SetDb()
         {
             Connections connections = Connections.GetConnections();
-            token = connections.MySqlConStr;
+            _token = connections.MySqlConStr;
 #if DEBUG
-            token = connections.MySqlConStrDebug;
+            _token = connections.MySqlConStrDebug;
 #endif
         }
-        public static MySqlConnection OpenDB()
+        public static MySqlConnection OpenDb()
         {
-            if (virgin == 0)
-                SetDB();
-            virgin = 69;
+            if (_virgin == 0)
+                SetDb();
+            _virgin = 69;
 
-            MySqlConnection connection = new(token);
-            do
+            MySqlConnection connection = new(_token);
+
+            try
             {
-                try
-                {
-                    connection.Open();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    ConsoleStringFormatter.Center("DB IS DEAD");
-                    Reset.RestartProgram();
-                    throw;
-                }
-            } while (connection == null);
+                connection.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                ConsoleStringFormatter.Center("DB IS DEAD");
+                Reset.RestartProgram();
+                throw;
+            }
 
             return connection;
         }
-        public static void CloseDB(MySqlConnection connection)
+        public static void CloseDb(MySqlConnection connection)
         {
             connection.Close();
         }
         public static void ExecuteNonQuery(string sql)
         {
-            MySqlConnection connection = OpenDB();
+            MySqlConnection connection = OpenDb();
             MySqlCommand sqlCommand = new(sql, connection);
             int ret = sqlCommand.ExecuteNonQuery();
             if (ret != -1)
@@ -56,7 +54,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 Console.WriteLine($"{sqlCommand.CommandText}");
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
-            CloseDB(connection);
+            CloseDb(connection);
         }
         public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
         {

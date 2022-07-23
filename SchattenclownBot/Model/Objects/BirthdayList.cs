@@ -12,7 +12,7 @@ namespace SchattenclownBot.Model.Objects
         public static async Task GenerateBirthdayList()
         {
             List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
-            List<KeyValuePair<ulong, DateTime>> Birthdays = new();
+            List<KeyValuePair<ulong, DateTime>> birthdays = new();
 
             bool levelSystemVirgin = true;
             do
@@ -35,22 +35,22 @@ namespace SchattenclownBot.Model.Objects
                     foreach (KeyValuePair<ulong, DiscordMember> discordMemberItem in discordMembers)
                     {
                         DateTime birthday = GenerateDateTime(discordMemberItem.Value);
-                        DateTime dtcompare = new(9999, 9, 9);
-                        if (birthday != dtcompare)
-                            Birthdays.Add(new KeyValuePair<ulong, DateTime>(discordMemberItem.Value.Id, birthday));
+                        DateTime dateTimeComparer = new(9999, 9, 9);
+                        if (birthday != dateTimeComparer)
+                            birthdays.Add(new KeyValuePair<ulong, DateTime>(discordMemberItem.Value.Id, birthday));
                     }
                     break;
                 }
             }
 
-            if (Birthdays.Count != 0)
-                Birthdays.Sort((ps1, ps2) => DateTime.Compare(ps1.Value.Date, ps2.Value.Date));
+            if (birthdays.Count != 0)
+                birthdays.Sort((ps1, ps2) => DateTime.Compare(ps1.Value.Date, ps2.Value.Date));
 
-            string liststring = "";
+            string listString = "";
 
-            foreach (KeyValuePair<ulong, DateTime> item in Birthdays)
+            foreach (KeyValuePair<ulong, DateTime> item in birthdays)
             {
-                liststring += $"{item.Value.Day.ToString("00")}.{item.Value.Month.ToString("00")} --- <@{item.Key}>\n";
+                listString += $"{item.Value.Day.ToString("00")}.{item.Value.Month.ToString("00")} --- <@{item.Key}>\n";
             }
 
             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
@@ -58,9 +58,11 @@ namespace SchattenclownBot.Model.Objects
                 if (guildItem.Value.Id == 928930967140331590)
                 {
                     DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(928938948221366334);
-                    DiscordEmbedBuilder eb = new();
-                    eb.Color = DiscordColor.Red;
-                    eb.WithDescription(liststring);
+                    DiscordEmbedBuilder eb = new()
+                    {
+                        Color = DiscordColor.Red
+                    };
+                    eb.WithDescription(listString);
                     await chn.SendMessageAsync(eb.Build());
                     break;
                 }
@@ -68,9 +70,8 @@ namespace SchattenclownBot.Model.Objects
         }
         public static DateTime GenerateDateTime(DiscordMember discordMember)
         {
-            string birthdayday = "";
-            int birthdaydayint = 0;
-            int birthdaymonth = 0;
+            string birthdayDay = "";
+            int birthdayMonth = 0;
 
             List<DiscordRole> discordMemberRoleList = discordMember.Roles.ToList();
 
@@ -82,13 +83,13 @@ namespace SchattenclownBot.Model.Objects
             DiscordRole zehner3 = discordGuildObj.GetRole(945301298704683048);
 
             if (discordMemberRoleList.Contains(zehner0))
-                birthdayday += "0";
+                birthdayDay += "0";
             if (discordMemberRoleList.Contains(zehner1))
-                birthdayday += "1";
+                birthdayDay += "1";
             if (discordMemberRoleList.Contains(zehner2))
-                birthdayday += "2";
+                birthdayDay += "2";
             if (discordMemberRoleList.Contains(zehner3))
-                birthdayday += "3";
+                birthdayDay += "3";
 
             DiscordRole einer0 = discordGuildObj.GetRole(945301303649787904);
             DiscordRole einer1 = discordGuildObj.GetRole(945301749437177856);
@@ -102,25 +103,25 @@ namespace SchattenclownBot.Model.Objects
             DiscordRole einer9 = discordGuildObj.GetRole(945309830934044683);
 
             if (discordMemberRoleList.Contains(einer0))
-                birthdayday += "0";
+                birthdayDay += "0";
             if (discordMemberRoleList.Contains(einer1))
-                birthdayday += "1";
+                birthdayDay += "1";
             if (discordMemberRoleList.Contains(einer2))
-                birthdayday += "2";
+                birthdayDay += "2";
             if (discordMemberRoleList.Contains(einer3))
-                birthdayday += "3";
+                birthdayDay += "3";
             if (discordMemberRoleList.Contains(einer4))
-                birthdayday += "4";
+                birthdayDay += "4";
             if (discordMemberRoleList.Contains(einer5))
-                birthdayday += "5";
+                birthdayDay += "5";
             if (discordMemberRoleList.Contains(einer6))
-                birthdayday += "6";
+                birthdayDay += "6";
             if (discordMemberRoleList.Contains(einer7))
-                birthdayday += "7";
+                birthdayDay += "7";
             if (discordMemberRoleList.Contains(einer8))
-                birthdayday += "8";
+                birthdayDay += "8";
             if (discordMemberRoleList.Contains(einer9))
-                birthdayday += "9";
+                birthdayDay += "9";
 
             DiscordRole month1 = discordGuildObj.GetRole(945301816285990983);
             DiscordRole month2 = discordGuildObj.GetRole(945301818559324211);
@@ -136,39 +137,39 @@ namespace SchattenclownBot.Model.Objects
             DiscordRole month12 = discordGuildObj.GetRole(945310176163004476);
 
             if (discordMemberRoleList.Contains(month1))
-                birthdaymonth = 1;
+                birthdayMonth = 1;
             if (discordMemberRoleList.Contains(month2))
-                birthdaymonth = 2;
+                birthdayMonth = 2;
             if (discordMemberRoleList.Contains(month3))
-                birthdaymonth = 3;
+                birthdayMonth = 3;
             if (discordMemberRoleList.Contains(month4))
-                birthdaymonth = 4;
+                birthdayMonth = 4;
             if (discordMemberRoleList.Contains(month5))
-                birthdaymonth = 5;
+                birthdayMonth = 5;
             if (discordMemberRoleList.Contains(month6))
-                birthdaymonth = 6;
+                birthdayMonth = 6;
             if (discordMemberRoleList.Contains(month7))
-                birthdaymonth = 7;
+                birthdayMonth = 7;
             if (discordMemberRoleList.Contains(month8))
-                birthdaymonth = 8;
+                birthdayMonth = 8;
             if (discordMemberRoleList.Contains(month9))
-                birthdaymonth = 9;
+                birthdayMonth = 9;
             if (discordMemberRoleList.Contains(month10))
-                birthdaymonth = 10;
+                birthdayMonth = 10;
             if (discordMemberRoleList.Contains(month11))
-                birthdaymonth = 11;
+                birthdayMonth = 11;
             if (discordMemberRoleList.Contains(month12))
-                birthdaymonth = 12;
+                birthdayMonth = 12;
 
-            birthdaydayint = Convert.ToInt32(birthdayday);
+            int birthdayDayInt = Convert.ToInt32(birthdayDay);
 
             DateTime dateTime;
 
-            if (birthdaymonth is >= 1 and <= 12 && birthdaydayint is >= 1 and <= 31)
+            if (birthdayMonth is >= 1 and <= 12 && birthdayDayInt is >= 1 and <= 31)
             {
                 try
                 {
-                    dateTime = new DateTime(1, birthdaymonth, birthdaydayint);
+                    dateTime = new DateTime(1, birthdayMonth, birthdayDayInt);
                     return dateTime;
                 }
                 catch

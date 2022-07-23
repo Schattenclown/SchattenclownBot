@@ -40,7 +40,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                 while (true)
                 {
-                    bool bool384KBnotAvaliable = false;
+                    bool bool384KbNotAvailable = false;
                     DiscordGuild mainGuild = null;
 
                     foreach (DiscordGuild guildItem in guildList.Where(x => x.Id == 928930967140331590))
@@ -51,7 +51,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                     if (mainGuild == null)
                         return;
 
-                    IEnumerable<DiscordChannel> discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice);
+                    IEnumerable<DiscordChannel> discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice).ToList();
 
                     foreach (DiscordChannel discordChannelItem in discordChannels)
                     {
@@ -62,21 +62,21 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 {
                                     await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"Bitrate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!");
+                                    Console.WriteLine($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!");
                                     Console.ForegroundColor = ConsoleColor.Gray;
                                 }
                         }
                         catch
                         {
-                            bool384KBnotAvaliable = true;
+                            bool384KbNotAvailable = true;
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Bitrate 384000 not avaliable for guild");
+                            Console.WriteLine("Bit-rate 384000 not available for guild");
                             Console.ForegroundColor = ConsoleColor.Gray;
                             break;
                         }
                     }
 
-                    if (bool384KBnotAvaliable == true)
+                    if (bool384KbNotAvailable)
                     {
                         foreach (DiscordChannel discordChannelItem in discordChannels)
                         {
@@ -87,14 +87,14 @@ namespace SchattenclownBot.Model.AsyncFunction
                                     {
                                         await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
                                         Console.ForegroundColor = ConsoleColor.Red;
-                                        Console.WriteLine($"Bitrate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!");
+                                        Console.WriteLine($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!");
                                         Console.ForegroundColor = ConsoleColor.Gray;
                                     }
                             }
                             catch
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine("Bitrate 256000 not avaliable for guild");
+                                Console.WriteLine("Bit-rate 256000 not available for guild");
                                 Console.ForegroundColor = ConsoleColor.Gray;
                                 break;
                             }

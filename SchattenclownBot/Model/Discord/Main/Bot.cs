@@ -27,20 +27,20 @@ namespace SchattenclownBot.Model.Discord.Main
 #else 
         public const string Prefix = "%";
 #endif
-        public static readonly ulong DevGuild = 881868642600505354;
+        //public static readonly ulong DevGuild = 881868642600505354;
 
         public static CancellationTokenSource ShutdownRequest;
         public static DiscordClient DiscordClient;
         public static ApplicationCommandsExtension AppCommands;
-        private InteractivityExtension _interactivityExtension;
+        public InteractivityExtension Extension { get; private set; }
+        public VoiceNextExtension NextExtension { get; }
         private CommandsNextExtension _commandsNextExtension;
-        private VoiceNextExtension _voiceNextExtension;
 
         private static string _token = "";
-        private static int _virgin = 0;
+        private static int _virgin;
         public static UserStatus CustomStatus = UserStatus.Online;
         public static bool Custom = false;
-        public static string CustomState = $"/help";
+        public static string CustomState = "/help";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Bot"/> class.
@@ -94,7 +94,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
             _commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = new string[] { Prefix },
+                StringPrefixes = new[] { Prefix },
                 CaseSensitive = true,
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true,
@@ -103,7 +103,7 @@ namespace SchattenclownBot.Model.Discord.Main
                 EnableDms = true
             });
 
-            _interactivityExtension = DiscordClient.UseInteractivity(new InteractivityConfiguration
+            Extension = DiscordClient.UseInteractivity(new InteractivityConfiguration
             {
                 PaginationBehaviour = PaginationBehaviour.WrapAround,
                 PaginationDeletion = PaginationDeletion.DeleteMessage,
@@ -111,9 +111,11 @@ namespace SchattenclownBot.Model.Discord.Main
                 ButtonBehavior = ButtonPaginationBehavior.Disable
             });
 
-            _voiceNextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration
+            NextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration
             {
-
+                AudioFormat = default,
+                EnableIncoming = false,
+                PacketQueueSize = 0
             });
 
             RegisterEventListener(DiscordClient, AppCommands, _commandsNextExtension);
@@ -126,7 +128,7 @@ namespace SchattenclownBot.Model.Discord.Main
         public void Dispose()
         {
             DiscordClient.Dispose();
-            _interactivityExtension = null;
+            Extension = null;
             _commandsNextExtension = null;
             DiscordClient = null;
             AppCommands = null;
@@ -179,8 +181,8 @@ namespace SchattenclownBot.Model.Discord.Main
             /* DiscordClient Basic Events */
             discordClient.SocketOpened += Client_SocketOpened;
             discordClient.SocketClosed += Client_SocketClosed;
-            discordClient.SocketErrored += Client_SocketErrored;
-            discordClient.Heartbeated += Client_Heartbeated;
+            discordClient.SocketErrored += Client_SocketError;
+            discordClient.Heartbeated += Client_Heartbeat;
             discordClient.Ready += Client_Ready;
             discordClient.Resumed += Client_Resumed;
 
@@ -189,13 +191,13 @@ namespace SchattenclownBot.Model.Discord.Main
             //discordClient.GuildAvailable += Client_GuildAvailable;
 
             /* CommandsNext Error */
-            commandsNextExtension.CommandErrored += CNext_CommandErrored;
+            commandsNextExtension.CommandErrored += CNext_CommandError;
 
             /* Slash Infos */
             discordClient.ApplicationCommandCreated += Discord_ApplicationCommandCreated;
             discordClient.ApplicationCommandDeleted += Discord_ApplicationCommandDeleted;
             discordClient.ApplicationCommandUpdated += Discord_ApplicationCommandUpdated;
-            applicationCommandsExtension.SlashCommandErrored += Slash_SlashCommandErrored;
+            applicationCommandsExtension.SlashCommandErrored += Slash_SlashCommandError;
             applicationCommandsExtension.SlashCommandExecuted += Slash_SlashCommandExecuted;
 
             //discordClient.ComponentInteractionCreated += Discord.AppCommands.Main.Discord_ComponentInteractionCreated;
@@ -250,7 +252,7 @@ namespace SchattenclownBot.Model.Discord.Main
             }
             DiscordActivity discordActivity = new()
             {
-                Name = Bot.Custom ? Bot.CustomState : $"/help",
+                Name = Bot.Custom ? Bot.CustomState : "/help",
                 ActivityType = ActivityType.Competing
             };
             discordClient.UpdateStatusAsync(activity: discordActivity, userStatus: Bot.Custom ? Bot.CustomStatus : UserStatus.Online, idleSince: null);
@@ -288,22 +290,15 @@ namespace SchattenclownBot.Model.Discord.Main
             return Task.CompletedTask;
         }
 
-        private static Task Slash_SlashCommandErrored(ApplicationCommandsExtension applicationCommandsExtension, SlashCommandErrorEventArgs slashCommandErrorEventArgs)
+        private static Task Slash_SlashCommandError(ApplicationCommandsExtension applicationCommandsExtension, SlashCommandErrorEventArgs slashCommandErrorEventArgs)
         {
             Console.WriteLine($"Slash/Error: {slashCommandErrorEventArgs.Exception.Message} | CN: {slashCommandErrorEventArgs.Context.CommandName} | IID: {slashCommandErrorEventArgs.Context.InteractionId}");
             return Task.CompletedTask;
         }
 
-        private static Task CNext_CommandErrored(CommandsNextExtension commandsNextExtension, CommandErrorEventArgs commandErrorEventArgs)
+        private static Task CNext_CommandError(CommandsNextExtension commandsNextExtension, CommandErrorEventArgs commandErrorEventArgs)
         {
-            if (commandErrorEventArgs.Command == null)
-            {
-                Console.WriteLine($"{commandErrorEventArgs.Exception.Message}");
-            }
-            else
-            {
-                Console.WriteLine($"{commandErrorEventArgs.Command.Name}: {commandErrorEventArgs.Exception.Message}");
-            }
+            Console.WriteLine(commandErrorEventArgs.Command == null ? $"{commandErrorEventArgs.Exception.Message}" : $"{commandErrorEventArgs.Command.Name}: {commandErrorEventArgs.Exception.Message}");
             return Task.CompletedTask;
         }
 
@@ -314,10 +309,10 @@ namespace SchattenclownBot.Model.Discord.Main
             return Task.CompletedTask;
         }
 
-        private static Task Client_SocketErrored(DiscordClient discordClient, SocketErrorEventArgs socketErrorEventArgs)
+        private static Task Client_SocketError(DiscordClient discordClient, SocketErrorEventArgs socketErrorEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("Socket has an error! " + socketErrorEventArgs.Exception.Message.ToString());
+            Console.WriteLine("Socket has an error! " + socketErrorEventArgs.Exception.Message);
             return Task.CompletedTask;
         }
 
@@ -328,7 +323,7 @@ namespace SchattenclownBot.Model.Discord.Main
             return Task.CompletedTask;
         }
 
-        private static Task Client_Heartbeated(DiscordClient discordClient, HeartbeatEventArgs heartbeatEventArgs)
+        private static Task Client_Heartbeat(DiscordClient discordClient, HeartbeatEventArgs heartbeatEventArgs)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Received Heartbeat:" + heartbeatEventArgs.Ping);

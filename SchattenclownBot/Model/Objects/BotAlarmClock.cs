@@ -9,7 +9,7 @@ namespace SchattenclownBot.Model.Objects
 {
     public class BotAlarmClock
     {
-        public int DBEntryID { get; set; }
+        public int DbEntryId { get; set; }
         public DateTime NotificationTime { get; set; }
         public ulong ChannelId { get; set; }
         public ulong MemberId { get; set; }
@@ -17,33 +17,33 @@ namespace SchattenclownBot.Model.Objects
         public static List<BotAlarmClock> BotAlarmClockList;
         public static void Add(BotAlarmClock botAlarmClock)
         {
-            DB_BotAlarmClocks.Add(botAlarmClock);
-            BotAlarmClocksDBRefresh();
+            DbBotAlarmClocks.Add(botAlarmClock);
+            BotAlarmClocksDbRefresh();
         }
         public static void Delete(BotAlarmClock botAlarmClock)
         {
-            DB_BotAlarmClocks.Delete(botAlarmClock);
-            BotAlarmClocksDBRefresh();
+            DbBotAlarmClocks.Delete(botAlarmClock);
+            BotAlarmClocksDbRefresh();
         }
         public static async Task BotAlarmClockRunAsync()
         {
-            DB_BotAlarmClocks.CreateTable_BotAlarmClock();
-            BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+            DbBotAlarmClocks.CreateTable_BotAlarmClock();
+            BotAlarmClockList = DbBotAlarmClocks.ReadAll();
 
             await Task.Run(async () =>
             {
                 while (true)
                 {
-                    foreach (BotAlarmClock BotAlarmClockItem in BotAlarmClockList)
+                    foreach (BotAlarmClock botAlarmClockItem in BotAlarmClockList)
                     {
-                        if (BotAlarmClockItem.NotificationTime < DateTime.Now)
+                        if (botAlarmClockItem.NotificationTime < DateTime.Now)
                         {
-                            DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(BotAlarmClockItem.ChannelId);
+                            DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(botAlarmClockItem.ChannelId);
                             DiscordEmbedBuilder eb = new();
                             eb.Color = DiscordColor.Red;
-                            eb.WithDescription($"<@{BotAlarmClockItem.MemberId}> Alarm for {BotAlarmClockItem.NotificationTime} rings!");
+                            eb.WithDescription($"<@{botAlarmClockItem.MemberId}> Alarm for {botAlarmClockItem.NotificationTime} rings!");
 
-                            BotAlarmClock.Delete(BotAlarmClockItem);
+                            BotAlarmClock.Delete(botAlarmClockItem);
                             for (int i = 0; i < 3; i++)
                             {
                                 await chn.SendMessageAsync(eb.Build());
@@ -53,15 +53,16 @@ namespace SchattenclownBot.Model.Objects
                     }
 
                     if (DateTime.Now.Second == 30)
-                        BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+                        BotAlarmClockList = DbBotAlarmClocks.ReadAll();
 
                     await Task.Delay(1000 * 1);
                 }
+                // ReSharper disable once FunctionNeverReturns
             });
         }
-        public static void BotAlarmClocksDBRefresh()
+        public static void BotAlarmClocksDbRefresh()
         {
-            BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+            BotAlarmClockList = DbBotAlarmClocks.ReadAll();
         }
     }
 }

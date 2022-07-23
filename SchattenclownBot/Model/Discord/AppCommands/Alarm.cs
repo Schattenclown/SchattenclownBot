@@ -7,6 +7,7 @@ using SchattenclownBot.Model.Persistence;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -66,7 +67,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create a List where all Alarms will be Listed if there are any set.
-            System.Collections.Generic.List<BotAlarmClock> botAlarmClockList = DB_BotAlarmClocks.ReadAll();
+            System.Collections.Generic.List<BotAlarmClock> botAlarmClockList = DbBotAlarmClocks.ReadAll();
 
             //Create an Embed.
             DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -85,7 +86,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 //Set the switch to false because at least one Alarm was found.
                 noTimers = false;
                 //Add an field to the Embed with the Alarm that was found.
-                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"Alarm with ID {botAlarmClockItem.DBEntryID}"));
+                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"Alarm with ID {botAlarmClockItem.DbEntryId}"));
             }
 
             //Set the Title so the User knows no Alarms for him where found.

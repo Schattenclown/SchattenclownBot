@@ -3,9 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace SchattenclownBot.Model.HelpClasses
 {
-    class ColorMath
+    internal class ColorMath
     {
-        public static Color getDominantColor(Bitmap bitmap)
+        public static Color GetDominantColor(Bitmap bitmap)
         {
             //Used for tally
             int r = 0;
@@ -29,9 +29,13 @@ namespace SchattenclownBot.Model.HelpClasses
             }
 
             //Calculate average
-            r /= total;
-            g /= total;
-            b /= total;
+            // ReSharper disable once InvertIf
+            if (total != 0)
+            {
+                r /= total;
+                g /= total;
+                b /= total;
+            }
 
             return Color.FromArgb(r, g, b);
         }

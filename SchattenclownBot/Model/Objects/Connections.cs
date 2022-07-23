@@ -14,7 +14,7 @@ namespace SchattenclownBot.Model.Objects
         {
             try
             {
-                return CSV_Connections.ReadAll();
+                return CsvConnections.ReadAll();
             }
             catch (Exception ex)
             {

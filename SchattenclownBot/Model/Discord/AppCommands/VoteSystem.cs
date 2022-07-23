@@ -4,10 +4,9 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Objects;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
-using SchattenclownBot.Model.Discord.ChoiceProvider;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -107,33 +106,36 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                 discordEmbedBuilder.Description = "U are Flagged +91 u cant vote!";
             }
-            else if (discordMember.Id == discordTargetMember.Id)
+            else if (discordMember != null && discordMember.Id == discordTargetMember.Id)
             {
                 discordEmbedBuilder.Description = "NoNoNo we don´t do this around here! CHEATER!";
             }
             else
             {
-                SympathySystem sympathySystemObj = new()
+                if (discordMember != null)
                 {
-                    VotingUserID = discordMember.Id,
-                    VotedUserID = discordTargetMember.Id,
-                    GuildID = componentInteractionCreateEventArgs.Guild.Id,
-                    VoteRating = rating
-                };
+                    SympathySystem sympathySystemObj = new()
+                    {
+                        VotingUserId = discordMember.Id,
+                        VotedUserId = discordTargetMember.Id,
+                        GuildId = componentInteractionCreateEventArgs.Guild.Id,
+                        VoteRating = rating
+                    };
 
-                System.Collections.Generic.List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
+                    System.Collections.Generic.List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
 
-                foreach (SympathySystem sympathySystemItem in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserID == sympathySystemObj.VotingUserID && sympathySystemItem.VotedUserID == sympathySystemObj.VotedUserID))
-                    foundTargetMemberInDb = true;
+                    foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
+                        foundTargetMemberInDb = true;
 
-                switch (foundTargetMemberInDb)
-                {
-                    case false:
-                        SympathySystem.Add(sympathySystemObj);
-                        break;
-                    case true:
-                        SympathySystem.Change(sympathySystemObj);
-                        break;
+                    switch (foundTargetMemberInDb)
+                    {
+                        case false:
+                            SympathySystem.Add(sympathySystemObj);
+                            break;
+                        case true:
+                            SympathySystem.Change(sympathySystemObj);
+                            break;
+                    }
                 }
 
                 discordEmbedBuilder.Description = $"You gave {discordTargetMember.Mention} the Rating {rating}";

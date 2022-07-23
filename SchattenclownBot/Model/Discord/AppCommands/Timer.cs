@@ -7,6 +7,7 @@ using SchattenclownBot.Model.Persistence;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -58,7 +59,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create an List with all Timers that where found in the Database.
-            System.Collections.Generic.List<BotTimer> botTimerList = DB_BotTimer.ReadAll();
+            System.Collections.Generic.List<BotTimer> botTimerList = DbBotTimer.ReadAll();
 
             //Create an Embed.
             DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -77,7 +78,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 //Set the switch to false because at least one Timer was found.
                 noTimers = false;
                 //Add an field to the Embed with the Timer that was found.
-                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.DBEntryID}"));
+                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.DbEntryId}"));
             }
 
             //Set the Title so the User knows no Timers for him where found.

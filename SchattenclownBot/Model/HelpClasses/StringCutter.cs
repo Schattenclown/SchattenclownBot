@@ -1,4 +1,6 @@
-﻿namespace SchattenclownBot.Model.HelpClasses
+﻿using System;
+
+namespace SchattenclownBot.Model.HelpClasses
 {
     /// <summary>
     /// Cuts a string until the keyWord given with variation given with an integer
@@ -14,7 +16,7 @@
         /// <returns>A string.</returns>
         public static string RemoveUntilWord(string inputString, string keyWord, int removeWordInt)
         {
-            return inputString.Substring(inputString.IndexOf(keyWord) + removeWordInt);
+            return inputString[(inputString.IndexOf(keyWord, StringComparison.Ordinal) + removeWordInt)..];
         }
         /// <summary>
         /// Removes the after keyWord.
@@ -25,9 +27,9 @@
         /// <returns>A string.</returns>
         public static string RemoveAfterWord(string inputString, string keyWord, int keepWordInt)
         {
-            int index = inputString.LastIndexOf(keyWord);
+            int index = inputString.LastIndexOf(keyWord, StringComparison.Ordinal);
             if (index > 0)
-                inputString = inputString.Substring(0, index + keepWordInt);
+                inputString = inputString[..(index + keepWordInt)];
 
             return inputString;
         }

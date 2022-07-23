@@ -6,15 +6,15 @@ using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence
 {
-    public class DB_BotTimer
+    public class DbBotTimer
     {
         public static List<BotTimer> ReadAll()
         {
             string sql = "SELECT * FROM ScTimers";
 
             List<BotTimer> botTimerList = new();
-            MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-            MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sql, mySqlConnection);
+            MySqlConnection mySqlConnection = DbConnection.OpenDb();
+            MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
 
             if (mySqlDataReader != null)
             {
@@ -22,7 +22,7 @@ namespace SchattenclownBot.Model.Persistence
                 {
                     BotTimer botTimer = new()
                     {
-                        DBEntryID = mySqlDataReader.GetInt32("DBEntryID"),
+                        DbEntryId = mySqlDataReader.GetInt32("DBEntryID"),
                         NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"),
                         ChannelId = mySqlDataReader.GetUInt64("ChannelId"),
                         MemberId = mySqlDataReader.GetUInt64("MemberId")
@@ -31,29 +31,29 @@ namespace SchattenclownBot.Model.Persistence
                 }
             }
 
-            DB_Connection.CloseDB(mySqlConnection);
+            DbConnection.CloseDb(mySqlConnection);
             return botTimerList;
         }
         public static void Add(BotTimer botTimer)
         {
-            string sql = $"INSERT INTO ScTimers (NotificationTime, ChannelId, MemberId) " +
+            string sql = "INSERT INTO ScTimers (NotificationTime, ChannelId, MemberId) " +
                       $"VALUES ('{botTimer.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botTimer.ChannelId}, {botTimer.MemberId})";
-            DB_Connection.ExecuteNonQuery(sql);
+            DbConnection.ExecuteNonQuery(sql);
         }
         public static void Delete(BotTimer botTimer)
         {
-            string sql = $"DELETE FROM ScTimers WHERE `DBEntryID` = '{botTimer.DBEntryID}'";
-            DB_Connection.ExecuteNonQuery(sql);
+            string sql = $"DELETE FROM ScTimers WHERE `DBEntryID` = '{botTimer.DbEntryId}'";
+            DbConnection.ExecuteNonQuery(sql);
         }
         public static void CreateTable_BotTimer()
         {
-            CSV_Connections cSV_Connections = new();
-            Connections connections = new();
-            connections = CSV_Connections.ReadAll();
+            Connections connections = CsvConnections.ReadAll();
 
-            string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
+
 #if DEBUG
-            database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
+            string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
+#else
+            string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
 #endif
             database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
@@ -67,7 +67,7 @@ namespace SchattenclownBot.Model.Persistence
                       "PRIMARY KEY (`DBEntryID`)) " +
                       "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
 
-            DB_Connection.ExecuteNonQuery(sql);
+            DbConnection.ExecuteNonQuery(sql);
         }
     }
 }

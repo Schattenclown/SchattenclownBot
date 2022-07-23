@@ -1,8 +1,7 @@
 ﻿using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
-using DisCatSharp.Entities;
-using SchattenclownBot.Model.Discord.Main;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.Commands
 {

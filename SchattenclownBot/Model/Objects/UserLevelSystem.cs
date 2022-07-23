@@ -17,25 +17,22 @@ namespace SchattenclownBot.Model.Objects
         public TimeSpan OnlineTime { get; set; }
         public double VoteRatingAvg { get; set; }
         private const string RoleChannelLevelString = "Voice Channel Level";
-        public UserLevelSystem()
-        {
 
-        }
         public static List<UserLevelSystem> Read(ulong guildId)
         {
-            return DB_UserLevelSystem.Read(guildId);
+            return DbUserLevelSystem.Read(guildId);
         }
         public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
         {
-            DB_UserLevelSystem.Add(guildId, userLevelSystem);
+            DbUserLevelSystem.Add(guildId, userLevelSystem);
         }
         public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
         {
-            DB_UserLevelSystem.Change(guildId, userLevelSystem);
+            DbUserLevelSystem.Change(guildId, userLevelSystem);
         }
         public static void CreateTable_UserLevelSystem(ulong guildId)
         {
-            DB_UserLevelSystem.CreateTable_UserLevelSystem(guildId);
+            DbUserLevelSystem.CreateTable_UserLevelSystem(guildId);
         }
         public static int CalculateLevel(int onlineTicks)
         {
@@ -100,7 +97,7 @@ namespace SchattenclownBot.Model.Objects
                     List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        List<UserLevelSystem> userLevelSystemList = new();
+                        List<UserLevelSystem> userLevelSystemList;
                         userLevelSystemList = UserLevelSystem.Read(guildItem.Value.Id);
 
                         IReadOnlyDictionary<ulong, DiscordMember> guildMembers = guildItem.Value.Members;
@@ -143,6 +140,7 @@ namespace SchattenclownBot.Model.Objects
                     }
                     await Task.Delay(2000);
                 }
+                // ReSharper disable once FunctionNeverReturns
             });
         }
         public static async Task LevelSystemRoleDistributionRunAsync(int executeSecond)
@@ -181,7 +179,8 @@ namespace SchattenclownBot.Model.Objects
                     await Task.Delay(1000);
                 } while (levelSystemRoleDistributionVirgin);
 
-                while (true && guildObj != null)
+                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
+                while (guildObj != null)
                 {
                     while (DateTime.Now.Second != executeSecond)
                     {
@@ -300,41 +299,45 @@ namespace SchattenclownBot.Model.Objects
                         await Task.Delay(1000);
                     }
 
-                    List<DiscordRole> discordRoleList = guildObj.Roles.Values.ToList();
-                    List<KeyValuePair<int, DiscordRole>> discordRoleListSortedOut = new();
-
-                    foreach (DiscordRole discordRoleItem in discordRoleList.Where(discordRoleItem => discordRoleItem.Name.Contains(RoleChannelLevelString)))
+                    if (guildObj != null)
                     {
-                        if (discordRoleItem.Id != 981575801214492752)
+                        List<DiscordRole> discordRoleList = guildObj.Roles.Values.ToList();
+                        List<KeyValuePair<int, DiscordRole>> discordRoleListSortedOut = new();
+
+                        foreach (DiscordRole discordRoleItem in discordRoleList.Where(discordRoleItem => discordRoleItem.Name.Contains(RoleChannelLevelString)))
                         {
-                            string roleLevelString = discordRoleItem.Name.Substring(RoleChannelLevelString.Length + 1);
-                            int roleLevel = Convert.ToInt32(roleLevelString);
-                            KeyValuePair<int, DiscordRole> keyValuePair = new(roleLevel, discordRoleItem);
-                            discordRoleListSortedOut.Add(keyValuePair);
+                            if (discordRoleItem.Id != 981575801214492752)
+                            {
+                                string roleLevelString = discordRoleItem.Name.Substring(RoleChannelLevelString.Length + 1);
+                                int roleLevel = Convert.ToInt32(roleLevelString);
+                                KeyValuePair<int, DiscordRole> keyValuePair = new(roleLevel, discordRoleItem);
+                                discordRoleListSortedOut.Add(keyValuePair);
+                            }
                         }
-                    }
 
-                    List<KeyValuePair<int, DiscordRole>> discordRoleListSortedOutOrdered = discordRoleListSortedOut.OrderBy(x => x.Key).ToList();
-                    discordRoleListSortedOutOrdered.Reverse();
+                        List<KeyValuePair<int, DiscordRole>> discordRoleListSortedOutOrdered = discordRoleListSortedOut.OrderBy(x => x.Key).ToList();
+                        discordRoleListSortedOutOrdered.Reverse();
 
-                    int discordRolesInt = guildObj.Roles.Count;
-                    int roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
-                    int index = 0;
+                        int discordRolesInt = guildObj.Roles.Count;
+                        int roleIndex = guildObj.GetRole(981575801214492752).Position - 1;
+                        int index = 0;
 
-                    foreach (KeyValuePair<int, DiscordRole> discordRoleItem in discordRoleListSortedOutOrdered)
-                    {
-                        if (discordRolesInt != guildObj.Roles.Count)
-                            break;
+                        foreach (KeyValuePair<int, DiscordRole> discordRoleItem in discordRoleListSortedOutOrdered)
+                        {
+                            if (discordRolesInt != guildObj.Roles.Count)
+                                break;
 
-                        int newRoleIndex = roleIndex - index;
-                        if (discordRoleItem.Value.Position != newRoleIndex)
-                            await discordRoleItem.Value.ModifyPositionAsync(newRoleIndex);
-                        await Task.Delay(2000);
-                        index++;
+                            int newRoleIndex = roleIndex - index;
+                            if (discordRoleItem.Value.Position != newRoleIndex)
+                                await discordRoleItem.Value.ModifyPositionAsync(newRoleIndex);
+                            await Task.Delay(2000);
+                            index++;
+                        }
                     }
 
                     await Task.Delay(2000);
                 }
+                // ReSharper disable once FunctionNeverReturns
             });
         }
     }

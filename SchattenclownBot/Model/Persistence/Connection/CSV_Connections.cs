@@ -4,37 +4,38 @@ using System.IO;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
-    public class CSV_Connections
+    public class CsvConnections
     {
-        private static Uri _path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
-        private static Uri _filepath = new($"{_path}/Connections.csv");
+        private static readonly Uri Path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
+        private static readonly Uri Filepath = new($"{Path}/Connections.csv");
         public static Connections ReadAll()
         {
             try
             {
                 Connections connections = new();
-                StreamReader streamReader = new(_filepath.LocalPath);
+                StreamReader streamReader = new(Filepath.LocalPath);
                 while (!streamReader.EndOfStream)
                 {
                     string row = streamReader.ReadLine();
-                    string[] infos = row.Split(';');
-
-                    switch (infos[0])
+                    if (row != null)
                     {
-                        case "DiscordBotKey":
-                            connections.DiscordBotKey = infos[1];
-                            break;
-                        case "DiscordBotKeyDebug":
-                            connections.DiscordBotDebug = infos[1];
-                            break;
-                        case "MySqlConStr":
-                            connections.MySqlConStr = infos[1].Replace(',', ';');
-                            break;
-                        case "MySqlConStrDebug":
-                            connections.MySqlConStrDebug = infos[1].Replace(',', ';');
-                            break;
-                        default:
-                            break;
+                        string[] infos = row.Split(';');
+
+                        switch (infos[0])
+                        {
+                            case "DiscordBotKey":
+                                connections.DiscordBotKey = infos[1];
+                                break;
+                            case "DiscordBotKeyDebug":
+                                connections.DiscordBotDebug = infos[1];
+                                break;
+                            case "MySqlConStr":
+                                connections.MySqlConStr = infos[1].Replace(',', ';');
+                                break;
+                            case "MySqlConStrDebug":
+                                connections.MySqlConStrDebug = infos[1].Replace(',', ';');
+                                break;
+                        }
                     }
                 }
                 streamReader.Close();
@@ -42,19 +43,19 @@ namespace SchattenclownBot.Model.Persistence.Connection
             }
             catch (Exception)
             {
-                DirectoryInfo directory = new(_path.LocalPath);
+                DirectoryInfo directory = new(Path.LocalPath);
                 if (!directory.Exists)
                     directory.Create();
 
-                StreamWriter streamWriter = new(_filepath.LocalPath);
+                StreamWriter streamWriter = new(Filepath.LocalPath);
                 streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
                                        "DiscordBotKeyDebug;<API Key here>\n" +
                                        "MySqlConStr;<DBConnectionString here>\n" +
                                        "MySqlConStrDebug;<DBConnectionString here>");
 
                 streamWriter.Close();
-                throw new Exception($"{_path.LocalPath}\n" +
-                                    $"API key´s and database string not configurated!");
+                throw new Exception($"{Path.LocalPath}\n" +
+                                    "API key´s and database strings not configured!");
             }
         }
     }

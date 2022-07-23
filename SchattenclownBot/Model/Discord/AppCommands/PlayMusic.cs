@@ -16,12 +16,14 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable MethodSupportsCancellation
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
     internal class PlayMusic : ApplicationCommandsModule
     {
-        private static List<KeyValuePair<DiscordGuild, CancellationTokenSource>> tokenList = new();
+        private static readonly List<KeyValuePair<DiscordGuild, CancellationTokenSource>> TokenList = new();
         [SlashCommand("Play", "Just plays some music!")]
         public async Task PlayAsync(InteractionContext interactionContext)
         {
@@ -29,12 +31,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (interactionContext.Member.VoiceState == null)
             {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"You have to be connected!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
                 return;
             }
 
             bool musicAlreadyPlaying = false;
-            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> dummy in TokenList.Where(x => x.Key == interactionContext.Guild))
             {
                 musicAlreadyPlaying = true;
                 break;
@@ -45,31 +47,32 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 CancellationTokenSource tokenSource = new();
                 CancellationToken cancellationToken = tokenSource.Token;
                 KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
-                tokenList.Add(keyPairItem);
+                TokenList.Add(keyPairItem);
 
-                Task playMusicTask;
                 try
                 {
-                    playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, null, null, null, null, cancellationToken, false), cancellationToken);
+#pragma warning disable CS4014
+                    Task.Run(() => PlayMusicTask(interactionContext, null, null, null, null, cancellationToken, false), cancellationToken);
+#pragma warning restore CS4014
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    tokenList.Remove(keyPairItem);
+                    TokenList.Remove(keyPairItem);
                 }
             }
             else
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is playing already!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already!"));
         }
         [SlashCommand("Stop", "Stop the music!")]
         public async Task StopAsync(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             CancellationTokenSource tokenSource = null;
-            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == interactionContext.Guild))
             {
                 tokenSource = keyValuePairItem.Value;
-                tokenList.Remove(keyValuePairItem);
+                TokenList.Remove(keyValuePairItem);
                 break;
             }
 
@@ -101,15 +104,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         {
             if (interactionContext.Member.VoiceState == null)
             {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"You have to be connected!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
                 return;
             }
 
             CancellationTokenSource tokenSource = null;
-            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == interactionContext.Guild))
+            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == interactionContext.Guild))
             {
                 tokenSource = keyValuePairItem.Value;
-                tokenList.Remove(keyValuePairItem);
+                TokenList.Remove(keyValuePairItem);
                 break;
             }
 
@@ -128,19 +131,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             tokenSource = new CancellationTokenSource();
             CancellationToken cancellationToken = tokenSource.Token;
             KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(interactionContext.Guild, tokenSource);
-            tokenList.Add(keyPairItem);
-
-            Task playMusicTask;
+            TokenList.Add(keyPairItem);
 
             try
             {
-                playMusicTask = Task.Run(() => PlayMusicTask(interactionContext, null, null, null, null, cancellationToken, true), cancellationToken);
-
+#pragma warning disable CS4014
+                Task.Run(() => PlayMusicTask(interactionContext, null, null, null, null, cancellationToken, true), cancellationToken);
+#pragma warning restore CS4014
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                tokenList.Remove(keyPairItem);
+                TokenList.Remove(keyPairItem);
             }
         }
 
@@ -164,9 +166,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 if (isNextSongRequest)
                 {
                     if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skiped song in {voiceNextConnection.TargetChannel.Mention}!"));
+                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!"));
                     else
-                        await interactionChannel.SendMessageAsync($"Skiped song in {voiceNextConnection.TargetChannel.Mention}!");
+                        await interactionChannel.SendMessageAsync($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!");
                 }
                 else
                 {
@@ -178,8 +180,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    Uri Uri = new(@"M:\");
-                    string[] allFiles = Directory.GetFiles(Uri.AbsolutePath);
+                    Uri uri = new(@"M:\");
+                    string[] allFiles = Directory.GetFiles(uri.AbsolutePath);
 
                     Random random = new();
                     int randomInt = random.Next(0, allFiles.Length - 1);
@@ -187,11 +189,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                     //Metadata
                     #region MetaTags
-                    TagLib.File tagLibSelectedFileToplay = TagLib.File.Create(@$"{selectedFileToPlay}");
+                    TagLib.File tagLibSelectedFileToPlay = TagLib.File.Create(@$"{selectedFileToPlay}");
                     MusicBrainz.Root musicBrainz = null;
-                    if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId != null)
+                    if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId != null)
                     {
-                        Uri coverArtUrl = new($"https://coverartarchive.org/release/{tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId}");
+                        Uri coverArtUrl = new($"https://coverartarchive.org/release/{tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId}");
                         HttpClient httpClient = new();
                         httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
                         try
@@ -212,26 +214,26 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         #region discordEmbedBuilder
                         DiscordEmbedBuilder discordEmbedBuilder = new()
                         {
-                            Title = tagLibSelectedFileToplay.Tag.Title
+                            Title = tagLibSelectedFileToPlay.Tag.Title
                         };
-                        discordEmbedBuilder.WithAuthor(tagLibSelectedFileToplay.Tag.JoinedPerformers);
-                        if (tagLibSelectedFileToplay.Tag.Album != null)
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagLibSelectedFileToplay.Tag.Album, true));
-                        if (tagLibSelectedFileToplay.Tag.JoinedGenres != null)
-                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", tagLibSelectedFileToplay.Tag.JoinedGenres, true));
+                        discordEmbedBuilder.WithAuthor(tagLibSelectedFileToPlay.Tag.JoinedPerformers);
+                        if (tagLibSelectedFileToPlay.Tag.Album != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagLibSelectedFileToPlay.Tag.Album, true));
+                        if (tagLibSelectedFileToPlay.Tag.JoinedGenres != null)
+                            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", tagLibSelectedFileToPlay.Tag.JoinedGenres, true));
 
                         HttpClient httpClient = new();
                         Stream streamForBitmap = null;
                         if (musicBrainz != null)
                         {
-                            discordEmbedBuilder.WithThumbnail(musicBrainz.images.FirstOrDefault().image);
-                            streamForBitmap = await httpClient.GetStreamAsync(musicBrainz.images.FirstOrDefault().image);
-                            discordEmbedBuilder.WithUrl(musicBrainz.release);
+                            discordEmbedBuilder.WithThumbnail(musicBrainz.Images.FirstOrDefault().Image);
+                            streamForBitmap = await httpClient.GetStreamAsync(musicBrainz.Images.FirstOrDefault().Image);
+                            discordEmbedBuilder.WithUrl(musicBrainz.Release);
                         }
-                        else if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId != null)
+                        else if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
                         {
-                            discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId}/front");
-                            streamForBitmap = await httpClient.GetStreamAsync($"https://coverartarchive.org/release-group/{tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId}/front");
+                            discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId}/front");
+                            streamForBitmap = await httpClient.GetStreamAsync($"https://coverartarchive.org/release-group/{tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId}/front");
                         }
 
                         if (streamForBitmap != null)
@@ -239,36 +241,36 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
                             if (bitmapAlbumCover != null)
                             {
-                                Color dominantColor = ColorMath.getDominantColor(bitmapAlbumCover);
+                                Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
                                 discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
                             }
                         }
                         else
                         {
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzArtistId != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", tagLibSelectedFileToplay.Tag.MusicBrainzArtistId));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzDiscId != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", tagLibSelectedFileToplay.Tag.MusicBrainzDiscId));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseArtistId != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseArtistId));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseCountry != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseCountry));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseGroupId));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseId));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseStatus != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseStatus));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzReleaseType != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", tagLibSelectedFileToplay.Tag.MusicBrainzReleaseType));
-                            if (tagLibSelectedFileToplay.Tag.MusicBrainzTrackId != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", tagLibSelectedFileToplay.Tag.MusicBrainzTrackId));
-                            if (tagLibSelectedFileToplay.Tag.MusicIpId != null)
-                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", tagLibSelectedFileToplay.Tag.MusicIpId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzArtistId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", tagLibSelectedFileToPlay.Tag.MusicBrainzArtistId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzDiscId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", tagLibSelectedFileToPlay.Tag.MusicBrainzDiscId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseArtistId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseArtistId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseCountry != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseCountry));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseGroupId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseStatus != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseStatus));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseType != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", tagLibSelectedFileToPlay.Tag.MusicBrainzReleaseType));
+                            if (tagLibSelectedFileToPlay.Tag.MusicBrainzTrackId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", tagLibSelectedFileToPlay.Tag.MusicBrainzTrackId));
+                            if (tagLibSelectedFileToPlay.Tag.MusicIpId != null)
+                                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", tagLibSelectedFileToPlay.Tag.MusicIpId));
                         }
                         #endregion
 
-                        DiscordMessage discordMessage = null;
+                        DiscordMessage discordMessage;
 
                         if (interactionContext != null)
                             discordMessage = await interactionContext.Channel.SendMessageAsync(discordEmbedBuilder.Build());
@@ -277,17 +279,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
                         DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
-                        DiscordButtonComponent[] discordSelectComponentOptionList = new DiscordButtonComponent[2];
-                        discordSelectComponentOptionList[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojisNext);
-                        discordSelectComponentOptionList[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojisStop);
+                        DiscordComponent[] discordComponents = new DiscordComponent[2];
+                        discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojisNext);
+                        discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojisStop);
 
 
-                        await discordMessage.ModifyAsync(x => x.AddComponents(discordSelectComponentOptionList));
+                        await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents));
 
 
                         ProcessStartInfo psi = new()
                         {
-                            FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : $"..\\..\\..\\ffmpeg\\ffmpeg.exe",
+                            FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\ffmpeg\\ffmpeg.exe",
                             Arguments = $@"-i ""{selectedFileToPlay}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
                             RedirectStandardOutput = true,
                             UseShellExecute = false
@@ -295,27 +297,26 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         Process ffmpeg = Process.Start(psi);
                         Stream ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
 
-                        VoiceTransmitSink voiceNextTransmition = voiceNextConnection.GetTransmitSink();
-                        voiceNextTransmition.VolumeModifier = 0.2;
+                        VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
+                        voiceTransmitSink.VolumeModifier = 0.2;
 
-                        Task ffmpegTask = ffmpegOutput.CopyToAsync(voiceNextTransmition);
-                        DiscordChannel lastDiscordChannel = voiceNextConnection.TargetChannel;
+                        Task ffmpegTask = ffmpegOutput.CopyToAsync(voiceTransmitSink);
 
                         int counter = 0;
                         TimeSpan timeSpan = new(0, 0, 0, 0);
-                        string playerAdcance = "";
+                        string playerAdvance = "";
                         while (!ffmpegTask.IsCompleted)
                         {
-                            //algorythmus to create the timeline
+                            //algorithms to create the timeline
                             #region TimeLineAlgo
                             if (counter % 10 == 0)
                             {
                                 timeSpan = TimeSpan.FromSeconds(counter);
 
                                 string[] strings = new string[15];
-                                double thisIsOneHundretPercent = tagLibSelectedFileToplay.Properties.Duration.TotalSeconds;
+                                double thisIsOneHundredPercent = tagLibSelectedFileToPlay.Properties.Duration.TotalSeconds;
 
-                                double dotPositionInPercent = 100.0 / thisIsOneHundretPercent * counter;
+                                double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * counter;
 
                                 double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
 
@@ -327,19 +328,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                         strings[i] = "▬";
                                 }
 
-                                playerAdcance = "";
+                                playerAdvance = "";
                                 foreach (string item in strings)
                                 {
-                                    playerAdcance += item;
+                                    playerAdvance += item;
                                 }
 
-                                string descriotionString = "⏹️";
+                                string descriptionString = "⏹️";
                                 if (cancellationToken.IsCancellationRequested)
-                                    descriotionString = "▶️";
+                                    descriptionString = "▶️";
 
-                                descriotionString += $" {playerAdcance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}] 🔉";
-                                discordEmbedBuilder.Description = descriotionString;
-                                await discordMessage.ModifyAsync(x => x.AddComponents(discordSelectComponentOptionList).WithEmbed(discordEmbedBuilder.Build()));
+                                descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToPlay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Seconds:#00}] 🔉";
+                                discordEmbedBuilder.Description = descriptionString;
+                                await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithEmbed(discordEmbedBuilder.Build()));
                             }
                             #endregion
 
@@ -348,35 +349,35 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                 ffmpegOutput.Close();
                                 break;
                             }
-                            lastDiscordChannel = voiceNextConnection.TargetChannel;
+
                             counter++;
                             await Task.Delay(1000);
                         }
 
                         //algorithms to create the timeline
                         #region MoteTimeLineAlgo
-                        string durationString = $"{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}";
+                        string durationString = $"{tagLibSelectedFileToPlay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Seconds:#00}";
 
                         if (!cancellationToken.IsCancellationRequested)
                             discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
                         else
                         {
-                            string descriotionString = "⏹️";
+                            string descriptionString = "⏹️";
                             if (cancellationToken.IsCancellationRequested)
-                                descriotionString = "▶️";
+                                descriptionString = "▶️";
 
-                            descriotionString += $" {playerAdcance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToplay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToplay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToplay.Properties.Duration.Seconds:#00}] 🔉";
-                            discordEmbedBuilder.Description = descriotionString;
+                            descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{tagLibSelectedFileToPlay.Properties.Duration.Hours:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Minutes:#00}:{tagLibSelectedFileToPlay.Properties.Duration.Seconds:#00}] 🔉";
+                            discordEmbedBuilder.Description = descriptionString;
                         }
                         await discordMessage.ModifyAsync(x => x.WithEmbed(discordEmbedBuilder.Build()));
                         #endregion
 
-                        await voiceNextTransmition.FlushAsync();
+                        await voiceTransmitSink.FlushAsync();
                         await voiceNextConnection.WaitForPlaybackFinishAsync();
                     }
                     catch
                     {
-
+                        // ignored
                     }
                 }
             }
@@ -398,55 +399,53 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 if (discordMember.VoiceState == null)
                 {
-                    eventArgs.Channel.SendMessageAsync($"You have to be connected!");
+                    eventArgs.Channel.SendMessageAsync("You have to be connected!");
                     return Task.CompletedTask;
                 }
 
                 CancellationTokenSource tokenSource = null;
-                foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == eventArgs.Guild))
                 {
                     tokenSource = keyValuePairItem.Value;
-                    tokenList.Remove(keyValuePairItem);
+                    TokenList.Remove(keyValuePairItem);
                     break;
                 }
 
                 if (tokenSource != null)
                 {
-                    eventArgs.Channel.SendMessageAsync($"Skiping!");
+                    eventArgs.Channel.SendMessageAsync("Skipping!");
                     tokenSource.Cancel();
                     tokenSource.Dispose();
                 }
                 else
                 {
-                    eventArgs.Channel.SendMessageAsync($"Nothing to skip!");
+                    eventArgs.Channel.SendMessageAsync("Nothing to skip!");
                     return Task.CompletedTask;
                 }
 
                 tokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = tokenSource.Token;
                 KeyValuePair<DiscordGuild, CancellationTokenSource> keyPairItem = new(eventArgs.Guild, tokenSource);
-                tokenList.Add(keyPairItem);
-
-                Task playMusicTask;
+                TokenList.Add(keyPairItem);
 
                 try
                 {
-                    playMusicTask = Task.Run(() => PlayMusicTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, cancellationToken, true), cancellationToken);
+                    Task.Run(() => PlayMusicTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, cancellationToken, true), cancellationToken);
 
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    tokenList.Remove(keyPairItem);
+                    TokenList.Remove(keyPairItem);
                 }
             }
             else if (eventArgs.Id == "stop_song")
             {
                 CancellationTokenSource tokenSource = null;
-                foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == eventArgs.Guild))
                 {
                     tokenSource = keyValuePairItem.Value;
-                    tokenList.Remove(keyValuePairItem);
+                    TokenList.Remove(keyValuePairItem);
                     break;
                 }
 
@@ -474,16 +473,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     if (eventArgs.User == client.CurrentUser && eventArgs.After != null && eventArgs.Before.Channel != eventArgs.After.Channel)
                     {
                         CancellationTokenSource tokenSource = null;
-                        foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                        foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == eventArgs.Guild))
                         {
                             tokenSource = keyValuePairItem.Value;
-                            tokenList.Remove(keyValuePairItem);
+                            TokenList.Remove(keyValuePairItem);
                             break;
                         }
 
                         if (tokenSource != null)
                         {
-                            await discordMember.VoiceState.Channel.SendMessageAsync("Stoped the music!");
+                            await discordMember.VoiceState.Channel.SendMessageAsync("Stopped the music!");
                             tokenSource.Cancel();
                             tokenSource.Dispose();
                             VoiceNextExtension voiceNext = client.GetVoiceNext();
@@ -509,10 +508,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     if (eventArgs.User == client.CurrentUser)
                     {
                         CancellationTokenSource tokenSource = null;
-                        foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in tokenList.Where(x => x.Key == eventArgs.Guild))
+                        foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> keyValuePairItem in TokenList.Where(x => x.Key == eventArgs.Guild))
                         {
                             tokenSource = keyValuePairItem.Value;
-                            tokenList.Remove(keyValuePairItem);
+                            TokenList.Remove(keyValuePairItem);
                             break;
                         }
 
@@ -526,7 +525,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
             catch
             {
-
+                // ignored
             }
         }
     }

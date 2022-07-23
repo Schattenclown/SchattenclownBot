@@ -2,6 +2,7 @@
 using DisCatSharp.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.ChoiceProvider
 {

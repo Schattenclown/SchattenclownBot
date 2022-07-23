@@ -10,7 +10,7 @@ namespace SchattenclownBot
     /// </summary>
     internal class Program
     {
-        private static Bot bot;
+        private static Bot _bot;
         /// <summary>
         /// the boot task
         /// </summary>
@@ -20,21 +20,21 @@ namespace SchattenclownBot
             #region ConsoleSize
             try
             {
-#pragma warning disable CA1416 // Plattformkompatibilität überprüfen
+#pragma warning disable CA1416
                 Console.SetWindowSize(300, 30);
             }
             catch (Exception)
             {
                 Console.SetWindowSize(100, 10);
-#pragma warning restore CA1416 // Plattformkompatibilität überprüfen
+#pragma warning restore CA1416
             }
             #endregion
             await Task.Run(async () =>
             {
                 try
                 {
-                    bot = new Bot();
-                    bot.RunAsync().Wait();
+                    _bot = new Bot();
+                    _bot.RunAsync().Wait();
                     await Task.Delay(1000);
                 }
                 catch
