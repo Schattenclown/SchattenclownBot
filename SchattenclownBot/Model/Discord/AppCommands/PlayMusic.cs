@@ -681,7 +681,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 TokenList.Remove(tokenKeyPair);
             }
         }
-        
+
         internal static Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
         {
             eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
