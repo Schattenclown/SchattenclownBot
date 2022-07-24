@@ -36,18 +36,17 @@ namespace SchattenclownBot.Model.Objects
         public static Root CreateObj(string content)
         {
             Root lst = JsonConvert.DeserializeObject<Root>(content);
-            if (lst != null)
+
+            if (lst == null)
+                return null;
+
+            Root obj = new()
             {
-                Root obj = new()
-                {
-                    Images = lst.Images,
-                    Release = lst.Release
-                };
+                Images = lst.Images,
+                Release = lst.Release
+            };
 
-                return obj;
-            }
-
-            return null;
+            return obj;
         }
     }
 }
