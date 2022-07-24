@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace SchattenclownBot.Model.HelpClasses
@@ -14,30 +15,37 @@ namespace SchattenclownBot.Model.HelpClasses
 
             int total = 0;
 
-            for (int x = 0; x < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.Width : 0); x++)
+            try
             {
-                for (int y = 0; y < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.Width : 0); y++)
+                for (int x = 0; x < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.Width : 1); x++)
                 {
-                    Color clr = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.GetPixel(x, y) : Color.Black;
+                    for (int y = 0; y < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.Width : 1); y++)
+                    {
+                        Color clr = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.GetPixel(x, y) : Color.Black;
 
-                    r += clr.R;
-                    g += clr.G;
-                    b += clr.B;
+                        r += clr.R;
+                        g += clr.G;
+                        b += clr.B;
 
-                    total++;
+                        total++;
+                    }
                 }
-            }
 
-            //Calculate average
-            // ReSharper disable once InvertIf
-            if (total != 0)
+                //Calculate average
+                // ReSharper disable once InvertIf
+                if (total != 0)
+                {
+                    r /= total;
+                    g /= total;
+                    b /= total;
+                }
+
+                return Color.FromArgb(r, g, b);
+            }
+            catch
             {
-                r /= total;
-                g /= total;
-                b /= total;
+                return Color.FromArgb(255, 0, 0);
             }
-
-            return Color.FromArgb(r, g, b);
         }
     }
 }
