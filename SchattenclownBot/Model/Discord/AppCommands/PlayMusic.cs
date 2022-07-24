@@ -485,6 +485,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     IgnoreDownloadErrors = false
                 };
 
+                /*OptionSet optionSet = new();
+                optionSet.AddCustomOption("--audio-quality", "0");
+
+                RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUriString, AudioConversionFormat.Mp3, new CancellationToken(), null, null, optionSet);*/
                 RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUriString, AudioConversionFormat.Opus);
 
                 try
@@ -536,7 +540,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             }
                         }
 
-                        await discordMessage.ModifyAsync(youtubeUriString);
+                        await discordMessage.ModifyAsync(x => x.WithContent(youtubeUriString));
 
                         await voiceTransmitSink.FlushAsync();
                         await voiceNextConnection.WaitForPlaybackFinishAsync();
