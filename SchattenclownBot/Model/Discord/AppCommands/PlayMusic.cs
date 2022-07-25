@@ -519,7 +519,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             fingerPrintFingerprint = fingerPrintArgs[1].Split('=');
                         }
 
-                        const string apiKey = "i5bXYjFzoAE";
+                        const string apiKey = "Y2Ap7JHhdH";
                         string url = "http://api.acoustid.org/v2/lookup?client=" + apiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] + "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
 
                         HttpClient httpClient = new();
