@@ -1,0 +1,35 @@
+[
+    {
+        "name": "Hypnocurrency",
+        "artists": [
+            "Rezz",
+            "deadmau5"
+        ],
+        "artist": "Rezz",
+        "album_name": "Hypnocurrency",
+        "album_artist": "Rezz",
+        "genres": [
+            "canadian electronic",
+            "edm",
+            "electra",
+            "electro house"
+        ],
+        "disc_number": 1,
+        "disc_count": 1,
+        "duration": 292.524,
+        "year": 2021,
+        "date": "2021-04-23",
+        "track_number": 1,
+        "tracks_count": 1,
+        "song_id": "3evAUkYDPeLX5kn0LbvGz4",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273ec08c4260fd2adefbef1296f",
+        "explicit": false,
+        "publisher": "mau5trap Recordings Limited",
+        "url": "https://open.spotify.com/track/3evAUkYDPeLX5kn0LbvGz4",
+        "isrc": "GBTDG1302245",
+        "copyright_text": "2021 mau5trap Recordings Limited under exclusive license to AWAL Recordings America, Inc.",
+        "download_url": "https://youtube.com/watch?v=SffIKLJzFtw",
+        "song_list": null,
+        "lyrics": null
+    }
+]
