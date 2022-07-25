@@ -381,7 +381,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 YoutubeDLPath = "..\\..\\..\\youtube-dl\\yt-dlp.exe",
                 FFmpegPath = "..\\..\\..\\ffmpeg\\ffmpeg.exe",
                 OutputFolder = uri.AbsolutePath,
-                RestrictFilenames = false,
+                RestrictFilenames = true,
                 OverwriteFiles = false,
                 IgnoreDownloadErrors = false
             };
@@ -481,7 +481,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     YoutubeDLPath = "..\\..\\..\\youtube-dl\\yt-dlp.exe",
                     FFmpegPath = "..\\..\\..\\ffmpeg\\ffmpeg.exe",
                     OutputFolder = uri.AbsolutePath,
-                    RestrictFilenames = false,
+                    RestrictFilenames = true,
                     OverwriteFiles = false,
                     IgnoreDownloadErrors = false
                 };
@@ -519,16 +519,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             fingerPrintFingerprint = fingerPrintArgs[1].Split('=');
                         }
 
-                        const string apiKey = "Y2Ap7JHhdH";
-                        string url = "http://api.acoustid.org/v2/lookup?client=" + apiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] + "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
+                        AcoustId.Root acoustId = new();
+                        if (fingerPrintDuration != null)
+                        {
+                            const string apiKey = "Y2Ap7JHhdH";
+                            string url = "http://api.acoustid.org/v2/lookup?client=" + apiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] + "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
 
-                        HttpClient httpClient = new();
-                        httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
-                        string httpClientContent = await httpClient.GetStringAsync(url);
-                        AcoustId.Root acoustId = AcoustId.CreateObj(httpClientContent);
+                            HttpClient httpClient = new();
+                            httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
+                            string httpClientContent = await httpClient.GetStringAsync(url);
+                            acoustId = AcoustId.CreateObj(httpClientContent);
+                        }
 
-
-                        if (acoustId.Results.Count != 0 && acoustId.Results[0].Recordings[0].Releases != null)
+                        if (acoustId.Results != null && acoustId.Results.Count != 0 && acoustId.Results[0].Recordings[0].Releases != null)
                         {
                             try
                             {
@@ -600,6 +603,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                 #endregion
 
                                 wyldFunctionSuccess = true;
+
                             }
                             catch
                             {
