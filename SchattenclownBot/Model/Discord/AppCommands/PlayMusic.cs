@@ -122,10 +122,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 if (isNextSongRequest)
                 {
-                    if (interactionContext != null)
+                    /*if (interactionContext != null)
                         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!"));
                     else
-                        await interactionChannel.SendMessageAsync($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!");
+                        await interactionChannel.SendMessageAsync($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!");*/
                 }
                 else if (isInitialMessage)
                 {
@@ -597,10 +597,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 if (isNextSongRequest)
                 {
-                    if (interactionContext != null)
+                    /*if (interactionContext != null)
                         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!"));
                     else
-                        await interactionChannel.SendMessageAsync($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!");
+                        await interactionChannel.SendMessageAsync($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!");*/
                 }
                 else if (isInitialMessage)
                 {
@@ -761,15 +761,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                         compareDateTimeOne = new(compareItem.Date.Year, compareItem.Date.Month, compareItem.Date.Day);
 
                                     DateTime compareDateTimeTwo = new(compareItem.Date.Year, compareItem.Date.Month, compareItem.Date.Day);
-                                    if (compareDateTimeOne > compareDateTimeTwo)
+                                    if (compareDateTimeOne < compareDateTimeTwo)
                                     {
                                         rightAlbum = compareItem;
                                         compareDateTimeOne = compareDateTimeTwo;
                                     }
                                 }
+                                //dogShit
+                                //rightAlbum = acoustId.Results[0].Recordings[0].Releases[0];
 
                                 musicBrainzTags = await musicBrainzQuery.LookupRecordingAsync(new Guid(recordingMbId));
-                                //MetaBrainz.MusicBrainz.Interfaces.Entities.IArtist artist = await musicBrainzQuery.LookupArtistAsync(new Guid(rightArtist.Id));
+
+                                if (musicBrainzTags.Genres != null)
+                                    genres = musicBrainzTags.Genres.ToString();
 
                                 #region discordEmbedBuilder
                                 discordEmbedBuilder.Title = musicBrainzTags.Title;
@@ -778,6 +782,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                                 discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
                                 discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
+                                discordEmbedBuilder.WithUrl(youtubeUriString);
 
                                 HttpClient httpClientForBitmap = new();
                                 if (rightAlbum.Id != null)
@@ -852,7 +857,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         string playerAdvance = "";
                         while (!ffmpegCopyTask.IsCompleted)
                         {
-                            if (wyldFunctionSuccess && musicBrainzTags.Length != null && !queueListObj.IsYouTubeLink)
+                            if (wyldFunctionSuccess && musicBrainzTags.Length != null && queueListObj.IsYouTubeLink)
                             {
                                 #region TimeLineAlgo
                                 if (counter % 10 == 0)
@@ -953,9 +958,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                 descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{musicBrainzTags.Length.Value.Hours:#00}:{musicBrainzTags.Length.Value.Minutes:#00}:{musicBrainzTags.Length.Value.Seconds:#00}] 🔉";
                                 discordEmbedBuilder.Description = descriptionString;
                             }
-
-                            await discordMessage.ModifyAsync(x => x.WithContent(youtubeUriString).WithEmbed(discordEmbedBuilder.Build()));
                             #endregion
+                            discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
+                            discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
+
+                            await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUriString).WithEmbed(discordEmbedBuilder.Build()));
                         }
                         else if (!queueListObj.IsYouTubeLink)
                         {
@@ -973,12 +980,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                 descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{spotDlTimeSpan.Hours:#00}:{spotDlTimeSpan.Minutes:#00}:{spotDlTimeSpan.Seconds:#00}] 🔉";
                                 discordEmbedBuilder.Description = descriptionString;
                             }
-
-                            await discordMessage.ModifyAsync(x => x.WithContent(queueListObj.SpotifyLink).AddEmbed(discordEmbedBuilder.Build()));
                             #endregion
+
+                            discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
+                            discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
+
+                            await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(queueListObj.SpotifyLink).AddEmbed(discordEmbedBuilder.Build()));
                         }
                         else
-                            await discordMessage.ModifyAsync(x => x.WithContent(youtubeUriString));
+                        {
+                            discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
+                            discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
+
+                            await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUriString));
+                        }
 
                         if (!cancellationToken.IsCancellationRequested)
                         {
