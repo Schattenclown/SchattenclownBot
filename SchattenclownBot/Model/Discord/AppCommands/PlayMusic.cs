@@ -609,7 +609,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     }
                     else if (audioDownload.ErrorOutput.Length > 1)
                     {
-                        youtubeUriString = $"`{youtubeUriString}` {audioDownload.ErrorOutput[1]}";
+                        youtubeUriString = $"{audioDownload.ErrorOutput[1]} `{youtubeUriString}`";
                     }
 
                     DiscordMessage discordMessage = interactionContext != null ? await interactionContext.Channel.SendMessageAsync("Loading!") : await interactionChannel.SendMessageAsync("Loading!");
