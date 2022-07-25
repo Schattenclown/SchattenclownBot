@@ -556,18 +556,30 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 {
                     string trackString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(queueListObj.SpotifyLink, "/track/", "/track/".Length), "?si", 0);
 
-                    ProcessStartInfo processStartInfo = new()
+                    try
                     {
-                        FileName = "..\\..\\..\\spotdl\\spotdl.exe",
-                        Arguments = "--restrict --ffmpeg ..\\..\\..\\ffmpeg\\ffmpeg.exe --save-file "
-                    };
-                    processStartInfo.Arguments += "..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl --preload save ""{queueListObj.SpotifyLink}"" ";
-                    await Process.Start(processStartInfo)!.WaitForExitAsync();
-                    await Task.Delay(100);
-                    StreamReader streamReaderTrack = new("..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl");
-                    string jsonTracks = await streamReaderTrack.ReadToEndAsync();
-                    spotDlMetaData = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTracks)[0];
-                    youtubeUriString = spotDlMetaData.download_url;
+                        ProcessStartInfo processStartInfo = new()
+                        {
+                            FileName = "..\\..\\..\\spotdl\\spotdl.exe",
+                            Arguments = "--restrict --ffmpeg ..\\..\\..\\ffmpeg\\ffmpeg.exe --save-file "
+                        };
+                        processStartInfo.Arguments += "..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl --preload save ""{queueListObj.SpotifyLink}"" ";
+                        await Process.Start(processStartInfo)!.WaitForExitAsync();
+                        await Task.Delay(100);
+                        StreamReader streamReaderTrack = new("..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl");
+                        string jsonTracks = await streamReaderTrack.ReadToEndAsync();
+                        spotDlMetaData = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTracks)[0];
+                        youtubeUriString = spotDlMetaData.download_url;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        if (interactionContext != null)
+                            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Cant play this song!"));
+                        else
+                            await interactionChannel.SendMessageAsync("Cant play this song!");
+                        return;
+                    }
                 }
 
                 VoiceNextExtension voiceNext = interactionContext != null ? interactionContext.Client.GetVoiceNext() : client.GetVoiceNext();
@@ -647,7 +659,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             foreach (string genre in spotDlMetaData.genres)
                             {
                                 genres += genre;
-                                if (spotDlMetaData.genres.Last() != genre)
+                                if (spotDlMetaData.genres.Last() != genre || spotDlMetaData.genres[4] == genre)
                                     genres += ", ";
                             }
                         }
