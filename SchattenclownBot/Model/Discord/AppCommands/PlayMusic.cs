@@ -563,7 +563,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             acoustId = AcoustId.CreateObj(httpClientContent);
                         }
 
-                        if (acoustId.Results != null && acoustId.Results.Count != 0 && acoustId.Results[0].Recordings[0].Releases != null)
+                        if (acoustId.Results != null && acoustId.Results.Count != 0 && acoustId.Results[0].Recordings[0] != null && acoustId.Results[0].Recordings[0].Releases != null)
                         {
                             try
                             {
