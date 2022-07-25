@@ -16,6 +16,9 @@ namespace SchattenclownBot.Model.HelpClasses
         /// <returns>A string.</returns>
         public static string RemoveUntilWord(string inputString, string keyWord, int removeWordInt)
         {
+            if (inputString == null)
+                return null;
+
             return !inputString.Contains(keyWord) ? inputString : inputString[(inputString.IndexOf(keyWord, StringComparison.Ordinal) + removeWordInt)..];
         }
         /// <summary>

@@ -497,8 +497,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 }
                 else
                 {
-                    QueueList queueKeyPair = new(interactionContext.Guild, null, webLink, false);
-                    QueueList.Add(queueKeyPair);
                     await PlayQueueAsyncTask(interactionContext, null, webLink);
                 }
             }
@@ -539,13 +537,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 QueueList queueListObj = new();
                 foreach (QueueList queueListItem in QueueList)
                 {
-                    if (queueListItem.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueListItem.YouTubeLink == youtubeUriString)
+                    if (queueListItem.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueListItem.YouTubeLink != null && queueListItem.IsYouTubeLink)
                     {
                         queueListObj = queueListItem;
                         QueueList.Remove(queueListItem);
                         break;
                     }
-                    else if (queueListItem.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueListItem.SpotifyLink == spotifyUriString)
+                    else if (queueListItem.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueListItem.SpotifyLink != null && !queueListItem.IsYouTubeLink)
                     {
                         queueListObj = queueListItem;
                         QueueList.Remove(queueListItem);
@@ -565,7 +563,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     };
                     processStartInfo.Arguments += "..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl --preload save ""{queueListObj.SpotifyLink}"" ";
                     await Process.Start(processStartInfo)!.WaitForExitAsync();
-                    await Task.Delay(200);
+                    await Task.Delay(100);
                     StreamReader streamReaderTrack = new("..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl");
                     string jsonTracks = await streamReaderTrack.ReadToEndAsync();
                     spotDlMetaData = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTracks)[0];
@@ -622,28 +620,39 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     bool wyldFunctionSuccess = false;
                     DiscordEmbedBuilder discordEmbedBuilder = new();
                     MetaBrainz.MusicBrainz.Interfaces.Entities.IRecording musicBrainzTags = null;
-                    TimeSpan spotDlTimeSpan = new TimeSpan(0);
+                    TimeSpan spotDlTimeSpan = new(0);
 
                     if (audioDownload.ErrorOutput.Length <= 1 && !queueListObj.IsYouTubeLink)
                     {
                         #region discordEmbedBuilder
                         discordEmbedBuilder.Title = spotDlMetaData.name;
 
-                        string rightArtist = "";
-                        foreach (string artist in spotDlMetaData.artists)
+                        string artists = "";
+                        if (spotDlMetaData.artists.Count > 0)
                         {
-                            rightArtist += artist + " ";
+                            foreach (string artist in spotDlMetaData.artists)
+                            {
+                                artists += artist;
+                                if (spotDlMetaData.artists.Last() != artist)
+                                    artists += ", ";
+                            }
+                            discordEmbedBuilder.WithAuthor(artists);
                         }
-                        if (rightArtist != "")
-                            discordEmbedBuilder.WithAuthor(rightArtist);
-
+                        else
+                            discordEmbedBuilder.WithAuthor(spotDlMetaData.artist);
+                        
                         string genres = "";
-                        foreach (string genre in spotDlMetaData.genres)
+                        if (spotDlMetaData.genres.Count > 0)
                         {
-                            genres += genre + " ";
+                            foreach (string genre in spotDlMetaData.genres)
+                            {
+                                genres += genre;
+                                if (spotDlMetaData.genres.Last() != genre)
+                                    genres += ", ";
+                            }
                         }
-                        if (genres == "")
-                            genres = "empty";
+                        else
+                            genres = "N/A";
 
                         discordEmbedBuilder.AddField(new DiscordEmbedField("Album", spotDlMetaData.album_name, true));
                         discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
@@ -715,7 +724,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             try
                             {
                                 string recordingMbId = acoustId.Results[0].Recordings[0].Id;
-                                string genres = "empty";
+                                string genres = "N/A";
 
                                 DateTime compareDateTimeOne = new();
                                 AcoustId.Release rightAlbum = new();
@@ -800,7 +809,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Next!", false, discordComponentEmojisNext);
                     discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", false, discordComponentEmojisStop);
 
-                    if(queueListObj.IsYouTubeLink)
+                    if (!queueListObj.IsYouTubeLink)
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(queueListObj.SpotifyLink).AddEmbed(discordEmbedBuilder.Build()));
                     else if (wyldFunctionSuccess)
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUriString).AddEmbed(discordEmbedBuilder.Build()));
@@ -951,7 +960,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                 discordEmbedBuilder.Description = descriptionString;
                             }
 
-                            await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(queueListObj.SpotifyLink).AddEmbed(discordEmbedBuilder.Build()));
+                            await discordMessage.ModifyAsync(x => x.WithContent(queueListObj.SpotifyLink).AddEmbed(discordEmbedBuilder.Build()));
                             #endregion
                         }
                         else
