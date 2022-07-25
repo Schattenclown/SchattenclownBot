@@ -393,14 +393,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 string playlistIndex = "";
                 string singleVideoUrl = "";
                 string playlistUrl = "";
+                string watchId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
 
                 if (isYouTubePlaylist)
                 {
-                    string watchId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
                     string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&list=", "&list=".Length), "&index=", 0);
                     playlistIndex = StringCutter.RemoveUntilWord(webLink, "&index=", "&index=".Length);
-                    singleVideoUrl = "https://www.youtube.com/watch?v=" + watchId;
                     playlistUrl = "https://www.youtube.com/playlist?list=" + playlistId;
+                }
+                else
+                {
+                    singleVideoUrl = "https://www.youtube.com/watch?v=" + watchId;
                 }
 
                 Uri uri = new(@"N:\");
@@ -416,7 +419,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 try
                 {
-                    YoutubeDLSharp.Metadata.VideoData[] videoUrls;
+                    YoutubeDLSharp.Metadata.VideoData[] videoUrls = default;
                     if (isYouTubePlaylist)
                     {
                         OptionSet optionSet = new()
@@ -425,35 +428,32 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         };
                         videoUrls = youtubeDl.RunVideoDataFetch(playlistUrl, new CancellationToken(), true, optionSet).Result.Data.Entries;
                     }
+
+
+                    if (!musicAlreadyPlaying)
+                    {
+                        if (isYouTubePlaylist)
+                            await PlayQueueAsyncTask(interactionContext, videoUrls[0].Url, null);
+                        else
+                            await PlayQueueAsyncTask(interactionContext, singleVideoUrl, null);
+                    }
                     else
                     {
-                        videoUrls = youtubeDl.RunVideoDataFetch(webLink).Result.Data.Entries;
-                    }
-
-                    if (videoUrls != null)
-                    {
-                        if (!musicAlreadyPlaying)
+                        if (isYouTubePlaylist)
                         {
-                            if (isYouTubePlaylist)
-                                await PlayQueueAsyncTask(interactionContext, singleVideoUrl, null);
-                            else
-                                await PlayQueueAsyncTask(interactionContext, videoUrls[0].Url, null);
+                            QueueList queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url, null, true);
+                            QueueList.Add(queueKeyPair);
                         }
                         else
                         {
-                            if (isYouTubePlaylist)
-                            {
-                                QueueList queueKeyPair = new(interactionContext.Guild, singleVideoUrl, null, true);
-                                QueueList.Add(queueKeyPair);
-                            }
-                            else
-                            {
-                                QueueList queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url, null, true);
-                                QueueList.Add(queueKeyPair);
-                            }
-                            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
+                            QueueList queueKeyPair = new(interactionContext.Guild, singleVideoUrl, null, true);
+                            QueueList.Add(queueKeyPair);
                         }
+                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
+                    }
 
+                    if (isYouTubePlaylist)
+                    {
                         for (int i = 1; i < videoUrls.Length; i++)
                         {
                             QueueList queueKeyPair = new(interactionContext.Guild, videoUrls[i].Url, null, true);
@@ -469,6 +469,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             else if (isSpotify)
             {
+                List<PlaylistTrack<IPlayableItem>> spotifyPlaylistItems = default;
+                FullTrack spotifyTrack = default;
+                string spotifyTrackUriSting = default;
                 if (isSpotifyPlaylist)
                 {
                     string playlistString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
@@ -477,12 +480,36 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     ClientCredentialsRequest clientCredentialsRequest = new(Bot.Connections.Token.ClientId, Bot.Connections.Token.ClientSecret);
                     ClientCredentialsTokenResponse requestToken = await new OAuthClient(config).RequestToken(clientCredentialsRequest);
                     SpotifyClient spotifyClient = new(requestToken.AccessToken);
-                    List<PlaylistTrack<IPlayableItem>> spotifyPlaylistItems = spotifyClient.Playlists.GetItems(playlistString).Result.Items;
+                    spotifyPlaylistItems = spotifyClient.Playlists.GetItems(playlistString).Result.Items;
 
-                    FullTrack spotifyTrack = spotifyPlaylistItems[0].Track as FullTrack;
-                    string spotifyTrackUriSting = "https://open.spotify.com/track/" + spotifyTrack.Id;
-                    await PlayQueueAsyncTask(interactionContext, null, spotifyTrackUriSting);
+                    spotifyTrack = spotifyPlaylistItems[0].Track as FullTrack;
+                    spotifyTrackUriSting = "https://open.spotify.com/track/" + spotifyTrack.Id;
+                }
 
+                if (!musicAlreadyPlaying)
+                {
+                    if (!isSpotifyPlaylist)
+                        await PlayQueueAsyncTask(interactionContext, null, webLink);
+                    else
+                        await PlayQueueAsyncTask(interactionContext, null, spotifyTrackUriSting);
+                }
+                else
+                {
+                    if (!isSpotifyPlaylist)
+                    {
+                        QueueList queueKeyPair = new(interactionContext.Guild, null, webLink, false);
+                        QueueList.Add(queueKeyPair);
+                    }
+                    else
+                    {
+                        QueueList queueKeyPair = new(interactionContext.Guild, null, spotifyTrackUriSting, false);
+                        QueueList.Add(queueKeyPair);
+                    }
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
+                }
+
+                if (isSpotifyPlaylist)
+                {
                     if (spotifyPlaylistItems.Count != 0)
                     {
                         for (int i = 1; i < spotifyPlaylistItems.Count; i++)
@@ -494,10 +521,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             QueueList.Add(queueKeyPair);
                         }
                     }
-                }
-                else
-                {
-                    await PlayQueueAsyncTask(interactionContext, null, webLink);
                 }
             }
         }
@@ -566,6 +589,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         processStartInfo.Arguments += "..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl --preload save ""{queueListObj.SpotifyLink}"" ";
                         await Process.Start(processStartInfo)!.WaitForExitAsync();
                         await Task.Delay(100);
+
                         StreamReader streamReaderTrack = new("..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl");
                         string jsonTracks = await streamReaderTrack.ReadToEndAsync();
                         spotDlMetaData = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTracks)[0];
@@ -628,7 +652,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUriString, AudioConversionFormat.Opus, new CancellationToken(), null, null, optionSet);
                 var audioDownloadMetaData = await youtubeDl.RunVideoDataFetch(youtubeUriString);
                 TimeSpan audioDownloadTimeSpan = default;
-                if (audioDownloadMetaData.Data.Duration != null) audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Data.Duration.Value);
+                if (audioDownloadMetaData.Data != null && audioDownloadMetaData.Data.Duration != null)
+                {
+                    audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Data.Duration.Value);
+                }
 
                 try
                 {
