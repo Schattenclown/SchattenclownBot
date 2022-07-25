@@ -528,7 +528,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         AcoustId.Root acoustId = AcoustId.CreateObj(httpClientContent);
 
 
-                        if (acoustId.Results.Count != 0)
+                        if (acoustId.Results.Count != 0 && acoustId.Results[0].Recordings[0].Releases != null)
                         {
                             try
                             {
@@ -842,7 +842,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (tokenSource != null)
             {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skipping!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
             }
@@ -900,7 +899,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         if (tokenSource != null)
                         {
-                            eventArgs.Channel.SendMessageAsync("Skipping!");
                             tokenSource.Cancel();
                             tokenSource.Dispose();
                         }
@@ -980,7 +978,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         if (tokenSource != null)
                         {
-                            eventArgs.Channel.SendMessageAsync("Skipping!");
                             tokenSource.Cancel();
                             tokenSource.Dispose();
                         }

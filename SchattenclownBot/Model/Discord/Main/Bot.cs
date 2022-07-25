@@ -73,7 +73,7 @@ namespace SchattenclownBot.Model.Discord.Main
                 MinimumLogLevel = logLevel,
                 ShardCount = 1,
                 ShardId = 0,
-                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences,
+                Intents = DiscordIntents.All,
                 MobileStatus = false,
                 UseCanary = true,
                 UsePtb = false,
