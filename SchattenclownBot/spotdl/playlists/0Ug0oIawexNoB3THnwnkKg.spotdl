@@ -1,0 +1,105 @@
+[
+    {
+        "name": "Hey Ya!",
+        "artists": [
+            "Outkast"
+        ],
+        "artist": "Outkast",
+        "album_name": "Speakerboxxx/The Love Below",
+        "album_artist": "Outkast",
+        "genres": [
+            "atl hip hop",
+            "dirty south rap",
+            "hip hop",
+            "old school atlanta hip hop",
+            "pop rap",
+            "rap",
+            "southern hip hop"
+        ],
+        "disc_number": 2,
+        "disc_count": 2,
+        "duration": 235.213,
+        "year": 2003,
+        "date": "2003",
+        "track_number": 9,
+        "tracks_count": 40,
+        "song_id": "2PpruBYCo4H7WOBJ7Q2EwM",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b2736a6387ab37f64034cdc7b367",
+        "explicit": false,
+        "publisher": "Arista",
+        "url": "https://open.spotify.com/track/2PpruBYCo4H7WOBJ7Q2EwM",
+        "isrc": "USAR10300924",
+        "copyright_text": "(P) 2003 Arista Records LLC",
+        "download_url": "https://youtube.com/watch?v=-7XnDlYY9qw",
+        "song_list": null,
+        "lyrics": null
+    },
+    {
+        "name": "Under Pressure - Remastered 2011",
+        "artists": [
+            "Queen",
+            "David Bowie"
+        ],
+        "artist": "Queen",
+        "album_name": "Hot Space (2011 Remaster)",
+        "album_artist": "Queen",
+        "genres": [
+            "classic rock",
+            "glam rock",
+            "rock"
+        ],
+        "disc_number": 1,
+        "disc_count": 1,
+        "duration": 248.44,
+        "year": 1982,
+        "date": "1982-05-03",
+        "track_number": 11,
+        "tracks_count": 11,
+        "song_id": "2fuCquhmrzHpu5xcA1ci9x",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273d254ca497999ae980a5a38c5",
+        "explicit": false,
+        "publisher": "EMI",
+        "url": "https://open.spotify.com/track/2fuCquhmrzHpu5xcA1ci9x",
+        "isrc": "GBUM71029622",
+        "copyright_text": "© 2011 Raincloud Productions Ltd. under exclusive licence to Universal International Music BV",
+        "download_url": "https://youtube.com/watch?v=TpIa7T6keZ4",
+        "song_list": null,
+        "lyrics": null
+    },
+    {
+        "name": "Every Breath You Take",
+        "artists": [
+            "The Police"
+        ],
+        "artist": "The Police",
+        "album_name": "Stranger Things (Soundtrack from the Netflix Original Series)",
+        "album_artist": "Various Artists",
+        "genres": [
+            "album rock",
+            "art rock",
+            "classic rock",
+            "mellow gold",
+            "new wave",
+            "permanent wave",
+            "rock",
+            "soft rock"
+        ],
+        "disc_number": 1,
+        "disc_count": 1,
+        "duration": 251.573,
+        "year": 2017,
+        "date": "2017-10-27",
+        "track_number": 2,
+        "tracks_count": 30,
+        "song_id": "0SNGe4xksgp7CGnY5kMXOJ",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273bd0db295c0164ddbc0584ebb",
+        "explicit": false,
+        "publisher": "Legacy Recordings",
+        "url": "https://open.spotify.com/track/0SNGe4xksgp7CGnY5kMXOJ",
+        "isrc": "GBAAM8300001",
+        "copyright_text": "This compilation (P) 2017 Sony Music Entertainment",
+        "download_url": "https://youtube.com/watch?v=GO5utuvcZps",
+        "song_list": null,
+        "lyrics": null
+    }
+]

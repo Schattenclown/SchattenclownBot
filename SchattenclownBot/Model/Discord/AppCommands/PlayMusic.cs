@@ -830,9 +830,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             ProcessStartInfo processStartInfo = new()
             {
                 FileName = "..\\..\\..\\spotdl\\spotdl.exe",
-                Arguments = "--restrict --ffmpeg ..\\..\\..\\ffmpeg\\ffmpeg.exe --save-file ",
-                RedirectStandardOutput = true,
-                UseShellExecute = false
+                Arguments = "--restrict --ffmpeg ..\\..\\..\\ffmpeg\\ffmpeg.exe --save-file "
             };
 
             if (isTrack)
@@ -840,9 +838,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             else
                 processStartInfo.Arguments += "..\\..\\..\\spotdl\\playlists\\" + $@"{playlistString}.spotdl --preload save ""{spotifyString}"" ";
 
-            Process ffmpegProcess = Process.Start(processStartInfo);
-            if (ffmpegProcess != null)
-                await ffmpegProcess.WaitForExitAsync();
+            Process spotDlProcess = Process.Start(processStartInfo);
+            if (spotDlProcess != null)
+            {
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("working!"));
+                await spotDlProcess.WaitForExitAsync();
+            }
             else
             {
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("wenwong!"));
