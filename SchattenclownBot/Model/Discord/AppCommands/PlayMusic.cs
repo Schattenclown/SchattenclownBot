@@ -626,6 +626,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     AddMetadata = true
                 };
                 RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUriString, AudioConversionFormat.Opus, new CancellationToken(), null, null, optionSet);
+                var audioDownloadMetaData = await youtubeDl.RunVideoDataFetch(youtubeUriString);
+                TimeSpan audioDownloadTimeSpan = default;
+                if (audioDownloadMetaData.Data.Duration != null) audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Data.Duration.Value);
 
                 try
                 {
@@ -857,7 +860,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         string playerAdvance = "";
                         while (!ffmpegCopyTask.IsCompleted)
                         {
-                            if (wyldFunctionSuccess && musicBrainzTags.Length != null && queueListObj.IsYouTubeLink)
+                            if (wyldFunctionSuccess && audioDownloadTimeSpan.TotalSeconds > 0 && queueListObj.IsYouTubeLink)
                             {
                                 #region TimeLineAlgo
                                 if (counter % 10 == 0)
@@ -865,7 +868,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                     timeSpan = TimeSpan.FromSeconds(counter);
 
                                     string[] strings = new string[15];
-                                    double thisIsOneHundredPercent = musicBrainzTags.Length.Value.TotalSeconds;
+                                    double thisIsOneHundredPercent = audioDownloadTimeSpan.TotalSeconds;
 
                                     double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * counter;
 
@@ -889,7 +892,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                     if (cancellationToken.IsCancellationRequested)
                                         descriptionString = "▶️";
 
-                                    if (musicBrainzTags.Length != null) descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{musicBrainzTags.Length.Value.Hours:#00}:{musicBrainzTags.Length.Value.Minutes:#00}:{musicBrainzTags.Length.Value.Seconds:#00}] 🔉";
+                                    descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{audioDownloadTimeSpan.Hours:#00}:{audioDownloadTimeSpan.Minutes:#00}:{audioDownloadTimeSpan.Seconds:#00}] 🔉";
                                     discordEmbedBuilder.Description = descriptionString;
                                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUriString).WithEmbed(discordEmbedBuilder.Build()));
                                 }
@@ -942,10 +945,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             await Task.Delay(1000);
                         }
 
-                        if (wyldFunctionSuccess && musicBrainzTags.Length != null && queueListObj.IsYouTubeLink)
+                        if (wyldFunctionSuccess && audioDownloadTimeSpan.TotalSeconds > 0 && queueListObj.IsYouTubeLink)
                         {
                             #region MoteTimeLineAlgo
-                            string durationString = $"{musicBrainzTags.Length.Value.Hours:#00}:{musicBrainzTags.Length.Value.Minutes:#00}:{musicBrainzTags.Length.Value.Seconds:#00}";
+                            string durationString = $"{audioDownloadTimeSpan.Hours:#00}:{audioDownloadTimeSpan.Minutes:#00}:{audioDownloadTimeSpan.Seconds:#00}";
 
                             if (!cancellationToken.IsCancellationRequested)
                                 discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
@@ -955,7 +958,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                 if (cancellationToken.IsCancellationRequested)
                                     descriptionString = "▶️";
 
-                                descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{musicBrainzTags.Length.Value.Hours:#00}:{musicBrainzTags.Length.Value.Minutes:#00}:{musicBrainzTags.Length.Value.Seconds:#00}] 🔉";
+                                descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{audioDownloadTimeSpan.Hours:#00}:{audioDownloadTimeSpan.Minutes:#00}:{audioDownloadTimeSpan.Seconds:#00}] 🔉";
                                 discordEmbedBuilder.Description = descriptionString;
                             }
                             #endregion
