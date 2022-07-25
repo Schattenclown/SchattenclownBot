@@ -16,7 +16,7 @@ namespace SchattenclownBot.Model.HelpClasses
         /// <returns>A string.</returns>
         public static string RemoveUntilWord(string inputString, string keyWord, int removeWordInt)
         {
-            return inputString[(inputString.IndexOf(keyWord, StringComparison.Ordinal) + removeWordInt)..];
+            return !inputString.Contains(keyWord) ? inputString : inputString[(inputString.IndexOf(keyWord, StringComparison.Ordinal) + removeWordInt)..];
         }
         /// <summary>
         /// Removes the after keyWord.
@@ -27,6 +27,9 @@ namespace SchattenclownBot.Model.HelpClasses
         /// <returns>A string.</returns>
         public static string RemoveAfterWord(string inputString, string keyWord, int keepWordInt)
         {
+            if (!inputString.Contains(keyWord))
+                return inputString;
+
             int index = inputString.LastIndexOf(keyWord, StringComparison.Ordinal);
             if (index > 0)
                 inputString = inputString[..(index + keepWordInt)];

@@ -35,6 +35,15 @@ namespace SchattenclownBot.Model.Persistence.Connection
                             case "MySqlConStrDebug":
                                 connections.MySqlConStrDebug = infos[1].Replace(',', ';');
                                 break;
+                            case "AcoustIdApiKey":
+                                connections.AcoustIdApiKey = infos[1];
+                                break;
+                            case "SpotifyOAuth2":
+                                connections.Token = new Connections.SpotifyOAuth2();
+                                string[] spotifyOAuth2 = infos[1].Split('-');
+                                connections.Token.ClientId = spotifyOAuth2[0];
+                                connections.Token.ClientSecret = spotifyOAuth2[1];
+                                break;
                         }
                     }
                 }
@@ -51,7 +60,9 @@ namespace SchattenclownBot.Model.Persistence.Connection
                 streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
                                        "DiscordBotKeyDebug;<API Key here>\n" +
                                        "MySqlConStr;<DBConnectionString here>\n" +
-                                       "MySqlConStrDebug;<DBConnectionString here>");
+                                       "MySqlConStrDebug;<DBConnectionString here>\n" +
+                                       "AcoustIdApiKey;<Api Key here>\n" +
+                                       "SpotifyOAuth2;<ClientId-ClientSecret here>");
 
                 streamWriter.Close();
                 throw new Exception($"{Path.LocalPath}\n" +

@@ -1,0 +1,29 @@
+[
+    {
+        "name": "This Is the Sound of Saying Goodbye",
+        "artists": [
+            "Von Saxon"
+        ],
+        "artist": "Von Saxon",
+        "album_name": "This Is the Sound of Saying Goodbye",
+        "album_artist": "Von Saxon",
+        "genres": [],
+        "disc_number": 1,
+        "disc_count": 1,
+        "duration": 139.258,
+        "year": 2018,
+        "date": "2018-11-29",
+        "track_number": 1,
+        "tracks_count": 1,
+        "song_id": "5z5FxFkpkURM4qqdUkMyvO",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273b55ce39df729ab788699e1da",
+        "explicit": false,
+        "publisher": "1063513 Records DK",
+        "url": "https://open.spotify.com/track/5z5FxFkpkURM4qqdUkMyvO",
+        "isrc": "QZES81834709",
+        "copyright_text": "2018 1063513 Records DK",
+        "download_url": "https://youtube.com/watch?v=m0muO1-lAm0",
+        "song_list": null,
+        "lyrics": null
+    }
+]

@@ -9,6 +9,14 @@ namespace SchattenclownBot.Model.Objects
         public string DiscordBotDebug { get; set; }
         public string MySqlConStr { get; set; }
         public string MySqlConStrDebug { get; set; }
+        public string AcoustIdApiKey { get; set; }
+        public SpotifyOAuth2 Token { get; set; }
+
+        public class SpotifyOAuth2
+        {
+            public string ClientId { get; set; }
+            public string ClientSecret { get; set; }
+        }
 
         public static Connections GetConnections()
         {

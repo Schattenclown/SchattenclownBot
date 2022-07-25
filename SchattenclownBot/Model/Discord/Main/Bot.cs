@@ -28,7 +28,7 @@ namespace SchattenclownBot.Model.Discord.Main
         public const string Prefix = "%";
 #endif
         //public static readonly ulong DevGuild = 881868642600505354;
-
+        public static readonly Connections Connections = Connections.GetConnections();
         public static CancellationTokenSource ShutdownRequest;
         public static DiscordClient DiscordClient;
         public static ApplicationCommandsExtension AppCommands;
@@ -37,7 +37,6 @@ namespace SchattenclownBot.Model.Discord.Main
         private CommandsNextExtension _commandsNextExtension;
         private const ulong DevGuild = 881868642600505354;
         private static string _token = "";
-        private static int _virgin;
         public static UserStatus CustomStatus = UserStatus.Online;
         public static bool Custom = false;
         public static string CustomState = "/help";
@@ -47,16 +46,11 @@ namespace SchattenclownBot.Model.Discord.Main
         /// </summary>
         public Bot()
         {
-            if (_virgin == 0)
-            {
-                Connections connections = Connections.GetConnections();
-                _token = connections.DiscordBotKey;
-#if DEBUG
-                _token = connections.DiscordBotDebug;
-#endif
-                _virgin = 69;
-            }
 
+            _token = Connections.DiscordBotKey;
+#if DEBUG
+            _token = Connections.DiscordBotDebug;
+#endif
             ShutdownRequest = new CancellationTokenSource();
 
 #if DEBUG

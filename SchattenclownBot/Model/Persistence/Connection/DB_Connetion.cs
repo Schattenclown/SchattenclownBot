@@ -1,6 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
+using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
 using System;
 
 namespace SchattenclownBot.Model.Persistence.Connection
@@ -8,20 +8,12 @@ namespace SchattenclownBot.Model.Persistence.Connection
     class DbConnection
     {
         private static string _token = "";
-        private static int _virgin;
-        public static void SetDb()
-        {
-            Connections connections = Connections.GetConnections();
-            _token = connections.MySqlConStr;
-#if DEBUG
-            _token = connections.MySqlConStrDebug;
-#endif
-        }
         public static MySqlConnection OpenDb()
         {
-            if (_virgin == 0)
-                SetDb();
-            _virgin = 69;
+            _token = Bot.Connections.MySqlConStr;
+#if DEBUG
+            _token = Bot.Connections.MySqlConStrDebug;
+#endif
 
             MySqlConnection connection = new(_token);
 
