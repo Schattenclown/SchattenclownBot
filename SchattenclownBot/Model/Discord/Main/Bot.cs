@@ -35,7 +35,7 @@ namespace SchattenclownBot.Model.Discord.Main
         public InteractivityExtension Extension { get; private set; }
         public VoiceNextExtension NextExtension { get; }
         private CommandsNextExtension _commandsNextExtension;
-
+        private const ulong DevGuild = 881868642600505354;
         private static string _token = "";
         private static int _virgin;
         public static UserStatus CustomStatus = UserStatus.Online;
@@ -207,7 +207,7 @@ namespace SchattenclownBot.Model.Discord.Main
         {
             commandsNextExtension.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
 
-            /*applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
             applicationCommandsExtension.RegisterGuildCommands<AppCommands.Alarm>(DevGuild); // use to register global (can take up to an hour)
             applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register global (can take up to an hour)
             applicationCommandsExtension.RegisterGuildCommands<AppCommands.Move>(DevGuild); // use to register global (can take up to an hour)
@@ -216,7 +216,7 @@ namespace SchattenclownBot.Model.Discord.Main
             applicationCommandsExtension.RegisterGuildCommands<AppCommands.Timer>(DevGuild); // use to register global (can take up to an hour)
             //applicationCommandsExtension.RegisterGuildCommands<AppCommands.TriggerHelp>(DevGuild); // use to register global (can take up to an hour)
             applicationCommandsExtension.RegisterGuildCommands<AppCommands.UserLevel>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.VoteSystem>(DevGuild); // use to register global (can take up to an hour)*/
+            applicationCommandsExtension.RegisterGuildCommands<AppCommands.VoteSystem>(DevGuild); // use to register global (can take up to an hour)
 
             applicationCommandsExtension.RegisterGlobalCommands<Alarm>(); // use to register global (can take up to an hour)
             applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)

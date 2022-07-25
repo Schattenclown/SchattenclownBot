@@ -310,8 +310,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
         }
 
-        [SlashCommand("PlayYouTube", "Play one youtube song!")]
-        public async Task PlayYouTubeCommand(InteractionContext interactionContext, [Option("YouTubeLink", "Link of the youtube video!")] string youtubeUriString)
+        [SlashCommand("PlayYouTube", "Play a youtube playlist!")]
+        public async Task PlayYouTube(InteractionContext interactionContext, [Option("YouTubeLink", "YouTube link!")] string youtubeUriString)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -321,49 +321,26 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 return;
             }
 
-            bool musicAlreadyPlaying = false;
-            foreach (KeyValuePair<DiscordGuild, CancellationTokenSource> dummy in TokenList.Where(x => x.Key == interactionContext.Guild))
+            bool isSingleVideo = false;
+            bool hasWatchTag = false;
+            bool isPlaylist = false;
+
+            if (youtubeUriString.Contains("watch?v=") && !youtubeUriString.Contains("&list=") && !youtubeUriString.Contains("&index="))
             {
-                musicAlreadyPlaying = true;
-                break;
+                isSingleVideo = true;
             }
-
-            if (!musicAlreadyPlaying)
+            else if (youtubeUriString.Contains("&list=") || youtubeUriString.Contains("playlist?list="))
             {
-                CancellationTokenSource tokenSource = new();
-                CancellationToken cancellationToken = tokenSource.Token;
-                KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext.Guild, tokenSource);
-                TokenList.Add(tokenKeyPair);
-                KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, youtubeUriString);
-                QueueList.Add(queueKeyPair);
+                isPlaylist = true;
 
-                try
+                if (youtubeUriString.Contains("watch?v="))
                 {
-                    Task.Run(() => PlayYouTubeTask(interactionContext, null, null, null, null, youtubeUriString, cancellationToken, false, true), cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    TokenList.Remove(tokenKeyPair);
+                    hasWatchTag = true;
                 }
             }
             else
             {
-                KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, youtubeUriString);
-                QueueList.Add(queueKeyPair);
-
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your song is in the queue!"));
-            }
-        }
-
-        [SlashCommand("PlayYouTubePlaylist", "Play a youtube playlist!")]
-        public async Task PlayYouTubePlaylistCommand(InteractionContext interactionContext, [Option("YouTubeLink", "Link of the youtube video!")] string youtubeUriString)
-        {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-            if (interactionContext.Member.VoiceState == null)
-            {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("I don´t think so!"));
                 return;
             }
 
@@ -374,63 +351,98 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 break;
             }
 
-            Uri uri = new(@"N:\");
-
-            YoutubeDL youtubeDl = new()
+            if (isSingleVideo)
             {
-                YoutubeDLPath = "..\\..\\..\\youtube-dl\\yt-dlp.exe",
-                FFmpegPath = "..\\..\\..\\ffmpeg\\ffmpeg.exe",
-                OutputFolder = uri.AbsolutePath,
-                RestrictFilenames = false,
-                OverwriteFiles = false,
-                IgnoreDownloadErrors = false
-            };
-
-            try
-            {
-                YoutubeDLSharp.Metadata.VideoData[] videoUrls = youtubeDl.RunVideoDataFetch(youtubeUriString).Result.Data.Entries;
-
-                if (videoUrls != null)
+                if (!musicAlreadyPlaying)
                 {
-                    if (!musicAlreadyPlaying)
-                    {
-                        CancellationTokenSource tokenSource = new();
-                        CancellationToken cancellationToken = tokenSource.Token;
-                        KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext.Guild, tokenSource);
-                        TokenList.Add(tokenKeyPair);
-                        KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url);
-                        QueueList.Add(queueKeyPair);
+                    CancellationTokenSource tokenSource = new();
+                    CancellationToken cancellationToken = tokenSource.Token;
+                    KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext.Guild, tokenSource);
+                    TokenList.Add(tokenKeyPair);
+                    KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, youtubeUriString);
+                    QueueList.Add(queueKeyPair);
 
-                        try
-                        {
-                            Task.Run(() => PlayYouTubeTask(interactionContext, null, null, null, null, videoUrls[0].Url, cancellationToken, false, true), cancellationToken);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                            TokenList.Remove(tokenKeyPair);
-                        }
+                    try
+                    {
+                        Task.Run(() => PlayYouTubeTask(interactionContext, null, null, null, null, youtubeUriString, cancellationToken, false, true), cancellationToken);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url);
-                        QueueList.Add(queueKeyPair);
-
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
-                    }
-
-                    for (int i = 1; i < videoUrls.Length; i++)
-                    {
-                        KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[i].Url);
-                        QueueList.Add(queueKeyPair);
+                        Console.WriteLine(ex.Message);
+                        TokenList.Remove(tokenKeyPair);
                     }
                 }
-            }
-            catch
-            {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Cant play that!"));
-            }
+                else
+                {
+                    KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, youtubeUriString);
+                    QueueList.Add(queueKeyPair);
 
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your song is in the queue!"));
+                }
+            }
+            else if (hasWatchTag)
+            {
+
+            }
+            else
+            {
+                Uri uri = new(@"N:\");
+
+                YoutubeDL youtubeDl = new()
+                {
+                    YoutubeDLPath = "..\\..\\..\\youtube-dl\\yt-dlp.exe",
+                    FFmpegPath = "..\\..\\..\\ffmpeg\\ffmpeg.exe",
+                    OutputFolder = uri.AbsolutePath,
+                    RestrictFilenames = false,
+                    OverwriteFiles = false,
+                    IgnoreDownloadErrors = false
+                };
+
+                try
+                {
+                    YoutubeDLSharp.Metadata.VideoData[] videoUrls = youtubeDl.RunVideoDataFetch(youtubeUriString).Result.Data.Entries;
+
+                    if (videoUrls != null)
+                    {
+                        if (!musicAlreadyPlaying)
+                        {
+                            CancellationTokenSource tokenSource = new();
+                            CancellationToken cancellationToken = tokenSource.Token;
+                            KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext.Guild, tokenSource);
+                            TokenList.Add(tokenKeyPair);
+                            KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url);
+                            QueueList.Add(queueKeyPair);
+
+                            try
+                            {
+                                Task.Run(() => PlayYouTubeTask(interactionContext, null, null, null, null, videoUrls[0].Url, cancellationToken, false, true), cancellationToken);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                                TokenList.Remove(tokenKeyPair);
+                            }
+                        }
+                        else
+                        {
+                            KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[0].Url);
+                            QueueList.Add(queueKeyPair);
+
+                            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
+                        }
+
+                        for (int i = 1; i < videoUrls.Length; i++)
+                        {
+                            KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, videoUrls[i].Url);
+                            QueueList.Add(queueKeyPair);
+                        }
+                    }
+                }
+                catch
+                {
+                    await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Cant play that!"));
+                }
+            }
         }
 
         static async Task PlayYouTubeTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, string youtubeUriString, CancellationToken cancellationToken, bool isNextSongRequest, bool isInitialMessage)
