@@ -5,6 +5,7 @@ using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using MetaBrainz.MusicBrainz;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using System;
@@ -312,7 +313,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         }
 
         [SlashCommand("PlayYouTube", "Play a youtube video or playlist!")]
-        private async Task PlayYouTube(InteractionContext interactionContext, [Option("YouTubeLink", "YouTube link!")] string youtubeUriString)
+        private async Task PlayYouTubeCommand(InteractionContext interactionContext, [Option("YouTubeLink", "YouTube link!")] string youtubeUriString)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -393,9 +394,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         if (!musicAlreadyPlaying)
                         {
                             if (hasWatchTag)
-                                await PlayYoutubeRunAsync(interactionContext, singleVideoUrl);
+                                await PlayYoutubeTask(interactionContext, singleVideoUrl);
                             else
-                                await PlayYoutubeRunAsync(interactionContext, videoUrls[0].Url);
+                                await PlayYoutubeTask(interactionContext, videoUrls[0].Url);
                         }
                         else
                         {
@@ -428,7 +429,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                 if (!musicAlreadyPlaying)
                 {
-                    await PlayYoutubeRunAsync(interactionContext, youtubeUriString);
+                    await PlayYoutubeTask(interactionContext, youtubeUriString);
                 }
                 else
                 {
@@ -440,7 +441,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
         }
 
-        private Task PlayYoutubeRunAsync(InteractionContext interactionContext, string youtubeUriString)
+        private Task PlayYoutubeTask(InteractionContext interactionContext, string youtubeUriString)
         {
             CancellationTokenSource tokenSource = new();
             CancellationToken cancellationToken = tokenSource.Token;
@@ -451,7 +452,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             try
             {
-                Task.Run(() => PlayYouTubeTask(interactionContext, null, null, null, null, youtubeUriString, cancellationToken, false, true), cancellationToken);
+                Task.Run(() => PlayYouTubeAsyncTask(interactionContext, null, null, null, null, youtubeUriString, cancellationToken, false, true), cancellationToken);
             }
             catch (Exception ex)
             {
@@ -462,7 +463,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             return Task.CompletedTask;
         }
 
-        private static async Task PlayYouTubeTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, string youtubeUriString, CancellationToken cancellationToken, bool isNextSongRequest, bool isInitialMessage)
+        private static async Task PlayYouTubeAsyncTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, string youtubeUriString, CancellationToken cancellationToken, bool isNextSongRequest, bool isInitialMessage)
         {
             try
             {
@@ -615,7 +616,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                     try
                                     {
                                         discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
-                                        var streamForBitmap = await httpClientForBitmap.GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
+                                        Stream streamForBitmap = await httpClientForBitmap.GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
 
                                         Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
                                         if (bitmapAlbumCover != null)
@@ -786,9 +787,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                             KeyValuePair<DiscordGuild, CancellationTokenSource> tokenKeyPair = new(interactionContext != null ? interactionContext.Guild : discordGuild, tokenSource);
                             TokenList.Add(tokenKeyPair);
                             if (interactionContext != null)
-                                Task.Run(() => PlayYouTubeTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result, interactionContext.Channel, queueKeyPairItem.Value, newCancellationToken, false, false));
+                                Task.Run(() => PlayYouTubeAsyncTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result, interactionContext.Channel, queueKeyPairItem.Value, newCancellationToken, false, false));
                             else
-                                Task.Run(() => PlayYouTubeTask(interactionContext, client, discordGuild, discordMember, interactionChannel, queueKeyPairItem.Value, newCancellationToken, false, false));
+                                Task.Run(() => PlayYouTubeAsyncTask(interactionContext, client, discordGuild, discordMember, interactionChannel, queueKeyPairItem.Value, newCancellationToken, false, false));
                             break;
                         }
                     }
@@ -801,6 +802,81 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 else
                     client.Logger.LogError(exc.Message);
             }
+        }
+
+        [SlashCommand("PlaySpotify", "Play something")]
+        private async Task PlaySpotifyCommand(InteractionContext interactionContext, [Option("SpotifyLink", "Spotify link!")] string spotifyString)
+        {
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            bool isTrack = false;
+            string trackString = "";
+            string playlistString = "";
+
+            if (spotifyString.Contains("/track/"))
+            {
+                trackString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(spotifyString, "/track/", "/track/".Length), "?si", 0);
+                isTrack = true;
+            }
+            else if (spotifyString.Contains("/playlist/"))
+            {
+                playlistString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(spotifyString, "/playlist/", "/playlist/".Length), "?si", 0);
+            }
+            else
+            {
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("I don´t think so!"));
+                return;
+            }
+
+            ProcessStartInfo processStartInfo = new()
+            {
+                FileName = "..\\..\\..\\spotdl\\spotdl.exe",
+                Arguments = "--restrict --ffmpeg ..\\..\\..\\ffmpeg\\ffmpeg.exe --save-file ",
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+
+            if (isTrack)
+                processStartInfo.Arguments += "..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl --preload save ""{spotifyString}"" ";
+            else
+                processStartInfo.Arguments += "..\\..\\..\\spotdl\\playlists\\" + $@"{playlistString}.spotdl --preload save ""{spotifyString}"" ";
+
+            Process ffmpegProcess = Process.Start(processStartInfo);
+            if (ffmpegProcess != null)
+                await ffmpegProcess.WaitForExitAsync();
+            else
+            {
+                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("wenwong!"));
+                return;
+            }
+
+            if (isTrack)
+            {
+                StreamReader streamReaderTrack = new("..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl");
+                string jsonTracks = await streamReaderTrack.ReadToEndAsync();
+                List<SpotDl> spotDls = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTracks);
+
+                if (spotDls != null)
+                    await PlayYoutubeTask(interactionContext, spotDls[0].download_url);
+            }
+            else
+            {
+                StreamReader streamReaderPlaylist = new("..\\..\\..\\spotdl\\playlists\\" + $@"{playlistString}.spotdl");
+                string jsonTracks = await streamReaderPlaylist.ReadToEndAsync();
+                List<SpotDl> spotDls = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTracks);
+
+                if (spotDls != null)
+                {
+                    await PlayYoutubeTask(interactionContext, spotDls[0].download_url);
+
+                    for (int i = 1; i < spotDls.Count; i++)
+                    {
+                        KeyValuePair<DiscordGuild, string> queueKeyPair = new(interactionContext.Guild, spotDls[i].download_url);
+                        QueueList.Add(queueKeyPair);
+                    }
+                }
+            }
+
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Testing!"));
         }
 
         [SlashCommand("Stop", "Stop the music!")]
@@ -876,7 +952,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (tokenSource != null)
             {
-                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Skipping!"));
                 tokenSource.Cancel();
                 tokenSource.Dispose();
             }
@@ -934,7 +1009,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         if (tokenSource != null)
                         {
-                            eventArgs.Channel.SendMessageAsync("Skipping!");
                             tokenSource.Cancel();
                             tokenSource.Dispose();
                         }
@@ -1014,7 +1088,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         if (tokenSource != null)
                         {
-                            eventArgs.Channel.SendMessageAsync("Skipping!");
                             tokenSource.Cancel();
                             tokenSource.Dispose();
                         }
@@ -1032,7 +1105,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                     nextKeyPairItem = new KeyValuePair<DiscordGuild, CancellationTokenSource>(eventArgs.Guild, nextYtTokenSource);
                                     TokenList.Add(nextKeyPairItem);
 
-                                    Task.Run(() => PlayYouTubeTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, queueKeyPairItem.Value, nextYtCancellationToken, true, false), nextYtCancellationToken);
+                                    Task.Run(() => PlayYouTubeAsyncTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, queueKeyPairItem.Value, nextYtCancellationToken, true, false), nextYtCancellationToken);
 
                                     break;
                                 }

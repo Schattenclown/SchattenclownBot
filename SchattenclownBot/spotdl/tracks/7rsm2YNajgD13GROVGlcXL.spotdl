@@ -1,0 +1,29 @@
+[
+    {
+        "name": "OVERDRIVE!",
+        "artists": [
+            "SHY!"
+        ],
+        "artist": "SHY!",
+        "album_name": "OVERDRIVE!",
+        "album_artist": "SHY!",
+        "genres": [],
+        "disc_number": 1,
+        "disc_count": 1,
+        "duration": 160.0,
+        "year": 2020,
+        "date": "2020-11-27",
+        "track_number": 1,
+        "tracks_count": 1,
+        "song_id": "7rsm2YNajgD13GROVGlcXL",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273295dabfb32eeddfa028d0c18",
+        "explicit": true,
+        "publisher": "SHY!",
+        "url": "https://open.spotify.com/track/7rsm2YNajgD13GROVGlcXL",
+        "isrc": "QZNWR2076596",
+        "copyright_text": "2020 SHY!",
+        "download_url": "https://youtube.com/watch?v=mHzY4PVkRn8",
+        "song_list": null,
+        "lyrics": null
+    }
+]
