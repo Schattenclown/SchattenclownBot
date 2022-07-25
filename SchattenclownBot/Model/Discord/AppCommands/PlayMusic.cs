@@ -634,7 +634,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                     MetaBrainz.MusicBrainz.Interfaces.Entities.IRecording musicBrainzTags = null;
                     TimeSpan spotDlTimeSpan = new(0);
 
-                    if (audioDownload.ErrorOutput.Length <= 1 && !queueListObj.IsYouTubeLink)
+                    if (!queueListObj.IsYouTubeLink)
                     {
                         #region discordEmbedBuilder
                         discordEmbedBuilder.Title = spotDlMetaData.name;
@@ -652,15 +652,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         }
                         else
                             discordEmbedBuilder.WithAuthor(spotDlMetaData.artist);
-                        
+
                         string genres = "";
                         if (spotDlMetaData.genres.Count > 0)
                         {
                             foreach (string genre in spotDlMetaData.genres)
                             {
                                 genres += genre;
-                                if (spotDlMetaData.genres.Last() != genre || spotDlMetaData.genres[4] == genre)
+                                if (spotDlMetaData.genres.Last() != genre)
                                     genres += ", ";
+
+                                //maybe too mutch genres for discordField
                             }
                         }
                         else
