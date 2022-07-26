@@ -102,7 +102,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 try
                 {
-                    Task.Run(() => DrivePlayTask(interactionContext, null, null, null, null, cancellationToken, false, true), cancellationToken);
+                    Task.Run(() => DrivePlayTask(interactionContext, null, null, null, null, cancellationToken, true), cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -114,7 +114,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already!"));
         }
 
-        private static async Task DrivePlayTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, CancellationToken cancellationToken, bool isNextSongRequest, bool isInitialMessage)
+        private static async Task DrivePlayTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, CancellationToken cancellationToken, bool isInitialMessage)
         {
             try
             {
@@ -131,14 +131,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                 voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
 
-                if (isNextSongRequest)
-                {
-                    /*if (interactionContext != null)
-                        await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!"));
-                    else
-                        await interactionChannel.SendMessageAsync($"Skipped song in {voiceNextConnection.TargetChannel.Mention}!");*/
-                }
-                else if (isInitialMessage)
+                if (isInitialMessage)
                 {
                     if (interactionContext != null)
                         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
@@ -1178,7 +1171,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             try
             {
-                Task.Run(() => DrivePlayTask(interactionContext, null, null, null, null, cancellationToken, true, false), cancellationToken);
+                Task.Run(() => DrivePlayTask(interactionContext, null, null, null, null, cancellationToken, false), cancellationToken);
             }
             catch (Exception ex)
             {
@@ -1235,7 +1228,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         try
                         {
-                            Task.Run(() => DrivePlayTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, cancellationToken, true, false), cancellationToken);
+                            Task.Run(() => DrivePlayTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, cancellationToken, false), cancellationToken);
                         }
                         catch (Exception ex)
                         {
