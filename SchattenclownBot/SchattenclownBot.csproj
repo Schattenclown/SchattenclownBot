@@ -36,4 +36,8 @@
     <AdditionalDesignTimeBuildInput Remove="FakesAssemblies\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\Executables\spotdl\tracks\" />
+  </ItemGroup>
+
 </Project>
