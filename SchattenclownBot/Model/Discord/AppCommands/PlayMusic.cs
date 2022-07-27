@@ -789,10 +789,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             string url = "http://api.acoustid.org/v2/lookup?client=" + Bot.Connections.AcoustIdApiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] +
                          "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
-
-            HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
-            string httpClientContent = httpClient.GetStringAsync(url).Result;
+            
+            string httpClientContent = new HttpClient().GetStringAsync(url).Result;
             acoustId = AcoustId.CreateObj(httpClientContent);
          }
 
@@ -1097,14 +1095,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             List<QueueItem> queueItemList = _queueItemList;
 
             int queueLength = _queueItemList.Count;
-            List<int> intList = new();
             List<int> intListMixed = new();
-
-            for (int i = 0; i < queueLength; i++)
-            {
-               intList.Add(i);
-            }
-
+            
             for (int i = 0; i < queueLength; i++)
             {
                bool foundNumber = false;
@@ -1115,7 +1107,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   if (!intListMixed.Contains(randomInt))
                   {
                      intListMixed.Add(randomInt);
-                     intList.Remove(randomInt);
                      foundNumber = true;
                   }
                } while (!foundNumber);
@@ -1424,8 +1415,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      CancellationTokenItemList.Remove(keyValuePairItem);
                      break;
                   }
-
-
+                  
                   if (tokenSource != null)
                   {
                      tokenSource.Cancel();
