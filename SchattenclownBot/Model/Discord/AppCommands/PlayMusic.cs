@@ -1009,7 +1009,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                {
                   tags += audioDownloadMetaData.Tags[i];
 
-                  if (i > 3)
+                  if (i > 2)
                      break;
                   else
                      tags += ", ";
