@@ -921,11 +921,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      rightAlbumDateTime = new DateTime(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
 
                   DateTime albumItemDateTime = new(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
-                  if (rightAlbumDateTime <= albumItemDateTime)
-                     continue;
-
-                  rightAlbum = albumItem;
-                  rightAlbumDateTime = albumItemDateTime;
+                  if (rightAlbumDateTime >= albumItemDateTime)
+                  {
+                     rightAlbum = albumItem;
+                     rightAlbumDateTime = albumItemDateTime;
+                  }
                }
 
                discordEmbedBuilder.Title = iRecording.Title;
@@ -934,7 +934,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
                discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
-               discordEmbedBuilder.WithUrl(audioDownloadMetaData.Url);
+               discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
 
                if (rightAlbum.Id != null)
                {
