@@ -453,7 +453,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                else
                {
                   if (isYouTubePlaylist)
+                  {
                      await PlayQueueAsyncTask(interactionContext, new Uri(videoDataArray[0].Url), null);
+
+                     for (int i = 1; i < videoDataArray.Length; i++)
+                     {
+                        QueueItem queueItem = new(interactionContext.Guild, new Uri(videoDataArray[i].Url), null);
+                        QueueItemList.Add(queueItem);
+                     }
+                  }
                   else
                      await PlayQueueAsyncTask(interactionContext, selectedVideoUri, null);
                }
@@ -466,8 +474,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          else if (isSpotify)
          {
             List<PlaylistTrack<IPlayableItem>> spotifyPlaylistItems = default;
-            FullTrack spotifyTrack;
-            Uri spotifyTrackUri = default;
 
             if (isSpotifyPlaylist)
             {
@@ -478,13 +484,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                ClientCredentialsTokenResponse clientCredentialsTokenResponse = await new OAuthClient(spotifyClientConfig).RequestToken(clientCredentialsRequest);
                SpotifyClient spotifyClient = new(clientCredentialsTokenResponse.AccessToken);
                spotifyPlaylistItems = spotifyClient.Playlists.GetItems(playlistId).Result.Items;
-
-               if (spotifyPlaylistItems != null)
-               {
-                  spotifyTrack = spotifyPlaylistItems[0].Track as FullTrack;
-                  if (spotifyTrack != null)
-                     spotifyTrackUri = new Uri("https://open.spotify.com/track/" + spotifyTrack.Id);
-               }
             }
 
             if (MusicAlreadyPlaying(interactionContext.Guild))
@@ -495,12 +494,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      foreach (PlaylistTrack<IPlayableItem> playlistItem in spotifyPlaylistItems)
                      {
-                        spotifyTrack = playlistItem.Track as FullTrack;
-                        if (spotifyTrack != null)
-                           spotifyTrackUri = new Uri("https://open.spotify.com/track/" + spotifyTrack.Id);
-
-                        QueueItem queueKeyPair = new(interactionContext.Guild, null, spotifyTrackUri);
-                        QueueItemList.Add(queueKeyPair);
+                        if (playlistItem.Track is FullTrack spotifyTrack)
+                        {
+                           QueueItem queueKeyPair = new(interactionContext.Guild, null, new Uri("https://open.spotify.com/track/" + spotifyTrack.Id));
+                           QueueItemList.Add(queueKeyPair);
+                        }
                      }
                   }
                }
@@ -515,8 +513,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                if (isSpotifyPlaylist)
                {
-                  //hier msus mehr oder?
-                  await PlayQueueAsyncTask(interactionContext, null, spotifyTrackUri);
+                  if (spotifyPlaylistItems != null && spotifyPlaylistItems.Count != 0)
+                  {
+                     FullTrack spotifyTrack = spotifyPlaylistItems[0].Track as FullTrack;
+                     await PlayQueueAsyncTask(interactionContext, null, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
+
+                     for (int i = 1; i < spotifyPlaylistItems.Count; i++)
+                     {
+                        spotifyTrack = spotifyPlaylistItems[i].Track as FullTrack;
+                        QueueItem queueKeyPair = new(interactionContext.Guild, null, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
+                        QueueItemList.Add(queueKeyPair);
+                     }
+                  }
                }
                else
                   await PlayQueueAsyncTask(interactionContext, null, webLinkUri);
@@ -861,9 +869,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if (queueItemObj.IsYouTubeUri)
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri));
                else if (!queueItemObj.IsYouTubeUri)
-                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(queueItemObj.SpotifyUri.AbsoluteUri).AddEmbed(discordEmbedBuilder.Build()));
+                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
                else if (wyldFunctionSuccess)
-                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri).AddEmbed(discordEmbedBuilder.Build()));
+                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(youtubeUri.AbsoluteUri));
                else
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(audioDownloadError));
 
@@ -960,7 +968,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                            descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{spotDlTimeSpan.Hours:#00}:{spotDlTimeSpan.Minutes:#00}:{spotDlTimeSpan.Seconds:#00}] 🔉";
                            discordEmbedBuilder.Description = descriptionString;
-                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(queueItemObj.SpotifyUri.AbsoluteUri).AddEmbed(discordEmbedBuilder.Build()));
+                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
                         }
                         #endregion
                      }
@@ -1017,7 +1025,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
                      discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
 
-                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(queueItemObj.SpotifyUri.AbsoluteUri).AddEmbed(discordEmbedBuilder.Build()));
+                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
                   }
                   else
                   {
