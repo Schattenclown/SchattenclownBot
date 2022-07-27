@@ -752,8 +752,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   AcoustId.Root acoustId = new();
                   if (fingerPrintDuration != null)
                   {
-                     const string apiKey = "Y2Ap7JHhdH";
-                     string url = "http://api.acoustid.org/v2/lookup?discordClient=" + apiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] +
+                     string url = "http://api.acoustid.org/v2/lookup?client=" + Bot.Connections.AcoustIdApiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] +
                                   "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
 
                      HttpClient httpClient = new();
