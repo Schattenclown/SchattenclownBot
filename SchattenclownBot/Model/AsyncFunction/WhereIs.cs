@@ -183,7 +183,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                                 catch (Exception ex)
                                 {
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine(ex.Message);
+                                    Console.WriteLine(ex.Message + "Someone prob. Deleted the bot Role");
                                     Console.ForegroundColor = ConsoleColor.Gray;
                                 }
                             }
