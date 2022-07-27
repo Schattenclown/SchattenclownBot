@@ -20,7 +20,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             foreach (DiscordRole dummy in discordPermissions.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
                 rightToMove = true;
 
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
             if (!rightToMove)
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You don´t have Permission!"));

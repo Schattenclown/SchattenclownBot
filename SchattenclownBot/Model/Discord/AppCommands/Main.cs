@@ -39,7 +39,7 @@ internal class Main : ApplicationCommandsModule
     [SlashCommand("Invite", "Invite $chattenclown")]
     public static async Task InviteAsync(InteractionContext interactionContext)
     {
-        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+        await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
         Uri botInvite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
 

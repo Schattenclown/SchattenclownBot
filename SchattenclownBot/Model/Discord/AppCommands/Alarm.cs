@@ -64,7 +64,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         public static async Task AlarmClockLookup(InteractionContext interactionContext)
         {
             //Create an Response.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
             //Create a List where all Alarms will be Listed if there are any set.
             System.Collections.Generic.List<BotAlarmClock> botAlarmClockList = DbBotAlarmClocks.ReadAll();

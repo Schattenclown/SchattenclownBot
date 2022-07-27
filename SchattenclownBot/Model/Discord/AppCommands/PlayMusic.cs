@@ -346,7 +346,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("Play", "Play spotify or youtube link!")]
       private async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
          if (interactionContext.Member.VoiceState == null)
          {
@@ -1087,7 +1087,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("Stop", "Stop the music!")]
       private async Task StopCommand(InteractionContext interactionContext)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
          if (interactionContext.Member.VoiceState == null)
          {
@@ -1122,14 +1122,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("Skip", "Skip this song!")]
       private async Task SkipCommand(InteractionContext interactionContext)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
          await PlayMusic.NextSongTask(interactionContext);
       }
 
       [SlashCommand("Next", "Skip this song!")]
       private async Task NextCommand(InteractionContext interactionContext)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
          await PlayMusic.NextSongTask(interactionContext);
       }
 

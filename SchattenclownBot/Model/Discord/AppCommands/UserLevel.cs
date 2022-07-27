@@ -21,7 +21,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         [SlashCommand("MyLevel", "Look up your level!")]
         public static async Task MyLevelAsync(InteractionContext interactionContext)
         {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
             List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
@@ -86,7 +86,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         [SlashCommand("Level", "Look up someones level!")]
         public static async Task LevelAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
             List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
@@ -149,7 +149,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         public static async Task LeaderboardAsync(InteractionContext interactionContext)
         {
             //Create an Response.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
 
             DiscordMember discordMember = null;
 
