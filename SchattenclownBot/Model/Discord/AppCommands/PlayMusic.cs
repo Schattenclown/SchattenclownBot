@@ -861,7 +861,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
 
-            if (acoustIdRoot.Results != null && acoustIdRoot.Results.Count != 0 && acoustIdRoot.Results[0].Recordings[0] != null && acoustIdRoot.Results[0].Recordings[0].Releases != null)
+            if (acoustIdRoot.Results?[0].Recordings[0]?.Releases != null)
             {
                string recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
                Query musicBrainzQuery = new();
