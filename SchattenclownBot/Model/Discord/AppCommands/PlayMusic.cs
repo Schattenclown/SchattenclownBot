@@ -1004,12 +1004,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
 
                string tags = "";
-               foreach (string tag in audioDownloadMetaData.Tags)
+
+               for (int i = 0; i < audioDownloadMetaData.Tags.Length; i++)
                {
-                  tags += tag;
-                  if (audioDownloadMetaData.Tags.Last() != tag)
+                  tags = audioDownloadMetaData.Tags[i];
+
+                  if (i > 6)
+                     break;
+                  else
                      tags += ", ";
                }
+
                discordEmbedBuilder.AddField(new DiscordEmbedField("Tags", tags, true));
 
                discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
