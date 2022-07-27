@@ -327,11 +327,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   isYouTubePlaylistWithIndex = true;
             }
          }
-         else if (webLink.Contains("/track/") || webLink.Contains("/playlist/"))
+         else if (webLink.Contains("/track/") || webLink.Contains("/playlist/") || webLink.Contains("/album/"))
          {
             isSpotify = true;
 
-            if (webLink.Contains("/playlist/"))
+            if (webLink.Contains("/playlist/") || webLink.Contains("/album/"))
             {
                isSpotifyPlaylist = true;
             }
@@ -430,7 +430,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (isSpotifyPlaylist)
             {
-               string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
+               string playlistId;
+               if (webLink.Contains("/playlist/"))
+                  playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
+               else
+                  playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/album/", "/album/".Length), "?si", 0);
 
                SpotifyClientConfig spotifyClientConfig = SpotifyClientConfig.CreateDefault();
                ClientCredentialsRequest clientCredentialsRequest = new(Bot.Connections.Token.ClientId, Bot.Connections.Token.ClientSecret);
@@ -614,7 +618,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                audioDownloadError = $"{audioDownload.ErrorOutput[1]} `{youtubeUri.AbsoluteUri}`";
             }
-            
+
             DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
             DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
             DiscordComponent[] discordComponents = new DiscordComponent[2];
