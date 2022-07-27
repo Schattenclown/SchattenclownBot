@@ -79,7 +79,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       private async Task DrivePlayCommand(InteractionContext interactionContext)
       {
          //check if this fix error
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          if (interactionContext.Member.VoiceState == null)
          {
@@ -347,7 +347,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("Play", "Play spotify or youtube link!")]
       private async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
          Uri webLinkUri = new(webLink);
 
          if (interactionContext.Member.VoiceState == null)
@@ -393,15 +393,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             int playlistSelectedVideoIndex = 1;
             Uri selectedVideoUri = default;
-            string playlistUri = "";
+            Uri playlistUri = webLinkUri;
             string selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
 
             if (isYouTubePlaylist)
             {
                string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&list=", "&list=".Length), "&index=", 0);
-               if(isYouTubePlaylistWithIndex)
+               if (isYouTubePlaylistWithIndex)
+               {
                   playlistSelectedVideoIndex = Convert.ToInt32(StringCutter.RemoveUntilWord(webLink, "&index=", "&index=".Length));
-               playlistUri = "https://www.youtube.com/playlist?list=" + playlistId;
+                  playlistUri = new Uri("https://www.youtube.com/playlist?list=" + playlistId);
+               }
             }
             else
             {
@@ -428,7 +430,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      PlaylistStart = playlistSelectedVideoIndex
                   };
-                  videoDataArray = youtubeDl.RunVideoDataFetch(playlistUri, new CancellationToken(), true, optionSet).Result.Data.Entries;
+                  videoDataArray = youtubeDl.RunVideoDataFetch(playlistUri.AbsoluteUri, new CancellationToken(), true, optionSet).Result.Data.Entries;
                }
 
                if (MusicAlreadyPlaying(interactionContext.Guild))
@@ -857,7 +859,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", false, discordComponentEmojisStop);
 
                if (queueItemObj.IsYouTubeUri)
-                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri).AddEmbed(discordEmbedBuilder.Build()));
+                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri));
                else if (!queueItemObj.IsYouTubeUri)
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(queueItemObj.SpotifyUri.AbsoluteUri).AddEmbed(discordEmbedBuilder.Build()));
                else if (wyldFunctionSuccess)
@@ -1080,7 +1082,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("Stop", "Stop the music!")]
       private async Task StopCommand(InteractionContext interactionContext)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          if (interactionContext.Member.VoiceState == null)
          {
@@ -1115,14 +1117,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("Skip", "Skip this song!")]
       private async Task SkipCommand(InteractionContext interactionContext)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
          await PlayMusic.NextSongTask(interactionContext);
       }
 
       [SlashCommand("Next", "Skip this song!")]
       private async Task NextCommand(InteractionContext interactionContext)
       {
-         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
          await PlayMusic.NextSongTask(interactionContext);
       }
 

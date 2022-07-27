@@ -154,7 +154,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         public static async Task ShowRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             string description = "```\n";
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             for (int i = 1; i < 6; i++)
                 description += $"Rating with {i}: {SympathySystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
