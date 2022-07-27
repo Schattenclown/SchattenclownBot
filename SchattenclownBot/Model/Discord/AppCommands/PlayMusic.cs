@@ -314,6 +314,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          bool isYouTubePlaylistWithIndex = false;
          bool isSpotify = false;
          bool isSpotifyPlaylist = false;
+         bool isSpotifyAlbum = false;
 
          if (webLink.Contains("watch?v=") || webLink.Contains("&list=") || webLink.Contains("playlist?list="))
          {
@@ -331,10 +332,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             isSpotify = true;
 
-            if (webLink.Contains("/playlist/") || webLink.Contains("/album/"))
-            {
+            if (webLink.Contains("/playlist/"))
                isSpotifyPlaylist = true;
-            }
+            else if (webLink.Contains("/album/"))
+               isSpotifyAlbum = true;
          }
          else
          {
@@ -427,20 +428,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          else if (isSpotify)
          {
             List<PlaylistTrack<IPlayableItem>> spotifyPlaylistItems = default;
+            List<SimpleTrack> spotifyAlbumItems = default;
 
             if (isSpotifyPlaylist)
             {
-               string playlistId;
-               if (webLink.Contains("/playlist/"))
-                  playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
-               else
-                  playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/album/", "/album/".Length), "?si", 0);
-
-               SpotifyClientConfig spotifyClientConfig = SpotifyClientConfig.CreateDefault();
-               ClientCredentialsRequest clientCredentialsRequest = new(Bot.Connections.Token.ClientId, Bot.Connections.Token.ClientSecret);
-               ClientCredentialsTokenResponse clientCredentialsTokenResponse = await new OAuthClient(spotifyClientConfig).RequestToken(clientCredentialsRequest);
-               SpotifyClient spotifyClient = new(clientCredentialsTokenResponse.AccessToken);
+               string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
+               SpotifyClient spotifyClient = GetSpotifyClientConfig();
                spotifyPlaylistItems = spotifyClient.Playlists.GetItems(playlistId).Result.Items;
+            }
+            else if (isSpotifyAlbum)
+            {
+               string albumId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/album/", "/album/".Length), "?si", 0);
+               SpotifyClient spotifyClient = GetSpotifyClientConfig();
+               spotifyAlbumItems = spotifyClient.Albums.GetTracks(albumId).Result.Items;
             }
 
             if (MusicAlreadyPlaying(interactionContext.Guild))
@@ -458,6 +458,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         }
                      }
                   }
+               }
+               else if (isSpotifyAlbum)
+               {
+                  if (spotifyAlbumItems != null)
+                     foreach (SimpleTrack albumItem in spotifyAlbumItems)
+                     {
+                        QueueItem queueKeyPair = new(interactionContext.Guild, null, new Uri("https://open.spotify.com/track/" + albumItem.Id));
+                        QueueItemList.Add(queueKeyPair);
+                     }
                }
                else
                {
@@ -483,10 +492,38 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      }
                   }
                }
+               else if (isSpotifyAlbum)
+               {
+                  if (spotifyAlbumItems != null)
+                  {
+                     SimpleTrack spotifyTrack = spotifyAlbumItems[0];
+                     await PlayQueueAsyncTask(interactionContext, null, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
+
+                     for (int i = 1; i < spotifyAlbumItems.Count; i++)
+                     {
+                        spotifyTrack = spotifyAlbumItems[i];
+                        QueueItem queueKeyPair = new(interactionContext.Guild, null, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
+                        QueueItemList.Add(queueKeyPair);
+                     }
+                  }
+               }
                else
                   await PlayQueueAsyncTask(interactionContext, null, webLinkUri);
             }
          }
+         else
+         {
+
+         }
+      }
+
+      public static SpotifyClient GetSpotifyClientConfig()
+      {
+         SpotifyClientConfig spotifyClientConfig = SpotifyClientConfig.CreateDefault();
+         ClientCredentialsRequest clientCredentialsRequest = new(Bot.Connections.Token.ClientId, Bot.Connections.Token.ClientSecret);
+         ClientCredentialsTokenResponse clientCredentialsTokenResponse = new OAuthClient(spotifyClientConfig).RequestToken(clientCredentialsRequest).Result;
+         SpotifyClient spotifyClient = new(clientCredentialsTokenResponse.AccessToken);
+         return spotifyClient;
       }
 
       private static bool MusicAlreadyPlaying(DiscordGuild discordGuild)
@@ -1242,23 +1279,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      return Task.CompletedTask;
                   }
 
-                  CancellationTokenSource tokenSource = null;
-                  foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
-                  {
-                     tokenSource = keyValuePairItem.CancellationTokenSource;
-                     CancellationTokenItemList.Remove(keyValuePairItem);
-                     break;
-                  }
+                  bool nothingToPlay = true;
 
-                  QueueItemList.Clear();
-
-                  if (tokenSource != null)
+                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
+                     nothingToPlay = false;
                      eventArgs.Channel.SendMessageAsync("Stopped the music!");
-                     tokenSource.Cancel();
-                     tokenSource.Dispose();
+                     cancellationTokenItem.CancellationTokenSource.Cancel();
+                     cancellationTokenItem.CancellationTokenSource.Dispose();
+                     CancellationTokenItemList.Remove(cancellationTokenItem);
                   }
-                  else
+
+                  QueueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+
+                  if (nothingToPlay)
                      eventArgs.Channel.SendMessageAsync("Nothing to stop!");
 
                   break;
