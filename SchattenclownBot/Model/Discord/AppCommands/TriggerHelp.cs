@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -20,7 +21,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// </summary>
         /// <param name="context">Interaction context</param>
         /// <param name="commandName">The name of the command to get help on</param>
-        [SlashCommand("trigger_help", "Sends the help menu for the bot.")]
+        [SlashCommand(Bot.isDevBot + "trigger_help", "Sends the help menu for the bot.")]
         public static async Task Command(InteractionContext context,
             // ChoiceProvider calls the Provider() method, which gives a list of slash commands. This is called once, when commands are being registered to Discord.
             [ChoiceProvider(typeof(TriggerHelpChoiceProvider)), Option("command", "The name of the command to get help on.")] string commandName)

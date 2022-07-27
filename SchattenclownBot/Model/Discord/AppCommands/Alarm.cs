@@ -7,6 +7,8 @@ using SchattenclownBot.Model.Persistence;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SchattenclownBot.Model.Discord.Main;
+
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
@@ -20,7 +22,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
     /// <param name="hour">The Hour of the Alarm in the Future.</param>
     /// <param name="minute">The Minute of the Alarm in the Future.</param>
     /// <returns></returns>
-    [SlashCommand("SetAlarm", "Set an alarm for a specific time!")]
+    [SlashCommand(Bot.isDevBot + "SetAlarm", "Set an alarm for a specific time!")]
     public static async Task SetAlarmAsync(InteractionContext interactionContext, [Option("HourOfDay", "0-23")] double hour, [Option("MinuteOfDay", "0-59")] double minute)
     {
       //Create a Response.
@@ -60,7 +62,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
     /// </summary>
     /// <param name="interactionContext"></param>
     /// <returns></returns>
-    [SlashCommand("MyAlarms", "Look up your alarms!")]
+    [SlashCommand(Bot.isDevBot + "MyAlarms", "Look up your alarms!")]
     public static async Task AlarmClockLookup(InteractionContext interactionContext)
     {
       //Create an Response.

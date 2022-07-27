@@ -8,7 +8,6 @@ namespace SchattenclownBot.Model.HelpClasses
     {
         public static Color GetDominantColor(Bitmap bitmap)
         {
-            //Used for tally
             int r = 0;
             int g = 0;
             int b = 0;
@@ -17,11 +16,11 @@ namespace SchattenclownBot.Model.HelpClasses
 
             try
             {
-                for (int x = 0; x < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.Width : 1); x++)
+                for (int x = 0; x < bitmap.Width; x++)
                 {
-                    for (int y = 0; y < (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.Width : 1); y++)
+                    for (int y = 0; y < bitmap.Height; y++)
                     {
-                        Color clr = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? bitmap.GetPixel(x, y) : Color.Black;
+                        Color clr = bitmap.GetPixel(x, y);
 
                         r += clr.R;
                         g += clr.G;

@@ -2,3 +2,6 @@
 
 # DV0001: Ungültige Abhängigkeit
 dotnet_diagnostic.DV0001.severity = none
+
+# DV2001: Kein Abhängigkeitsdiagramm verknüpft
+dotnet_diagnostic.DV2001.severity = warning

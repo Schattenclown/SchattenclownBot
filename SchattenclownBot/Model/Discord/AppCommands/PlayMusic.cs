@@ -4,6 +4,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using MetaBrainz.MusicBrainz;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SchattenclownBot.Model.Discord.Main;
@@ -38,14 +39,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       public DiscordGuild DiscordGuild { get; set; }
       public Uri YouTubeUri { get; set; }
       public Uri SpotifyUri { get; set; }
-      public bool IsYouTubeUri { get; set; }
+      public bool IsYouTube { get; set; }
+      public bool IsSpotify { get; set; }
 
       internal QueueItem(DiscordGuild discordGuild, Uri youTubeUri, Uri spotifyUri)
       {
          DiscordGuild = discordGuild;
          YouTubeUri = youTubeUri;
          SpotifyUri = spotifyUri;
-         IsYouTubeUri = YouTubeUri != null;
+         IsYouTube = YouTubeUri != null;
+         IsSpotify = YouTubeUri == null;
       }
 
       public QueueItem()
@@ -75,7 +78,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       private static readonly List<CancellationTokenItem> CancellationTokenItemList = new();
       private static readonly List<QueueItem> QueueItemList = new();
 
-      [SlashCommand("DrivePlay", "Just plays some random music!")]
+      [SlashCommand(Bot.isDevBot + "DrivePlay", "Just plays some random music!")]
       private async Task DrivePlayCommand(InteractionContext interactionContext)
       {
          //check if this fix error
@@ -106,9 +109,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                Task.Run(() => DrivePlayTask(interactionContext, null, null, null, null, cancellationToken, true), cancellationToken);
             }
-            catch (Exception ex)
+            catch
             {
-               Console.WriteLine(ex.Message);
                CancellationTokenItemList.Remove(cancellationTokenKeyPair);
             }
          }
@@ -257,46 +259,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
 
                   int timeSpanAdvanceInt = 0;
-                  TimeSpan timeSpanAdvance = new(0, 0, 0, 0);
-                  string playerAdvance = "";
                   while (!ffmpegCopyTask.IsCompleted)
                   {
-                     #region TimeLineAlgo
                      if (timeSpanAdvanceInt % 10 == 0)
                      {
-                        timeSpanAdvance = TimeSpan.FromSeconds(timeSpanAdvanceInt);
-
-                        string[] strings = new string[15];
-                        double thisIsOneHundredPercent = metaTagFileToPlay.Properties.Duration.TotalSeconds;
-
-                        double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * timeSpanAdvanceInt;
-
-                        double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
-
-                        for (int i = 0; i < strings.Length; i++)
-                        {
-                           if (Convert.ToInt32(dotPositionInInt) == i)
-                              strings[i] = "🔘";
-                           else
-                              strings[i] = "▬";
-                        }
-
-                        playerAdvance = "";
-                        foreach (string item in strings)
-                        {
-                           playerAdvance += item;
-                        }
-
-                        string descriptionString = "⏹️";
-                        if (cancellationToken.IsCancellationRequested)
-                           descriptionString = "▶️";
-
-                        //hierweiter
-                        descriptionString += $" {playerAdvance} [{timeSpanAdvance.Hours:#00}:{timeSpanAdvance.Minutes:#00}:{timeSpanAdvance.Seconds:#00}/{metaTagFileToPlay.Properties.Duration.Hours:#00}:{metaTagFileToPlay.Properties.Duration.Minutes:#00}:{metaTagFileToPlay.Properties.Duration.Seconds:#00}] 🔉";
-                        discordEmbedBuilder.Description = descriptionString;
+                        discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, metaTagFileToPlay.Properties.Duration, cancellationToken);
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithEmbed(discordEmbedBuilder.Build()));
                      }
-                     #endregion
 
                      if (cancellationToken.IsCancellationRequested)
                      {
@@ -308,26 +277,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      await Task.Delay(1000);
                   }
 
-                  #region MoteTimeLineAlgo
-                  //algorithms to create the timeline
-                  string durationString = $"{metaTagFileToPlay.Properties.Duration.Hours:#00}:{metaTagFileToPlay.Properties.Duration.Minutes:#00}:{metaTagFileToPlay.Properties.Duration.Seconds:#00}";
-
-                  if (!cancellationToken.IsCancellationRequested)
-                     discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
-                  else
-                  {
-                     string descriptionString = "⏹️";
-                     if (cancellationToken.IsCancellationRequested)
-                        descriptionString = "▶️";
-
-                     descriptionString += $" {playerAdvance} [{timeSpanAdvance.Hours:#00}:{timeSpanAdvance.Minutes:#00}:{timeSpanAdvance.Seconds:#00}/{metaTagFileToPlay.Properties.Duration.Hours:#00}:{metaTagFileToPlay.Properties.Duration.Minutes:#00}:{metaTagFileToPlay.Properties.Duration.Seconds:#00}] 🔉";
-                     discordEmbedBuilder.Description = descriptionString;
-                  }
+                  discordEmbedBuilder.Description = TimeLineStringBuilderAfterSong(timeSpanAdvanceInt, metaTagFileToPlay.Properties.Duration, cancellationToken);
                   await discordMessage.ModifyAsync(x => x.WithEmbed(discordEmbedBuilder.Build()));
-                  #endregion
 
                   await voiceTransmitSink.FlushAsync();
-                  await voiceNextConnection.WaitForPlaybackFinishAsync();
                }
                catch
                {
@@ -344,7 +297,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
       }
 
-      [SlashCommand("Play", "Play spotify or youtube link!")]
+      [SlashCommand(Bot.isDevBot + "Play", "Play spotify or youtube link!")]
       private async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -417,7 +370,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                FFmpegPath = "..\\..\\..\\ffmpeg\\ffmpeg.exe",
                OutputFolder = uri.AbsolutePath,
                RestrictFilenames = false,
-               OverwriteFiles = false,
+               OverwriteFiles = true,
                IgnoreDownloadErrors = false
             };
 
@@ -552,98 +505,81 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             Task.Run(() => PlayFromQueueAsyncTask(interactionContext, null, null, null, null, youtubeUri, cancellationToken, true), cancellationToken);
          }
-         catch (Exception ex)
+         catch
          {
-            Console.WriteLine(ex.Message);
             CancellationTokenItemList.Remove(cancellationTokenKeyPair);
          }
 
          return Task.CompletedTask;
       }
 
-      private static async Task PlayFromQueueAsyncTask(InteractionContext interactionContext, DiscordClient client, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, Uri youtubeUri, CancellationToken cancellationToken, bool isInitialMessage)
+      private static async Task PlayFromQueueAsyncTask(InteractionContext interactionContext, DiscordClient discordClient, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, Uri youtubeUri, CancellationToken cancellationToken, bool isInitialMessage)
       {
+         discordGuild ??= interactionContext.Guild;
+         discordClient ??= interactionContext.Client;
+         interactionChannel ??= interactionContext.Channel;
+
+         VoiceNextExtension voiceNext = discordClient.GetVoiceNext();
+         if (voiceNext == null)
+            return;
+
+         VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(discordGuild);
+         DiscordVoiceState voiceState = interactionContext != null ? interactionContext.Member?.VoiceState : discordMember?.VoiceState;
+         if (voiceState?.Channel == null)
+            return;
+
+         voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
+
+         if (isInitialMessage)
+         {
+            if (interactionContext != null)
+               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
+         }
+
+         VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
+         voiceTransmitSink.VolumeModifier = 0.2;
+
          try
          {
             QueueItem queueItemObj = new();
-            foreach (QueueItem queueListItem in QueueItemList)
+            foreach (QueueItem queueItem in QueueItemList)
             {
-               if (queueListItem.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueListItem.YouTubeUri != null && queueListItem.IsYouTubeUri)
+               if (((queueItem.DiscordGuild == discordGuild) && queueItem.YouTubeUri != null && queueItem.IsYouTube) || (queueItem.SpotifyUri != null && queueItem.IsSpotify))
                {
-                  queueItemObj = queueListItem;
-                  QueueItemList.Remove(queueListItem);
-                  break;
-               }
-               else if (queueListItem.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild) && queueListItem.SpotifyUri != null && !queueListItem.IsYouTubeUri)
-               {
-                  queueItemObj = queueListItem;
-                  QueueItemList.Remove(queueListItem);
+                  queueItemObj = queueItem;
+                  QueueItemList.Remove(queueItem);
                   break;
                }
             }
 
             SpotDl spotDlMetaData = new();
-            if (!queueItemObj.IsYouTubeUri)
+            if (queueItemObj.IsSpotify)
             {
-               string trackString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(queueItemObj.SpotifyUri.AbsoluteUri, "/track/", "/track/".Length), "?si", 0);
+               string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(queueItemObj.SpotifyUri.AbsoluteUri, "/track/", "/track/".Length), "?si", 0);
 
-               try
+               ProcessStartInfo spotDlProcessStartInfo = new()
                {
-                  ProcessStartInfo processStartInfo = new()
-                  {
-                     FileName = "..\\..\\..\\spotdl\\spotdl.exe",
-                     Arguments = "--restrict --ffmpeg ..\\..\\..\\ffmpeg\\ffmpeg.exe --save-file "
-                  };
-                  processStartInfo.Arguments += "..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl --preload save ""{queueItemObj.SpotifyUri}"" ";
-                  await Process.Start(processStartInfo)!.WaitForExitAsync();
-                  await Task.Delay(100);
+                  FileName = "..\\..\\..\\spotdl\\spotdl.exe",
+                  Arguments = "--restrict --ffmpeg ..\\..\\..\\ffmpeg\\ffmpeg.exe --save-file "
+               };
+               spotDlProcessStartInfo.Arguments += "..\\..\\..\\spotdl\\tracks\\" + $@"{trackId}.spotdl --preload save {queueItemObj.SpotifyUri} ";
+               await Process.Start(spotDlProcessStartInfo)!.WaitForExitAsync();
 
-                  StreamReader streamReaderTrack = new("..\\..\\..\\spotdl\\tracks\\" + $@"{trackString}.spotdl");
-                  string jsonTracks = await streamReaderTrack.ReadToEndAsync();
-                  spotDlMetaData = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTracks)?[0];
-                  if (spotDlMetaData != null)
-                     youtubeUri = new Uri(spotDlMetaData.download_url);
-               }
-               catch (Exception e)
-               {
-                  Console.WriteLine(e);
-                  if (interactionContext != null)
-                     await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Cant play this song!"));
-                  else
-                     await interactionChannel.SendMessageAsync("Cant play this song!");
-                  return;
-               }
+               StreamReader streamReaderTrack = new("..\\..\\..\\spotdl\\tracks\\" + $@"{trackId}.spotdl");
+               string jsonTrackInfos = await streamReaderTrack.ReadToEndAsync();
+               spotDlMetaData = JsonConvert.DeserializeObject<List<SpotDl>>(jsonTrackInfos)?[0];
+               if (spotDlMetaData != null)
+                  youtubeUri = new Uri(spotDlMetaData.download_url);
             }
 
-            VoiceNextExtension voiceNext = interactionContext != null ? interactionContext.Client.GetVoiceNext() : client.GetVoiceNext();
-
-            if (voiceNext == null)
-               return;
-
-            VoiceNextConnection voiceNextConnection = interactionContext != null ? voiceNext.GetConnection(interactionContext.Guild) : voiceNext.GetConnection(discordGuild);
-            DiscordVoiceState voiceState = interactionContext != null ? interactionContext.Member?.VoiceState : discordMember?.VoiceState;
-
-            if (voiceState?.Channel == null)
-               return;
-
-            voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
-
-            if (isInitialMessage)
-            {
-               if (interactionContext != null)
-                  await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
-               else
-                  await interactionChannel.SendMessageAsync($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!");
-            }
-
-            Uri uri = new(@"N:\");
+            Uri networkDriveUri = new(@"N:\");
             YoutubeDL youtubeDl = new()
             {
                YoutubeDLPath = "..\\..\\..\\youtube-dl\\yt-dlp.exe",
                FFmpegPath = "..\\..\\..\\ffmpeg\\ffmpeg.exe",
-               OutputFolder = uri.AbsolutePath,
+               OutputFolder = networkDriveUri.AbsolutePath,
                RestrictFilenames = true,
-               OverwriteFiles = false,
+               OverwriteFiles = true,
                IgnoreDownloadErrors = false
             };
 
@@ -652,427 +588,97 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                AddMetadata = true
             };
             RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUri.AbsoluteUri, AudioConversionFormat.Opus, new CancellationToken(), null, null, optionSet);
-            RunResult<YoutubeDLSharp.Metadata.VideoData> audioDownloadMetaData = await youtubeDl.RunVideoDataFetch(youtubeUri.AbsoluteUri);
+            VideoData audioDownloadMetaData = youtubeDl.RunVideoDataFetch(youtubeUri.AbsoluteUri).Result.Data;
             TimeSpan audioDownloadTimeSpan = default;
-            if (audioDownloadMetaData.Data != null && audioDownloadMetaData.Data.Duration != null)
+            if (audioDownloadMetaData != null && audioDownloadMetaData.Duration != null)
+               audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Duration.Value);
+
+            bool wildFunctionSuccess = false;
+            DiscordEmbedBuilder discordEmbedBuilder = null;
+            string audioDownloadError = null;
+
+            if (queueItemObj.IsYouTube && audioDownload.ErrorOutput.Length <= 1)
             {
-               audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Data.Duration.Value);
+               discordEmbedBuilder = CustomDiscordEmbedBuilder(null, new Uri(audioDownload.Data), audioDownloadMetaData);
+               if (discordEmbedBuilder != null)
+                  wildFunctionSuccess = true;
             }
-
-            try
+            else if (queueItemObj.IsSpotify)
             {
-               bool wyldFunctionSuccess = false;
-               DiscordEmbedBuilder discordEmbedBuilder = new();
-               MetaBrainz.MusicBrainz.Interfaces.Entities.IRecording musicBrainzTags;
-               TimeSpan spotDlTimeSpan = new(0);
-               string audioDownloadError = null;
-
-               if (!queueItemObj.IsYouTubeUri)
+               if (spotDlMetaData != null)
                {
-                  #region discordEmbedBuilder
-
-                  if (spotDlMetaData != null)
-                  {
-                     discordEmbedBuilder.Title = spotDlMetaData.name;
-
-                     string artists = "";
-                     if (spotDlMetaData.artists.Count > 0)
-                     {
-                        foreach (string artist in spotDlMetaData.artists)
-                        {
-                           artists += artist;
-                           if (spotDlMetaData.artists.Last() != artist)
-                              artists += ", ";
-                        }
-
-                        discordEmbedBuilder.WithAuthor(artists);
-                     }
-                     else
-                        discordEmbedBuilder.WithAuthor(spotDlMetaData.artist);
-
-                     string genres = "";
-                     if (spotDlMetaData.genres.Count > 0)
-                     {
-                        foreach (string genre in spotDlMetaData.genres)
-                        {
-                           genres += genre;
-                           if (spotDlMetaData.genres.Last() != genre)
-                              genres += ", ";
-
-                           //maybe too mutch genres for discordField
-                        }
-                     }
-                     else
-                        genres = "N/A";
-
-                     discordEmbedBuilder.AddField(new DiscordEmbedField("Album", spotDlMetaData.album_name, true));
-                     discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
-                     discordEmbedBuilder.WithUrl(spotDlMetaData.download_url);
-
-                     HttpClient httpClientForBitmap = new();
-                     if (spotDlMetaData.cover_url != "")
-                     {
-                        try
-                        {
-                           discordEmbedBuilder.WithThumbnail(spotDlMetaData.cover_url);
-                           Stream streamForBitmap = await httpClientForBitmap.GetStreamAsync(spotDlMetaData.cover_url);
-
-                           Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
-                           if (bitmapAlbumCover != null)
-                           {
-                              Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
-                              discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-                           }
-                        }
-                        catch
-                        {
-                           //invalid url
-                        }
-                     }
-
-                     #endregion
-
-                     spotDlTimeSpan = TimeSpan.FromSeconds(spotDlMetaData.duration);
-                  }
+                  discordEmbedBuilder = CustomDiscordEmbedBuilder(spotDlMetaData, null, null);
                }
-               else if (audioDownload.ErrorOutput.Length <= 1 && queueItemObj.IsYouTubeUri)
+            }
+            else if (audioDownload.ErrorOutput.Length > 1)
+            {
+               audioDownloadError = $"{audioDownload.ErrorOutput[1]} `{youtubeUri.AbsoluteUri}`";
+            }
+            
+            DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
+            DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
+            DiscordComponent[] discordComponents = new DiscordComponent[2];
+            discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Next!", false, discordComponentEmojisNext);
+            discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", false, discordComponentEmojisStop);
+
+            DiscordMessage discordMessage;
+            if (queueItemObj.IsSpotify)
+               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
+            else if (wildFunctionSuccess)
+               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(youtubeUri.AbsoluteUri));
+            else
+               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(audioDownloadError));
+
+            ProcessStartInfo ffmpegProcessStartInfo = new()
+            {
+               FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\ffmpeg\\ffmpeg.exe",
+               Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
+               RedirectStandardOutput = true,
+               UseShellExecute = false
+            };
+            Process ffmpegProcess = Process.Start(ffmpegProcessStartInfo);
+            if (ffmpegProcess != null)
+            {
+               Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
+
+               Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
+
+               int timeSpanAdvanceInt = 0;
+               while (!ffmpegCopyTask.IsCompleted)
                {
-                  Query musicBrainzQuery = new();
-                  string[] fingerPrintDuration = default(string[]);
-                  string[] fingerPrintFingerprint = default(string[]);
-                  ProcessStartInfo fingerPrintCalculationProcessStartInfo = new()
+                  if (timeSpanAdvanceInt % 10 == 0)
                   {
-                     FileName = "..\\..\\..\\fpcalc\\fpcalc.exe",
-                     Arguments = $@" ""{audioDownload.Data}""",
-                     RedirectStandardOutput = true,
-                     UseShellExecute = false
-                  };
-                  Process fingerPrintCalculationProcess = Process.Start(fingerPrintCalculationProcessStartInfo);
-                  if (fingerPrintCalculationProcess != null)
-                  {
-                     string fingerPrintCalculationOutput = await fingerPrintCalculationProcess.StandardOutput.ReadToEndAsync();
-                     string[] fingerPrintArgs = fingerPrintCalculationOutput.Split("\r\n");
-                     if (fingerPrintArgs.Length == 3)
-                     {
-                        fingerPrintDuration = fingerPrintArgs[0].Split('=');
-                        fingerPrintFingerprint = fingerPrintArgs[1].Split('=');
-                     }
+                     discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
+
+                     if (queueItemObj.IsYouTube)
+                        await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri).WithEmbed(discordEmbedBuilder.Build()));
+                     else if (queueItemObj.IsSpotify)
+                        await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
                   }
 
-                  AcoustId.Root acoustId = new();
-                  if (fingerPrintDuration != null)
+                  if (cancellationToken.IsCancellationRequested)
                   {
-                     string url = "http://api.acoustid.org/v2/lookup?client=" + Bot.Connections.AcoustIdApiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] +
-                                  "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
-
-                     HttpClient httpClient = new();
-                     httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
-                     string httpClientContent = await httpClient.GetStringAsync(url);
-                     acoustId = AcoustId.CreateObj(httpClientContent);
+                     ffmpegStream.Close();
+                     break;
                   }
 
-                  if (acoustId.Results != null && acoustId.Results.Count != 0 && acoustId.Results[0].Recordings[0] != null && acoustId.Results[0].Recordings[0].Releases != null)
-                  {
-                     try
-                     {
-                        string recordingMbId = acoustId.Results[0].Recordings[0].Id;
-                        string genres = "N/A";
-
-                        DateTime compareDateTimeOne = new();
-                        AcoustId.Release rightAlbum = new();
-                        AcoustId.Artist rightArtist = new();
-                        if (acoustId.Results[0].Recordings[0].Artists != null)
-                           rightArtist = acoustId.Results[0].Recordings[0].Artists[0];
-
-                        foreach (AcoustId.Release compareItem in acoustId.Results[0].Recordings[0].Releases)
-                        {
-                           if (acoustId.Results[0].Recordings[0].Releases.Count == 1)
-                           {
-                              rightAlbum = compareItem;
-                              break;
-                           }
-
-                           if (compareItem.Date == null || compareItem.Date.Year == 0 || compareItem.Date.Month == 0 || compareItem.Date.Day == 0)
-                              continue;
-
-                           if (compareDateTimeOne.Equals(new DateTime()))
-                              compareDateTimeOne = new(compareItem.Date.Year, compareItem.Date.Month, compareItem.Date.Day);
-
-                           DateTime compareDateTimeTwo = new(compareItem.Date.Year, compareItem.Date.Month, compareItem.Date.Day);
-                           if (compareDateTimeOne < compareDateTimeTwo)
-                           {
-                              rightAlbum = compareItem;
-                              compareDateTimeOne = compareDateTimeTwo;
-                           }
-                        }
-                        //dogShit
-                        //rightAlbum = acoustId.Results[0].Recordings[0].Releases[0];
-
-                        musicBrainzTags = await musicBrainzQuery.LookupRecordingAsync(new Guid(recordingMbId));
-
-                        if (musicBrainzTags.Genres != null)
-                           genres = musicBrainzTags.Genres.ToString();
-
-                        #region discordEmbedBuilder
-                        discordEmbedBuilder.Title = musicBrainzTags.Title;
-                        if (rightArtist != null)
-                           discordEmbedBuilder.WithAuthor(rightArtist.Name);
-
-                        discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
-                        discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
-                        discordEmbedBuilder.WithUrl(youtubeUri);
-
-                        HttpClient httpClientForBitmap = new();
-                        if (rightAlbum.Id != null)
-                        {
-                           try
-                           {
-                              discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
-                              Stream streamForBitmap = await httpClientForBitmap.GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
-
-                              Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
-                              if (bitmapAlbumCover != null)
-                              {
-                                 Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
-                                 discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-                              }
-
-                           }
-                           catch
-                           {
-                              //invalid url
-                           }
-                        }
-                        #endregion
-
-                        wyldFunctionSuccess = true;
-                     }
-                     catch
-                     {
-                        //ignore
-                     }
-                  }
-               }
-               else if (audioDownload.ErrorOutput.Length > 1)
-               {
-                  audioDownloadError = $"{audioDownload.ErrorOutput[1]} `{youtubeUri.AbsoluteUri}`";
+                  timeSpanAdvanceInt++;
+                  await Task.Delay(1000);
                }
 
-               DiscordMessage discordMessage = interactionContext != null ? await interactionContext.Channel.SendMessageAsync("Loading!") : await interactionChannel.SendMessageAsync("Loading!");
-
-               DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
-               DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
-               DiscordComponent[] discordComponents = new DiscordComponent[2];
-               discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Next!", false, discordComponentEmojisNext);
-               discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", false, discordComponentEmojisStop);
-
-               if (queueItemObj.IsYouTubeUri)
-                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri));
-               else if (!queueItemObj.IsYouTubeUri)
+               discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
+               discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
+               discordEmbedBuilder.Description = TimeLineStringBuilderAfterSong(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
+               if (queueItemObj.IsYouTube)
+                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri).WithEmbed(discordEmbedBuilder.Build()));
+               else if (queueItemObj.IsSpotify)
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
-               else if (wyldFunctionSuccess)
-                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(youtubeUri.AbsoluteUri));
-               else
-                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(audioDownloadError));
 
-               ProcessStartInfo processStartInfo = new()
+               if (!cancellationToken.IsCancellationRequested)
                {
-                  FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\ffmpeg\\ffmpeg.exe",
-                  Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
-                  RedirectStandardOutput = true,
-                  UseShellExecute = false
-               };
-               Process ffmpegProcess = Process.Start(processStartInfo);
-               if (ffmpegProcess != null)
-               {
-                  Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
-
-                  VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
-                  voiceTransmitSink.VolumeModifier = 0.2;
-
-                  Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
-
-                  int counter = 0;
-                  TimeSpan timeSpan = new(0, 0, 0, 0);
-                  string playerAdvance = "";
-                  while (!ffmpegCopyTask.IsCompleted)
+                  foreach (CancellationTokenItem tokenKeyPair in CancellationTokenItemList.Where(x => x.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild)))
                   {
-                     if (wyldFunctionSuccess && audioDownloadTimeSpan.TotalSeconds > 0 && queueItemObj.IsYouTubeUri)
-                     {
-                        #region TimeLineAlgo
-                        if (counter % 10 == 0)
-                        {
-                           timeSpan = TimeSpan.FromSeconds(counter);
-
-                           string[] strings = new string[15];
-                           double thisIsOneHundredPercent = audioDownloadTimeSpan.TotalSeconds;
-
-                           double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * counter;
-
-                           double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
-
-                           for (int i = 0; i < strings.Length; i++)
-                           {
-                              if (Convert.ToInt32(dotPositionInInt) == i)
-                                 strings[i] = "🔘";
-                              else
-                                 strings[i] = "▬";
-                           }
-
-                           playerAdvance = "";
-                           foreach (string item in strings)
-                           {
-                              playerAdvance += item;
-                           }
-
-                           string descriptionString = "⏹️";
-                           if (cancellationToken.IsCancellationRequested)
-                              descriptionString = "▶️";
-
-                           descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{audioDownloadTimeSpan.Hours:#00}:{audioDownloadTimeSpan.Minutes:#00}:{audioDownloadTimeSpan.Seconds:#00}] 🔉";
-                           discordEmbedBuilder.Description = descriptionString;
-                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri).WithEmbed(discordEmbedBuilder.Build()));
-                        }
-                        #endregion
-                     }
-                     else if (!queueItemObj.IsYouTubeUri)
-                     {
-                        #region TimeLineAlgo
-                        if (counter % 10 == 0)
-                        {
-                           timeSpan = TimeSpan.FromSeconds(counter);
-                           string[] strings = new string[15];
-                           double thisIsOneHundredPercent = spotDlTimeSpan.TotalSeconds;
-
-                           double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * counter;
-
-                           double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
-
-                           for (int i = 0; i < strings.Length; i++)
-                           {
-                              if (Convert.ToInt32(dotPositionInInt) == i)
-                                 strings[i] = "🔘";
-                              else
-                                 strings[i] = "▬";
-                           }
-
-                           playerAdvance = "";
-                           foreach (string item in strings)
-                           {
-                              playerAdvance += item;
-                           }
-
-                           string descriptionString = "⏹️";
-                           if (cancellationToken.IsCancellationRequested)
-                              descriptionString = "▶️";
-
-                           descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{spotDlTimeSpan.Hours:#00}:{spotDlTimeSpan.Minutes:#00}:{spotDlTimeSpan.Seconds:#00}] 🔉";
-                           discordEmbedBuilder.Description = descriptionString;
-                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
-                        }
-                        #endregion
-                     }
-
-                     if (cancellationToken.IsCancellationRequested)
-                     {
-                        ffmpegStream.Close();
-                        break;
-                     }
-                     counter++;
-                     await Task.Delay(1000);
-                  }
-
-                  if (wyldFunctionSuccess && audioDownloadTimeSpan.TotalSeconds > 0 && queueItemObj.IsYouTubeUri)
-                  {
-                     #region MoteTimeLineAlgo
-                     string durationString = $"{audioDownloadTimeSpan.Hours:#00}:{audioDownloadTimeSpan.Minutes:#00}:{audioDownloadTimeSpan.Seconds:#00}";
-
-                     if (!cancellationToken.IsCancellationRequested)
-                        discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
-                     else
-                     {
-                        string descriptionString = "⏹️";
-                        if (cancellationToken.IsCancellationRequested)
-                           descriptionString = "▶️";
-
-                        descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{audioDownloadTimeSpan.Hours:#00}:{audioDownloadTimeSpan.Minutes:#00}:{audioDownloadTimeSpan.Seconds:#00}] 🔉";
-                        discordEmbedBuilder.Description = descriptionString;
-                     }
-                     #endregion
-                     discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
-                     discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
-
-                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri).WithEmbed(discordEmbedBuilder.Build()));
-                  }
-                  else if (!queueItemObj.IsYouTubeUri)
-                  {
-                     #region MoteTimeLineAlgo
-                     string durationString = $"{spotDlTimeSpan.Hours:#00}:{spotDlTimeSpan.Minutes:#00}:{spotDlTimeSpan.Seconds:#00}";
-
-                     if (!cancellationToken.IsCancellationRequested)
-                        discordEmbedBuilder.Description = $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
-                     else
-                     {
-                        string descriptionString = "⏹️";
-                        if (cancellationToken.IsCancellationRequested)
-                           descriptionString = "▶️";
-
-                        descriptionString += $" {playerAdvance} [{timeSpan.Hours:#00}:{timeSpan.Minutes:#00}:{timeSpan.Seconds:#00}/{spotDlTimeSpan.Hours:#00}:{spotDlTimeSpan.Minutes:#00}:{spotDlTimeSpan.Seconds:#00}] 🔉";
-                        discordEmbedBuilder.Description = descriptionString;
-                     }
-                     #endregion
-
-                     discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
-                     discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
-
-                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()).WithContent(queueItemObj.SpotifyUri.AbsoluteUri));
-                  }
-                  else
-                  {
-                     discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
-                     discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
-
-                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri));
-                  }
-
-                  if (!cancellationToken.IsCancellationRequested)
-                  {
-                     foreach (CancellationTokenItem tokenKeyPair in CancellationTokenItemList.Where(x => x.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild)))
-                     {
-                        CancellationTokenItemList.Remove(tokenKeyPair);
-                        break;
-                     }
-                  }
-
-                  await voiceTransmitSink.FlushAsync();
-               }
-            }
-            catch
-            {
-               // ignored
-            }
-
-
-            if (!cancellationToken.IsCancellationRequested)
-            {
-               if (QueueItemList.All(x => x.DiscordGuild != (interactionContext != null ? interactionContext.Guild : discordGuild)))
-               {
-                  //Queue ist empty
-               }
-
-               foreach (QueueItem queueKeyPairItem in QueueItemList)
-               {
-                  if (queueKeyPairItem.DiscordGuild == (interactionContext != null ? interactionContext.Guild : discordGuild))
-                  {
-                     CancellationTokenSource tokenSource = new();
-                     CancellationToken newCancellationToken = tokenSource.Token;
-                     CancellationTokenItem cancellationTokenKeyPair = new(interactionContext != null ? interactionContext.Guild : discordGuild, tokenSource);
-                     CancellationTokenItemList.Add(cancellationTokenKeyPair);
-                     if (interactionContext != null)
-                        Task.Run(() => PlayFromQueueAsyncTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result,
-                            interactionContext.Channel, queueKeyPairItem.YouTubeUri, newCancellationToken, false));
-                     else
-                        Task.Run(() => PlayFromQueueAsyncTask(interactionContext, client, discordGuild, discordMember, interactionChannel, queueKeyPairItem.YouTubeUri, newCancellationToken, false));
+                     CancellationTokenItemList.Remove(tokenKeyPair);
                      break;
                   }
                }
@@ -1080,14 +686,308 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception exc)
          {
+            interactionChannel.SendMessageAsync("Something went wrong!");
+
             if (interactionContext != null)
                interactionContext.Client.Logger.LogError(exc.Message);
             else
-               client.Logger.LogError(exc.Message);
+               discordClient.Logger.LogError(exc.Message);
+         }
+         finally
+         {
+            await voiceTransmitSink.FlushAsync();
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+               if (QueueItemList.All(x => x.DiscordGuild != discordGuild))
+               {
+
+               }
+
+               foreach (QueueItem queueKeyPairItem in QueueItemList)
+               {
+                  if (queueKeyPairItem.DiscordGuild == discordGuild)
+                  {
+                     CancellationTokenSource tokenSource = new();
+                     CancellationToken newCancellationToken = tokenSource.Token;
+                     CancellationTokenItem cancellationTokenKeyPair = new(discordGuild, tokenSource);
+                     CancellationTokenItemList.Add(cancellationTokenKeyPair);
+                     if (interactionContext != null)
+                        Task.Run(() => PlayFromQueueAsyncTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result,
+                           interactionContext.Channel, queueKeyPairItem.YouTubeUri, newCancellationToken, false));
+                     else
+                        Task.Run(() => PlayFromQueueAsyncTask(interactionContext, discordClient, discordGuild, discordMember, interactionChannel, queueKeyPairItem.YouTubeUri, newCancellationToken, false));
+                     break;
+                  }
+               }
+            }
          }
       }
 
-      [SlashCommand("Stop", "Stop the music!")]
+      public static string TimeLineStringBuilderWhilePlaying(int timeSpanAdvanceInt, TimeSpan totalTimeSpan, CancellationToken cancellationToken)
+      {
+         TimeSpan playerAdvanceTimeSpan = TimeSpan.FromSeconds(timeSpanAdvanceInt);
+
+         string playerAdvanceString = PlayerAdvance(timeSpanAdvanceInt, totalTimeSpan);
+
+         string descriptionString = "⏹️";
+         if (cancellationToken.IsCancellationRequested)
+            descriptionString = "▶️";
+         if (playerAdvanceTimeSpan.Hours != 0)
+            descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+         else
+            descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+
+         return descriptionString;
+      }
+
+      public static string TimeLineStringBuilderAfterSong(int timeSpanAdvanceInt, TimeSpan totalTimeSpan, CancellationToken cancellationToken)
+      {
+         string durationString = $"{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}";
+
+         if (!cancellationToken.IsCancellationRequested)
+         {
+            return $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
+         }
+         else
+         {
+            TimeSpan playerAdvanceTimeSpan = TimeSpan.FromSeconds(timeSpanAdvanceInt);
+            string descriptionString = "⏹️";
+            if (cancellationToken.IsCancellationRequested)
+               descriptionString = "▶️";
+            string playerAdvanceString = PlayerAdvance(timeSpanAdvanceInt, totalTimeSpan);
+
+            if (playerAdvanceTimeSpan.Hours != 0)
+               descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+            else
+               descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+
+            return descriptionString;
+         }
+      }
+
+      private static string PlayerAdvance(int timeSpanAdvanceInt, TimeSpan totalTimeSpan)
+      {
+         string[] strings = new string[15];
+         string playerAdvanceString = "";
+
+         double thisIsOneHundredPercent = totalTimeSpan.TotalSeconds;
+         double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * timeSpanAdvanceInt;
+         double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
+
+         for (int i = 0; i < strings.Length; i++)
+         {
+            if (Convert.ToInt32(dotPositionInInt) == i)
+               strings[i] = "🔘";
+            else
+               strings[i] = "▬";
+         }
+
+         foreach (string item in strings)
+         {
+            playerAdvanceString += item;
+         }
+
+         return playerAdvanceString;
+      }
+
+      public static AcoustId.Root AcoustIdFromFingerPrint(Uri filePathUri)
+      {
+         string[] fingerPrintDuration = default(string[]);
+         string[] fingerPrintFingerprint = default(string[]);
+         ProcessStartInfo fingerPrintCalculationProcessStartInfo = new()
+         {
+            FileName = "..\\..\\..\\fpcalc\\fpcalc.exe",
+            Arguments = filePathUri.AbsolutePath,
+            RedirectStandardOutput = true,
+            UseShellExecute = false
+         };
+         Process fingerPrintCalculationProcess = Process.Start(fingerPrintCalculationProcessStartInfo);
+         if (fingerPrintCalculationProcess != null)
+         {
+            string fingerPrintCalculationOutput = fingerPrintCalculationProcess.StandardOutput.ReadToEndAsync().Result;
+            string[] fingerPrintArgs = fingerPrintCalculationOutput.Split("\r\n");
+            if (fingerPrintArgs.Length == 3)
+            {
+               fingerPrintDuration = fingerPrintArgs[0].Split('=');
+               fingerPrintFingerprint = fingerPrintArgs[1].Split('=');
+            }
+         }
+
+         AcoustId.Root acoustId = new();
+         if (fingerPrintDuration != null)
+         {
+            string url = "http://api.acoustid.org/v2/lookup?client=" + Bot.Connections.AcoustIdApiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] +
+                         "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
+
+            HttpClient httpClient = new();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "C# console program");
+            string httpClientContent = httpClient.GetStringAsync(url).Result;
+            acoustId = AcoustId.CreateObj(httpClientContent);
+         }
+
+         return acoustId;
+      }
+
+      public static DiscordEmbedBuilder CustomDiscordEmbedBuilder(SpotDl spotDl, Uri filePathUri, VideoData audioDownloadMetaData)
+      {
+         DiscordEmbedBuilder discordEmbedBuilder = new();
+         if (spotDl != null)
+         {
+            discordEmbedBuilder.Title = spotDl.name;
+
+            string artists = "";
+            if (spotDl.artists.Count > 0)
+            {
+               foreach (string artist in spotDl.artists)
+               {
+                  artists += artist;
+                  if (spotDl.artists.Last() != artist)
+                     artists += ", ";
+               }
+
+               discordEmbedBuilder.WithAuthor(artists);
+            }
+            else
+               discordEmbedBuilder.WithAuthor(spotDl.artist);
+
+            string genres = "";
+            if (spotDl.genres.Count > 0)
+            {
+               foreach (string genre in spotDl.genres)
+               {
+                  genres += genre;
+                  if (spotDl.genres.Last() != genre)
+                     genres += ", ";
+               }
+            }
+            else
+               genres = "N/A";
+
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Album", spotDl.album_name, true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
+            discordEmbedBuilder.WithUrl(spotDl.download_url);
+
+            if (spotDl.cover_url != "")
+            {
+               try
+               {
+                  discordEmbedBuilder.WithThumbnail(spotDl.cover_url);
+                  Stream streamForBitmap = new HttpClient().GetStreamAsync(spotDl.cover_url).Result;
+
+                  Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+                  if (bitmapAlbumCover != null)
+                  {
+                     Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+                     discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                  }
+               }
+               catch
+               {
+                  //invalid url
+               }
+            }
+         }
+         else if (filePathUri != null)
+         {
+            AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
+
+            if (acoustIdRoot.Results != null && acoustIdRoot.Results.Count != 0 && acoustIdRoot.Results[0].Recordings[0] != null && acoustIdRoot.Results[0].Recordings[0].Releases != null)
+            {
+               string recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
+               Query musicBrainzQuery = new();
+               IRecording iRecording = musicBrainzQuery.LookupRecordingAsync(new Guid(recordingMbId)).Result;
+
+               string genres = "N/A";
+
+               DateTime rightAlbumDateTime = new();
+               AcoustId.Release rightAlbum = new();
+               AcoustId.Artist rightArtist = new();
+               if (acoustIdRoot.Results[0].Recordings[0].Artists != null)
+                  rightArtist = acoustIdRoot.Results[0].Recordings[0].Artists[0];
+
+               foreach (AcoustId.Release albumItem in acoustIdRoot.Results[0].Recordings[0].Releases)
+               {
+                  if (acoustIdRoot.Results[0].Recordings[0].Releases.Count == 1)
+                  {
+                     rightAlbum = albumItem;
+                     break;
+                  }
+
+                  if (albumItem.Date == null || albumItem.Date.Year == 0 || albumItem.Date.Month == 0 || albumItem.Date.Day == 0)
+                     continue;
+
+                  if (rightAlbumDateTime.Equals(new DateTime()))
+                     rightAlbumDateTime = new DateTime(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
+
+                  DateTime albumItemDateTime = new(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
+                  if (rightAlbumDateTime <= albumItemDateTime)
+                     continue;
+
+                  rightAlbum = albumItem;
+                  rightAlbumDateTime = albumItemDateTime;
+               }
+
+               discordEmbedBuilder.Title = iRecording.Title;
+               if (rightArtist != null)
+                  discordEmbedBuilder.WithAuthor(rightArtist.Name);
+
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
+               discordEmbedBuilder.WithUrl(audioDownloadMetaData.Url);
+
+               if (rightAlbum.Id != null)
+               {
+                  try
+                  {
+                     discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
+                     Stream streamForBitmap = new HttpClient().GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front").Result;
+
+                     Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+                     if (bitmapAlbumCover != null)
+                     {
+                        Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+                        discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                     }
+                  }
+                  catch
+                  {
+                     //invalid url
+                  }
+               }
+            }
+            else
+            {
+               discordEmbedBuilder.Title = audioDownloadMetaData.Title;
+               discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
+
+               string tags = "";
+               foreach (string tag in audioDownloadMetaData.Tags)
+               {
+                  tags += tag;
+                  if (audioDownloadMetaData.Tags.Last() != tag)
+                     tags += ", ";
+               }
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Tags", tags, true));
+
+               discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
+               discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
+               Stream streamForBitmap = new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result;
+
+               Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+               if (bitmapAlbumCover != null)
+               {
+                  Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+                  discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+               }
+            }
+         }
+
+         return discordEmbedBuilder;
+      }
+
+      [SlashCommand(Bot.isDevBot + "Stop", "Stop the music!")]
       private async Task StopCommand(InteractionContext interactionContext)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -1122,14 +1022,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to stop!"));
       }
 
-      [SlashCommand("Skip", "Skip this song!")]
+      [SlashCommand(Bot.isDevBot + "Skip", "Skip this song!")]
       private async Task SkipCommand(InteractionContext interactionContext)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
          await PlayMusic.NextSongTask(interactionContext);
       }
 
-      [SlashCommand("Next", "Skip this song!")]
+      [SlashCommand(Bot.isDevBot + "Next", "Skip this song!")]
       private async Task NextCommand(InteractionContext interactionContext)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

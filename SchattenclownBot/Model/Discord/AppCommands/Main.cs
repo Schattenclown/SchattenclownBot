@@ -4,6 +4,8 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using System;
 using System.Threading.Tasks;
+using SchattenclownBot.Model.Discord.Main;
+
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
@@ -36,7 +38,7 @@ internal class Main : ApplicationCommandsModule
     /// </summary>
     /// <param name="interactionContext">The interactionContext.</param>
     /// <returns></returns>
-    [SlashCommand("Invite", "Invite $chattenclown")]
+    [SlashCommand(Bot.isDevBot + "Invite", "Invite $chattenclown")]
     public static async Task InviteAsync(InteractionContext interactionContext)
     {
         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

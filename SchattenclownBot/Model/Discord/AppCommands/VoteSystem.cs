@@ -6,6 +6,8 @@ using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Objects;
 using System.Linq;
 using System.Threading.Tasks;
+using SchattenclownBot.Model.Discord.Main;
+
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands
@@ -18,7 +20,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="discordUser">The discordUser</param>
         /// <returns></returns>
-        [SlashCommand("GiveRating", "Give an User a rating!")]
+        [SlashCommand(Bot.isDevBot + "GiveRating", "Give an User a rating!")]
         public static async Task GiveRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
@@ -150,7 +152,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="interactionContext">The interactionContext.</param>
         /// <param name="discordUser">The Discord User.</param>
         /// <returns></returns>
-        [SlashCommand("ShowRating", "Shows the rating of an user!")]
+        [SlashCommand(Bot.isDevBot + "ShowRating", "Shows the rating of an user!")]
         public static async Task ShowRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             string description = "```\n";
@@ -176,7 +178,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="voteRating">The RatingValue the role stands for.</param>
         /// <param name="discordRole">The discordRole.</param>
         /// <returns></returns>
-        [SlashCommand("RatingSetup", "Set up the roles for the Rating System!")]
+        [SlashCommand(Bot.isDevBot + "RatingSetup", "Set up the roles for the Rating System!")]
         public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
         {
             bool found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));

@@ -21,7 +21,6 @@ namespace SchattenclownBot.Model.Discord.Main
 {
    public class Bot : IDisposable
    {
-
 #if DEBUG
       public const string Prefix = "!";
 #else
@@ -40,13 +39,14 @@ namespace SchattenclownBot.Model.Discord.Main
       public static UserStatus CustomStatus = UserStatus.Online;
       public static bool Custom = false;
       public static string CustomState = "/help";
+      public const string isDevBot = "Dev_";
 
       /// <summary>
       /// Initializes a new instance of the <see cref="Bot"/> class.
       /// </summary>
       public Bot()
       {
-
+         
          _token = Connections.DiscordBotKey;
 #if DEBUG
          _token = Connections.DiscordBotDebug;
