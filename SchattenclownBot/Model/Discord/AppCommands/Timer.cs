@@ -56,7 +56,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         internal static async Task TimerLookup(InteractionContext interactionContext)
         {
             //Create a Response.
-            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Loading!"));
+            await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create an List with all Timers that where found in the Database.
             System.Collections.Generic.List<BotTimer> botTimerList = DbBotTimer.ReadAll();
