@@ -789,7 +789,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             string url = "http://api.acoustid.org/v2/lookup?client=" + Bot.Connections.AcoustIdApiKey + "&duration=" + fingerPrintDuration[1] + "&fingerprint=" + fingerPrintFingerprint[1] +
                          "&meta=recordings+recordingIds+releases+releaseIds+ReleaseGroups+releaseGroupIds+tracks+compress+userMeta+sources";
-            
+
             string httpClientContent = new HttpClient().GetStringAsync(url).Result;
             acoustId = AcoustId.CreateObj(httpClientContent);
          }
@@ -1096,7 +1096,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             int queueLength = _queueItemList.Count;
             List<int> intListMixed = new();
-            
+
             for (int i = 0; i < queueLength; i++)
             {
                bool foundNumber = false;
@@ -1372,24 +1372,33 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                if (eventArgs.User == client.CurrentUser && eventArgs.After != null && eventArgs.Before.Channel != eventArgs.After.Channel)
                {
-                  CancellationTokenSource tokenSource = null;
-                  foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+                  bool nothingToStop = true;
+
+                  List<CancellationTokenSource> cancellationTokenSourceList = new();
+
+                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
-                     tokenSource = keyValuePairItem.CancellationTokenSource;
-                     CancellationTokenItemList.Remove(keyValuePairItem);
-                     break;
+                     nothingToStop = false;
+                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
                   }
 
-                  if (tokenSource != null)
+                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+
+                  foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
                   {
-                     await discordMember.VoiceState.Channel.SendMessageAsync("Stopped the music!");
-                     tokenSource.Cancel();
-                     tokenSource.Dispose();
-                     _queueItemList.Clear();
-                     VoiceNextExtension voiceNext = client.GetVoiceNext();
-                     VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
-                     voiceNextConnection.Disconnect();
+                     cancellationToken.Cancel();
+                     cancellationToken.Dispose();
                   }
+
+                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+
+                  if (nothingToStop)
+                     eventArgs.Channel.SendMessageAsync("Nothing to stop!");
+                  else
+                     eventArgs.Channel.SendMessageAsync("Stopped the music!");
+                  VoiceNextExtension voiceNext = client.GetVoiceNext();
+                  VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
+                  voiceNextConnection.Disconnect();
                }
             }
          }
@@ -1408,20 +1417,30 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                if (eventArgs.User == client.CurrentUser)
                {
-                  CancellationTokenSource tokenSource = null;
-                  foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+                  bool nothingToStop = true;
+
+                  List<CancellationTokenSource> cancellationTokenSourceList = new();
+
+                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
-                     tokenSource = keyValuePairItem.CancellationTokenSource;
-                     CancellationTokenItemList.Remove(keyValuePairItem);
-                     break;
+                     nothingToStop = false;
+                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
                   }
-                  
-                  if (tokenSource != null)
+
+                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+
+                  foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
                   {
-                     tokenSource.Cancel();
-                     tokenSource.Dispose();
-                     _queueItemList.Clear();
+                     cancellationToken.Cancel();
+                     cancellationToken.Dispose();
                   }
+
+                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+
+                  if (nothingToStop)
+                     eventArgs.Channel.SendMessageAsync("Nothing to stop!");
+                  else
+                     eventArgs.Channel.SendMessageAsync("Stopped the music!");
                }
             }
          }
