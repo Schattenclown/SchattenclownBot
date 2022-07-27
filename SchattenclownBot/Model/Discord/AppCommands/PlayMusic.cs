@@ -714,7 +714,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             DiscordComponent[] discordComponents = new DiscordComponent[3];
             discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Next!", false, discordComponentEmojisNext);
             discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", false, discordComponentEmojisStop);
-            discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_yt", "Stop!", false, discordComponentEmojisShuffle);
+            discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_yt", "Shuffle!", false, discordComponentEmojisShuffle);
 
             DiscordMessage discordMessage;
             if (queueItemObj.IsYouTube)
@@ -763,7 +763,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_yt", "Skipped!", true, discordComponentEmojisNext);
                discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_yt", "Stop!", true, discordComponentEmojisStop);
-               discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_yt", "Stop!", true, discordComponentEmojisShuffle);
+               discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_yt", "Shuffle!", true, discordComponentEmojisShuffle);
                discordEmbedBuilder.Description = TimeLineStringBuilderAfterSong(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
                if (queueItemObj.IsYouTube)
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(youtubeUri.AbsoluteUri).WithEmbed(discordEmbedBuilder.Build()));
