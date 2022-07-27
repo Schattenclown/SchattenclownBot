@@ -271,6 +271,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          else if (webLink.Contains("/track/") || webLink.Contains("/playlist/") || webLink.Contains("/album/"))
          {
+            //https://open.spotify.com/artist/1aS5tqEs9ci5P9KD9tZWa6/discography/all?pageUri=spotify:album:1L8yTtYjg4JhfN7Aa6bqmN
             isSpotify = true;
 
             if (webLink.Contains("/playlist/"))
@@ -861,7 +862,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
 
-            if (acoustIdRoot.Results?[0].Recordings[0]?.Releases != null)
+            if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings[0].Releases != null)
             {
                string recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
                Query musicBrainzQuery = new();
