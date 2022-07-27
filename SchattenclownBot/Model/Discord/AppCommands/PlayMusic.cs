@@ -1007,7 +1007,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                for (int i = 0; i < audioDownloadMetaData.Tags.Length; i++)
                {
-                  tags = audioDownloadMetaData.Tags[i];
+                  tags += audioDownloadMetaData.Tags[i];
 
                   if (i > 10)
                      break;
