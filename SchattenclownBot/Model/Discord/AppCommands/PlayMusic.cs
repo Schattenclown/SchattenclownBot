@@ -601,7 +601,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             ProcessStartInfo ffmpegProcessStartInfo = new()
             {
-               FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
+               FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
                Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
                RedirectStandardOutput = true,
                UseShellExecute = false
@@ -1279,44 +1279,30 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      return Task.CompletedTask;
                   }
 
-                  CancellationTokenSource tokenSource = null;
-                  foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+                  List<CancellationTokenSource> cancellationTokenSourceList = new();
+                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
-                     tokenSource = keyValuePairItem.CancellationTokenSource;
-                     CancellationTokenItemList.Remove(keyValuePairItem);
+                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
+                  }
+
+                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+
+                  foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
+                  {
+                     cancellationToken.Cancel();
+                     cancellationToken.Dispose();
+                  }
+
+                  CancellationTokenSource newCancellationTokenSource = new();
+                  CancellationToken newCancellationToken = newCancellationTokenSource.Token;
+
+                  foreach (QueueItem queueKeyPairItem in _queueItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+                  {
+                     CancellationTokenItem newCancellationTokenItem = new(eventArgs.Guild, newCancellationTokenSource);
+                     CancellationTokenItemList.Add(newCancellationTokenItem);
+
+                     Task.Run(() => PlayFromQueueAsyncTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, queueKeyPairItem.YouTubeUri, newCancellationToken, false), newCancellationToken);
                      break;
-                  }
-
-                  if (tokenSource != null)
-                  {
-                     tokenSource.Cancel();
-                     tokenSource.Dispose();
-                  }
-
-                  CancellationTokenSource nextYtTokenSource = new();
-                  CancellationToken nextYtCancellationToken = nextYtTokenSource.Token;
-                  CancellationTokenItem nextKeyPairItem = new();
-
-                  try
-                  {
-                     foreach (QueueItem queueKeyPairItem in _queueItemList)
-                     {
-                        if (queueKeyPairItem.DiscordGuild == eventArgs.Guild)
-                        {
-                           nextKeyPairItem = new CancellationTokenItem(eventArgs.Guild, nextYtTokenSource);
-                           CancellationTokenItemList.Add(nextKeyPairItem);
-
-                           Task.Run(() => PlayFromQueueAsyncTask(null, client, eventArgs.Guild, discordMember, eventArgs.Channel, queueKeyPairItem.YouTubeUri, nextYtCancellationToken, false), nextYtCancellationToken);
-
-                           break;
-                        }
-                     }
-                  }
-                  catch (Exception ex)
-                  {
-                     Console.WriteLine(ex.Message);
-                     if (nextKeyPairItem.CancellationTokenSource != null)
-                        CancellationTokenItemList.Remove(nextKeyPairItem);
                   }
 
                   break;
