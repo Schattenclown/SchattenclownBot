@@ -185,7 +185,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                   ProcessStartInfo ffmpegProcessStartInfo = new()
                   {
-                     FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/usr/bin/ffmpeg" : "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
+                     FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
                      Arguments = $@"-i ""{selectedFileToPlay}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
                      RedirectStandardOutput = true,
                      UseShellExecute = false
@@ -259,6 +259,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          if (webLink.Contains("watch?v=") || webLink.Contains("&list=") || webLink.Contains("playlist?list="))
          {
+
             isYouTube = true;
 
             if (webLink.Contains("&list=") || webLink.Contains("playlist?list="))
@@ -306,14 +307,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                selectedVideoUri = new Uri("https://www.youtube.com/watch?v=" + selectedVideoId);
             }
 
-            Uri uri = new(@"N:\");
+            Uri networkDriveUri = new(@"N:\");
             YoutubeDL youtubeDl = new()
             {
                YoutubeDLPath = "..\\..\\..\\Model\\Executables\\youtube-dl\\yt-dlp.exe",
                FFmpegPath = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
-               OutputFolder = uri.AbsolutePath,
-               RestrictFilenames = true,
-               OverwriteFiles = true,
+               OutputFolder = networkDriveUri.AbsolutePath,
                IgnoreDownloadErrors = false
             };
 
@@ -551,7 +550,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                FFmpegPath = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
                OutputFolder = networkDriveUri.AbsolutePath,
                RestrictFilenames = true,
-               OverwriteFiles = true,
+               OverwriteFiles = false,
                IgnoreDownloadErrors = false
             };
 
@@ -560,6 +559,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                AddMetadata = true,
                AudioQuality = 0
             };
+
+            optionSet.AddCustomOption("--output", networkDriveUri.AbsolutePath + "%(title)s-%(id)s-%(release_date)s.%(ext)s");
             RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUri.AbsoluteUri, AudioConversionFormat.Opus, new CancellationToken(), null, null, optionSet);
             VideoData audioDownloadMetaData = youtubeDl.RunVideoDataFetch(youtubeUri.AbsoluteUri).Result.Data;
             TimeSpan audioDownloadTimeSpan = default;
@@ -713,7 +714,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
       public static string TimeLineStringBuilderAfterSong(int timeSpanAdvanceInt, TimeSpan totalTimeSpan, CancellationToken cancellationToken)
       {
-         string durationString = $"{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}";
+         TimeSpan playerAdvanceTimeSpan = TimeSpan.FromSeconds(timeSpanAdvanceInt);
+
+         string durationString = "";
+         if (playerAdvanceTimeSpan.Hours != 0)
+            durationString = $"{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}";
+         else
+            durationString = $"{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}";
 
          if (!cancellationToken.IsCancellationRequested)
          {
@@ -721,7 +728,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          else
          {
-            TimeSpan playerAdvanceTimeSpan = TimeSpan.FromSeconds(timeSpanAdvanceInt);
             string descriptionString = "⏹️";
             if (cancellationToken.IsCancellationRequested)
                descriptionString = "▶️";
