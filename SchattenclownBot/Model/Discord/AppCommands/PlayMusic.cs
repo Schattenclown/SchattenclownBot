@@ -561,7 +561,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             };
 
             optionSet.AddCustomOption("--output", networkDriveUri.AbsolutePath + "%(title)s-%(id)s-%(release_date)s.%(ext)s");
-            RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUri.AbsoluteUri, AudioConversionFormat.Opus, new CancellationToken(), null, null, optionSet);
+            RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(youtubeUri.AbsoluteUri, AudioConversionFormat.Mp3, new CancellationToken(), null, null, optionSet);
             VideoData audioDownloadMetaData = youtubeDl.RunVideoDataFetch(youtubeUri.AbsoluteUri).Result.Data;
             TimeSpan audioDownloadTimeSpan = default;
             if (audioDownloadMetaData?.Duration != null)
