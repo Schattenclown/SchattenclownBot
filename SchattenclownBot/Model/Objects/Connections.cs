@@ -11,6 +11,7 @@ namespace SchattenclownBot.Model.Objects
         public string MySqlConStrDebug { get; set; }
         public string AcoustIdApiKey { get; set; }
         public SpotifyOAuth2 Token { get; set; }
+        public string YouTubeApiKey { get; set; }
 
         public class SpotifyOAuth2
         {

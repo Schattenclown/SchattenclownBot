@@ -24,6 +24,8 @@
     <PackageReference Include="DisCatSharp.Lavalink" Version="10.0.1-nightly-00417" />
     <PackageReference Include="DisCatSharp.VoiceNext" Version="10.0.1-nightly-00417" />
     <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.0.1-nightly-00417" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.57.0" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.57.0.2756" />
     <PackageReference Include="MetaBrainz.MusicBrainz" Version="5.0.0" />
     <PackageReference Include="MySql.Data" Version="8.0.29" />
     <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />

@@ -4,70 +4,73 @@ using System.IO;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
-    public class CsvConnections
-    {
-        private static readonly Uri Path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
-        private static readonly Uri Filepath = new($"{Path}/Connections.csv");
-        public static Connections ReadAll()
-        {
-            try
+   public class CsvConnections
+   {
+      private static readonly Uri Path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
+      private static readonly Uri Filepath = new($"{Path}/Connections.csv");
+      public static Connections ReadAll()
+      {
+         try
+         {
+            Connections connections = new();
+            StreamReader streamReader = new(Filepath.LocalPath);
+            while (!streamReader.EndOfStream)
             {
-                Connections connections = new();
-                StreamReader streamReader = new(Filepath.LocalPath);
-                while (!streamReader.EndOfStream)
-                {
-                    string row = streamReader.ReadLine();
-                    if (row != null)
-                    {
-                        string[] infos = row.Split(';');
+               string row = streamReader.ReadLine();
+               if (row != null)
+               {
+                  string[] infos = row.Split(';');
 
-                        switch (infos[0])
-                        {
-                            case "DiscordBotKey":
-                                connections.DiscordBotKey = infos[1];
-                                break;
-                            case "DiscordBotKeyDebug":
-                                connections.DiscordBotDebug = infos[1];
-                                break;
-                            case "MySqlConStr":
-                                connections.MySqlConStr = infos[1].Replace(',', ';');
-                                break;
-                            case "MySqlConStrDebug":
-                                connections.MySqlConStrDebug = infos[1].Replace(',', ';');
-                                break;
-                            case "AcoustIdApiKey":
-                                connections.AcoustIdApiKey = infos[1];
-                                break;
-                            case "SpotifyOAuth2":
-                                connections.Token = new Connections.SpotifyOAuth2();
-                                string[] spotifyOAuth2 = infos[1].Split('-');
-                                connections.Token.ClientId = spotifyOAuth2[0];
-                                connections.Token.ClientSecret = spotifyOAuth2[1];
-                                break;
-                        }
-                    }
-                }
-                streamReader.Close();
-                return connections;
+                  switch (infos[0])
+                  {
+                     case "DiscordBotKey":
+                        connections.DiscordBotKey = infos[1];
+                        break;
+                     case "DiscordBotKeyDebug":
+                        connections.DiscordBotDebug = infos[1];
+                        break;
+                     case "MySqlConStr":
+                        connections.MySqlConStr = infos[1].Replace(',', ';');
+                        break;
+                     case "MySqlConStrDebug":
+                        connections.MySqlConStrDebug = infos[1].Replace(',', ';');
+                        break;
+                     case "AcoustIdApiKey":
+                        connections.AcoustIdApiKey = infos[1];
+                        break;
+                     case "SpotifyOAuth2":
+                        connections.Token = new Connections.SpotifyOAuth2();
+                        string[] spotifyOAuth2 = infos[1].Split('-');
+                        connections.Token.ClientId = spotifyOAuth2[0];
+                        connections.Token.ClientSecret = spotifyOAuth2[1];
+                        break;
+                     case "YouTubeApiKey":
+                        connections.YouTubeApiKey = infos[1];
+                        break;
+                  }
+               }
             }
-            catch (Exception)
-            {
-                DirectoryInfo directory = new(Path.LocalPath);
-                if (!directory.Exists)
-                    directory.Create();
+            streamReader.Close();
+            return connections;
+         }
+         catch (Exception)
+         {
+            DirectoryInfo directory = new(Path.LocalPath);
+            if (!directory.Exists)
+               directory.Create();
 
-                StreamWriter streamWriter = new(Filepath.LocalPath);
-                streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
-                                       "DiscordBotKeyDebug;<API Key here>\n" +
-                                       "MySqlConStr;<DBConnectionString here>\n" +
-                                       "MySqlConStrDebug;<DBConnectionString here>\n" +
-                                       "AcoustIdApiKey;<Api Key here>\n" +
-                                       "SpotifyOAuth2;<ClientId-ClientSecret here>");
+            StreamWriter streamWriter = new(Filepath.LocalPath);
+            streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
+                                   "DiscordBotKeyDebug;<API Key here>\n" +
+                                   "MySqlConStr;<DBConnectionString here>\n" +
+                                   "MySqlConStrDebug;<DBConnectionString here>\n" +
+                                   "AcoustIdApiKey;<Api Key here>\n" +
+                                   "SpotifyOAuth2;<ClientId-ClientSecret here>");
 
-                streamWriter.Close();
-                throw new Exception($"{Path.LocalPath}\n" +
-                                    "API key´s and database strings not configured!");
-            }
-        }
-    }
+            streamWriter.Close();
+            throw new Exception($"{Path.LocalPath}\n" +
+                                "API key´s and database strings not configured!");
+         }
+      }
+   }
 }
