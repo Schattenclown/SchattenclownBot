@@ -375,18 +375,22 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             List<PlaylistTrack<IPlayableItem>> spotifyPlaylistItems = default;
             List<SimpleTrack> spotifyAlbumItems = default;
+            string trackId = default;
+            SpotifyClient spotifyClient = GetSpotifyClientConfig();
 
             if (isSpotifyPlaylist)
             {
                string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
-               SpotifyClient spotifyClient = GetSpotifyClientConfig();
                spotifyPlaylistItems = spotifyClient.Playlists.GetItems(playlistId).Result.Items;
             }
             else if (isSpotifyAlbum)
             {
                string albumId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/album/", "/album/".Length), "?si", 0);
-               SpotifyClient spotifyClient = GetSpotifyClientConfig();
                spotifyAlbumItems = spotifyClient.Albums.GetTracks(albumId).Result.Items;
+            }
+            else
+            {
+               trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/track/", "/track/".Length), "?si", 0);
             }
 
             if (MusicAlreadyPlaying(interactionContext.Guild))
@@ -399,9 +403,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      {
                         if (playlistItem.Track is FullTrack spotifyTrack)
                         {
-                           SpotifyClient spotifyClient = GetSpotifyClientConfig();
-                           var isrc = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result.ExternalIds.Values.FirstOrDefault();
-                           Uri youTubeUri = SearchYoutubeFromIsrc($"{isrc}");
+                           var fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
+                           Uri youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
 
                            QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack.Id));
                            _queueItemList.Add(queueKeyPair);
@@ -414,9 +417,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   if (spotifyAlbumItems != null)
                      foreach (SimpleTrack albumItem in spotifyAlbumItems)
                      {
-                        SpotifyClient spotifyClient = GetSpotifyClientConfig();
-                        var isrc = spotifyClient.Tracks.Get(albumItem!.Id).Result.ExternalIds.Values.FirstOrDefault();
-                        Uri youTubeUri = SearchYoutubeFromIsrc($"{isrc}");
+                        var fullTrack = spotifyClient.Tracks.Get(albumItem!.Id).Result;
+                        Uri youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
 
                         QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + albumItem.Id));
                         _queueItemList.Add(queueKeyPair);
@@ -424,7 +426,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
                else
                {
-                  QueueItem queueKeyPair = new(interactionContext.Guild, null, webLinkUri);
+                  var fullTrack = spotifyClient.Tracks.Get(trackId).Result;
+                  Uri youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+
+                  QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, webLinkUri);
                   _queueItemList.Add(queueKeyPair);
                }
 
@@ -438,17 +443,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      FullTrack spotifyTrack = spotifyPlaylistItems[0].Track as FullTrack;
 
-                     SpotifyClient spotifyClient = GetSpotifyClientConfig();
-                     var isrc = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result.ExternalIds.Values.FirstOrDefault();
-                     Uri youTubeUri = SearchYoutubeFromIsrc($"{isrc}");
+                     var fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
+                     Uri youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
                      await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
 
                      for (int i = 1; i < spotifyPlaylistItems.Count; i++)
                      {
                         spotifyTrack = spotifyPlaylistItems[i].Track as FullTrack;
 
-                        isrc = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result.ExternalIds.Values.FirstOrDefault();
-                        youTubeUri = SearchYoutubeFromIsrc($"{isrc}");
+                        fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
+                        youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
 
                         QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
                         _queueItemList.Add(queueKeyPair);
@@ -461,18 +465,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      SimpleTrack spotifyTrack = spotifyAlbumItems[0];
 
-                     SpotifyClient spotifyClient = GetSpotifyClientConfig();
-                     var isrc = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result.ExternalIds.Values.FirstOrDefault();
-                     Uri youTubeUri = SearchYoutubeFromIsrc($"{isrc}");
+                     var fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
+                     Uri youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
                      await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
 
                      for (int i = 1; i < spotifyAlbumItems.Count; i++)
                      {
                         spotifyTrack = spotifyAlbumItems[i];
 
-                        isrc = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result.ExternalIds.Values.FirstOrDefault();
-                        youTubeUri = SearchYoutubeFromIsrc($"{isrc}");
-                        
+                        fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
+                        youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+
                         QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
                         _queueItemList.Add(queueKeyPair);
                      }
@@ -480,11 +483,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
                else
                {
-                  string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/track/", "/track/".Length), "?si", 0);
-                  SpotifyClient spotifyClient = GetSpotifyClientConfig();
-                  var isrc = spotifyClient.Tracks.Get(trackId).Result.ExternalIds.Values.FirstOrDefault();
+                  var fullTrack = spotifyClient.Tracks.Get(trackId).Result;
+                  Uri youTubeUri = SearchYoutubeFromSpotify($"{fullTrack.Name} {fullTrack.Artists[0].Name} {fullTrack.ExternalIds.Values.FirstOrDefault()}");
 
-                  Uri youTubeUri = SearchYoutubeFromIsrc($"{isrc}");
                   await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
                }
             }
@@ -493,7 +494,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          _queueCreating = false;
       }
 
-      private Uri SearchYoutubeFromIsrc(string isrc)
+      private Uri SearchYoutubeFromSpotify(string isrc)
       {
          YouTubeService youtubeService = new(new BaseClientService.Initializer()
          {
@@ -919,7 +920,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
 
-            if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings[0].Releases != null)
+            if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings?[0].Releases != null)
             {
                string recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
                Query musicBrainzQuery = new();
