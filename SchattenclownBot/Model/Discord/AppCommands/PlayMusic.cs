@@ -752,7 +752,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      if (initialDiscordMessage != null)
                         await initialDiscordMessage.ModifyAsync("Generating queue has finished!");
                      if(initialDiscordMessage2 != null)
-                        await initialDiscordMessage.ModifyAsync("Queue generated faster than i can start playing!");
+                        await initialDiscordMessage2.ModifyAsync("Queue generated faster than i can start playing!");
 
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
                      discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
