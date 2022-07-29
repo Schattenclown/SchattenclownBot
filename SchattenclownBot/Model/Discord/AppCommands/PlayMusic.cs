@@ -332,7 +332,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                   while (startIndex < videoDataArray.Length)
                   {
-                     _queueItemList.Add(new QueueItem(interactionContext.Guild, new Uri(videoDataArray[startIndex].Url), null));
+                     try
+                     {
+                        _queueItemList.Add(new QueueItem(interactionContext.Guild, new Uri(videoDataArray[startIndex].Url), null));
+                     }
+                     catch(Exception ex)
+                     {
+                        await interactionContext.Channel.SendMessageAsync("Error adding " + videoDataArray[startIndex].Url + " " + ex.Message);
+                     }
                      startIndex++;
                   }
                }
@@ -344,7 +351,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   if (!musicPlayingAlready)
                      await PlayQueueAsyncTask(interactionContext, selectedVideoUri, null);
                   else
-                     _queueItemList.Add(new QueueItem(interactionContext.Guild, selectedVideoUri, null));
+                  {
+                     try
+                     {
+                        _queueItemList.Add(new QueueItem(interactionContext.Guild, selectedVideoUri, null));
+                     }
+                     catch (Exception ex)
+                     {
+                        await interactionContext.Channel.SendMessageAsync("Error adding " + selectedVideoUri + " " + ex.Message);
+                        return;
+                     }
+                  }
                }
             }
             catch
@@ -369,9 +386,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
                      FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
-                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
-
-                     await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id));
+                     try
+                     {
+                        Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
+                        await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id));
+                     }
+                     catch (Exception ex)
+                     {
+                        await interactionContext.Channel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + playlistTrack!.Id + " " + ex.Message);
+                     }
+                     
                      startIndex++;
                   }
 
@@ -379,9 +403,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
                      FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
-                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
 
-                     _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id)));
+                     try
+                     {
+                        Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
+                        _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id)));
+                     }
+                     catch (Exception ex)
+                     {
+                        await interactionContext.Channel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + playlistTrack!.Id + " " + ex.Message);
+                     }
+
                      startIndex++;
                   }
                }
@@ -399,9 +431,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      SimpleTrack simpleTrack = simpleTrackList[startIndex];
                      FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
-                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
-
-                     await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
+                     try
+                     {
+                        Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
+                        await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
+                     }
+                     catch (Exception ex)
+                     {
+                        await interactionContext.Channel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + simpleTrack!.Id + " " + ex.Message);
+                     }
 
                      startIndex++;
                   }
@@ -410,9 +448,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      SimpleTrack simpleTrack = simpleTrackList[startIndex];
                      FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
-                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
-
-                     _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id)));
+                     try
+                     {
+                        Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
+                        _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id)));
+                     }
+                     catch (Exception ex)
+                     {
+                        await interactionContext.Channel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + simpleTrack!.Id + " " + ex.Message);
+                     }
 
                      startIndex++;
                   }
@@ -425,17 +469,29 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if (!musicPlayingAlready)
                {
                   FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
-                  Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
+                  try
+                  {
+                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
+                     await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId));
+                  }
+                  catch (Exception ex)
+                  {
+                     await interactionContext.Channel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + fullTrack!.Id + " " + ex.Message);
+                  }
 
-                  await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId));
                }
                else
                {
                   FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
-                  Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
-
-                  QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId));
-                  _queueItemList.Add(queueKeyPair);
+                  try
+                  {
+                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
+                     _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId)));
+                  }
+                  catch (Exception ex)
+                  {
+                     await interactionContext.Channel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + fullTrack!.Id + " " + ex.Message);
+                  }
                }
             }
          }
@@ -443,6 +499,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          if (musicPlayingAlready)
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
 
+         await interactionContext.Channel.SendMessageAsync("Finished adding songs to queue!");
          _queueCreating = false;
       }
 
