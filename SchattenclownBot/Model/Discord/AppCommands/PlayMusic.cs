@@ -497,10 +497,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
 
          IReadOnlyList<YoutubeExplode.Search.VideoSearchResult> videos = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
-
+         
          if (videos.Count == 0)
-            videos = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name}");
-
+            videos = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name}"); //hier noch limiter
+         
          return new Uri(videos[0].Url);
 
          /*YouTubeService youtubeService = new(new BaseClientService.Initializer()
