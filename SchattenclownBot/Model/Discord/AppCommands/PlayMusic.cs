@@ -631,6 +631,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
          DiscordMessage initialDiscordMessage = null;
+         DiscordMessage initialDiscordMessage2 = null;
          if (isInitialMessage)
          {
             if (interactionContext != null)
@@ -638,7 +639,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if(QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild))
                   initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue with {QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount} track/s please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
                else
-                  initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
+                  initialDiscordMessage2 = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Thats fast! {voiceNextConnection.TargetChannel.Mention}!"));
             }
          }
 
@@ -749,7 +750,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   if (!QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild) && !didOnce)
                   {
                      if (initialDiscordMessage != null)
-                        await initialDiscordMessage.ModifyAsync("Generating queue has finished");
+                        await initialDiscordMessage.ModifyAsync("Generating queue has finished!");
+                     if(initialDiscordMessage2 != null)
+                        await initialDiscordMessage.ModifyAsync("Queue generated faster than i can start playing!");
+
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
                      discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
                      didOnce = true;
