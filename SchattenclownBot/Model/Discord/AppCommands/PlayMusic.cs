@@ -849,9 +849,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             bool needThumbnail = true;
             bool needAlbum = true;
+            string albumTitel = "";
             string recordingMbId = "";
             discordEmbedBuilder.Title = audioDownloadMetaData.Title;
-            discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
             discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
             discordEmbedBuilder.WithUrl(queueItem.YouTubeUri.AbsoluteUri);
 
@@ -872,7 +872,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                if (fullTrack.Album.Name != "")
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", fullTrack.Album.Name, true));
+                  albumTitel = fullTrack.Album.Name;
                   needAlbum = false;
                }
 
@@ -913,8 +913,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      }
                   }
                   if (rightAlbum.Title == "")
-                     rightAlbum.Title = "N/A";
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
+                     albumTitel = rightAlbum.Title;
                }
 
                recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
@@ -963,6 +962,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (recordingMbId != "")
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[-🔗-](https://musicbrainz.org/recording/{recordingMbId})]", true));
+            if(albumTitel != "")
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Album", albumTitel, true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
+
          }
          else
          {
