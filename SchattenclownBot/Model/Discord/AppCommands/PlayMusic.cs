@@ -921,8 +921,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
                discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
 
-               string tags = "";
-
+               /*string tags = "";
                for (int i = 0; i < audioDownloadMetaData.Tags.Length; i++)
                {
                   tags += audioDownloadMetaData.Tags[i];
@@ -936,7 +935,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if (tags == "")
                   tags = "Empty";
 
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Tags", tags, true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Tags", tags, true));*/
 
                discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
 
@@ -1362,9 +1361,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         Video videoData = youtubeClient.Videos.GetAsync(_queueItemList[i].YouTubeUri.AbsoluteUri).Result;
 
                         if (_queueItemList[i].IsSpotify)
-                           descriptionString += videoData.Title + " " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})" + "  " + "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})" + "\n";
+                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + "\n";
                         else
-                           descriptionString += videoData.Title + " " + "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})" + "\n";
+                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + "\n";
                      }
 
                      discordEmbedBuilder.Title = $"{_queueItemList.Count} Track/s in queue!";
