@@ -772,21 +772,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          if (filePathUri != null)
          {
-            /*AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
-
+            AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
+            string recordingMbId = "";
             if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings?[0].Releases != null)
             {
-               string recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
-               Query musicBrainzQuery = new();
-               IRecording iRecording = musicBrainzQuery.LookupRecordingAsync(new Guid(recordingMbId)).Result;
-
-               string genres = "N/A";
-
                DateTime rightAlbumDateTime = new();
                AcoustId.Release rightAlbum = new();
-               AcoustId.Artist rightArtist = new();
+               /*AcoustId.Artist rightArtist = new();
                if (acoustIdRoot.Results[0].Recordings[0].Artists != null)
-                  rightArtist = acoustIdRoot.Results[0].Recordings[0].Artists[0];
+                  rightArtist = acoustIdRoot.Results[0].Recordings[0].Artists[0];*/
 
                foreach (AcoustId.Release albumItem in acoustIdRoot.Results[0].Recordings[0].Releases)
                {
@@ -796,8 +790,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      break;
                   }
 
-                  if (albumItem.Date == null || albumItem.Date.Year == 0 || albumItem.Date.Month == 0 || albumItem.Date.Day == 0)
+                  if (albumItem.Date == null || albumItem.Date.Year == 0)
                      continue;
+
+                  if (albumItem.Date.Month == 0)
+                     albumItem.Date.Month = 1;
+                  if (albumItem.Date.Day == 0)
+                     albumItem.Date.Day = 1;
 
                   if (rightAlbumDateTime.Equals(new DateTime()))
                      rightAlbumDateTime = new DateTime(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
@@ -809,28 +808,37 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      rightAlbumDateTime = albumItemDateTime;
                   }
                }
+               if (rightAlbum.Title == "")
+                  rightAlbum.Title = "N/A";
 
-               discordEmbedBuilder.Title = iRecording.Title;
-               if (rightArtist != null)
-                  discordEmbedBuilder.WithAuthor(rightArtist.Name);
+               recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
+               IRecording iRecording = new Query().LookupRecordingAsync(new Guid(recordingMbId)).Result;
+
+               string genres = "";
+               if (iRecording.Genres != null)
+               {
+                  foreach (char genre in genres)
+                  {
+                     genres += genre;
+
+                     if (genres.Last() != genre)
+                        genres += ", ";
+                  }
+               }
+               if (genres == "")
+                  genres = "N/A";
 
                discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
                discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
-               discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
-
                if (rightAlbum.Id != null)
                {
                   try
                   {
                      discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
-                     Stream streamForBitmap = new HttpClient().GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front").Result;
 
-                     Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
-                     if (bitmapAlbumCover != null)
-                     {
-                        Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
-                        discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-                     }
+                     Bitmap bitmapAlbumCover0 = new(new HttpClient().GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front").Result);
+                     Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover0);
+                     discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
                   }
                   catch
                   {
@@ -838,120 +846,43 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   }
                }
             }
-            else*/
+
+            discordEmbedBuilder.Title = audioDownloadMetaData.Title;
+            discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
+
+            /*string tags = "";
+            for (int i = 0; i < audioDownloadMetaData.Tags.Length; i++)
             {
+               tags += audioDownloadMetaData.Tags[i];
 
-               AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
+               if (i > 2)
+                  break;
+               else
+                  tags += ", ";
+            }
 
-               if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings?[0].Releases != null)
+            if (tags == "")
+               tags = "Empty";
+
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Tags", tags, true));*/
+
+            discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
+
+            if (discordEmbedBuilder.Thumbnail == null)
+            {
+               discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
+               Stream streamForBitmap = new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result;
+
+               Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+               if (bitmapAlbumCover != null)
                {
-                  DateTime rightAlbumDateTime = new();
-                  AcoustId.Release rightAlbum = new();
-                  /*AcoustId.Artist rightArtist = new();
-                  if (acoustIdRoot.Results[0].Recordings[0].Artists != null)
-                     rightArtist = acoustIdRoot.Results[0].Recordings[0].Artists[0];*/
-
-                  foreach (AcoustId.Release albumItem in acoustIdRoot.Results[0].Recordings[0].Releases)
-                  {
-                     if (acoustIdRoot.Results[0].Recordings[0].Releases.Count == 1)
-                     {
-                        rightAlbum = albumItem;
-                        break;
-                     }
-
-                     if (albumItem.Date == null || albumItem.Date.Year == 0)
-                        continue;
-
-                     if (albumItem.Date.Month == 0)
-                        albumItem.Date.Month = 1;
-                     if (albumItem.Date.Day == 0)
-                        albumItem.Date.Day = 1;
-
-                     if (rightAlbumDateTime.Equals(new DateTime()))
-                        rightAlbumDateTime = new DateTime(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
-
-                     DateTime albumItemDateTime = new(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
-                     if (rightAlbumDateTime >= albumItemDateTime)
-                     {
-                        rightAlbum = albumItem;
-                        rightAlbumDateTime = albumItemDateTime;
-                     }
-                  }
-                  if (rightAlbum.Title == "")
-                     rightAlbum.Title = "N/A";
-
-                  string recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
-                  IRecording iRecording = new Query().LookupRecordingAsync(new Guid(recordingMbId)).Result;
-
-                  string genres = "";
-                  if (iRecording.Genres != null)
-                  {
-                     foreach (char genre in genres)
-                     {
-                        genres += genre;
-
-                        if (genres.Last() != genre)
-                           genres += ", ";
-                     }
-                  }
-                  if (genres == "")
-                     genres = "N/A";
-
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[MusicBrainz](https://musicbrainz.org/recording/{recordingMbId})", true));
-                  if (rightAlbum.Id != null)
-                  {
-                     try
-                     {
-                        discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
-
-                        Bitmap bitmapAlbumCover0 = new(new HttpClient().GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front").Result);
-                        Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover0);
-                        discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-                     }
-                     catch
-                     {
-                        //invalid url
-                     }
-                  }
-               }
-
-               discordEmbedBuilder.Title = audioDownloadMetaData.Title;
-               discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
-
-               /*string tags = "";
-               for (int i = 0; i < audioDownloadMetaData.Tags.Length; i++)
-               {
-                  tags += audioDownloadMetaData.Tags[i];
-
-                  if (i > 2)
-                     break;
-                  else
-                     tags += ", ";
-               }
-
-               if (tags == "")
-                  tags = "Empty";
-
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Tags", tags, true));*/
-
-               discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
-
-               if (discordEmbedBuilder.Thumbnail == null)
-               {
-                  discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
-                  Stream streamForBitmap = new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result;
-
-                  Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
-                  if (bitmapAlbumCover != null)
-                  {
-                     Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
-                     discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-                  }
+                  Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+                  discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
                }
             }
+            if (recordingMbId != "")
+               discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[MusicBrainz](https://musicbrainz.org/recording/{recordingMbId})", true));
          }
          else if (metaTagFileToPlay != null)
          {
