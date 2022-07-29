@@ -1308,9 +1308,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         Video videoData = youtubeClient.Videos.GetAsync(_queueItemList[i].YouTubeUri.AbsoluteUri).Result;
 
                         if (_queueItemList[i].IsSpotify)
-                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + " " + videoData.Author + "\n";
+                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + " - " + videoData.Author + "\n";
                         else
-                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + " " + videoData.Author + "\n";
+                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + " - " + videoData.Author + "\n";
                      }
 
                      discordEmbedBuilder.Title = $"{_queueItemList.Count} Track/s in queue!";
