@@ -260,7 +260,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          if (QueueCreatingList.Exists(x => x.DiscordGuild == interactionContext.Guild))
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Queue is already generating please wait for the first queue to generate!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Queue is already generating please wait for the first queue to generate! " +
+                                                               $"{QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount}/" +
+                                                               $"{QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAmount} Please wait!"));
             return;
          }
 
@@ -1410,7 +1412,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      cancellationToken.Dispose();
                   }
 
-                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild); 
+                  QueueCreatingList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
 
                   eventArgs.Channel.SendMessageAsync(nothingToStop ? "Nothing to stop!" : "Stopped the music!");
 
