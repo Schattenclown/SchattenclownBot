@@ -5,3 +5,6 @@ dotnet_diagnostic.DV0001.severity = none
 
 # DV2001: Kein Abhängigkeitsdiagramm verknüpft
 dotnet_diagnostic.DV2001.severity = warning
+
+# CA1416: Plattformkompatibilität überprüfen
+dotnet_diagnostic.CA1416.severity = silent

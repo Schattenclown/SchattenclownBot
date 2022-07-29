@@ -75,11 +75,23 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       }
    }
 
+   internal class QueueCreating
+   {
+      internal DiscordGuild DiscordGuild { get; set; }
+      internal bool QueueCreatingBool { get; set; }
+
+      internal QueueCreating(DiscordGuild discordGuild, bool queueCreatingBool)
+      {
+         DiscordGuild = discordGuild;
+         QueueCreatingBool = QueueCreatingBool;
+      }
+   }
+
    internal class PlayMusic : ApplicationCommandsModule
    {
       private static readonly List<CancellationTokenItem> CancellationTokenItemList = new();
       private static List<QueueItem> _queueItemList = new();
-      private static bool _queueCreating = false;
+      private static List<QueueCreating> _queueCreatingList = new();
 
       private static bool MusicAlreadyPlaying(DiscordGuild discordGuild)
       {
@@ -243,7 +255,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       private async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-         _queueCreating = true;
+         _queueCreatingList.Add(new QueueCreating(interactionContext.Guild, true));
          Uri webLinkUri = new(webLink);
 
          if (interactionContext.Member.VoiceState == null)
@@ -366,11 +378,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
             catch
             {
-               _queueCreating = false;
+               _queueCreatingList.RemoveAll(x => x.DiscordGuild == interactionContext.Guild);
                await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error!"));
             }
          }
-         else
+         else if (isSpotify)
          {
             SpotifyClient spotifyClient = GetSpotifyClientConfig();
 
@@ -499,8 +511,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          if (musicPlayingAlready)
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
 
+         _queueCreatingList.RemoveAll(x => x.DiscordGuild == interactionContext.Guild);
          await interactionContext.Channel.SendMessageAsync("Finished adding songs to queue!");
-         _queueCreating = false;
       }
 
       private async Task<Uri> SearchYoutubeFromSpotify(FullTrack fullTrack)
@@ -567,11 +579,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             return;
 
          voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
-
+         DiscordMessage initialDiscordMessage = null;
          if (isInitialMessage)
          {
             if (interactionContext != null)
-               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"I start playing music in {voiceNextConnection.TargetChannel.Mention}!"));
+               initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
          }
 
          VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
@@ -676,8 +688,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      break;
                   }
 
-                  if (!_queueCreating && !didonce)
+                  if (!_queueCreatingList.Exists(x => x.DiscordGuild == discordGuild && x.QueueCreatingBool) && !didonce)
                   {
+                     if (initialDiscordMessage != null)
+                        await initialDiscordMessage.ModifyAsync("Generating queue has finished");
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
                      discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
                      didonce = true;
@@ -1104,9 +1118,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
       private static async Task ShufflePlaylist(DiscordMessage discordMessage)
       {
-         if (_queueCreating)
+         if (_queueCreatingList.Exists(x => x.DiscordGuild == discordMessage.Channel.Guild && x.QueueCreatingBool))
          {
-            await discordMessage.ModifyAsync(x => x.WithContent("Queue is generating!"));
+            await discordMessage.ModifyAsync(x => x.WithContent("Queue is generating! Please wait!"));
          }
          else
          {
