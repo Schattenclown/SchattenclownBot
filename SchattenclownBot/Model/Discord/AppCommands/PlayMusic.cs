@@ -634,7 +634,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          if (isInitialMessage)
          {
             if (interactionContext != null)
-               initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue with {QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount} track/s please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
+            {
+               if(QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild))
+                  initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue with {QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount} track/s please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
+               else
+                  initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
+            }
          }
 
          VoiceTransmitSink voiceTransmitSink = voiceNextConnection.GetTransmitSink();
