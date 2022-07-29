@@ -897,7 +897,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
 
             if (recordingMbId != "")
-               discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[-🔗-](https://musicbrainz.org/recording/{recordingMbId})", true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[-🔗-](https://musicbrainz.org/recording/{recordingMbId})]", true));
          }
          else
          {
