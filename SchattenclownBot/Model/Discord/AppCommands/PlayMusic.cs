@@ -881,7 +881,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
                }
             }
-            if (recordingMbId != "")
+            if (recordingMbId == "")
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[🔗](https://musicbrainz.org/recording/{recordingMbId})", true));
          }
          else if (metaTagFileToPlay != null)
