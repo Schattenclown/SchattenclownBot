@@ -450,7 +450,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       {
          YoutubeClient youtubeClient = new();
 
-         IReadOnlyList<VideoSearchResult> videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+         IReadOnlyList<VideoSearchResult> videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}").CollectAsync(3);
          VideoSearchResult rightItem = null;
          foreach (VideoSearchResult item in videoSearchResults)
          {
@@ -464,7 +464,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             return new Uri(rightItem.Url);
 
          if (videoSearchResults.Count == 0)
-            videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name}"); //this needs a limit
+         {
+            videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name}").CollectAsync(3);
+         }
 
          return new Uri(videoSearchResults[0].Url);
       }
@@ -866,7 +868,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         genres += ", ";
                   }
                }
-               if (genres != "") 
+               if (genres != "")
                   discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
 
                if (rightAlbum.Id != null && needThumbnail)
