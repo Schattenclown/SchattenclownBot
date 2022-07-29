@@ -171,7 +171,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                string selectedFileToPlay = allFiles[randomInt];
 
                TagLib.File metaTagFileToPlay = TagLib.File.Create(@$"{selectedFileToPlay}");
-               DiscordEmbedBuilder discordEmbedBuilder = CustomDiscordEmbedBuilder(null, null, null, metaTagFileToPlay);
+               DiscordEmbedBuilder discordEmbedBuilder = CustomDiscordEmbedBuilder(new DiscordEmbedBuilder(), null, null, null, metaTagFileToPlay);
 
                try
                {
@@ -336,7 +336,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      {
                         _queueItemList.Add(new QueueItem(interactionContext.Guild, new Uri(videoDataArray[startIndex].Url), null));
                      }
-                     catch(Exception ex)
+                     catch (Exception ex)
                      {
                         await interactionContext.Channel.SendMessageAsync("Error adding " + videoDataArray[startIndex].Url + " " + ex.Message);
                      }
@@ -395,7 +395,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      {
                         await interactionContext.Channel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + playlistTrack!.Id + " " + ex.Message);
                      }
-                     
+
                      startIndex++;
                   }
 
@@ -603,7 +603,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             if (audioDownloadMetaData?.Duration != null)
                audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Duration.Value);
 
-            DiscordEmbedBuilder discordEmbedBuilder = CustomDiscordEmbedBuilder(queueItem, new Uri(audioDownload.Data), audioDownloadMetaData, null);
+            DiscordEmbedBuilder discordEmbedBuilder = new();
+
+            if (queueItem.IsYouTube && !queueItem.IsSpotify)
+            {
+               discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[-🔗-]({queueItem.YouTubeUri.AbsoluteUri})]", true));
+            }
+            else if (queueItem.IsYouTube && queueItem.IsSpotify)
+            {
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Spotify", $"[[-🔗-]({queueItem.SpotifyUri.AbsoluteUri})]", true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[-🔗-]({queueItem.YouTubeUri.AbsoluteUri})]", true));
+            }
+
+            discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueItem, new Uri(audioDownload.Data), audioDownloadMetaData, null);
             string audioDownloadError = null;
 
             if (audioDownload.ErrorOutput.Length > 1)
@@ -665,7 +677,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      break;
                   }
 
-                  if(!_queueCreating && !didonce)
+                  if (!_queueCreating && !didonce)
                   {
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
                      discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
@@ -838,12 +850,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          return acoustId;
       }
 
-      public static DiscordEmbedBuilder CustomDiscordEmbedBuilder(QueueItem queueItem, Uri filePathUri, VideoData audioDownloadMetaData, TagLib.File metaTagFileToPlay)
+      public static DiscordEmbedBuilder CustomDiscordEmbedBuilder(DiscordEmbedBuilder discordEmbedBuilder, QueueItem queueItem, Uri filePathUri, VideoData audioDownloadMetaData, TagLib.File metaTagFileToPlay)
       {
-         DiscordEmbedBuilder discordEmbedBuilder = new()
-         {
-            Title = "Preset"
-         };
+         discordEmbedBuilder.Title = "Preset";
 
          if (metaTagFileToPlay == null)
          {
@@ -930,7 +939,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         genres += ", ";
                   }
                }
-               if (genres != "") 
+               if (genres != "")
                   discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
 
                if (rightAlbum.Id != null && needThumbnail)
@@ -962,7 +971,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (recordingMbId != "")
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[-🔗-](https://musicbrainz.org/recording/{recordingMbId})]", true));
-            if(albumTitel != "")
+            if (albumTitel != "")
                discordEmbedBuilder.AddField(new DiscordEmbedField("Album", albumTitel, true));
             discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
 
