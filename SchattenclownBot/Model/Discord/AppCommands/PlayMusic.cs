@@ -634,7 +634,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             if (interactionContext != null)
             {
-               if(QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild))
+               if (QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild))
                   initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue with {QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount} track/s please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
                else
                   initialDiscordMessage2 = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Thats fast! {voiceNextConnection.TargetChannel.Mention}!"));
@@ -749,7 +749,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      if (initialDiscordMessage != null)
                         await initialDiscordMessage.ModifyAsync("Generating queue has finished!");
-                     if(initialDiscordMessage2 != null)
+                     if (initialDiscordMessage2 != null)
                         await initialDiscordMessage2.ModifyAsync("Queue generated faster than i can start playing!");
 
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
@@ -1419,7 +1419,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      cancellationToken.Dispose();
                   }
 
-                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild); 
+                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
                   QueueCreatingList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
 
                   eventArgs.Channel.SendMessageAsync(nothingToStop ? "Nothing to stop!" : "Stopped the music!");
@@ -1454,7 +1454,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         if (_queueItemList[i].IsSpotify)
                            descriptionString += "[🔗[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})]  " + videoData.Title + " - " + videoData.Author + "\n";
                         else
-                           descriptionString += "[🔗[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})]  " + videoData.Title + " - " + videoData.Author + "\n";
+                           descriptionString += "[🔗[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})] " + videoData.Title + " - " + videoData.Author + "\n";
                      }
 
                      discordEmbedBuilder.Title = $"{_queueItemList.Count} Track/s in queue!";
