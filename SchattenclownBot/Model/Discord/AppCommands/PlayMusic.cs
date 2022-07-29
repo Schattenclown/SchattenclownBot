@@ -872,7 +872,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                if (fullTrack.Album.Name != "")
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", fullTrack.Album.Name));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", fullTrack.Album.Name, true));
                   needAlbum = false;
                }
 
