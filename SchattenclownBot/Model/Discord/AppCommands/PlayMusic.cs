@@ -257,6 +257,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       private async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+         if (QueueCreatingList.Exists(x => x.DiscordGuild == interactionContext.Guild))
+         {
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Queue is already generating please wait for the first queue to generate!"));
+            return;
+         }
+
          Uri webLinkUri = new(webLink);
 
          if (interactionContext.Member.VoiceState == null)
@@ -416,9 +423,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      if (!musicPlayingAlready)
                      {
                         FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
-                        FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
+
                         try
                         {
+                           FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
                            Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                            await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id));
                            QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
@@ -435,10 +443,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      while (startIndex < playlistTrackList.Count)
                      {
                         FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
-                        FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
 
                         try
                         {
+                           FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
                            Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                            _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id)));
                            QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
@@ -468,9 +476,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   if (!musicPlayingAlready)
                   {
                      SimpleTrack simpleTrack = simpleTrackList[startIndex];
-                     FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
                      try
                      {
+                        FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
                         Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                         await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
@@ -487,9 +495,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   while (startIndex < simpleTrackList.Count)
                   {
                      SimpleTrack simpleTrack = simpleTrackList[startIndex];
-                     FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
                      try
                      {
+                        FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
                         Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                         _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id)));
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
@@ -512,6 +520,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if (!musicPlayingAlready)
                {
                   FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
+
                   try
                   {
                      Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
@@ -528,6 +537,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                else
                {
                   FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
+
                   try
                   {
                      Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
