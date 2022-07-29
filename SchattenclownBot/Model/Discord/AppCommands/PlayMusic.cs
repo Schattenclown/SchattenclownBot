@@ -20,12 +20,15 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using RestSharp;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Videos;
+using IRestResponse = RestSharp.Portable.IRestResponse;
+using Method = Google.Protobuf.WellKnownTypes.Method;
 using RuntimeInformation = System.Runtime.InteropServices.RuntimeInformation;
 
 // ReSharper disable UnusedMember.Local
@@ -879,8 +882,28 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
                if (bitmapAlbumCover != null)
                {
+<<<<<<< Updated upstream
                   Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
                   discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+=======
+                  discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
+                  Stream streamForBitmap = new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result;
+
+                  //https://studio.pixelixe.com/api/crop/v1?apiKey=YOUR_API_KEY&width=90&height=60&x=30&y=30&imageUrl=https://yoururl.com/image.png 
+
+                  Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
+                  if (bitmapAlbumCover != null)
+                  {
+                     Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+                     discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                  }
+
+                  var client = new RestClient("https://api.sirv.com/v2/token");
+                  var request = new RestRequest();
+                  request.AddHeader("content-type", "application/json");
+                  request.AddParameter("application/json", "{\"clientId\":\"X8JCbFzp7xd5ylBKY89AeIyxWYN\",\"clientSecret\":\"xHoPmIK6LGQr5eQhw9zcAVTDvlc+BbogLeLCa/GdSPV2zXPo/C7XncX4eB6bvRck2yhhfBR2PuCYaBVut+fquQ==\"}", ParameterType.RequestBody);
+                  RestResponse response = client.Execute(request);
+>>>>>>> Stashed changes
                }
             }
             if (recordingMbId != "")
@@ -952,6 +975,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
 
          return discordEmbedBuilder;
+      }
+
+      public static Bitmap CropAtRect(Bitmap b, Rectangle r)
+      {
+         Bitmap nb = new Bitmap(r.Width, r.Height);
+         using (Graphics g = Graphics.FromImage(nb))
+         {
+            g.DrawImage(b, -r.X, -r.Y);
+            return nb;
+         }
       }
 
       [SlashCommand("Stop" + Bot.isDevBot, "Stop the music!")]
