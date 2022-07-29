@@ -567,13 +567,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             DiscordMessage discordMessage;
             if (queueItem.IsYouTube && !queueItem.IsSpotify)
             {
-               discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[-🔗-]({queueItem.YouTubeUri.AbsoluteUri})", true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[-🔗-]({queueItem.YouTubeUri.AbsoluteUri})]", true));
                discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
             }
             else if (queueItem.IsYouTube && queueItem.IsSpotify)
             {
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Spotify", $"[-🔗-]({queueItem.SpotifyUri.AbsoluteUri})", true));
-               discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[-🔗-]({queueItem.YouTubeUri.AbsoluteUri})", true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Spotify", $"[[-🔗-]({queueItem.SpotifyUri.AbsoluteUri})]", true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[-🔗-]({queueItem.YouTubeUri.AbsoluteUri})]", true));
                discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
             }
             else
@@ -866,9 +866,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         genres += ", ";
                   }
                }
-               if (genres == "")
-                  genres = "N/A";
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
+               if (genres != "") 
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
 
                if (rightAlbum.Id != null && needThumbnail)
                {
@@ -1308,9 +1307,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         Video videoData = youtubeClient.Videos.GetAsync(_queueItemList[i].YouTubeUri.AbsoluteUri).Result;
 
                         if (_queueItemList[i].IsSpotify)
-                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + " - " + videoData.Author + "\n";
+                           descriptionString += "[🔗[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})]  " + videoData.Title + " - " + videoData.Author + "\n";
                         else
-                           descriptionString += "[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})   " + "[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})  " + videoData.Title + " - " + videoData.Author + "\n";
+                           descriptionString += "[🔗[YouTube]" + $"({_queueItemList[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({_queueItemList[i].SpotifyUri.AbsoluteUri})]  " + videoData.Title + " - " + videoData.Author + "\n";
                      }
 
                      discordEmbedBuilder.Title = $"{_queueItemList.Count} Track/s in queue!";
