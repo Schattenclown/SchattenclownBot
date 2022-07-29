@@ -634,10 +634,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             if (interactionContext != null)
             {
-               if (QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild))
+               try
+               {
                   initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue with {QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount} track/s please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
-               else
+               }
+               catch
+               {
+                  //prob. deleted while searching
+               }
+               finally
+               {
                   initialDiscordMessage2 = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Thats fast! {voiceNextConnection.TargetChannel.Mention}!"));
+               }
             }
          }
 
