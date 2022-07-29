@@ -619,7 +619,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Next!", false, discordComponentEmojisNext);
             discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", false, discordComponentEmojisStop);
             discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
-            discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
+            discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", true, discordComponentEmojisQueue);
 
             DiscordMessage discordMessage;
             if (queueItem.IsYouTube && !queueItem.IsSpotify)
@@ -668,6 +668,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   if(!_queueCreating && !didonce)
                   {
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
+                     discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
                      didonce = true;
                   }
 
