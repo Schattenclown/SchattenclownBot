@@ -400,7 +400,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         if (playlistItem.Track is FullTrack spotifyTrack)
                         {
                            FullTrack fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
-                           Uri youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                           Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
 
                            QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack.Id));
                            _queueItemList.Add(queueKeyPair);
@@ -414,7 +414,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      foreach (SimpleTrack albumItem in spotifyAlbumItems)
                      {
                         FullTrack fullTrack = spotifyClient.Tracks.Get(albumItem!.Id).Result;
-                        Uri youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                        Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
 
                         QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + albumItem.Id));
                         _queueItemList.Add(queueKeyPair);
@@ -423,7 +423,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                else
                {
                   FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
-                  Uri youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                  Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
 
                   QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, webLinkUri);
                   _queueItemList.Add(queueKeyPair);
@@ -440,7 +440,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      FullTrack spotifyTrack = spotifyPlaylistItems[0].Track as FullTrack;
 
                      FullTrack fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
-                     Uri youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                      await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
 
                      for (int i = 1; i < spotifyPlaylistItems.Count; i++)
@@ -448,7 +448,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         spotifyTrack = spotifyPlaylistItems[i].Track as FullTrack;
 
                         fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
-                        youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                        youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
 
                         QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
                         _queueItemList.Add(queueKeyPair);
@@ -462,7 +462,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      SimpleTrack spotifyTrack = spotifyAlbumItems[0];
 
                      FullTrack fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
-                     Uri youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                     Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                      await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
 
                      for (int i = 1; i < spotifyAlbumItems.Count; i++)
@@ -470,7 +470,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         spotifyTrack = spotifyAlbumItems[i];
 
                         fullTrack = spotifyClient.Tracks.Get(spotifyTrack!.Id).Result;
-                        youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                        youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
 
                         QueueItem queueKeyPair = new(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + spotifyTrack!.Id));
                         _queueItemList.Add(queueKeyPair);
@@ -480,7 +480,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                else
                {
                   FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
-                  Uri youTubeUri = await SearchYoutubeFromSpotify($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+                  Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
 
                   await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
                }
@@ -490,13 +490,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          _queueCreating = false;
       }
 
-      private async Task<Uri> SearchYoutubeFromSpotify(string searchQuery)
+      private async Task<Uri> SearchYoutubeFromSpotify(FullTrack fullTrack)
       {
 
          YoutubeClient youtubeClient = new();
 
 
-         IReadOnlyList<YoutubeExplode.Search.VideoSearchResult> videos = await youtubeClient.Search.GetVideosAsync(searchQuery);
+         IReadOnlyList<YoutubeExplode.Search.VideoSearchResult> videos = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+
+         if (videos.Count == 0)
+            videos = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name}");
 
          return new Uri(videos[0].Url);
 
