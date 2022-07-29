@@ -774,6 +774,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
             string recordingMbId = "";
+            bool needThumbnail = true;
             if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings?[0].Releases != null)
             {
                DateTime rightAlbumDateTime = new();
@@ -839,6 +840,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      Bitmap bitmapAlbumCover0 = new(new HttpClient().GetStreamAsync($"https://coverartarchive.org/release/{rightAlbum.Id}/front").Result);
                      Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover0);
                      discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                     needThumbnail = false;
                   }
                   catch
                   {
@@ -869,7 +871,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
 
-            if (discordEmbedBuilder.Thumbnail == null)
+            if (needThumbnail)
             {
                discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
                Stream streamForBitmap = new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result;
@@ -881,7 +883,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
                }
             }
-            if (recordingMbId == "")
+            if (recordingMbId != "")
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[🔗](https://musicbrainz.org/recording/{recordingMbId})", true));
          }
          else if (metaTagFileToPlay != null)
