@@ -558,8 +558,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          if (musicPlayingAlready)
          {
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
-            QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-            songsAdded++;
          }
 
          QueueCreatingList.RemoveAll(x => x.DiscordGuild == interactionContext.Guild);
