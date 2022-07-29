@@ -17,19 +17,15 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using RestSharp;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
 using YoutubeExplode;
 using YoutubeExplode.Common;
+using YoutubeExplode.Search;
 using YoutubeExplode.Videos;
-using IRestResponse = RestSharp.Portable.IRestResponse;
-using Method = Google.Protobuf.WellKnownTypes.Method;
-using RuntimeInformation = System.Runtime.InteropServices.RuntimeInformation;
 
 // ReSharper disable UnusedMember.Local
 #pragma warning disable CS4014
@@ -175,7 +171,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                string selectedFileToPlay = allFiles[randomInt];
 
                TagLib.File metaTagFileToPlay = TagLib.File.Create(@$"{selectedFileToPlay}");
-               DiscordEmbedBuilder discordEmbedBuilder = CustomDiscordEmbedBuilder(null, null, metaTagFileToPlay);
+               DiscordEmbedBuilder discordEmbedBuilder = CustomDiscordEmbedBuilder(null, null, null, metaTagFileToPlay);
 
                try
                {
@@ -454,7 +450,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       {
          YoutubeClient youtubeClient = new();
 
-         IReadOnlyList<YoutubeExplode.Search.VideoSearchResult> videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+         IReadOnlyList<VideoSearchResult> videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}");
+         VideoSearchResult rightItem = null;
+         foreach (VideoSearchResult item in videoSearchResults)
+         {
+            if (item.Title == fullTrack.Name && fullTrack.Artists.Any(x => x.Name == item.Author.ChannelTitle))
+            {
+               rightItem = item;
+            }
+         }
+
+         if (rightItem != null)
+            return new Uri(rightItem.Url);
 
          if (videoSearchResults.Count == 0)
             videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name}"); //this needs a limit
@@ -539,7 +546,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             if (audioDownloadMetaData?.Duration != null)
                audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Duration.Value);
 
-            DiscordEmbedBuilder discordEmbedBuilder = CustomDiscordEmbedBuilder(new Uri(audioDownload.Data), audioDownloadMetaData, null);
+            DiscordEmbedBuilder discordEmbedBuilder = CustomDiscordEmbedBuilder(queueItem, new Uri(audioDownload.Data), audioDownloadMetaData, null);
             string audioDownloadError = null;
 
             if (audioDownload.ErrorOutput.Length > 1)
@@ -766,54 +773,84 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          return acoustId;
       }
 
-      public static DiscordEmbedBuilder CustomDiscordEmbedBuilder(Uri filePathUri, VideoData audioDownloadMetaData, TagLib.File metaTagFileToPlay)
+      public static DiscordEmbedBuilder CustomDiscordEmbedBuilder(QueueItem queueItem, Uri filePathUri, VideoData audioDownloadMetaData, TagLib.File metaTagFileToPlay)
       {
          DiscordEmbedBuilder discordEmbedBuilder = new()
          {
             Title = "Preset"
          };
 
-         if (filePathUri != null)
+         if (metaTagFileToPlay == null)
          {
-            AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
-            string recordingMbId = "";
             bool needThumbnail = true;
+            bool needAlbum = true;
+            string recordingMbId = "";
+            discordEmbedBuilder.Title = audioDownloadMetaData.Title;
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
+            discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
+            discordEmbedBuilder.WithUrl(queueItem.YouTubeUri.AbsoluteUri);
+
+            if (queueItem.IsSpotify)
+            {
+               SpotifyClient spotifyClient = GetSpotifyClientConfig();
+               string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(queueItem.SpotifyUri.AbsoluteUri, "/track/", "/track/".Length), "?si", 0);
+               FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
+               if (fullTrack.Album.Images.Count > 0)
+               {
+                  discordEmbedBuilder.WithThumbnail(fullTrack.Album.Images[0].Url);
+
+                  Bitmap bitmapAlbumCover = new(new HttpClient().GetStreamAsync(fullTrack.Album.Images[0].Url).Result);
+                  Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+                  discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+                  needThumbnail = false;
+               }
+
+               if (fullTrack.Album.Name != "")
+               {
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", fullTrack.Album.Name));
+                  needAlbum = false;
+               }
+
+            }
+
+            AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
             if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings?[0].Releases != null)
             {
                DateTime rightAlbumDateTime = new();
                AcoustId.Release rightAlbum = new();
-               /*AcoustId.Artist rightArtist = new();
-               if (acoustIdRoot.Results[0].Recordings[0].Artists != null)
-                  rightArtist = acoustIdRoot.Results[0].Recordings[0].Artists[0];*/
 
-               foreach (AcoustId.Release albumItem in acoustIdRoot.Results[0].Recordings[0].Releases)
+               if (needAlbum)
                {
-                  if (acoustIdRoot.Results[0].Recordings[0].Releases.Count == 1)
+                  foreach (AcoustId.Release albumItem in acoustIdRoot.Results[0].Recordings[0].Releases)
                   {
-                     rightAlbum = albumItem;
-                     break;
+                     if (acoustIdRoot.Results[0].Recordings[0].Releases.Count == 1)
+                     {
+                        rightAlbum = albumItem;
+                        break;
+                     }
+
+                     if (albumItem.Date == null || albumItem.Date.Year == 0)
+                        continue;
+
+                     if (albumItem.Date.Month == 0)
+                        albumItem.Date.Month = 1;
+                     if (albumItem.Date.Day == 0)
+                        albumItem.Date.Day = 1;
+
+                     if (rightAlbumDateTime.Equals(new DateTime()))
+                        rightAlbumDateTime = new DateTime(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
+
+                     DateTime albumItemDateTime = new(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
+                     if (rightAlbumDateTime >= albumItemDateTime)
+                     {
+                        rightAlbum = albumItem;
+                        rightAlbumDateTime = albumItemDateTime;
+                     }
                   }
-
-                  if (albumItem.Date == null || albumItem.Date.Year == 0)
-                     continue;
-
-                  if (albumItem.Date.Month == 0)
-                     albumItem.Date.Month = 1;
-                  if (albumItem.Date.Day == 0)
-                     albumItem.Date.Day = 1;
-
-                  if (rightAlbumDateTime.Equals(new DateTime()))
-                     rightAlbumDateTime = new DateTime(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
-
-                  DateTime albumItemDateTime = new(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
-                  if (rightAlbumDateTime >= albumItemDateTime)
-                  {
-                     rightAlbum = albumItem;
-                     rightAlbumDateTime = albumItemDateTime;
-                  }
+                  if (rightAlbum.Title == "")
+                     rightAlbum.Title = "N/A";
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
                }
-               if (rightAlbum.Title == "")
-                  rightAlbum.Title = "N/A";
 
                recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
                IRecording iRecording = new Query().LookupRecordingAsync(new Guid(recordingMbId)).Result;
@@ -831,10 +868,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
                if (genres == "")
                   genres = "N/A";
-
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Album", rightAlbum.Title, true));
                discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
-               if (rightAlbum.Id != null)
+
+               if (rightAlbum.Id != null && needThumbnail)
                {
                   try
                   {
@@ -852,64 +888,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
             }
 
-            discordEmbedBuilder.Title = audioDownloadMetaData.Title;
-            discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
-            discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
-
-            /*string tags = "";
-            for (int i = 0; i < audioDownloadMetaData.Tags.Length; i++)
-            {
-               tags += audioDownloadMetaData.Tags[i];
-
-               if (i > 2)
-                  break;
-               else
-                  tags += ", ";
-            }
-
-            if (tags == "")
-               tags = "Empty";
-
-            discordEmbedBuilder.AddField(new DiscordEmbedField("Tags", tags, true));*/
-
-            discordEmbedBuilder.WithUrl(audioDownloadMetaData.WebpageUrl);
-
             if (needThumbnail)
             {
                discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
-               Stream streamForBitmap = new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result;
 
-               Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
-               if (bitmapAlbumCover != null)
-               {
-<<<<<<< Updated upstream
-                  Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
-                  discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-=======
-                  discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
-                  Stream streamForBitmap = new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result;
-
-                  //https://studio.pixelixe.com/api/crop/v1?apiKey=YOUR_API_KEY&width=90&height=60&x=30&y=30&imageUrl=https://yoururl.com/image.png 
-
-                  Bitmap bitmapAlbumCover = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Bitmap(streamForBitmap) : null;
-                  if (bitmapAlbumCover != null)
-                  {
-                     Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
-                     discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-                  }
-
-                  var client = new RestClient("https://api.sirv.com/v2/token");
-                  var request = new RestRequest();
-                  request.AddHeader("content-type", "application/json");
-                  request.AddParameter("application/json", "{\"clientId\":\"X8JCbFzp7xd5ylBKY89AeIyxWYN\",\"clientSecret\":\"xHoPmIK6LGQr5eQhw9zcAVTDvlc+BbogLeLCa/GdSPV2zXPo/C7XncX4eB6bvRck2yhhfBR2PuCYaBVut+fquQ==\"}", ParameterType.RequestBody);
-                  RestResponse response = client.Execute(request);
->>>>>>> Stashed changes
-               }
+               Bitmap bitmapAlbumCover = new(new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result);
+               Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+               discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
             }
+
             if (recordingMbId != "")
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[-🔗-](https://musicbrainz.org/recording/{recordingMbId})", true));
          }
-         else if (metaTagFileToPlay != null)
+         else
          {
             discordEmbedBuilder.Title = metaTagFileToPlay.Tag.Title;
             discordEmbedBuilder.WithAuthor(metaTagFileToPlay.Tag.JoinedPerformers);
@@ -975,16 +966,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
 
          return discordEmbedBuilder;
-      }
-
-      public static Bitmap CropAtRect(Bitmap b, Rectangle r)
-      {
-         Bitmap nb = new Bitmap(r.Width, r.Height);
-         using (Graphics g = Graphics.FromImage(nb))
-         {
-            g.DrawImage(b, -r.X, -r.Y);
-            return nb;
-         }
       }
 
       [SlashCommand("Stop" + Bot.isDevBot, "Stop the music!")]
