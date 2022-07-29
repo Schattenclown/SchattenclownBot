@@ -16,7 +16,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 {
     internal class Poke : ApplicationCommandsModule
     {
-        [SlashCommand(Bot.isDevBot + "DaddysPoke", "Harder daddy!")]
+        [SlashCommand("DaddysPoke" + Bot.isDevBot, "Harder daddy!")]
         public static async Task DaddysPokeAsync(InteractionContext interactionContext, [Option("discordUser", "@...")] DiscordUser discordUser)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
@@ -58,7 +58,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="discordUser">the discordUser</param>
         /// <returns></returns>
-        [SlashCommand(Bot.isDevBot + "Poke", "Poke discordUser!")]
+        [SlashCommand("Poke" + Bot.isDevBot, "Poke discordUser!")]
         public static async Task PokeAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             InteractivityExtension interactivityExtension = interactionContext.Client.GetInteractivity();

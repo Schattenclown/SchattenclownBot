@@ -17,21 +17,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DisCatSharp" Version="10.0.1-nightly-00417" />
-    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.0.1-nightly-00417" />
-    <PackageReference Include="DisCatSharp.CommandsNext" Version="10.0.1-nightly-00417" />
-    <PackageReference Include="DisCatSharp.Interactivity" Version="10.0.1-nightly-00417" />
-    <PackageReference Include="DisCatSharp.Lavalink" Version="10.0.1-nightly-00417" />
-    <PackageReference Include="DisCatSharp.VoiceNext" Version="10.0.1-nightly-00417" />
-    <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.0.1-nightly-00417" />
+    <PackageReference Include="DisCatSharp" Version="10.0.1-nightly-00420" />
+    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.0.1-nightly-00420" />
+    <PackageReference Include="DisCatSharp.CommandsNext" Version="10.0.1-nightly-00420" />
+    <PackageReference Include="DisCatSharp.Interactivity" Version="10.0.1-nightly-00420" />
+    <PackageReference Include="DisCatSharp.Lavalink" Version="10.0.1-nightly-00420" />
+    <PackageReference Include="DisCatSharp.VoiceNext" Version="10.0.1-nightly-00420" />
+    <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.0.1-nightly-00420" />
     <PackageReference Include="Google.Apis.Auth" Version="1.57.0" />
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.57.0.2756" />
     <PackageReference Include="MetaBrainz.MusicBrainz" Version="5.0.0" />
-    <PackageReference Include="MySql.Data" Version="8.0.29" />
+    <PackageReference Include="MySql.Data" Version="8.0.30" />
     <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.6.22324.4" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />
     <PackageReference Include="YoutubeDLSharp" Version="0.4.2" />
+    <PackageReference Include="YoutubeExplode" Version="6.2.0" />
   </ItemGroup>
 
   <ItemGroup>

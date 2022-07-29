@@ -22,7 +22,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="hour">The Hour of the Alarm in the Future.</param>
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
-        [SlashCommand(Bot.isDevBot + "SetTimer", "Set a timer!")]
+        [SlashCommand("SetTimer" + Bot.isDevBot, "Set a timer!")]
         internal static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
         {
             //Create a Response.
@@ -54,7 +54,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
-        [SlashCommand(Bot.isDevBot + "MyTimers", "Look up your timers!")]
+        [SlashCommand("MyTimers" + Bot.isDevBot, "Look up your timers!")]
         internal static async Task TimerLookup(InteractionContext interactionContext)
         {
             //Create a Response.
