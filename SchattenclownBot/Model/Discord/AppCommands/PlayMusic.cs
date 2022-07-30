@@ -1278,20 +1278,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             case "next_song":
                {
-                  if (_queueItemList.Any(x => x.DiscordGuild == eventArgs.Guild))
-                  {
-                     eventArgs.Channel.SendMessageAsync("Youtube music is playing! This interaction is locked!");
-                     return Task.CompletedTask;
-                  }
-
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
-
                   if (discordMember.VoiceState == null)
                   {
                      eventArgs.Channel.SendMessageAsync("You have to be connected!");
                      return Task.CompletedTask;
                   }
 
+                  if (_queueItemList.Any(x => x.DiscordGuild == eventArgs.Guild))
+                  {
+                     eventArgs.Channel.SendMessageAsync("Youtube music is playing! This interaction is locked!");
+                     return Task.CompletedTask;
+                  }
+                  
                   CancellationTokenSource tokenSource = null;
                   foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
@@ -1330,6 +1329,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
             case "stop_song":
                {
+                  DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
+                  if (discordMember.VoiceState == null)
+                  {
+                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     return Task.CompletedTask;
+                  }
+
                   if (_queueItemList.Any(x => x.DiscordGuild == eventArgs.Guild))
                   {
                      eventArgs.Channel.SendMessageAsync("Youtube music is playing! This interaction is locked!");
@@ -1358,7 +1364,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             case "next_song_stream":
                {
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
-
                   if (discordMember.VoiceState == null)
                   {
                      eventArgs.Channel.SendMessageAsync("You have to be connected!");
@@ -1402,7 +1407,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             case "stop_song_stream":
                {
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
-
                   if (discordMember.VoiceState == null)
                   {
                      eventArgs.Channel.SendMessageAsync("You have to be connected!");
@@ -1436,6 +1440,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
             case "shuffle_stream":
                {
+                  DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
+                  if (discordMember.VoiceState == null)
+                  {
+                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     return Task.CompletedTask;
+                  }
+
                   DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync("Shuffle requested!").Result;
 
                   ShufflePlaylist(discordMessage);
@@ -1443,6 +1454,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
             case "queue_stream":
                {
+                  DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
+                  if (discordMember.VoiceState == null)
+                  {
+                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     return Task.CompletedTask;
+                  }
+
                   DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync("Loading!").Result;
 
                   if (_queueItemList.Count == 0)
