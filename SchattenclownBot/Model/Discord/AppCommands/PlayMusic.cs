@@ -641,9 +641,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                catch
                {
                   //prob. deleted while searching
-               }
-               finally
-               {
                   initialDiscordMessage2 = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Thats fast! {voiceNextConnection.TargetChannel.Mention}!"));
                }
             }
