@@ -147,6 +147,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                                                                $"{QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAmount} Please wait!"));
             return;
          }
+         else if (!NoMusicPlaying(interactionContext.Guild))
+         {
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Queue is being created! Please be patient!"));
+         }
 
          Uri webLinkUri;
          try
@@ -452,9 +456,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          else
          {
             if (tracksAdded == 1)
-               await interactionContext.Channel.SendMessageAsync($"Music is already playing or will at any moment! {tracksAdded} track is now in the queue!");
+               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is already playing or will at any moment! {tracksAdded} track is now in the queue!"));
             else
-               await interactionContext.Channel.SendMessageAsync($"Music is already playing or will at any moment! {tracksAdded} tracks are now in the queue!");
+               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is already playing or will at any moment! {tracksAdded} tracks are now in the queue!"));
          }
       }
 
