@@ -1,2 +1,2 @@
 # SchattenclownBot
-### A multifunctional Discord bot!
+  A multifunctional Discord bot!
