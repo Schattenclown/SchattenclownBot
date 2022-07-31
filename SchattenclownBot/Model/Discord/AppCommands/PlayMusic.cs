@@ -816,8 +816,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
       public static DiscordEmbedBuilder CustomDiscordEmbedBuilder(DiscordEmbedBuilder discordEmbedBuilder, QueueItem queueItem, Uri filePathUri, VideoData audioDownloadMetaData, TagLib.File metaTagFileToPlay)
       {
-         discordEmbedBuilder.Title = "Preset";
-
          if (metaTagFileToPlay == null)
          {
             bool needThumbnail = true;
