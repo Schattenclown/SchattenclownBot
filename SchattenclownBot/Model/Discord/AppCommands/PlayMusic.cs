@@ -655,7 +655,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Skipped!", true, discordComponentEmojisNext);
                   discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", true, discordComponentEmojisStop);
                   discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
-                  discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", true, discordComponentEmojisQueue);
+                  discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", true, discordComponentEmojisQueue);
 
                   discordEmbedBuilder.Description = TimeLineStringBuilderAfterSong(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
@@ -669,7 +669,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception exc)
          {
-            await interactionChannel.SendMessageAsync("Something went wrong!" + exc);
+            await interactionChannel.SendMessageAsync("Something went wrong!\n" + exc);
 
             if (interactionContext != null)
                interactionContext.Client.Logger.LogError(exc.Message);
