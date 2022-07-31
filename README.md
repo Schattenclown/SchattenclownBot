@@ -1,5 +1,5 @@
 # SchattenclownBot
-### is a multifunctional Discord bot written in C# using the DisCatSharp library.
+### is a multifunctional Discord bot written in C# using the [DisCatSharp](https://github.com/Aiko-IT-Systems/DisCatSharp) library.
 
 # Features of the bot:
 ### Functions without user input:
