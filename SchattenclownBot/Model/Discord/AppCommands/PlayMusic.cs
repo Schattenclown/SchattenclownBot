@@ -588,14 +588,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[-🔗-]({queueItem.YouTubeUri.AbsoluteUri})]", true));
             }
 
-            discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueItem, new Uri(audioDownload.Data), audioDownloadMetaData, null);
-            string audioDownloadError = null;
-
-            if (audioDownload.ErrorOutput.Length > 1)
-            {
-               audioDownloadError = $"{audioDownload.ErrorOutput[1]} `{queueItem.YouTubeUri.AbsoluteUri}`";
-            }
-
             DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
             DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
             DiscordComponentEmoji discordComponentEmojisShuffle = new("🔀");
@@ -607,68 +599,68 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", true, discordComponentEmojisQueue);
 
             DiscordMessage discordMessage;
-            if (queueItem.IsYouTube && !queueItem.IsSpotify)
+            if (audioDownload.ErrorOutput.Length > 1)
             {
-               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
-            }
-            else if (queueItem.IsYouTube && queueItem.IsSpotify)
-            {
-               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
+               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent($"{audioDownload.ErrorOutput[1]} `{queueItem.YouTubeUri.AbsoluteUri}`"));
             }
             else
-               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(audioDownloadError));
-
-            ProcessStartInfo ffmpegProcessStartInfo = new()
             {
-               FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
-               Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
-               RedirectStandardOutput = true,
-               UseShellExecute = false
-            };
-            Process ffmpegProcess = Process.Start(ffmpegProcessStartInfo);
-            if (ffmpegProcess != null)
-            {
-               Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
-               PlayingStreamList.Add(new PlayingStream(discordGuild, ffmpegStream));
-               Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
+               discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueItem, new Uri(audioDownload.Data), audioDownloadMetaData, null);
+               discordMessage = await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
 
-               int timeSpanAdvanceInt = 0;
-               bool didOnce = false;
-               while (!ffmpegCopyTask.IsCompleted)
+               ProcessStartInfo ffmpegProcessStartInfo = new()
                {
-                  await Task.Delay(1000);
+                  FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
+                  Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
+                  RedirectStandardOutput = true,
+                  UseShellExecute = false
+               };
+               Process ffmpegProcess = Process.Start(ffmpegProcessStartInfo);
+               if (ffmpegProcess != null)
+               {
+                  Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
+                  PlayingStreamList.Add(new PlayingStream(discordGuild, ffmpegStream));
+                  Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
 
-                  if (timeSpanAdvanceInt % 10 == 0)
+                  int timeSpanAdvanceInt = 0;
+                  bool didOnce = false;
+                  while (!ffmpegCopyTask.IsCompleted)
                   {
-                     discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
-                     await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
+                     await Task.Delay(1000);
+
+                     if (timeSpanAdvanceInt % 10 == 0)
+                     {
+                        discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
+                        await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
+                     }
+
+                     if (cancellationToken.IsCancellationRequested)
+                     {
+                        ffmpegStream.Close();
+                        break;
+                     }
+
+                     if (!QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild) && !didOnce)
+                     {
+                        if (initialDiscordMessage != null)
+                           await initialDiscordMessage.ModifyAsync("Queue generation is complete!");
+
+                        discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
+                        discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
+                        didOnce = true;
+                     }
+
+                     timeSpanAdvanceInt++;
                   }
 
-                  if (cancellationToken.IsCancellationRequested)
-                  {
-                     ffmpegStream.Close();
-                     break;
-                  }
+                  discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Skipped!", true, discordComponentEmojisNext);
+                  discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", true, discordComponentEmojisStop);
+                  discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
+                  discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", true, discordComponentEmojisQueue);
 
-                  if (!QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild) && !didOnce)
-                  {
-                     await initialDiscordMessage.ModifyAsync("Queue generation is complete!");
-
-                     discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
-                     discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
-                     didOnce = true;
-                  }
-
-                  timeSpanAdvanceInt++;
+                  discordEmbedBuilder.Description = TimeLineStringBuilderAfterSong(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
+                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
                }
-
-               discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Skipped!", true, discordComponentEmojisNext);
-               discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", true, discordComponentEmojisStop);
-               discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
-               discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", true, discordComponentEmojisQueue);
-
-               discordEmbedBuilder.Description = TimeLineStringBuilderAfterSong(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
-               await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
 
                if (!cancellationToken.IsCancellationRequested)
                {
