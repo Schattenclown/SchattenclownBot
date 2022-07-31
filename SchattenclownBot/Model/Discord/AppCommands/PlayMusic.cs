@@ -652,7 +652,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                   if (!QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild) && !didOnce)
                   {
-                     await initialDiscordMessage.ModifyAsync("Queue generation is complete!");
+                     if(initialDiscordMessage != null)
+                        await initialDiscordMessage.ModifyAsync("Queue generation is complete!");
 
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
                      discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
