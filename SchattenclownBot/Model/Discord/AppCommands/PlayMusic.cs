@@ -183,14 +183,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   isYouTubePlaylistWithIndex = true;
             }
          }
-         else if (webLink.Contains("/track/") || webLink.Contains("/playlist/") || webLink.Contains("/album/"))
+         else if (webLink.Contains("/track/") || webLink.Contains("/playlist/") || webLink.Contains("/album/") || webLink.Contains(":album:"))
          {
-            //https://open.spotify.com/artist/1aS5tqEs9ci5P9KD9tZWa6/discography/all?pageUri=spotify:album:1L8yTtYjg4JhfN7Aa6bqmN
             isSpotify = true;
 
             if (webLink.Contains("/playlist/"))
                isSpotifyPlaylist = true;
-            else if (webLink.Contains("/album/"))
+            else if (webLink.Contains("/album/") || webLink.Contains(":album:"))
                isSpotifyAlbum = true;
          }
          else
@@ -354,7 +353,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
             else if (isSpotifyAlbum)
             {
-               string albumId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/album/", "/album/".Length), "?si", 0);
+               string albumId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(StringCutter.RemoveUntilWord(webLink, "/album/", "/album/".Length), ":album:", ":album:".Length), "?si", 0);
                List<SimpleTrack> simpleTrackList = spotifyClient.Albums.GetTracks(albumId).Result.Items;
 
                if (simpleTrackList != null && simpleTrackList.Count != 0)
@@ -832,7 +831,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             if (queueItem.IsSpotify)
             {
                SpotifyClient spotifyClient = GetSpotifyClientConfig();
-               string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(queueItem.SpotifyUri.AbsoluteUri, "/track/", "/track/".Length), "?si", 0);
+               string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(StringCutter.RemoveUntilWord(StringCutter.RemoveUntilWord(queueItem.SpotifyUri.AbsoluteUri, "/track/", "/track/".Length), "/album/", "/album/".Length), ":album:", ":album:".Length), "?si", 0);
                FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
                if (fullTrack.Album.Images.Count > 0)
                {
