@@ -543,7 +543,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                catch
                {
                   //prob. deleted while searching
-                  initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Create queue! {voiceNextConnection.TargetChannel.Mention}!"));
+                  initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Queue is being created! {voiceNextConnection.TargetChannel.Mention}!"));
                }
             }
          }
