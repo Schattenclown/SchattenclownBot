@@ -600,7 +600,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             if (audioDownload.ErrorOutput.Length > 1)
             {
-               await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent($"{audioDownload.ErrorOutput[1]} `{queueItem.YouTubeUri.AbsoluteUri}`"));
+               await interactionChannel.SendMessageAsync(new DiscordMessageBuilder().WithContent($"{audioDownload.ErrorOutput[1]} `{queueItem.YouTubeUri.AbsoluteUri}`"));
             }
             else
             {
@@ -669,7 +669,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception exc)
          {
-            interactionChannel.SendMessageAsync("Something went wrong!" + exc);
+            await interactionChannel.SendMessageAsync("Something went wrong!" + exc);
 
             if (interactionContext != null)
                interactionContext.Client.Logger.LogError(exc.Message);
@@ -684,7 +684,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                if (_queueItemList.All(x => x.DiscordGuild != discordGuild))
                {
-                  interactionChannel.SendMessageAsync("Queue is empty!");
+                  await interactionChannel.SendMessageAsync("Queue is empty!");
                }
 
                foreach (QueueItem queueListItem in _queueItemList)
