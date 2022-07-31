@@ -90,10 +90,22 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       }
    }
 
+   internal class PlayingStream
+   {
+      public DiscordGuild DiscordGuild { get; set; }
+      public Stream Stream { get; set; }
+      internal PlayingStream(DiscordGuild discordGuild, Stream stream)
+      {
+         DiscordGuild = discordGuild;
+         Stream = stream;
+      }
+   }
+
    internal class PlayMusic : ApplicationCommandsModule
    {
       private static readonly List<CancellationTokenItem> CancellationTokenItemList = new();
       private static readonly List<QueueCreating> QueueCreatingList = new();
+      private static readonly List<PlayingStream> PlayingStreamList = new();
       private static List<QueueItem> _queueItemList = new();
 
       public static async Task TestTask()
@@ -103,9 +115,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          await Task.Delay(1000);
       }
 
-      private static bool MusicAlreadyPlaying(DiscordGuild discordGuild)
+      private static bool NoMusicPlaying(DiscordGuild discordGuild)
       {
-         return CancellationTokenItemList.Any(cancellationTokenItem => cancellationTokenItem.DiscordGuild == discordGuild);
+         return CancellationTokenItemList.All(cancellationTokenItem => cancellationTokenItem.DiscordGuild != discordGuild);
       }
 
       public static SpotifyClient GetSpotifyClientConfig()
@@ -117,20 +129,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          return spotifyClient;
       }
 
-      [SlashCommand("Play" + Bot.isDevBot, "Play spotify or youtube link!")]
+      [SlashCommand("Play" + Bot.isDevBot, "Play Spotify or YouTube links!")]
       private async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          if (interactionContext.Member.VoiceState == null)
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected!"));
             return;
          }
 
          if (QueueCreatingList.Exists(x => x.DiscordGuild == interactionContext.Guild))
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Queue is already generating please wait for the first queue to generate! " +
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("The queue is already being generated. Please wait until the first queue is generated! " +
                                                                $"{QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount}/" +
                                                                $"{QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAmount} Please wait!"));
             return;
@@ -143,22 +155,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Please check your link somethings wrong! Maybe the https:// tag is missing!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Please check your link, something is wrong! The https:// tag may be missing"));
             return;
          }
-         
+
          bool isYouTube = false;
          bool isYouTubePlaylist = false;
          bool isYouTubePlaylistWithIndex = false;
          bool isSpotify = false;
          bool isSpotifyPlaylist = false;
          bool isSpotifyAlbum = false;
-         bool musicPlayingAlready = MusicAlreadyPlaying(interactionContext.Guild);
-         int songsAdded = 0;
+         int tracksAdded = 0;
 
          if (webLink.Contains("watch?v=") || webLink.Contains("&list=") || webLink.Contains("playlist?list="))
          {
-
             isYouTube = true;
 
             if (webLink.Contains("&list=") || webLink.Contains("playlist?list="))
@@ -196,56 +206,51 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   bool isYouTubeMix = webLinkUri.AbsoluteUri.Contains("&ab_channel=");
                   YoutubeClient youtubeClient = new();
 
+                  QueueCreatingList.Add(new QueueCreating(interactionContext.Guild, 0, 0));
+
                   if (isYouTubePlaylistWithIndex)
                   {
                      playlistSelectedVideoIndex = Convert.ToInt32(StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&index=", "&index=".Length), "&ab_channel=", 0));
-
                      string firstVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
-                     var firstVideo = await youtubeClient.Videos.GetAsync(firstVideoId);
+                     Video firstVideo = await youtubeClient.Videos.GetAsync(firstVideoId);
 
                      await PlayQueueAsyncTask(interactionContext, new Uri(firstVideo.Url), null);
-                     songsAdded++;
-                  }
-                  else if (isYouTubeMix || webLinkUri.AbsoluteUri.Contains("watch?v="))
-                  {
-                     var firstVideo = await youtubeClient.Playlists.GetAsync(playlistId);
-                     await PlayQueueAsyncTask(interactionContext, new Uri(firstVideo.Url), null);
-                     songsAdded++;
+                     tracksAdded++;
                   }
 
-                  List<PlaylistVideo> playlistVideoList = new(await youtubeClient.Playlists.GetVideosAsync(playlistId));
+                  List<PlaylistVideo> playlistVideos = new(await youtubeClient.Playlists.GetVideosAsync(playlistId));
 
                   if (playlistSelectedVideoIndex != 1 && !isYouTubeMix)
                   {
-                     playlistVideoList.RemoveRange(0, --playlistSelectedVideoIndex);
+                     playlistVideos.RemoveRange(0, playlistSelectedVideoIndex);
                   }
-                  else
+                  else if (isYouTubePlaylistWithIndex)
                   {
-                     playlistVideoList.RemoveRange(0, 1);
+                     playlistVideos.RemoveRange(0, 1);
                   }
 
-                  QueueCreatingList.Add(new QueueCreating(interactionContext.Guild, playlistVideoList.Count, 0));
+                  QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAmount = playlistVideos.Count;
 
                   int startIndex = 0;
-                  if (!musicPlayingAlready)
+                  if (NoMusicPlaying(interactionContext.Guild))
                   {
-                     await PlayQueueAsyncTask(interactionContext, new Uri(playlistVideoList[startIndex].Url), null);
+                     await PlayQueueAsyncTask(interactionContext, new Uri(playlistVideos[startIndex].Url), null);
                      QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                     songsAdded++;
+                     tracksAdded++;
                      startIndex++;
                   }
 
-                  while (startIndex < playlistVideoList.Count)
+                  while (startIndex < playlistVideos.Count)
                   {
                      try
                      {
-                        _queueItemList.Add(new QueueItem(interactionContext.Guild, new Uri(playlistVideoList[startIndex].Url), null));
+                        _queueItemList.Add(new QueueItem(interactionContext.Guild, new Uri(playlistVideos[startIndex].Url), null));
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                        songsAdded++;
+                        tracksAdded++;
                      }
                      catch (Exception ex)
                      {
-                        await interactionContext.Channel.SendMessageAsync("Error adding " + playlistVideoList[startIndex].Url + " " + ex.Message);
+                        await interactionContext.Channel.SendMessageAsync("Error adding " + playlistVideos[startIndex].Url + " " + ex.Message);
                      }
                      startIndex++;
                   }
@@ -257,11 +262,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   QueueCreatingList.Add(new QueueCreating(interactionContext.Guild, 1, 0));
 
 
-                  if (!musicPlayingAlready)
+                  if (NoMusicPlaying(interactionContext.Guild))
                   {
                      await PlayQueueAsyncTask(interactionContext, selectedVideoUri, null);
                      QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                     songsAdded++;
+                     tracksAdded++;
                   }
                   else
                   {
@@ -269,7 +274,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      {
                         _queueItemList.Add(new QueueItem(interactionContext.Guild, selectedVideoUri, null));
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                        songsAdded++;
+                        tracksAdded++;
                      }
                      catch (Exception ex)
                      {
@@ -301,7 +306,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   if (playlistTrackList.Count != 0)
                   {
                      int startIndex = 0;
-                     if (!musicPlayingAlready)
+                     if (NoMusicPlaying(interactionContext.Guild))
                      {
                         FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
 
@@ -311,7 +316,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                            Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                            await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id));
                            QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                           songsAdded++;
+                           tracksAdded++;
                         }
                         catch (Exception ex)
                         {
@@ -331,7 +336,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                            Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                            _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id)));
                            QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                           songsAdded++;
+                           tracksAdded++;
                         }
                         catch (Exception ex)
                         {
@@ -354,7 +359,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                   int startIndex = 0;
 
-                  if (!musicPlayingAlready)
+                  if (NoMusicPlaying(interactionContext.Guild))
                   {
                      SimpleTrack simpleTrack = simpleTrackList[startIndex];
                      try
@@ -363,7 +368,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                         await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                        songsAdded++;
+                        tracksAdded++;
                      }
                      catch (Exception ex)
                      {
@@ -382,7 +387,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                         _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id)));
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                        songsAdded++;
+                        tracksAdded++;
                      }
                      catch (Exception ex)
                      {
@@ -398,7 +403,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/track/", "/track/".Length), "?si", 0);
                QueueCreatingList.Add(new QueueCreating(interactionContext.Guild, 1, 0));
 
-               if (!musicPlayingAlready)
+               if (NoMusicPlaying(interactionContext.Guild))
                {
                   FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
 
@@ -407,7 +412,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                      await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId));
                      QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                     songsAdded++;
+                     tracksAdded++;
                   }
                   catch (Exception ex)
                   {
@@ -424,7 +429,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
                      _queueItemList.Add(new QueueItem(interactionContext.Guild, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId)));
                      QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
-                     songsAdded++;
+                     tracksAdded++;
                   }
                   catch (Exception ex)
                   {
@@ -434,20 +439,32 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
          }
 
-         if (musicPlayingAlready)
-         {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already! Your songs are in the queue now!"));
-         }
-
          QueueCreatingList.RemoveAll(x => x.DiscordGuild == interactionContext.Guild);
-         await interactionContext.Channel.SendMessageAsync($"Finished adding {songsAdded} track/s to queue!");
+         await Task.Delay(500);
+
+         if (NoMusicPlaying(interactionContext.Guild))
+         {
+            if (tracksAdded == 1)
+               await interactionContext.Channel.SendMessageAsync($"{tracksAdded} track is now in the queue!");
+            else
+               await interactionContext.Channel.SendMessageAsync($"{tracksAdded} tracks are now in the queue!");
+         }
+         else
+         {
+            if (tracksAdded == 1)
+               await interactionContext.Channel.SendMessageAsync($"Music is already playing or will at any moment! {tracksAdded} track is now in the queue!");
+            else
+               await interactionContext.Channel.SendMessageAsync($"Music is already playing or will at any moment! {tracksAdded} tracks are now in the queue!");
+         }
       }
 
       private async Task<Uri> SearchYoutubeFromSpotify(FullTrack fullTrack)
       {
          YoutubeClient youtubeClient = new();
 
-         IReadOnlyList<VideoSearchResult> videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}").CollectAsync(3);
+         string artists = fullTrack.Artists.Aggregate("", (current, artist) => current + artist.Name);
+
+         IReadOnlyList<VideoSearchResult> videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{artists} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}").CollectAsync(5);
          VideoSearchResult rightItem = null;
          foreach (VideoSearchResult item in videoSearchResults)
          {
@@ -462,7 +479,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          if (videoSearchResults.Count == 0)
          {
-            videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{fullTrack.Artists[0].Name} - {fullTrack.Name}").CollectAsync(3);
+            videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{artists} - {fullTrack.Name}").CollectAsync(3);
          }
 
          return new Uri(videoSearchResults[0].Url);
@@ -508,19 +525,22 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
          DiscordMessage initialDiscordMessage = null;
-         DiscordMessage initialDiscordMessage2 = null;
          if (isInitialMessage)
          {
             if (interactionContext != null)
             {
                try
                {
-                  initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Generating queue with {QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount} track/s please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
+                  int queueAmount = QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount;
+                  if (queueAmount > 1)
+                     initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Queuing up {queueAmount} titles, please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
+                  else
+                     initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Queuing up title/s, please be patient! {voiceNextConnection.TargetChannel.Mention}!"));
                }
                catch
                {
                   //prob. deleted while searching
-                  initialDiscordMessage2 = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"That's fast! {voiceNextConnection.TargetChannel.Mention}!"));
+                  initialDiscordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Create queue! {voiceNextConnection.TargetChannel.Mention}!"));
                }
             }
          }
@@ -584,7 +604,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Next!", false, discordComponentEmojisNext);
             discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", false, discordComponentEmojisStop);
             discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
-            discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", true, discordComponentEmojisQueue);
+            discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", true, discordComponentEmojisQueue);
 
             DiscordMessage discordMessage;
             if (queueItem.IsYouTube && !queueItem.IsSpotify)
@@ -609,6 +629,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             if (ffmpegProcess != null)
             {
                Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
+               PlayingStreamList.Add(new PlayingStream(discordGuild, ffmpegStream));
                Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
 
                int timeSpanAdvanceInt = 0;
@@ -631,10 +652,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                   if (!QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild) && !didOnce)
                   {
-                     if (initialDiscordMessage != null)
-                        await initialDiscordMessage.ModifyAsync("Generating queue has finished!");
-                     if (initialDiscordMessage2 != null)
-                        await initialDiscordMessage2.ModifyAsync("Queue generated faster than i can start playing!");
+                     await initialDiscordMessage.ModifyAsync("Queue generation is complete!");
 
                      discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
                      discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "queue_stream", "Show queue!", false, discordComponentEmojisQueue);
@@ -684,8 +702,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      CancellationTokenSource cancellationTokenSource = new();
                      CancellationToken token = cancellationTokenSource.Token;
-                     CancellationTokenItem cancellationTokenItem = new(discordGuild, cancellationTokenSource);
-                     CancellationTokenItemList.Add(cancellationTokenItem);
+                     CancellationTokenItemList.Add(new CancellationTokenItem(discordGuild, cancellationTokenSource));
+
                      if (interactionContext != null)
                         Task.Run(() => PlayFromQueueAsyncTask(interactionContext, interactionContext.Client, interactionContext.Guild, interactionContext.Client.CurrentUser.ConvertToMember(interactionContext.Guild).Result,
                            interactionContext.Channel, queueListItem, token, false));
@@ -1003,7 +1021,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          if (interactionContext.Member.VoiceState == null)
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected!"));
             return;
          }
 
@@ -1013,7 +1031,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             return;
          }
 
-         if (!MusicAlreadyPlaying(interactionContext.Guild))
+         if (NoMusicPlaying(interactionContext.Guild))
          {
             CancellationTokenSource tokenSource = new();
             CancellationToken cancellationToken = tokenSource.Token;
@@ -1030,7 +1048,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             }
          }
          else
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is playing already!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Music is already playing!"));
       }
 
       private static async Task DrivePlayTask(InteractionContext interactionContext, DiscordClient discordClient, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionDiscordChannel, CancellationToken cancellationToken, bool isInitialMessage)
@@ -1141,38 +1159,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       }
 
       [SlashCommand("Stop" + Bot.isDevBot, "Stop the music!")]
-      private async Task StopCommand(InteractionContext interactionContext)
+      private async Task DriveStopCommand(InteractionContext interactionContext)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          if (interactionContext.Member.VoiceState == null)
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected!"));
             return;
          }
 
-         if (_queueItemList.Any(x => x.DiscordGuild == interactionContext.Guild))
-         {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Youtube music is playing! This interaction is locked!"));
-            return;
-         }
-
-         CancellationTokenSource tokenSource = null;
-         foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == interactionContext.Guild))
-         {
-            tokenSource = keyValuePairItem.CancellationTokenSource;
-            CancellationTokenItemList.Remove(keyValuePairItem);
-            break;
-         }
-
-         if (tokenSource != null)
-         {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Stopped the music!"));
-            tokenSource.Cancel();
-            tokenSource.Dispose();
-         }
-         else
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to stop!"));
+         await StopMusicTask(interactionContext.Guild, interactionContext.Channel);
       }
 
       [SlashCommand("Skip" + Bot.isDevBot, "Skip this song!")]
@@ -1203,7 +1200,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       {
          if (QueueCreatingList.Exists(x => x.DiscordGuild == discordMessage.Channel.Guild))
          {
-            await discordMessage.ModifyAsync(x => x.WithContent($"Queue is generating! " +
+            await discordMessage.ModifyAsync(x => x.WithContent($"Queue is being created! " +
                                                                 $"{QueueCreatingList.Find(x => x.DiscordGuild == discordMessage.Channel.Guild)!.QueueAddedAmount}/" +
                                                                 $"{QueueCreatingList.Find(x => x.DiscordGuild == discordMessage.Channel.Guild)!.QueueAmount} Please wait!"));
          }
@@ -1245,36 +1242,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       {
          if (interactionContext.Member.VoiceState == null)
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have to be connected!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected!"));
             return;
          }
 
          if (_queueItemList.Any(x => x.DiscordGuild == interactionContext.Guild))
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Youtube music is playing! This interaction is locked!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("'Youtube' music is running! This interaction is locked!"));
             return;
          }
 
-         CancellationTokenSource tokenSource = null;
-         foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == interactionContext.Guild))
-         {
-            tokenSource = keyValuePairItem.CancellationTokenSource;
-            CancellationTokenItemList.Remove(keyValuePairItem);
-            break;
-         }
+         await StopMusicTask(interactionContext.Guild, interactionContext.Channel);
 
-         if (tokenSource != null)
-         {
-            tokenSource.Cancel();
-            tokenSource.Dispose();
-         }
-         else
-         {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Nothing to skip!"));
-            return;
-         }
-
-         tokenSource = new CancellationTokenSource();
+         CancellationTokenSource tokenSource = new();
          CancellationToken cancellationToken = tokenSource.Token;
          CancellationTokenItem cancellationTokenKeyPair = new(interactionContext.Guild, tokenSource);
          CancellationTokenItemList.Add(cancellationTokenKeyPair);
@@ -1301,36 +1281,37 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
                   if (discordMember.VoiceState == null)
                   {
-                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     eventArgs.Channel.SendMessageAsync("You must be connected!");
                      return Task.CompletedTask;
                   }
 
                   if (_queueItemList.Any(x => x.DiscordGuild == eventArgs.Guild))
                   {
-                     eventArgs.Channel.SendMessageAsync("Youtube music is playing! This interaction is locked!");
+                     eventArgs.Channel.SendMessageAsync("'Youtube' music is running! This interaction is locked!");
                      return Task.CompletedTask;
                   }
 
-                  CancellationTokenSource tokenSource = null;
-                  foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+                  bool nothingToStop = true;
+                  List<CancellationTokenSource> cancellationTokenSourceList = new();
+                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
-                     tokenSource = keyValuePairItem.CancellationTokenSource;
-                     CancellationTokenItemList.Remove(keyValuePairItem);
-                     break;
+                     nothingToStop = false;
+                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
+                  }
+                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+
+                  foreach (CancellationTokenSource cancellationTokenItem in cancellationTokenSourceList)
+                  {
+                     cancellationTokenItem.Cancel();
+                     cancellationTokenItem.Dispose();
                   }
 
-                  if (tokenSource != null)
-                  {
-                     tokenSource.Cancel();
-                     tokenSource.Dispose();
-                  }
-                  else
-                  {
-                     eventArgs.Channel.SendMessageAsync("Nothing to skip!");
-                     return Task.CompletedTask;
-                  }
+                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
+                  QueueCreatingList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
 
-                  tokenSource = new CancellationTokenSource();
+                  eventArgs.Channel.SendMessageAsync(nothingToStop ? "Nothing to stop!" : "Stopped the music!");
+
+                  CancellationTokenSource tokenSource = new();
                   CancellationToken cancellationToken = tokenSource.Token;
                   CancellationTokenItem cancellationTokenKeyPair = new(eventArgs.Guild, tokenSource);
                   CancellationTokenItemList.Add(cancellationTokenKeyPair);
@@ -1352,32 +1333,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
                   if (discordMember.VoiceState == null)
                   {
-                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     eventArgs.Channel.SendMessageAsync("You must be connected!");
                      return Task.CompletedTask;
                   }
 
-                  if (_queueItemList.Any(x => x.DiscordGuild == eventArgs.Guild))
-                  {
-                     eventArgs.Channel.SendMessageAsync("Youtube music is playing! This interaction is locked!");
-                     return Task.CompletedTask;
-                  }
-
-                  CancellationTokenSource tokenSource = null;
-                  foreach (CancellationTokenItem keyValuePairItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
-                  {
-                     tokenSource = keyValuePairItem.CancellationTokenSource;
-                     CancellationTokenItemList.Remove(keyValuePairItem);
-                     break;
-                  }
-
-                  if (tokenSource != null)
-                  {
-                     eventArgs.Channel.SendMessageAsync("Stopped the music!");
-                     tokenSource.Cancel();
-                     tokenSource.Dispose();
-                  }
-                  else
-                     eventArgs.Channel.SendMessageAsync("Nothing to stop!");
+                  StopMusicTask(eventArgs.Guild, eventArgs.Channel);
 
                   break;
                }
@@ -1386,7 +1346,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
                   if (discordMember.VoiceState == null)
                   {
-                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     eventArgs.Channel.SendMessageAsync("You must be connected!");
                      return Task.CompletedTask;
                   }
 
@@ -1429,32 +1389,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
                   if (discordMember.VoiceState == null)
                   {
-                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     eventArgs.Channel.SendMessageAsync("You must be connected!");
                      return Task.CompletedTask;
                   }
 
-                  bool nothingToStop = true;
-
-                  List<CancellationTokenSource> cancellationTokenSourceList = new();
-
-                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
-                  {
-                     nothingToStop = false;
-                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
-                  }
-
-                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
-
-                  foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
-                  {
-                     cancellationToken.Cancel();
-                     cancellationToken.Dispose();
-                  }
-
-                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
-                  QueueCreatingList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
-
-                  eventArgs.Channel.SendMessageAsync(nothingToStop ? "Nothing to stop!" : "Stopped the music!");
+                  StopMusicTask(eventArgs.Guild, eventArgs.Channel);
 
                   break;
                }
@@ -1463,7 +1402,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
                   if (discordMember.VoiceState == null)
                   {
-                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     eventArgs.Channel.SendMessageAsync("You must be connected!");
                      return Task.CompletedTask;
                   }
 
@@ -1472,12 +1411,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   ShufflePlaylist(discordMessage);
                   break;
                }
-            case "queue_stream":
+            case "showQueue_stream":
                {
                   DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
                   if (discordMember.VoiceState == null)
                   {
-                     eventArgs.Channel.SendMessageAsync("You have to be connected!");
+                     eventArgs.Channel.SendMessageAsync("You must be connected!");
                      return Task.CompletedTask;
                   }
 
@@ -1514,6 +1453,31 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          return Task.CompletedTask;
       }
 
+      private static Task StopMusicTask(DiscordGuild discordGuild, DiscordChannel discordChannel)
+      {
+         bool nothingToStop = true;
+         List<CancellationTokenSource> cancellationTokenSourceList = new();
+         foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == discordGuild))
+         {
+            nothingToStop = false;
+            cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
+         }
+         CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == discordGuild);
+
+         foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
+         {
+            cancellationToken.Cancel();
+            cancellationToken.Dispose();
+         }
+
+         _queueItemList.RemoveAll(x => x.DiscordGuild == discordGuild);
+         QueueCreatingList.RemoveAll(x => x.DiscordGuild == discordGuild);
+
+         discordChannel.SendMessageAsync(nothingToStop ? "Nothing to stop!" : "Stopped the music!");
+
+         return Task.CompletedTask;
+      }
+
       internal static async Task PanicLeaveEvent(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
       {
          try
@@ -1524,15 +1488,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if (eventArgs.User == client.CurrentUser && eventArgs.After != null && eventArgs.Before.Channel != eventArgs.After.Channel)
                {
                   bool nothingToStop = true;
-
                   List<CancellationTokenSource> cancellationTokenSourceList = new();
-
                   foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
                      nothingToStop = false;
                      cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
                   }
-
                   CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
 
                   foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
@@ -1544,6 +1505,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
 
                   eventArgs.Channel.SendMessageAsync(nothingToStop ? "Nothing to stop!" : "Stopped the music!");
+
                   VoiceNextExtension voiceNext = client.GetVoiceNext();
                   VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
                   voiceNextConnection.Disconnect();
@@ -1565,30 +1527,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                if (eventArgs.User == client.CurrentUser)
                {
-                  bool nothingToStop = true;
-
-                  List<CancellationTokenSource> cancellationTokenSourceList = new();
-
-                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
-                  {
-                     nothingToStop = false;
-                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
-                  }
-
-                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
-
-                  foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
-                  {
-                     cancellationToken.Cancel();
-                     cancellationToken.Dispose();
-                  }
-
-                  _queueItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
-
-                  if (eventArgs.Channel != null)
-                  {
-                     eventArgs.Channel.SendMessageAsync(nothingToStop ? "Nothing to stop!" : "Stopped the music!");
-                  }
+                  await StopMusicTask(eventArgs.Guild, eventArgs.Channel);
                }
             }
          }
