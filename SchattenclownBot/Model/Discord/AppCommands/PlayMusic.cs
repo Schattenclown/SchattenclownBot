@@ -448,16 +448,16 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          if (NoMusicPlaying(interactionContext.Guild))
          {
             if (tracksAdded == 1)
-               await interactionContext.Channel.SendMessageAsync($"{tracksAdded} track is now in the queue!");
+               await interactionContext.Channel.SendMessageAsync($"{tracksAdded} track is now added to the queue!");
             else
-               await interactionContext.Channel.SendMessageAsync($"{tracksAdded} tracks are now in the queue!");
+               await interactionContext.Channel.SendMessageAsync($"{tracksAdded} tracks are now added to the queue!");
          }
          else
          {
             if (tracksAdded == 1)
-               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is already playing or will at any moment! {tracksAdded} track is now in the queue!"));
+               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!"));
             else
-               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is already playing or will at any moment! {tracksAdded} tracks are now in the queue!"));
+               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!"));
          }
       }
 
