@@ -205,15 +205,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if (isYouTubePlaylist)
                {
                   int playlistSelectedVideoIndex = 1;
-                  string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&list=", "&list=".Length), "&index=", 0), "&ab_channel=", 0);
-                  bool isYouTubeMix = webLinkUri.AbsoluteUri.Contains("&ab_channel=");
+                  string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveAfterWord(StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&list=", "&list=".Length), "&index=", 0), "&ab_channel=", 0), "&start_radio=", 0);
+                  bool isYouTubeMix = webLinkUri.AbsoluteUri.Contains("&ab_channel=") || webLinkUri.AbsoluteUri.Contains("&start_radio=");
                   YoutubeClient youtubeClient = new();
 
                   QueueCreatingList.Add(new QueueCreating(interactionContext.Guild, 0, 0));
 
                   if (isYouTubePlaylistWithIndex)
                   {
-                     playlistSelectedVideoIndex = Convert.ToInt32(StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&index=", "&index=".Length), "&ab_channel=", 0));
+                     playlistSelectedVideoIndex = Convert.ToInt32(StringCutter.RemoveAfterWord(StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&index=", "&index=".Length), "&ab_channel=", 0), "&start_radio=", 0));
                      string firstVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
                      Video firstVideo = await youtubeClient.Videos.GetAsync(firstVideoId);
 
