@@ -369,7 +369,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      {
                         FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
                         Uri youTubeUri = await SearchYoutubeFromSpotify(fullTrack);
-                        await PlayQueueAsyncTask(interactionContext, youTubeUri, webLinkUri);
+                        await PlayQueueAsyncTask(interactionContext, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id));
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
                         tracksAdded++;
                      }
@@ -831,7 +831,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             if (queueItem.IsSpotify)
             {
                SpotifyClient spotifyClient = GetSpotifyClientConfig();
-               string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(StringCutter.RemoveUntilWord(StringCutter.RemoveUntilWord(queueItem.SpotifyUri.AbsoluteUri, "/track/", "/track/".Length), "/album/", "/album/".Length), ":album:", ":album:".Length), "?si", 0);
+               string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(queueItem.SpotifyUri.AbsoluteUri, "/track/", "/track/".Length), "?si", 0);
                FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
                if (fullTrack.Album.Images.Count > 0)
                {
