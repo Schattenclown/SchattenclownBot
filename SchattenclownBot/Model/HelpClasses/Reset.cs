@@ -12,6 +12,7 @@ namespace SchattenclownBot.Model.HelpClasses
         /// </summary>
         public static void RestartProgram()
         {
+            /*
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
             ConsoleStringFormatter.Center(" ");
@@ -25,7 +26,7 @@ namespace SchattenclownBot.Model.HelpClasses
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
             ConsoleStringFormatter.Center("DB IS DEAD");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-
+            */
             // Get file path of current process 
             string filePath = Assembly.GetExecutingAssembly().Location;
             string newFilepath = "";
