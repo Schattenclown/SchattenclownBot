@@ -688,6 +688,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                if (QueueItemList.All(x => x.DiscordGuild != discordGuild))
                {
                   await interactionChannel.SendMessageAsync("Queue is empty!");
+
+                  List<CancellationTokenSource> cancellationTokenSourceList = new();
+
+                  foreach (var item in CancellationTokenItemList.Where(x => x.DiscordGuild == discordGuild))
+                  {
+                     cancellationTokenSourceList.Add(item.CancellationTokenSource);
+                  }
+                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == discordGuild);
+
+                  foreach (var item in cancellationTokenSourceList)
+                  {
+                     item.Cancel();
+                     item.Dispose();
+                  }
                }
 
                foreach (QueueItem queueListItem in QueueItemList)
