@@ -598,8 +598,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             DiscordComponent[] discordComponents = new DiscordComponent[4];
             discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Next!", false, discordComponentEmojisNext);
             discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", false, discordComponentEmojisStop);
-            discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
-            discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", true, discordComponentEmojisQueue);
+            discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
+            discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", false, discordComponentEmojisQueue);
 
             if (audioDownload.ErrorOutput.Length > 1)
             {
@@ -630,11 +630,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      await Task.Delay(1000);
 
-                     if (timeSpanAdvanceInt % 10 == 0)
+                     //buggy
+                     /*if (timeSpanAdvanceInt % 10 == 0)
                      {
                         discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
-                     }
+                     }*/
 
                      if (cancellationToken.IsCancellationRequested)
                      {
@@ -703,6 +704,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      item.Dispose();
                   }
                }
+               //hier noch n cancel
 
                foreach (QueueItem queueListItem in QueueItemList)
                {
