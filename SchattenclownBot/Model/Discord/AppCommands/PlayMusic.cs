@@ -673,7 +673,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception exc)
          {
-            await interactionChannel.SendMessageAsync("Something went wrong!\n" + exc);
+            DiscordChannel debug_log = await discordClient.GetChannelAsync(928938948221366334);
+            var something =  await debug_log.SendMessageAsync(exc.ToString());
+            await interactionChannel.SendMessageAsync("Something went wrong!\n");
 
             if (interactionContext != null)
                interactionContext.Client.Logger.LogError(exc.Message);
