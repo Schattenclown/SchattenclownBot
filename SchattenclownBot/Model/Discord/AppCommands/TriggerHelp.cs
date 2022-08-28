@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using SchattenclownBot.Model.Discord.Main;
+using DisCatSharp.ApplicationCommands.Attributes;
+using DisCatSharp.ApplicationCommands.Context;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
