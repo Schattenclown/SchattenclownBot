@@ -1,4 +1,5 @@
 ﻿using DisCatSharp.ApplicationCommands;
+using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;

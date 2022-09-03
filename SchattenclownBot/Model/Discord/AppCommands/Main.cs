@@ -5,6 +5,8 @@ using DisCatSharp.Enums;
 using System;
 using System.Threading.Tasks;
 using SchattenclownBot.Model.Discord.Main;
+using DisCatSharp.ApplicationCommands.Attributes;
+using DisCatSharp.ApplicationCommands.Context;
 
 // ReSharper disable UnusedMember.Global
 

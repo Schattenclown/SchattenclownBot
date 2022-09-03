@@ -1,5 +1,7 @@
 ﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.ApplicationCommands.Attributes;
+using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
@@ -171,7 +173,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          bool isSpotifyAlbum = false;
          int tracksAdded = 0;
 
-         if (webLink.Contains("watch?v=") || webLink.Contains("&list=") || webLink.Contains("playlist?list="))
+         if (webLink.Contains("watch?v=") || webLink.Contains("youtu.be") || webLink.Contains("&list=") || webLink.Contains("playlist?list="))
          {
             isYouTube = true;
 
@@ -260,7 +262,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
                else
                {
-                  string selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
+                  //https://youtu.be/EW6c8o5ctRI
+                  string selectedVideoId;
+                  if(webLink.Contains("youtu.be"))
+                     selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "youtu.be/", "youtu.be/".Length), "&list=", 0);
+                  else
+                     selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
+
                   Uri selectedVideoUri = new("https://www.youtube.com/watch?v=" + selectedVideoId);
                   QueueCreatingList.Add(new QueueCreating(interactionContext.Guild, 1, 0));
 
