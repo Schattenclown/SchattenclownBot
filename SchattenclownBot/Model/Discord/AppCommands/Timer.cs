@@ -23,7 +23,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
         [SlashCommand("SetTimer" + Bot.isDevBot, "Set a timer!")]
-        internal static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] double hour, [Option("minutes", "0-59")] double minute)
+        internal static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
