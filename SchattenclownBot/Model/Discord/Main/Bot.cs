@@ -142,6 +142,7 @@ namespace SchattenclownBot.Model.Discord.Main
          WhereIs.WhereIsClownRunAsync(19);
          UserLevelSystem.LevelSystemRunAsync(29);
          UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
+         BirthdayList.CheckBirthdayGz(49);
          SympathySystem.SympathySystemRunAsync(59);
          BirthdayList.GenerateBirthdayList();
          PlayMusic.TestTask();
