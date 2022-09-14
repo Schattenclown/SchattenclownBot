@@ -87,7 +87,8 @@ namespace SchattenclownBot.Model.Objects
 
             while (true)
             {
-               while (DateTime.Now.Second != executeSecond && DateTime.Now.Hour != 23 && DateTime.Now.Minute != 59)
+               
+               while (DateTime.Now.Second != executeSecond || DateTime.Now.Hour != 23 || DateTime.Now.Minute != 59)
                {
                   await Task.Delay(1000);
                }
