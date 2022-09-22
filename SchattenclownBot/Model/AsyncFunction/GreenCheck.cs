@@ -15,10 +15,10 @@ namespace SchattenclownBot.Model.AsyncFunction
       {
          await Task.Run(async () =>
          {
-            /*while (DateTime.Now.Second != executeSecond)
+            while (DateTime.Now.Second != executeSecond)
             {
                await Task.Delay(1000);
-            }*/
+            }
             DiscordGuild guild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
 
             List<DiscordRole> roleCheckListNegativ = new();
