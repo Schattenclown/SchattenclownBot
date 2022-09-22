@@ -73,7 +73,7 @@ namespace SchattenclownBot.Model.Objects
       {
          await Task.Run(async () =>
          {
-            while (DateTime.Now.Second != executeSecond && DateTime.Now.Hour == 23 && DateTime.Now.Minute == 59)
+            while (DateTime.Now.Second != executeSecond)
             {
                await Task.Delay(1000);
             }
@@ -87,6 +87,12 @@ namespace SchattenclownBot.Model.Objects
 
             while (true)
             {
+               
+               while (DateTime.Now.Second != executeSecond || DateTime.Now.Hour != 23 || DateTime.Now.Minute != 59)
+               {
+                  await Task.Delay(1000);
+               }
+
                foreach (var discordGuild in guildList.Where(x => x.Id == 928930967140331590))
                {
                   DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(discordGuild.Id).Result;
