@@ -138,6 +138,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #pragma warning disable CS4014
          BotTimer.BotTimerRunAsync();
          BotAlarmClock.BotAlarmClockRunAsync();
+         GreenCheck.CheckGreenTask(5);
          GetItRightMee6.CheckHighQualityAvailable(9);
          WhereIs.WhereIsClownRunAsync(19);
          UserLevelSystem.LevelSystemRunAsync(29);
@@ -206,29 +207,15 @@ namespace SchattenclownBot.Model.Discord.Main
       /// <param name="applicationCommandsExtension">The appcommands extension.</param>
       private static void RegisterCommands(CommandsNextExtension commandsNextExtension, ApplicationCommandsExtension applicationCommandsExtension)
       {
-         commandsNextExtension.RegisterCommands<Commands.Main>(); // Commands.Main = Ordner.Class
-
-#if DEBUG
-         applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register on guild
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Alarm>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Main>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Move>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.PlayMusic>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Poke>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.Timer>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.UserLevel>(DevGuild); // use to register global (can take up to an hour)
-            applicationCommandsExtension.RegisterGuildCommands<AppCommands.VoteSystem>(DevGuild); // use to register global (can take up to an hour)
-#else
-         applicationCommandsExtension.RegisterGlobalCommands<Alarm>(); // use to register global (can take up to an hour)
-         applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>(); // use to register global (can take up to an hour)
-         applicationCommandsExtension.RegisterGlobalCommands<Move>(); // use to register global (can take up to an hour)
-         applicationCommandsExtension.RegisterGlobalCommands<PlayMusic>(); // use to register global (can take up to an hour)
-         applicationCommandsExtension.RegisterGlobalCommands<Poke>(); // use to register global (can take up to an hour)
-         applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Timer>(); // use to register global (can take up to an hour)
-         applicationCommandsExtension.RegisterGlobalCommands<UserLevel>(); // use to register global (can take up to an hour)
-         applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>(); // use to register global (can take up to an hour)
-#endif
-
+         commandsNextExtension.RegisterCommands<Commands.Main>();
+         applicationCommandsExtension.RegisterGlobalCommands<Alarm>();
+         applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>();
+         applicationCommandsExtension.RegisterGlobalCommands<Move>();
+         applicationCommandsExtension.RegisterGlobalCommands<PlayMusic>();
+         applicationCommandsExtension.RegisterGlobalCommands<Poke>();
+         applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Timer>();
+         applicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
+         applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
       }
 
       private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
