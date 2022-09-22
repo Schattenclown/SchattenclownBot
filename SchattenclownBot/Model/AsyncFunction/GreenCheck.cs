@@ -1,11 +1,9 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
+﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DisCatSharp.EventArgs;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -59,35 +57,33 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             foreach (var discordMember in discordMembers)
             {
-               if (discordMember.Id == 689780138157670420)
+               var discordMemberRoles = discordMember.Roles;
+
+               List<DiscordRole> discordRoles = new();
+
+               foreach (DiscordRole role in discordMemberRoles)
                {
-                  var discordMemberRoles = discordMember.Roles;
+                  if (!roleCheckList.Contains(role))
+                     discordRoles.Add(role);
+               }
 
-                  List<DiscordRole> discordRoles = new();
+               if (discordRoles.Contains(grey))
+               {
+                  bool lever = true;
 
-                  foreach (DiscordRole role in discordMemberRoles)
+                  foreach (var role in discordRoles)
                   {
-                     if (!roleCheckList.Contains(role))
-                        discordRoles.Add(role);
+                     if (roleCheckListNegativ.Contains(role))
+                        lever = false;
                   }
 
-                  if (discordRoles.Contains(grey))
+                  if (discordRoles.Count > 2 && lever)
                   {
-                     bool lever = true;
-
-                     foreach (var role in discordRoles)
-                     {
-                        if (roleCheckListNegativ.Contains(role))
-                           lever = false;
-                     }
-                     
-                     if (discordRoles.Count > 2 && lever)
-                     {
-                        await discordMember.GrantRoleAsync(green);
-                        await discordMember.RevokeRoleAsync(grey);
-                     }
+                     await discordMember.GrantRoleAsync(green);
+                     await discordMember.RevokeRoleAsync(grey);
                   }
                }
+
             }
 
             await Task.Delay(1000);
