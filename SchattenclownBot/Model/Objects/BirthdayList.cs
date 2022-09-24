@@ -50,7 +50,7 @@ namespace SchattenclownBot.Model.Objects
 
          foreach (KeyValuePair<ulong, DateTime> item in birthdays)
          {
-            listString += $"{item.Value.Day.ToString("00")}.{item.Value.Month.ToString("00")} --- <@{item.Key}>\n";
+            listString += $"``{item.Value.Day.ToString("00")}.{item.Value.Month.ToString("00")} -`` <@{item.Key}>\n";
          }
 
          foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
