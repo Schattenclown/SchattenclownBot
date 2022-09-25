@@ -54,7 +54,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                      List<DiscordMember> discordMemberList = guildItem.Members.Values.ToList();
 
                      discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
-
+                     
                      List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
                      foreach (DiscordMember discordMemberItem in discordMemberConnectedListSorted)
@@ -178,11 +178,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                            }
 
                            lastDiscordMember = discordMemberItem;
+                           CWLogger.Write("\n\n" + description, "WhereIs", ConsoleColor.Magenta);
                            await Task.Delay(2000);
                         }
                         catch (Exception ex)
                         {
-                           CWLogger.Write("Someone prob. Deleted the bot Role" + ex.Message, "Exception", ConsoleColor.Red);
+                           CWLogger.Write(ex.Message, "Exception", ConsoleColor.Red);
                         }
                      }
 
