@@ -40,7 +40,7 @@ namespace SchattenclownBot.Model.Discord.Main
       public static bool Custom = false;
       public static string CustomState = "/help";
 #if DEBUG
-      public const string isDevBot = "Dev";
+      public const string isDevBot = "";
 #else
       public const string isDevBot = "";
 #endif
