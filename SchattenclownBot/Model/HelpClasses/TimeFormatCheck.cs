@@ -1,5 +1,4 @@
 ﻿using DisCatSharp.Common;
-using System;
 
 namespace SchattenclownBot.Model.HelpClasses
 {

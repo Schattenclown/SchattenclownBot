@@ -57,13 +57,38 @@ namespace SchattenclownBot.Model.AsyncFunction
                roleCheckList.Add(guild.GetRole(931950732658237501)); //⁣     ⁣  ⁣   Andere Spiele              ⁣   ⁣               ⁣      ⁣
                roleCheckList.Add(guild.GetRole(939236265587515462)); //⁣     ⁣  ⁣   16P             ⁣   ⁣               ⁣      ⁣
                roleCheckList.Add(guild.GetRole(939216240512208956)); //⁣     ⁣  ⁣   BDSM             ⁣
-               roleCheckList.Add(guild.GetRole(945007672577642537)); //⁣     ⁣  ⁣   Energy             ⁣   ⁣               ⁣      ⁣
+               roleCheckList.Add(guild.GetRole(945007672577642537)); //⁣     ⁣  ⁣   Energy⁣   ⁣               ⁣      ⁣
+
+               roleCheckList.Add(guild.GetRole(11023549473768611861)); //zehner 0
+               roleCheckList.Add(guild.GetRole(1010251754270642218)); //zehner 1
+               roleCheckList.Add(guild.GetRole(1001177749207126106)); //zehner 2
+               roleCheckList.Add(guild.GetRole(995805285383938098)); //zehner 3
+               roleCheckList.Add(guild.GetRole(993902906417889432)); //zehner 4
+               roleCheckList.Add(guild.GetRole(986332993528426546)); //zehner 5
+               roleCheckList.Add(guild.GetRole(983134660169195600)); //zehner 6
+               roleCheckList.Add(guild.GetRole(981715147263467622)); //zehner 7
+               roleCheckList.Add(guild.GetRole(1015272139051507805)); //zehner 8
+               roleCheckList.Add(guild.GetRole(1009772791563825183)); //zehner 9
+
+               roleCheckList.Add(guild.GetRole(981695815053631558)); //zehner  1
+               roleCheckList.Add(guild.GetRole(981715121866960917)); //zehner  2
+               roleCheckList.Add(guild.GetRole(1020780813282975816)); //zehner  3
+               roleCheckList.Add(guild.GetRole(1016418457597784196)); //zehner  4
+               roleCheckList.Add(guild.GetRole(1012411021262073949)); //zehner  5
+               roleCheckList.Add(guild.GetRole(1004817444604498020)); //zehner  6
+               roleCheckList.Add(guild.GetRole(1001555701308604536)); //zehner  7
+               roleCheckList.Add(guild.GetRole(981630890876764291)); //zehner  8
+               roleCheckList.Add(guild.GetRole(993902853959712769)); //zehner  9
+               roleCheckList.Add(guild.GetRole(981626330007347220)); //zehner  0
+
+               roleCheckList.Add(guild.GetRole(1017937277307064340)); //level
+
 
                List<DiscordMember> discordMembers = guild.Members.Values.ToList();
 
-               foreach (var discordMember in discordMembers)
+               foreach (DiscordMember discordMember in discordMembers)
                {
-                  var discordMemberRoles = discordMember.Roles;
+                  IEnumerable<DiscordRole> discordMemberRoles = discordMember.Roles;
 
                   List<DiscordRole> discordRoles = new();
 
@@ -77,7 +102,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                   {
                      bool lever = true;
 
-                     foreach (var role in discordRoles)
+                     foreach (DiscordRole role in discordRoles)
                      {
                         if (roleCheckListNegativ.Contains(role))
                            lever = false;
@@ -87,9 +112,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                      {
                         await discordMember.GrantRoleAsync(green);
                         await discordMember.RevokeRoleAsync(grey);
+                        CWLogger.Write(discordMember.DisplayName + " Granted Green", "GreenCheck", ConsoleColor.Yellow);
                      }
                   }
-
                }
 
                await Task.Delay(1000);

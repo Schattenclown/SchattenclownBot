@@ -3,6 +3,7 @@ using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
+using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using MetaBrainz.MusicBrainz;
@@ -264,7 +265,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                {
                   //https://youtu.be/EW6c8o5ctRI
                   string selectedVideoId;
-                  if(webLink.Contains("youtu.be"))
+                  if (webLink.Contains("youtu.be"))
                      selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "youtu.be/", "youtu.be/".Length), "&list=", 0);
                   else
                      selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
@@ -682,7 +683,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          catch (Exception exc)
          {
             DiscordChannel debug_log = await discordClient.GetChannelAsync(928938948221366334);
-            var something =  await debug_log.SendMessageAsync(exc.ToString());
+            DiscordMessage something = await debug_log.SendMessageAsync(exc.ToString());
             await interactionChannel.SendMessageAsync("Something went wrong!\n");
 
             if (interactionContext != null)
@@ -702,13 +703,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                   List<CancellationTokenSource> cancellationTokenSourceList = new();
 
-                  foreach (var item in CancellationTokenItemList.Where(x => x.DiscordGuild == discordGuild))
+                  foreach (CancellationTokenItem item in CancellationTokenItemList.Where(x => x.DiscordGuild == discordGuild))
                   {
                      cancellationTokenSourceList.Add(item.CancellationTokenSource);
                   }
                   CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == discordGuild);
 
-                  foreach (var item in cancellationTokenSourceList)
+                  foreach (CancellationTokenSource item in cancellationTokenSourceList)
                   {
                      item.Cancel();
                      item.Dispose();
@@ -1287,7 +1288,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception ex)
          {
-            Console.WriteLine(ex.Message);
+            CWLogger.Write(ex.Message, "Exception", ConsoleColor.Red);
             CancellationTokenItemList.Remove(cancellationTokenKeyPair);
          }
       }
@@ -1344,7 +1345,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   }
                   catch (Exception ex)
                   {
-                     Console.WriteLine(ex.Message);
+                     CWLogger.Write(ex.Message, "Exception", ConsoleColor.Red);
                      CancellationTokenItemList.Remove(cancellationTokenKeyPair);
                   }
 
@@ -1452,7 +1453,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      DiscordEmbedBuilder discordEmbedBuilder = new();
                      YoutubeClient youtubeClient = new();
 
-                     var queueItemList = QueueItemList.FindAll(x => x.DiscordGuild == eventArgs.Channel.Guild);
+                     List<QueueItem> queueItemList = QueueItemList.FindAll(x => x.DiscordGuild == eventArgs.Channel.Guild);
 
                      for (int i = 0; i < 10; i++)
                      {
