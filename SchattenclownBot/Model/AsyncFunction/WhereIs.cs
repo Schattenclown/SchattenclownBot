@@ -48,6 +48,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                   List<DiscordMessage> discordMessagesList = new();
                   List<DiscordMember> discordMemberConnectedList = new();
                   DiscordMember lastDiscordMember = default(DiscordMember);
+                  guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result);
 
                   foreach (DiscordGuild guildItem in guildList)
                   {
