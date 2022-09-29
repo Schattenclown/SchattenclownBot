@@ -4,6 +4,7 @@ using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
@@ -209,8 +210,10 @@ namespace SchattenclownBot.Model.Objects
                }
 
                await Task.Delay(2000);
+               CWLogger.Write("Checked", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+
             }
-               // ReSharper disable once FunctionNeverReturns
+            // ReSharper disable once FunctionNeverReturns
          });
       }
    }

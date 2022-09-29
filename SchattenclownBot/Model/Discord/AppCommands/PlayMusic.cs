@@ -20,6 +20,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using YoutubeDLSharp;
@@ -1288,7 +1289,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "Exception", ConsoleColor.Red);
+            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             CancellationTokenItemList.Remove(cancellationTokenKeyPair);
          }
       }
@@ -1345,7 +1346,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   }
                   catch (Exception ex)
                   {
-                     CWLogger.Write(ex.Message, "Exception", ConsoleColor.Red);
+                     CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                      CancellationTokenItemList.Remove(cancellationTokenKeyPair);
                   }
 

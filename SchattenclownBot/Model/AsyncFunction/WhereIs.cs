@@ -5,6 +5,7 @@ using SchattenclownBot.Model.HelpClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
@@ -34,7 +35,6 @@ namespace SchattenclownBot.Model.AsyncFunction
             DiscordChannel discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
             guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result);
 
-
             while (true)
             {
                try
@@ -56,7 +56,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                      List<DiscordMember> discordMemberList = guildItem.Members.Values.ToList();
 
                      discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
-                     
+
                      List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
                      foreach (DiscordMember discordMemberItem in discordMemberConnectedListSorted)
@@ -180,12 +180,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                            }
 
                            lastDiscordMember = discordMemberItem;
-                           CWLogger.Write("\n\n" + description, "INFO", "WhereIs.cs", ConsoleColor.Cyan);
+                           CWLogger.Write("\n\n" + description, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                            await Task.Delay(2000);
                         }
                         catch (Exception ex)
                         {
-                           CWLogger.Write(ex.Message, "EXCEPTION", "WhereIs.cs", ConsoleColor.Red);
+                           CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                         }
                      }
 
@@ -247,13 +247,13 @@ namespace SchattenclownBot.Model.AsyncFunction
                      }*/
                   }
 
-                  CWLogger.Write("Finished WhereIs", "INFO", "WhereIs.cs", ConsoleColor.Cyan);
+                  CWLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 
                   await Task.Delay(1000);
                }
                catch (Exception ex)
                {
-                  CWLogger.Write(ex.Message, "EXCEPTION", "WhereIs.cs", ConsoleColor.Red);
+                  CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                }
             }
          });

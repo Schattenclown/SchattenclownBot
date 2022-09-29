@@ -1,5 +1,6 @@
 ﻿using SchattenclownBot.Model.Persistence.Connection;
 using System;
+using System.Reflection;
 
 namespace SchattenclownBot.Model.Objects
 {
@@ -27,7 +28,7 @@ namespace SchattenclownBot.Model.Objects
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "ERROR", ConsoleColor.Red);
+            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             return null;
          }
       }

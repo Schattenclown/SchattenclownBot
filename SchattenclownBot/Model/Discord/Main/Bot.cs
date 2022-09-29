@@ -14,8 +14,13 @@ using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Objects;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Xml;
+using AngleSharp.Dom;
 
 namespace SchattenclownBot.Model.Discord.Main
 {
@@ -221,17 +226,16 @@ namespace SchattenclownBot.Model.Discord.Main
       private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
       {
 
-         CWLogger.Write($"Starting with Prefix {Prefix} :3", "INFO", ConsoleColor.Yellow);
-         CWLogger.Write($"", "", ConsoleColor.Yellow);
-         CWLogger.Write($"Starting {DiscordClient.CurrentUser.Username}", "INFO", ConsoleColor.Yellow);
-         CWLogger.Write($"DiscordClient ready!", "INFO", ConsoleColor.Yellow);
-         CWLogger.Write($"Shard {discordClient.ShardId}", "INFO", ConsoleColor.Yellow);
-         CWLogger.Write($"Loading Commands...", "INFO", ConsoleColor.Magenta);
+         CWLogger.Write($"Starting with Prefix {Prefix} :3", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+         CWLogger.Write($"Starting {DiscordClient.CurrentUser.Username}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+         CWLogger.Write($"DiscordClient ready!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+         CWLogger.Write($"Shard {discordClient.ShardId}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+         CWLogger.Write($"Loading Commands...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 
          IReadOnlyDictionary<string, Command> registeredCommands = discordClient.GetCommandsNext().RegisteredCommands;
          foreach (KeyValuePair<string, Command> command in registeredCommands)
          {
-            CWLogger.Write($"Command {command.Value.Name} loaded.", "INFO", ConsoleColor.Magenta);
+            CWLogger.Write($"Command {command.Value.Name} loaded.", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          }
          DiscordActivity discordActivity = new()
          {
@@ -239,13 +243,13 @@ namespace SchattenclownBot.Model.Discord.Main
             ActivityType = ActivityType.Competing
          };
          discordClient.UpdateStatusAsync(activity: discordActivity, userStatus: Bot.Custom ? Bot.CustomStatus : UserStatus.Online, idleSince: null);
-         CWLogger.Write($"Bot ready!", "INFO", ConsoleColor.Green);
+         CWLogger.Write($"Bot ready!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Green);
          return Task.CompletedTask;
       }
 
       private static Task Client_Resumed(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
       {
-         CWLogger.Write($"Bot resumed!", "INFO", ConsoleColor.Yellow);
+         CWLogger.Write($"Bot resumed!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Green);
          return Task.CompletedTask;
       }
 
@@ -266,43 +270,43 @@ namespace SchattenclownBot.Model.Discord.Main
       }
       private static Task Slash_SlashCommandExecuted(ApplicationCommandsExtension applicationCommandsExtension, SlashCommandExecutedEventArgs slashCommandExecutedEventArgs)
       {
-         CWLogger.Write($"Slash/Info: {slashCommandExecutedEventArgs.Context.CommandName}", "SlashCommandExecuted", ConsoleColor.Yellow);
+         CWLogger.Write($"Slash/Info: {slashCommandExecutedEventArgs.Context.CommandName}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          return Task.CompletedTask;
       }
 
       private static Task Slash_SlashCommandError(ApplicationCommandsExtension applicationCommandsExtension, SlashCommandErrorEventArgs slashCommandErrorEventArgs)
       {
-         CWLogger.Write($"Slash/Error: {slashCommandErrorEventArgs.Exception.Message} | CN: {slashCommandErrorEventArgs.Context.CommandName} | IID: {slashCommandErrorEventArgs.Context.InteractionId}", "SlashCommandError", ConsoleColor.Red);
+         CWLogger.Write($"Slash/Error: {slashCommandErrorEventArgs.Exception.Message} | CN: {slashCommandErrorEventArgs.Context.CommandName} | IID: {slashCommandErrorEventArgs.Context.InteractionId}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
          return Task.CompletedTask;
       }
 
       private static Task CNext_CommandError(CommandsNextExtension commandsNextExtension, CommandErrorEventArgs commandErrorEventArgs)
       {
-         CWLogger.Write(commandErrorEventArgs.Command == null ? $"{commandErrorEventArgs.Exception.Message}" : $"{commandErrorEventArgs.Command.Name}: {commandErrorEventArgs.Exception.Message}", "CommandError", ConsoleColor.Red);
+         CWLogger.Write(commandErrorEventArgs.Command == null ? $"{commandErrorEventArgs.Exception.Message}" : $"{commandErrorEventArgs.Command.Name}: {commandErrorEventArgs.Exception.Message}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
          return Task.CompletedTask;
       }
 
       private static Task Client_SocketOpened(DiscordClient discordClient, SocketEventArgs socketEventArgs)
       {
-         CWLogger.Write("Socket opened", "SocketOpened", ConsoleColor.Yellow);
+         CWLogger.Write("Socket opened", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          return Task.CompletedTask;
       }
 
       private static Task Client_SocketError(DiscordClient discordClient, SocketErrorEventArgs socketErrorEventArgs)
       {
-         CWLogger.Write("Socket has an error! " + socketErrorEventArgs.Exception.Message, "SocketError", ConsoleColor.DarkRed);
+         CWLogger.Write("Socket has an error! " + socketErrorEventArgs.Exception.Message, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
          return Task.CompletedTask;
       }
 
       private static Task Client_SocketClosed(DiscordClient discordClient, SocketCloseEventArgs socketCloseEventArgs)
       {
-         CWLogger.Write("Socket closed: " + socketCloseEventArgs.CloseMessage, "SocketClosed", ConsoleColor.Red);
+         CWLogger.Write("Socket closed: " + socketCloseEventArgs.CloseMessage, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
          return Task.CompletedTask;
       }
 
       private static Task Client_Heartbeat(DiscordClient discordClient, HeartbeatEventArgs heartbeatEventArgs)
       {
-         CWLogger.Write("Received Heartbeat:" + heartbeatEventArgs.Ping, "Heartbeat", "Bot.cs", ConsoleColor.DarkRed);
+         CWLogger.Write("Received Heartbeat:" + heartbeatEventArgs.Ping, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkRed);
          return Task.CompletedTask;
       }
       #endregion

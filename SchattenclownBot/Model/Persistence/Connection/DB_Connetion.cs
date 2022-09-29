@@ -2,6 +2,7 @@
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using System;
+using System.Reflection;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
@@ -23,7 +24,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "Connection.cs | EXCEPTION", ConsoleColor.Red);
+            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
@@ -41,7 +42,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          int ret = sqlCommand.ExecuteNonQuery();
          if (ret != -1)
          {
-            CWLogger.Write($"{sqlCommand.CommandText}", "INFO", "DB_Connection.cs", ConsoleColor.Cyan);
+            CWLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          }
          CloseDb(connection);
       }
@@ -55,7 +56,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "EXCEPTION", "DB_Connection.cs", ConsoleColor.Red);
+            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
@@ -70,7 +71,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "EXCEPTION", "DB_Connection.cs", ConsoleColor.Red);
+            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
