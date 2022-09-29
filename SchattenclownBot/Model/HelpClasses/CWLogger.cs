@@ -6,23 +6,27 @@ namespace SchattenclownBot
 {
    internal class CWLogger
    {
-      public static void Write(string WriteLineString, string callerClass, ConsoleColor color)
+      public static void Write(string writeLineString, string callerClass, ConsoleColor color)
       {
-         if (WriteLineString.Contains("CREATE TABLE IF NOT EXISTS"))
-            WriteLineString = StringCutter.RemoveAfterWord(WriteLineString, " (`", 0);
+         if (writeLineString.Contains("CREATE TABLE IF NOT EXISTS"))
+         {
+            writeLineString = StringCutter.RemoveAfterWord(writeLineString, "` (`", 0);
+            writeLineString = StringCutter.RemoveAfterWord(writeLineString, " (`", 0);
+            writeLineString = StringCutter.RemoveUntilWord(writeLineString, "CREATE TABLE IF NOT EXISTS `", "CREATE TABLE IF NOT EXISTS `".Length);
+         }
 
          Console.ForegroundColor = ConsoleColor.Gray;
-         Console.Write($"[{DateTime.Now} +02:00] [    /{"INFO".PadRight(12)}]");
+         Console.Write($"[{DateTime.Now} +02:00] [69  /{"Info".PadRight(12)}]");
          Console.ForegroundColor = color;
          Console.Write($" [{callerClass}] ");
          Console.ForegroundColor = ConsoleColor.Gray;
-         Console.WriteLine($"{WriteLineString}");
+         Console.WriteLine($"{writeLineString}");
       }
 
       public static void Write(Exception ex, string caller, ConsoleColor color)
       {
          Console.ForegroundColor = ConsoleColor.Gray;
-         Console.Write($"[{DateTime.Now} +02:00] [    /{"EXCEPTION".PadRight(12)}]");
+         Console.Write($"[{DateTime.Now} +02:00] [420 /{"Exception".PadRight(12)}]");
          Console.ForegroundColor = color;
          Console.Write($" [{caller}] ");
          Console.ForegroundColor = ConsoleColor.Gray;
