@@ -283,7 +283,7 @@ namespace SchattenclownBot.Model.Objects
                            {
                               await discordMember.GrantRoleAsync(zehnerRole);
 
-                              CWLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", "INFO", ConsoleColor.Yellow);
+                              CWLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", "INFO", "UserLevelSystem.cs", ConsoleColor.Yellow);
                            }
                         }
 
@@ -296,7 +296,7 @@ namespace SchattenclownBot.Model.Objects
                            {
                               await discordMember.GrantRoleAsync(einerRole);
 
-                              CWLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", "INFO", ConsoleColor.Yellow);
+                              CWLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", "INFO", "UserLevelSystem.cs", ConsoleColor.Yellow);
                            }
                         }
 
@@ -304,7 +304,7 @@ namespace SchattenclownBot.Model.Objects
                         {
                            await discordMember.RevokeRoleAsync(revokeRoleItem);
 
-                           CWLogger.Write($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", "INFO", ConsoleColor.Yellow);
+                           CWLogger.Write($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", "INFO", "UserLevelSystem.cs", ConsoleColor.Yellow);
                         }
 
                         DiscordRole discordLevelRole = guildObj.GetRole(1017937277307064340);
@@ -314,11 +314,11 @@ namespace SchattenclownBot.Model.Objects
                         }
                      }
                   }
-                  CWLogger.Write(all, "INFO", ConsoleColor.Yellow);
+                  CWLogger.Write("Finished UserLevelSystem", "INFO", "UserLevelSystem.cs", ConsoleColor.Cyan);
                }
                catch (Exception e)
                {
-                  CWLogger.Write(e.Message, "Exception", ConsoleColor.Yellow);
+                  CWLogger.Write(e.Message, "EXCEPTION", "UserLevelSystem.cs", ConsoleColor.Red);
                }
                await Task.Delay(2000);
             }

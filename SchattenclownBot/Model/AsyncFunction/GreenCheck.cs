@@ -22,8 +22,18 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                //hier muss noch
 
-
                DiscordGuild guild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
+
+               /*List<DiscordRole> onetime = guild.Roles.Values.ToList();
+               DiscordColor invis = new DiscordColor("#292b2f");
+               DiscordColor newColor = new DiscordColor("#000000");
+               foreach (var role in onetime)
+               {
+                  if(role.Color.Value == invis.Value)
+                  {
+                     role.ModifyAsync(x => x.Color = newColor);
+                  }
+               }*/
 
                List<DiscordRole> roleCheckListNegativ = new();
                roleCheckListNegativ.Add(guild.GetRole(945023948645629973)); //Flagged        Flagged
@@ -112,7 +122,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                      {
                         await discordMember.GrantRoleAsync(green);
                         await discordMember.RevokeRoleAsync(grey);
-                        CWLogger.Write(discordMember.DisplayName + " Granted Green", "GreenCheck", ConsoleColor.Yellow);
+                        CWLogger.Write(discordMember.DisplayName + " Granted Green", "INFO", "GreenCheck.cs", ConsoleColor.Cyan);
                      }
                   }
                }

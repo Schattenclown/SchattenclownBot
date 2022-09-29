@@ -32,6 +32,8 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             DiscordGuild mainGuild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
             DiscordChannel discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
+            guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result);
+
 
             while (true)
             {
@@ -48,7 +50,6 @@ namespace SchattenclownBot.Model.AsyncFunction
                   List<DiscordMessage> discordMessagesList = new();
                   List<DiscordMember> discordMemberConnectedList = new();
                   DiscordMember lastDiscordMember = default(DiscordMember);
-                  guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result);
 
                   foreach (DiscordGuild guildItem in guildList)
                   {
@@ -179,12 +180,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                            }
 
                            lastDiscordMember = discordMemberItem;
-                           CWLogger.Write("\n\n" + description, "WhereIs", ConsoleColor.Magenta);
+                           CWLogger.Write("\n\n" + description, "INFO", "WhereIs.cs", ConsoleColor.Cyan);
                            await Task.Delay(2000);
                         }
                         catch (Exception ex)
                         {
-                           CWLogger.Write(ex.Message, "Exception", ConsoleColor.Red);
+                           CWLogger.Write(ex.Message, "EXCEPTION", "WhereIs.cs", ConsoleColor.Red);
                         }
                      }
 
@@ -238,19 +239,21 @@ namespace SchattenclownBot.Model.AsyncFunction
                         await discordThreadItem.DeleteAsync();
                      }
 
-                     IReadOnlyList<DiscordMessage> messages = discordChannelOtherPlaces.GetMessagesAsync().Result;
+                     /*IReadOnlyList<DiscordMessage> messages = await discordChannelOtherPlaces.GetMessagesAsync();
 
                      foreach (DiscordMessage messageItem in messages.Where(x => x.Content == "wh3r315"))
                      {
                         await messageItem.DeleteAsync();
-                     }
+                     }*/
                   }
+
+                  CWLogger.Write("Finished WhereIs", "INFO", "WhereIs.cs", ConsoleColor.Cyan);
 
                   await Task.Delay(1000);
                }
                catch (Exception ex)
                {
-                  CWLogger.Write(ex.Message, "Exception", ConsoleColor.Red);
+                  CWLogger.Write(ex.Message, "EXCEPTION", "WhereIs.cs", ConsoleColor.Red);
                }
             }
          });

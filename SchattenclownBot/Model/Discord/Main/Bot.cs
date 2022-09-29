@@ -22,7 +22,7 @@ namespace SchattenclownBot.Model.Discord.Main
    public class Bot : IDisposable
    {
 #if DEBUG
-      public const string Prefix = "!";
+      public const string Prefix = "%";
 #else
       public const string Prefix = "%";
 #endif
@@ -302,7 +302,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
       private static Task Client_Heartbeat(DiscordClient discordClient, HeartbeatEventArgs heartbeatEventArgs)
       {
-         CWLogger.Write("Received Heartbeat:" + heartbeatEventArgs.Ping, "Heartbeat", ConsoleColor.Yellow);
+         CWLogger.Write("Received Heartbeat:" + heartbeatEventArgs.Ping, "Heartbeat", "Bot.cs", ConsoleColor.DarkRed);
          return Task.CompletedTask;
       }
       #endregion

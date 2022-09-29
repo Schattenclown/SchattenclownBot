@@ -23,7 +23,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "DBDEAD", ConsoleColor.Red);
+            CWLogger.Write(ex.Message, "Connection.cs | EXCEPTION", ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
@@ -41,7 +41,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          int ret = sqlCommand.ExecuteNonQuery();
          if (ret != -1)
          {
-            CWLogger.Write($"{sqlCommand.CommandText}", "INFO?", ConsoleColor.Cyan);
+            CWLogger.Write($"{sqlCommand.CommandText}", "INFO", "DB_Connection.cs", ConsoleColor.Cyan);
          }
          CloseDb(connection);
       }
@@ -55,7 +55,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "DBDEAD", ConsoleColor.Red);
+            CWLogger.Write(ex.Message, "EXCEPTION", "DB_Connection.cs", ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
@@ -70,7 +70,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex.Message, "DBDEAD", ConsoleColor.Red);
+            CWLogger.Write(ex.Message, "EXCEPTION", "DB_Connection.cs", ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
