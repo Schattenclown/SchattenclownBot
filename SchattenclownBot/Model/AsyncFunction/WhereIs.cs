@@ -239,12 +239,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                         await discordThreadItem.DeleteAsync();
                      }
 
-                     /*IReadOnlyList<DiscordMessage> messages = await discordChannelOtherPlaces.GetMessagesAsync();
+                     IReadOnlyList<DiscordMessage> messages = await discordChannelOtherPlaces.GetMessagesAsync();
 
                      foreach (DiscordMessage messageItem in messages.Where(x => x.Content == "wh3r315"))
                      {
                         await messageItem.DeleteAsync();
-                     }*/
+                     }
                   }
 
                   CWLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
