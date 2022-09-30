@@ -150,8 +150,9 @@ namespace SchattenclownBot.Model.Discord.Main
          UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
          BirthdayList.CheckBirthdayGz(49);
          SympathySystem.SympathySystemRunAsync(59);
+         LastMinuteCheck.Check(0);
          BirthdayList.GenerateBirthdayList();
-         PlayMusic.TestTask();
+         //PlayMusic.TestTask();
 #pragma warning restore CS4014
 
          while (!ShutdownRequest.IsCancellationRequested)

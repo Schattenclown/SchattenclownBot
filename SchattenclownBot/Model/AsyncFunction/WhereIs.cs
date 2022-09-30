@@ -247,9 +247,13 @@ namespace SchattenclownBot.Model.AsyncFunction
                      }
                   }
 
-                  CWLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 
                   await Task.Delay(1000);
+
+                  CWLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+
+                  if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.WhereIsClownRunAsync)
+                     SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.WhereIsClownRunAsync = true;
                }
                catch (Exception ex)
                {

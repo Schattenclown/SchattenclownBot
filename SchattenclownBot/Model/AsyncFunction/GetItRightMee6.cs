@@ -96,6 +96,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                }
 
                await Task.Delay(1000);
+               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckHighQualityAvailable)
+                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckHighQualityAvailable = true;
             }
          });
       }

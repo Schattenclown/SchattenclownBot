@@ -141,6 +141,8 @@ namespace SchattenclownBot.Model.Objects
                   }
                }
                await Task.Delay(2000);
+               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRunAsync)
+                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRunAsync = true;
             }
             // ReSharper disable once FunctionNeverReturns
          });
@@ -326,6 +328,8 @@ namespace SchattenclownBot.Model.Objects
                   CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                }
                await Task.Delay(2000);
+               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRoleDistributionRunAsync)
+                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRoleDistributionRunAsync = true;
             }
          });
       }

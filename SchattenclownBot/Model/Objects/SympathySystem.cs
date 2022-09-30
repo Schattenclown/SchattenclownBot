@@ -211,7 +211,8 @@ namespace SchattenclownBot.Model.Objects
 
                await Task.Delay(2000);
                CWLogger.Write("Checked", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
-
+               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.SympathySystemRunAsync)
+                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.SympathySystemRunAsync = true;
             }
             // ReSharper disable once FunctionNeverReturns
          });

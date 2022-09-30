@@ -19,7 +19,6 @@ namespace SchattenclownBot
          {
             callerFunction = StringCutter.RemoveUntilWord(callerFunction, "<<", "<<".Length);
             callerFunction = StringCutter.RemoveAfterWord(callerFunction, ">b__0>d", 0);
-            color = ConsoleColor.Cyan;
          }
 
          Console.ForegroundColor = ConsoleColor.Gray;
@@ -36,7 +35,6 @@ namespace SchattenclownBot
          {
             callerFunction = StringCutter.RemoveUntilWord(callerFunction, "<<", "<<".Length);
             callerFunction = StringCutter.RemoveAfterWord(callerFunction, ">b__0>d", 0);
-            color = ConsoleColor.Cyan;
          }
          Console.ForegroundColor = ConsoleColor.Gray;
          Console.Write($"[{DateTime.Now} +02:00] [420 /{"Exception".PadRight(12)}]");

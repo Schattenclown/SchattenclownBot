@@ -59,6 +59,8 @@ namespace SchattenclownBot.Model.Objects
                   BotTimerList = DbBotTimer.ReadAll();
 
                await Task.Delay(1000 * 1);
+               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.BotTimerRunAsync)
+                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.BotTimerRunAsync = true;
             }
                // ReSharper disable once FunctionNeverReturns
          });

@@ -116,6 +116,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                }
 
                await Task.Delay(1000);
+               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckGreenTask)
+                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckGreenTask = true;
             }
          });
       }

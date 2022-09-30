@@ -56,6 +56,8 @@ namespace SchattenclownBot.Model.Objects
                   BotAlarmClockList = DbBotAlarmClocks.ReadAll();
 
                await Task.Delay(1000 * 1);
+               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.BotAlarmClockRunAsync)
+                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.BotAlarmClockRunAsync = true;
             }
                // ReSharper disable once FunctionNeverReturns
          });
