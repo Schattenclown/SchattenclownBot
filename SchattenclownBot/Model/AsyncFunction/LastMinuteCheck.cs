@@ -48,49 +48,49 @@ namespace SchattenclownBot.Model.AsyncFunction
                   await Task.Delay(60 * 1000);
 
                   if (BotTimerRunAsync)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "BotTimerRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "BotTimerRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "BotTimerRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "BotTimerRunAsync", ConsoleColor.Red);
 
                   if (BotAlarmClockRunAsync)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "BotAlarmClockRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "BotAlarmClockRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "BotAlarmClockRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "BotAlarmClockRunAsync", ConsoleColor.Red);
 
                   if (CheckGreenTask)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "CheckGreenTask", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "CheckGreenTask", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "CheckGreenTask", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "CheckGreenTask", ConsoleColor.Red);
 
                   if (CheckHighQualityAvailable)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "CheckHighQualityAvailable", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "CheckHighQualityAvailable", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "CheckHighQualityAvailable", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "CheckHighQualityAvailable", ConsoleColor.Red);
 
                   if (WhereIsClownRunAsync)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "WhereIsClownRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "WhereIsClownRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "WhereIsClownRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "WhereIsClownRunAsync", ConsoleColor.Red);
 
                   if (LevelSystemRunAsync)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "LevelSystemRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "LevelSystemRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "LevelSystemRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "LevelSystemRunAsync", ConsoleColor.Red);
 
                   if (LevelSystemRoleDistributionRunAsync)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "LevelSystemRoleDistributionRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "LevelSystemRoleDistributionRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "LevelSystemRoleDistributionRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "LevelSystemRoleDistributionRunAsync", ConsoleColor.Red);
 
                   if (SympathySystemRunAsync)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "SympathySystemRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "SympathySystemRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "SympathySystemRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "SympathySystemRunAsync", ConsoleColor.Red);
 
                   if (CheckBirthdayGz)
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "CheckBirthdayGz", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check", "CheckBirthdayGz", ConsoleColor.Green);
                   else
-                     CWLogger.Write(MethodBase.GetCurrentMethod()?.DeclaringType?.Name, "CheckBirthdayGz", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check", "CheckBirthdayGz", ConsoleColor.Red);
                }
             }
          });
