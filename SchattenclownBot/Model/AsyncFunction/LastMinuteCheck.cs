@@ -48,49 +48,49 @@ namespace SchattenclownBot.Model.AsyncFunction
                   await Task.Delay(60 * 1000);
 
                   if (BotTimerRunAsync)
-                     CWLogger.Write("Last Minute Check", "BotTimerRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "BotTimerRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "BotTimerRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "BotTimerRunAsync", ConsoleColor.Red);
 
                   if (BotAlarmClockRunAsync)
-                     CWLogger.Write("Last Minute Check", "BotAlarmClockRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "BotAlarmClockRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "BotAlarmClockRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "BotAlarmClockRunAsync", ConsoleColor.Red);
 
                   if (CheckGreenTask)
-                     CWLogger.Write("Last Minute Check", "CheckGreenTask", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "CheckGreenTask", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "CheckGreenTask", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "CheckGreenTask", ConsoleColor.Red);
 
                   if (CheckHighQualityAvailable)
-                     CWLogger.Write("Last Minute Check", "CheckHighQualityAvailable", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "CheckHighQualityAvailable", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "CheckHighQualityAvailable", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "CheckHighQualityAvailable", ConsoleColor.Red);
 
                   if (WhereIsClownRunAsync)
-                     CWLogger.Write("Last Minute Check", "WhereIsClownRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "WhereIsClownRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "WhereIsClownRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "WhereIsClownRunAsync", ConsoleColor.Red);
 
                   if (LevelSystemRunAsync)
-                     CWLogger.Write("Last Minute Check", "LevelSystemRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "LevelSystemRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "LevelSystemRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "LevelSystemRunAsync", ConsoleColor.Red);
 
                   if (LevelSystemRoleDistributionRunAsync)
-                     CWLogger.Write("Last Minute Check", "LevelSystemRoleDistributionRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "LevelSystemRoleDistributionRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "LevelSystemRoleDistributionRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "LevelSystemRoleDistributionRunAsync", ConsoleColor.Red);
 
                   if (SympathySystemRunAsync)
-                     CWLogger.Write("Last Minute Check", "SympathySystemRunAsync", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "SympathySystemRunAsync", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "SympathySystemRunAsync", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "SympathySystemRunAsync", ConsoleColor.Red);
 
                   if (CheckBirthdayGz)
-                     CWLogger.Write("Last Minute Check", "CheckBirthdayGz", ConsoleColor.Green);
+                     CWLogger.Write("Last Minute Check, Success", "CheckBirthdayGz", ConsoleColor.Green);
                   else
-                     CWLogger.Write("Last Minute Check", "CheckBirthdayGz", ConsoleColor.Red);
+                     CWLogger.Write("Last Minute Check, Failed", "CheckBirthdayGz", ConsoleColor.Yellow);
                }
             }
          });
