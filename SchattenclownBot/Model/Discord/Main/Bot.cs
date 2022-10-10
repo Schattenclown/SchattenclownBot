@@ -97,7 +97,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
          _commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
          {
-            StringPrefixes = new[] { Prefix },
+            StringPrefixes = new List<string> { Prefix },
             CaseSensitive = true,
             EnableMentionPrefix = true,
             IgnoreExtraArguments = true,
