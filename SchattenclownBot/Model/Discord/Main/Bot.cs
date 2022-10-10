@@ -175,7 +175,6 @@ namespace SchattenclownBot.Model.Discord.Main
       /// <param name="commandsNextExtension">The commandsNext extension.</param>
       private static void RegisterEventListener(DiscordClient discordClient, ApplicationCommandsExtension applicationCommandsExtension, CommandsNextExtension commandsNextExtension)
       {
-
          /* DiscordClient Basic Events */
          discordClient.SocketOpened += Client_SocketOpened;
          discordClient.SocketClosed += Client_SocketClosed;
@@ -226,7 +225,6 @@ namespace SchattenclownBot.Model.Discord.Main
 
       private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
       {
-
          CWLogger.Write($"Starting with Prefix {Prefix} :3", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          CWLogger.Write($"Starting {DiscordClient.CurrentUser.Username}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          CWLogger.Write($"DiscordClient ready!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
