@@ -65,7 +65,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #if DEBUG
          const LogLevel logLevel = LogLevel.Debug;
 #else
-         const LogLevel logLevel = LogLevel.Debug;
+         const LogLevel logLevel = LogLevel.Information;
 #endif
          DiscordConfiguration discordConfiguration = new()
          {

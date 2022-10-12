@@ -247,10 +247,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      startIndex++;
                   }
 
+                  var cancellationTokenSource = CancellationTokenItemList.First(x => x.DiscordGuild == interactionContext.Guild).CancellationTokenSource;
+
                   while (startIndex < playlistVideos.Count)
                   {
                      try
                      {
+                        if (cancellationTokenSource.IsCancellationRequested)
+                           break;
+                        
                         QueueItemList.Add(new QueueItem(interactionContext.Guild, new Uri(playlistVideos[startIndex].Url), null));
                         QueueCreatingList.Find(x => x.DiscordGuild == interactionContext.Guild)!.QueueAddedAmount++;
                         tracksAdded++;
@@ -365,10 +370,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
                         startIndex++;
                      }
+                     var cancellationTokenSource = CancellationTokenItemList.First(x => x.DiscordGuild == interactionContext.Guild).CancellationTokenSource;
 
                      while (startIndex < playlistTrackList.Count)
                      {
                         FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
+
+                        if (cancellationTokenSource.IsCancellationRequested)
+                           break;
 
                         try
                         {
@@ -670,12 +679,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   {
                      await Task.Delay(1000);
 
-
-                     /*if (timeSpanAdvanceInt % 10 == 0)
+                     try
                      {
-                        discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
-                        await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
-                     }*/
+                        if (timeSpanAdvanceInt % 10 == 0)
+                        {
+                           discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
+                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
+                        }
+                     }
+                     catch (Exception ex)
+                     {
+                        CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                     }
 
                      if (cancellationToken.IsCancellationRequested)
                      {
