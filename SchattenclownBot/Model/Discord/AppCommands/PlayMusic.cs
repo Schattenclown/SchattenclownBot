@@ -1036,8 +1036,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                {
                   if (metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
                   {
-                     bitmapStream = new HttpClient().GetStreamAsync($"https://coverartarchive.org/release-group/{metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId}/front").Result;
-                     discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId}/front");
+                     try
+                     {
+                        bitmapStream = new HttpClient().GetStreamAsync($"https://coverartarchive.org/release-group/{metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId}/front").Result;
+                        discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release-group/{metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId}/front");
+                     }
+                     catch
+                     {
+                        //ignore
+                     }
                   }
                }
                finally
