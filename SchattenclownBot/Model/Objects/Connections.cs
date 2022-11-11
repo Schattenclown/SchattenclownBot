@@ -10,7 +10,8 @@ namespace SchattenclownBot.Model.Objects
       public string DiscordBotDebug { get; set; }
       public string MySqlConStr { get; set; }
       public string MySqlConStrDebug { get; set; }
-      public string AcoustIdApiKey { get; set; }
+      public string MySqlAPIConStr { get; set; }
+        public string AcoustIdApiKey { get; set; }
       public SpotifyOAuth2 Token { get; set; }
       public string YouTubeApiKey { get; set; }
 

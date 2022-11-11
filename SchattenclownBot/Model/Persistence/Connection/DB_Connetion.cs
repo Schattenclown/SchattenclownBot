@@ -16,7 +16,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          _token = Bot.Connections.MySqlConStrDebug;
 #endif
 
-         MySqlConnection connection = new(_token);
+         MySqlConnection connection = new(_token); 
 
          try
          {
@@ -31,7 +31,29 @@ namespace SchattenclownBot.Model.Persistence.Connection
 
          return connection;
       }
-      public static void CloseDb(MySqlConnection connection)
+        public static MySqlConnection OpenAPIDb()
+        {
+            _token = Bot.Connections.MySqlAPIConStr;
+#if DEBUG
+            _token = Bot.Connections.MySqlAPIConStr;
+#endif
+
+            MySqlConnection connection = new(_token);
+
+            try
+            {
+                connection.Open();
+            }
+            catch (Exception ex)
+            {
+                CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                Reset.RestartProgram();
+                throw;
+            }
+
+            return connection;
+        }
+        public static void CloseDb(MySqlConnection connection)
       {
          connection.Close();
       }
@@ -46,7 +68,18 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          CloseDb(connection);
       }
-      public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
+        public static void ExecuteNonQueryAPI(string sql)
+        {
+            MySqlConnection connection = OpenAPIDb();
+            MySqlCommand sqlCommand = new(sql, connection);
+            int ret = sqlCommand.ExecuteNonQuery();
+            if (ret != -1)
+            {
+                CWLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+            }
+            CloseDb(connection);
+        }
+        public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
       {
          MySqlCommand sqlCommand = new(sql, connection);
          try
