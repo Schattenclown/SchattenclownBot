@@ -126,11 +126,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                 while (true)
                 {
 
-                    List<API_Object> aPI_Objects = API_Object.GET();
+                    List<API> aPI_Objects = API.GET();
                     foreach (var item in aPI_Objects)
                     {
                         Console.WriteLine(item.RequestTimeStamp);
-                        API_Object.DELETE(item.idPUT);
+                        API.DELETE(item.PUTiD);
 
                         DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
                         DiscordChannel discordChannel = await Bot.DiscordClient.GetChannelAsync(928937150546853919);

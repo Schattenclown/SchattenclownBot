@@ -1,18 +1,17 @@
 ﻿using MySql.Data.MySqlClient;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
-using System;
 using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence
 {
     internal class DB_API
     {
-        internal static List<API_Object> GET()
+        internal static List<API> GET()
         {
-            string sql = "SELECT * FROM PUT";
+            string sql = "SELECT * FROM CommandRequests";
 
-            List<API_Object> aPI_ObjectList = new();
+            List<API> aPIGETs = new();
             MySqlConnection mySqlConnection = DbConnection.OpenAPIDb();
             MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
 
@@ -20,25 +19,24 @@ namespace SchattenclownBot.Model.Persistence
             {
                 while (mySqlDataReader.Read())
                 {
-                    API_Object aPI_Object = new()
+                    API aPI = new()
                     {
-                        idPUT = mySqlDataReader.GetInt32("idPUT"),
-                        command = mySqlDataReader.GetString("command"),
+                        PUTiD = mySqlDataReader.GetInt32("idPUT"),
+                        Command = mySqlDataReader.GetString("command"),
                         RequestTimeStamp = mySqlDataReader.GetDateTime("RequestTimeStamp"),
                         RequestSecret = mySqlDataReader.GetUInt64("RequestSecret")
                     };
 
-                    aPI_ObjectList.Add(aPI_Object);
+                    aPIGETs.Add(aPI);
                 }
             }
 
             DbConnection.CloseDb(mySqlConnection);
-            return aPI_ObjectList;
-
+            return aPIGETs;
         }
-        internal static void DELETE(int idPUT)
+        internal static void DELETE(int pUTiD)
         {
-            string sql = $"DELETE FROM `db_SelfApi`.`PUT` WHERE (`idPUT` = '{idPUT}') and (`Command` = 'Test')";
+            string sql = $"DELETE FROM `db_SelfApi`.`CommandRequests` WHERE (`idPUT` = '{pUTiD}') and (`Command` = 'Test')";
             DbConnection.ExecuteNonQueryAPI(sql);
         }
     }

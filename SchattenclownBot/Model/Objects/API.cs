@@ -1,26 +1,23 @@
 ﻿using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
-    internal class API_Object
+    internal class API
     {
-        public int idPUT { get; set; }
-        public string command { get; set; }
+        public int PUTiD { get; set; }
+        public string Command { get; set; }
         public DateTime RequestTimeStamp { get; set; }
         public ulong RequestSecret { get; set; }
 
-        internal static List<API_Object> GET()
+        internal static List<API> GET()
         {
             return DB_API.GET();
         }
-        internal static void DELETE(int idPUT)
+        internal static void DELETE(int pUTiD)
         {
-            DB_API.DELETE(idPUT);
+            DB_API.DELETE(pUTiD);
         }
     }
 }
