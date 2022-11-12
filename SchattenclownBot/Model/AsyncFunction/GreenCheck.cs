@@ -1,33 +1,35 @@
 ﻿using DisCatSharp.Entities;
+
 using SchattenclownBot.Model.Discord.Main;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace SchattenclownBot.Model.AsyncFunction
+namespace SchattenclownBot.Model.AsyncFunction;
+
+internal class GreenCheck
 {
-    internal class GreenCheck
-    {
-        public static async Task CheckGreenTask(int executeSecond)
-        {
-            await Task.Run(async () =>
-            {
-                if (Bot.DiscordClient.CurrentUser.Id == 890063457246937129)
-                {
-                    while (true)
-                    {
-                        while (DateTime.Now.Second != executeSecond)
-                        {
-                            await Task.Delay(1000);
-                        }
+	public static async Task CheckGreenTask(int executeSecond)
+	{
+		await Task.Run(async () =>
+		{
+			if (Bot.DiscordClient.CurrentUser.Id == 890063457246937129)
+			{
+				while (true)
+				{
+					while (DateTime.Now.Second != executeSecond)
+					{
+						await Task.Delay(1000);
+					}
 
-                        DiscordGuild guild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
+					DiscordGuild guild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
 
-                        List<DiscordRole> roleCheckListNegative = new()
-                        {
-                        guild.GetRole(945023948645629973), //Flagged        Flagged
+					List<DiscordRole> roleCheckListNegative = new()
+					{
+					guild.GetRole(945023948645629973), //Flagged        Flagged
                         guild.GetRole(980071522427363368), //Flagged +91    Flagged
                         guild.GetRole(928934209484099615), //#11ff11        Green
                         guild.GetRole(928936283919745064), //#6942ff        Purple
@@ -36,12 +38,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                         guild.GetRole(928934609251627069) //#226ace        Blue
                         };
 
-                        DiscordRole grey = guild.GetRole(928932796934799401); //#b1b1b1         Grey
-                        DiscordRole green = guild.GetRole(928934209484099615); //#11ff11        Green
+					DiscordRole grey = guild.GetRole(928932796934799401); //#b1b1b1         Grey
+					DiscordRole green = guild.GetRole(928934209484099615); //#11ff11        Green
 
-                        List<DiscordRole> roleCheckList = new()
-                        {
-                        guild.GetRole(981575801214492752), //⁣     ⁣  ⁣   Voice Channel Level             ⁣   ⁣               ⁣      ⁣
+					List<DiscordRole> roleCheckList = new()
+					{
+					guild.GetRole(981575801214492752), //⁣     ⁣  ⁣   Voice Channel Level             ⁣   ⁣               ⁣      ⁣
                         guild.GetRole(949045273978630214), //⁣Server Booster
                         guild.GetRole(928955073285984268), //⁣     ⁣  ⁣   Sympathie Rating             ⁣   ⁣               ⁣      ⁣
                         guild.GetRole(949045281108922459), //⁣Sympathie Rating 1
@@ -84,46 +86,45 @@ namespace SchattenclownBot.Model.AsyncFunction
                         guild.GetRole(1017937277307064340) //level
                         };
 
-                        List<DiscordMember> discordMembers = guild.Members.Values.ToList();
+					List<DiscordMember> discordMembers = guild.Members.Values.ToList();
 
-                        foreach (DiscordMember discordMember in discordMembers)
-                        {
-                            IEnumerable<DiscordRole> discordMemberRoles = discordMember.Roles;
+					foreach (DiscordMember discordMember in discordMembers)
+					{
+						IEnumerable<DiscordRole> discordMemberRoles = discordMember.Roles;
 
-                            List<DiscordRole> discordRoles = new();
+						List<DiscordRole> discordRoles = new();
 
-                            foreach (DiscordRole role in discordMemberRoles)
-                            {
-                                if (!roleCheckList.Contains(role))
-                                    discordRoles.Add(role);
-                            }
+						foreach (DiscordRole role in discordMemberRoles)
+						{
+							if (!roleCheckList.Contains(role))
+								discordRoles.Add(role);
+						}
 
-                            if (discordRoles.Contains(grey))
-                            {
-                                bool lever = true;
+						if (discordRoles.Contains(grey))
+						{
+							bool lever = true;
 
-                                foreach (DiscordRole role in discordRoles)
-                                {
-                                    if (roleCheckListNegative.Contains(role))
-                                        lever = false;
-                                }
+							foreach (DiscordRole role in discordRoles)
+							{
+								if (roleCheckListNegative.Contains(role))
+									lever = false;
+							}
 
-                                if (discordRoles.Count > 2 && lever)
-                                {
-                                    await discordMember.GrantRoleAsync(green);
-                                    await discordMember.RevokeRoleAsync(grey);
-                                    CWLogger.Write(discordMember.DisplayName + " Granted Green", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
-                                }
-                            }
-                        }
+							if (discordRoles.Count > 2 && lever)
+							{
+								await discordMember.GrantRoleAsync(green);
+								await discordMember.RevokeRoleAsync(grey);
+								CWLogger.Write(discordMember.DisplayName + " Granted Green", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+							}
+						}
+					}
 
-                        await Task.Delay(1000);
-                        if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckGreenTask)
-                            SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckGreenTask = true;
-                    }
-                }
-            });
-        }
+					await Task.Delay(1000);
+					if (!LastMinuteCheck.CheckGreenTask)
+						LastMinuteCheck.CheckGreenTask = true;
+				}
+			}
+		});
+	}
 
-    }
 }
