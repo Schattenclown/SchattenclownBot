@@ -25,7 +25,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #if DEBUG
         public const string Prefix = "%";
 #else
-      public const string Prefix = "%";
+        public const string Prefix = "%";
 #endif
         //public static readonly ulong DevGuild = 881868642600505354;
         public static readonly Connections Connections = Connections.GetConnections();
@@ -43,7 +43,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #if DEBUG
         public const string isDevBot = "";
 #else
-      public const string isDevBot = "";
+        public const string isDevBot = "";
 #endif
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #if DEBUG
             const LogLevel logLevel = LogLevel.Debug;
 #else
-         const LogLevel logLevel = LogLevel.Information;
+            const LogLevel logLevel = LogLevel.Information;
 #endif
             DiscordConfiguration discordConfiguration = new()
             {
