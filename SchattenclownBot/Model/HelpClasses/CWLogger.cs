@@ -1,10 +1,8 @@
-﻿using SchattenclownBot.Model.HelpClasses;
-using System;
-using System.Reflection;
+﻿using System;
 
-namespace SchattenclownBot
+namespace SchattenclownBot.Model.HelpClasses
 {
-   internal class CWLogger
+   internal class CwLogger
    {
       public static void Write(string writeLineString, string callerFunction, ConsoleColor color)
       {

@@ -28,13 +28,18 @@ namespace SchattenclownBot.Model.Objects
 
       public class Recording
       {
+         public Recording(List<ReleaseGroup> releaseGroups)
+         {
+            ReleaseGroups = releaseGroups;
+         }
+
          public List<Artist> Artists { get; set; }
          public int Duration { get; set; }
          public string Id { get; set; }
          public List<Release> Releases { get; set; }
          public int Sources { get; set; }
          public string Title { get; set; }
-         public List<ReleaseGroup> releasegroups { get; set; }
+         public List<ReleaseGroup> ReleaseGroups { get; set; }
       }
 
       public class ReleaseGroup

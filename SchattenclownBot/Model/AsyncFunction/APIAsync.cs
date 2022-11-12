@@ -2,19 +2,15 @@
 using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
-   internal class APIAsync
+   internal class ApiAsync
    {
-      public static async Task ReadFromAPIAsync()
+      public static async Task ReadFromApiAsync()
       {
          await Task.Run(async () =>
          {
@@ -27,34 +23,31 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             while (true)
             {
-               List<API> aPI_Objects = API.GET();
-               foreach (var item in aPI_Objects)
+               List<Api> aPiObjects = Api.Get();
+               foreach (var item in aPiObjects)
                {
                   switch (item.Command)
                   {
                      case "Next_Song":
-                        PlayMusic.NextRequestAPI(item);
+                        PlayMusic.NextRequestApi(item);
                         break;
                      case "RequestUserName":
-                        RequestUserNameAwnser(item);
-                        break;
-                     default:
+                        RequestUserNameAnswer(item);
                         break;
                   }
-                  
+
                }
                await Task.Delay(100);
             }
          });
       }
-      public static async void RequestUserNameAwnser(API aPI)
+      public static async void RequestUserNameAnswer(Api aPi)
       {
-         API.DELETE(aPI.CommandRequestID);
-         DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(aPI.RequestDiscordUserId);
-         API aPIresult = aPI;
-         aPIresult.Data = discordUser.Username;
-         aPIresult.Command = "RequestUserNameAwnser";
-         API.PUT(aPIresult);
+         Api.Delete(aPi.CommandRequestId);
+         DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(aPi.RequestDiscordUserId);
+         aPi.Data = discordUser.Username;
+         aPi.Command = "RequestUserNameAnswer";
+         Api.Put(aPi);
       }
    }
 }

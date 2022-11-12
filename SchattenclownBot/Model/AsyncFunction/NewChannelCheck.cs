@@ -18,7 +18,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             IReadOnlyList<DiscordChannel> channels = guild.GetChannelsAsync().Result;
             List<DiscordChannel> rightChannels = new();
 
-            DiscordChannel parrentchannel = client.GetChannelAsync(928937353593118731).Result;
+            DiscordChannel parentChannel = client.GetChannelAsync(928937353593118731).Result;
             DiscordChannel mainChannel = client.GetChannelAsync(1022234777539051590).Result;
 
 
@@ -27,29 +27,29 @@ namespace SchattenclownBot.Model.AsyncFunction
                rightChannels.Add(channel);
             }
 
-            int compairInt = 1;
+            int compareInt = 1;
             foreach (DiscordChannel channel in rightChannels)
             {
                if (client.GetChannelAsync(channel.Id).Result.Users.Any())
-                  compairInt++;
+                  compareInt++;
             }
 
-            if (compairInt >= rightChannels.Count)
+            if (compareInt >= rightChannels.Count)
             {
-               DiscordChannel newChannel = guild.CreateChannelAsync("Other", ChannelType.Voice, parrentchannel, Optional<string>.None, 384000).Result;
+               DiscordChannel newChannel = guild.CreateChannelAsync("Other", ChannelType.Voice, parentChannel, Optional<string>.None, 384000).Result;
                rightChannels.Add(newChannel);
             }
 
-            compairInt = 0;
+            compareInt = 0;
             bool oneFree = false;
             foreach (DiscordChannel channel in rightChannels)
             {
                if (channel != mainChannel)
                {
                   if (!client.GetChannelAsync(channel.Id).Result.Users.Any())
-                     compairInt++;
+                     compareInt++;
 
-                  if (compairInt == 3 || oneFree)
+                  if (compareInt == 3 || oneFree)
                   {
                      await channel.DeleteAsync();
                      oneFree = true;

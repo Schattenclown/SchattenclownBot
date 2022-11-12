@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
@@ -18,7 +19,7 @@ namespace SchattenclownBot.Model.AsyncFunction
          if (e.Channel.Name.Contains("🥇AFK-Farm#"))
          {
             e.Channel.ModifyAsync(x => x.Bitrate = 256000);
-            CWLogger.Write("Bitrate to 256k on" + e.Channel.Name, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+            CwLogger.Write("Bitrate to 256k on" + e.Channel.Name, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          }
 
          return Task.CompletedTask;
@@ -63,13 +64,13 @@ namespace SchattenclownBot.Model.AsyncFunction
                         if (discordChannelItem.Bitrate != 384000)
                         {
                            await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
-                           CWLogger.Write($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                           CwLogger.Write($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                         }
                   }
                   catch
                   {
                      bool384KbNotAvailable = true;
-                     CWLogger.Write($"Bit-rate 384000 not available for guild", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                     CwLogger.Write($"Bit-rate 384000 not available for guild", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                      break;
                   }
                }
@@ -84,20 +85,20 @@ namespace SchattenclownBot.Model.AsyncFunction
                            if (discordChannelItem.Bitrate != 256000)
                            {
                               await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
-                              CWLogger.Write($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                              CwLogger.Write($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                            }
                      }
                      catch
                      {
-                        CWLogger.Write($"Bit-rate 256000 not available for guild", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                        CwLogger.Write($"Bit-rate 256000 not available for guild", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                         break;
                      }
                   }
                }
 
                await Task.Delay(1000);
-               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckHighQualityAvailable)
-                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckHighQualityAvailable = true;
+               if (!LastMinuteCheck.CheckHighQualityAvailable)
+                  LastMinuteCheck.CheckHighQualityAvailable = true;
             }
          });
       }

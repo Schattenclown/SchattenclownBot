@@ -2,13 +2,13 @@
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
+using DisCatSharp.Enums;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DisCatSharp.Enums;
 
 // ReSharper disable UnusedMember.Global
 

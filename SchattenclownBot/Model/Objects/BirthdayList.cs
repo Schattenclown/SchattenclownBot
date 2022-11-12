@@ -108,8 +108,8 @@ namespace SchattenclownBot.Model.Objects
                   }
                }
                await Task.Delay(1000);
-               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckBirthdayGz)
-                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.CheckBirthdayGz = true;
+               if (!AsyncFunction.LastMinuteCheck.CheckBirthdayGz)
+                  AsyncFunction.LastMinuteCheck.CheckBirthdayGz = true;
             }
          });
       }

@@ -4,26 +4,26 @@ using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Objects
 {
-   internal class API
+   internal class Api
    {
-      public int CommandRequestID { get; set; }
+      public int CommandRequestId { get; set; }
       public ulong RequestDiscordUserId { get; set; }
       public ulong RequestSecretKey { get; set; }
       public DateTime RequestTimeStamp { get; set; }
-      public string RequesterIP { get; set; }
+      public string RequesterIp { get; set; }
       public string Command { get; set; }
       public string Data { get; set; }
-      internal static List<API> GET()
+      internal static List<Api> Get()
       {
-         return DB_API.GET();
+         return DbApi.Get();
       }
-      internal static void DELETE(int commandRequestID)
+      internal static void Delete(int commandRequestId)
       {
-         DB_API.DELETE(commandRequestID);
+         DbApi.Delete(commandRequestId);
       }
-      public static void PUT(API aPI)
+      public static void Put(Api aPi)
       {
-         DB_API.PUT(aPI);
+         DbApi.Put(aPi);
       }
    }
 }

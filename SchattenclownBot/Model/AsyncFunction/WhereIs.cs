@@ -180,12 +180,12 @@ namespace SchattenclownBot.Model.AsyncFunction
                            }
 
                            lastDiscordMember = discordMemberItem;
-                           CWLogger.Write("\n\n" + description, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                           CwLogger.Write("\n\n" + description, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                            await Task.Delay(2000);
                         }
                         catch (Exception ex)
                         {
-                           CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                           CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                         }
                      }
 
@@ -250,14 +250,14 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                   await Task.Delay(1000);
 
-                  CWLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                  CwLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 
-                  if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.WhereIsClownRunAsync)
-                     SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.WhereIsClownRunAsync = true;
+                  if (!LastMinuteCheck.WhereIsClownRunAsync)
+                     LastMinuteCheck.WhereIsClownRunAsync = true;
                }
                catch (Exception ex)
                {
-                  CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                  CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                }
             }
          });

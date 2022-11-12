@@ -16,7 +16,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          _token = Bot.Connections.MySqlConStrDebug;
 #endif
 
-         MySqlConnection connection = new(_token); 
+         MySqlConnection connection = new(_token);
 
          try
          {
@@ -24,36 +24,36 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
 
          return connection;
       }
-        public static MySqlConnection OpenAPIDb()
-        {
-            _token = Bot.Connections.MySqlAPIConStr;
+      public static MySqlConnection OpenApiDb()
+      {
+         _token = Bot.Connections.MySqlApiConStr;
 #if DEBUG
-            _token = Bot.Connections.MySqlAPIConStr;
+         _token = Bot.Connections.MySqlApiConStr;
 #endif
 
-            MySqlConnection connection = new(_token);
+         MySqlConnection connection = new(_token);
 
-            try
-            {
-                connection.Open();
-            }
-            catch (Exception ex)
-            {
-                CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
-                Reset.RestartProgram();
-                throw;
-            }
+         try
+         {
+            connection.Open();
+         }
+         catch (Exception ex)
+         {
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            Reset.RestartProgram();
+            throw;
+         }
 
-            return connection;
-        }
-        public static void CloseDb(MySqlConnection connection)
+         return connection;
+      }
+      public static void CloseDb(MySqlConnection connection)
       {
          connection.Close();
       }
@@ -64,22 +64,22 @@ namespace SchattenclownBot.Model.Persistence.Connection
          int ret = sqlCommand.ExecuteNonQuery();
          if (ret != -1)
          {
-            CWLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+            CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          }
          CloseDb(connection);
       }
-        public static void ExecuteNonQueryAPI(string sql)
-        {
-            MySqlConnection connection = OpenAPIDb();
-            MySqlCommand sqlCommand = new(sql, connection);
-            int ret = sqlCommand.ExecuteNonQuery();
-            if (ret != -1)
-            {
-                CWLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
-            }
-            CloseDb(connection);
-        }
-        public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
+      public static void ExecuteNonQueryApi(string sql)
+      {
+         MySqlConnection connection = OpenApiDb();
+         MySqlCommand sqlCommand = new(sql, connection);
+         int ret = sqlCommand.ExecuteNonQuery();
+         if (ret != -1)
+         {
+            CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+         }
+         CloseDb(connection);
+      }
+      public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
       {
          MySqlCommand sqlCommand = new(sql, connection);
          try
@@ -89,7 +89,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }
@@ -104,7 +104,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             Reset.RestartProgram();
             throw;
          }

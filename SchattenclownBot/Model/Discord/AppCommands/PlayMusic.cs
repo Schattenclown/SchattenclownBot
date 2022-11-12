@@ -112,10 +112,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       public static readonly List<PlayingStream> PlayingStreamList = new();
       public static readonly List<QueueItem> QueueItemList = new();
 
-      public async static void NextRequestAPI(API aPI)
+      public static async void NextRequestApi(Api aPi)
       {
-         CWLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIP + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
-         API.DELETE(aPI.CommandRequestID);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
+         Api.Delete(aPi.CommandRequestId);
 
          DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
          DiscordChannel discordChannel = await Bot.DiscordClient.GetChannelAsync(928937150546853919);
@@ -359,12 +359,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
 
-               PlaylistGetItemsRequest playlistGetItemsRequest = new PlaylistGetItemsRequest();
-               playlistGetItemsRequest.Offset = 0;
+               PlaylistGetItemsRequest playlistGetItemsRequest = new()
+               {
+                  Offset = 0
+               };
 
                List<PlaylistTrack<IPlayableItem>> playlistTrackList = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
 
-               if (playlistTrackList.Count >= 100)
+               if (playlistTrackList is { Count: >= 100 })
                {
                   try
                   {
@@ -372,17 +374,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      {
                         playlistGetItemsRequest.Offset += 100;
 
-                        List<PlaylistTrack<IPlayableItem>> playlistTrackListSecound = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
+                        List<PlaylistTrack<IPlayableItem>> playlistTrackListSecond = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
 
-                        playlistTrackList.AddRange(playlistTrackListSecound);
+                        if (playlistTrackListSecond != null)
+                        {
+                           playlistTrackList.AddRange(playlistTrackListSecond);
 
-                        if (playlistTrackListSecound.Count < 100)
-                           break;
+                           if (playlistTrackListSecond.Count < 100)
+                              break;
+                        }
                      }
                   }
                   catch
                   {
-
+                     // ignored
                   }
                }
 
@@ -659,7 +664,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             OptionSet optionSet = new()
             {
-               AddMetadata = true,
+               EmbedMetadata = true,
                AudioQuality = 0
             };
 
@@ -687,10 +692,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             DiscordComponentEmoji discordComponentEmojisShuffle = new("🔀");
             DiscordComponentEmoji discordComponentEmojisQueue = new("⏬");
             DiscordComponent[] discordComponents = new DiscordComponent[4];
-            discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Next!", false, discordComponentEmojisNext);
-            discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", false, discordComponentEmojisStop);
-            discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
-            discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", false, discordComponentEmojisQueue);
+            discordComponents[0] = new DiscordButtonComponent(ButtonStyle.Primary, "next_song_stream", "Next!", false, discordComponentEmojisNext);
+            discordComponents[1] = new DiscordButtonComponent(ButtonStyle.Danger, "stop_song_stream", "Stop!", false, discordComponentEmojisStop);
+            discordComponents[2] = new DiscordButtonComponent(ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
+            discordComponents[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "showQueue_stream", "Show queue!", false, discordComponentEmojisQueue);
 
             if (audioDownload.ErrorOutput.Length > 1)
             {
@@ -731,7 +736,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                      }
                      catch (Exception ex)
                      {
-                        CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                        CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                      }
 
                      if (cancellationToken.IsCancellationRequested)
@@ -745,18 +750,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         if (initialDiscordMessage != null)
                            await initialDiscordMessage.ModifyAsync("Queue generation is complete!");
 
-                        discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
-                        discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", false, discordComponentEmojisQueue);
+                        discordComponents[2] = new DiscordButtonComponent(ButtonStyle.Success, "shuffle_stream", "Shuffle!", false, discordComponentEmojisShuffle);
+                        discordComponents[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "showQueue_stream", "Show queue!", false, discordComponentEmojisQueue);
                         didOnce = true;
                      }
 
                      timeSpanAdvanceInt++;
                   }
 
-                  discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song_stream", "Skipped!", true, discordComponentEmojisNext);
-                  discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song_stream", "Stop!", true, discordComponentEmojisStop);
-                  discordComponents[2] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
-                  discordComponents[3] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Secondary, "showQueue_stream", "Show queue!", true, discordComponentEmojisQueue);
+                  discordComponents[0] = new DiscordButtonComponent(ButtonStyle.Primary, "next_song_stream", "Skipped!", true, discordComponentEmojisNext);
+                  discordComponents[1] = new DiscordButtonComponent(ButtonStyle.Danger, "stop_song_stream", "Stop!", true, discordComponentEmojisStop);
+                  discordComponents[2] = new DiscordButtonComponent(ButtonStyle.Success, "shuffle_stream", "Shuffle!", true, discordComponentEmojisShuffle);
+                  discordComponents[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "showQueue_stream", "Show queue!", true, discordComponentEmojisQueue);
 
                   discordEmbedBuilder.Description = TimeLineStringBuilderAfterSong(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
@@ -770,8 +775,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception exc)
          {
-            DiscordChannel debug_log = await discordClient.GetChannelAsync(928938948221366334);
-            DiscordMessage something = await debug_log.SendMessageAsync(exc.ToString());
+            DiscordChannel debugLog = await discordClient.GetChannelAsync(928938948221366334);
+            await debugLog.SendMessageAsync(exc.ToString());
             await interactionChannel.SendMessageAsync("Something went wrong!\n");
 
             if (interactionContext != null)
@@ -896,8 +901,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
       public static AcoustId.Root AcoustIdFromFingerPrint(Uri filePathUri)
       {
-         string[] fingerPrintDuration = default(string[]);
-         string[] fingerPrintFingerprint = default(string[]);
+         string[] fingerPrintDuration = default;
+         string[] fingerPrintFingerprint = default;
          ProcessStartInfo fingerPrintCalculationProcessStartInfo = new()
          {
             FileName = "..\\..\\..\\Model\\Executables\\fpcalc\\fpcalc.exe",
@@ -1213,8 +1218,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
                   DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
                   DiscordComponent[] discordComponents = new DiscordComponent[2];
-                  discordComponents[0] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojisNext);
-                  discordComponents[1] = new DiscordButtonComponent(DisCatSharp.Enums.ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojisStop);
+                  discordComponents[0] = new DiscordButtonComponent(ButtonStyle.Primary, "next_song", "Next!", false, discordComponentEmojisNext);
+                  discordComponents[1] = new DiscordButtonComponent(ButtonStyle.Danger, "stop_song", "Stop!", false, discordComponentEmojisStop);
 
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents));
 
@@ -1315,8 +1320,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          if (QueueCreatingList.Exists(x => x.DiscordGuild == discordMessage.Channel.Guild))
          {
             await discordMessage.ModifyAsync(x => x.WithContent($"Queue is being created! " +
-                                                                $"{QueueCreatingList.Find(x => x.DiscordGuild == discordMessage.Channel.Guild)!.QueueAddedAmount}/" +
-                                                                $"{QueueCreatingList.Find(x => x.DiscordGuild == discordMessage.Channel.Guild)!.QueueAmount} Please wait!"));
+                                                                $"{QueueCreatingList.Find(queueCreating => queueCreating.DiscordGuild == discordMessage.Channel.Guild)!.QueueAddedAmount}/" +
+                                                                $"{QueueCreatingList.Find(queueCreating => queueCreating.DiscordGuild == discordMessage.Channel.Guild)!.QueueAmount} Please wait!"));
          }
          else
          {
@@ -1383,7 +1388,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          catch (Exception ex)
          {
-            CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
             CancellationTokenItemList.Remove(cancellationTokenKeyPair);
          }
       }
@@ -1440,7 +1445,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   }
                   catch (Exception ex)
                   {
-                     CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                     CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                      CancellationTokenItemList.Remove(cancellationTokenKeyPair);
                   }
 

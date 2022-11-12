@@ -28,14 +28,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("GiveRating" + Bot.isDevBot, "Give an User a rating!")]
       public static async Task GiveRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
       {
-         DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
-         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
-         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
-         discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
-         discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
-         discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
+         DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
+         discordSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+         discordSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+         discordSelectComponentOptionList[2] = new DiscordStringSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+         discordSelectComponentOptionList[3] = new DiscordStringSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+         discordSelectComponentOptionList[4] = new DiscordStringSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
 
-         DiscordSelectComponent discordSelectComponent = new("Select a Rating!", discordSelectComponentOptionList, "give_rating");
+         DiscordStringSelectComponent discordSelectComponent = new("Select a Rating!", discordSelectComponentOptionList, "give_rating");
 
          await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{discordUser.Id}> a Rating!"));
       }
@@ -48,14 +48,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [ContextMenu(ApplicationCommandType.User, "Give Rating!")]
       public static async Task GiveRatingAsync(ContextMenuContext contextMenuContext)
       {
-         DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[5];
-         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
-         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
-         discordSelectComponentOptionList[2] = new DiscordSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
-         discordSelectComponentOptionList[3] = new DiscordSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
-         discordSelectComponentOptionList[4] = new DiscordSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
+         DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
+         discordSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
+         discordSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
+         discordSelectComponentOptionList[2] = new DiscordStringSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
+         discordSelectComponentOptionList[3] = new DiscordStringSelectComponentOption("Rate 4", "rating_4", emoji: new DiscordComponentEmoji("💎"));
+         discordSelectComponentOptionList[4] = new DiscordStringSelectComponentOption("Rate 5", "rating_5", emoji: new DiscordComponentEmoji("👑"));
 
-         DiscordSelectComponent discordSelectComponent = new("Select a Rating!", discordSelectComponentOptionList, "give_rating");
+         DiscordStringSelectComponent discordSelectComponent = new("Select a Rating!", discordSelectComponentOptionList, "give_rating");
 
          await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
       }
@@ -96,7 +96,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
 
          bool foundTargetMemberInDb = false;
-         DiscordEmbedBuilder discordEmbedBuilder = new();
 
          DiscordMember discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
          DiscordMember discordTargetMember;
@@ -140,7 +139,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
 
          bool memberIsFlagged91 = false;
-         discordEmbedBuilder = new();
+         DiscordEmbedBuilder discordEmbedBuilder = new();
 
          if (componentInteractionCreateEventArgs.Guild.Id == 928930967140331590)
          {

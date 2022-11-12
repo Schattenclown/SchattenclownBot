@@ -17,22 +17,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DisCatSharp" Version="10.2.0-hacktober-dbg-005" />
-    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.2.0-hacktober-dbg-005" />
-    <PackageReference Include="DisCatSharp.CommandsNext" Version="10.2.0-hacktober-dbg-005" />
-    <PackageReference Include="DisCatSharp.Interactivity" Version="10.2.0-hacktober-dbg-005" />
-    <PackageReference Include="DisCatSharp.Lavalink" Version="10.2.0-hacktober-dbg-005" />
-    <PackageReference Include="DisCatSharp.VoiceNext" Version="10.2.0-hacktober-dbg-005" />
-    <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.2.0-hacktober-dbg-005" />
+    <PackageReference Include="DisCatSharp" Version="10.3.1-nightly-001" />
+    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.3.1-nightly-001" />
+    <PackageReference Include="DisCatSharp.CommandsNext" Version="10.3.1-nightly-001" />
+    <PackageReference Include="DisCatSharp.Interactivity" Version="10.3.1-nightly-001" />
+    <PackageReference Include="DisCatSharp.Lavalink" Version="10.3.1-nightly-001" />
+    <PackageReference Include="DisCatSharp.VoiceNext" Version="10.3.1-nightly-001" />
+    <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.3.1-nightly-001" />
     <PackageReference Include="FubarCoder.RestSharp.Portable.Core" Version="4.0.8" />
     <PackageReference Include="MetaBrainz.MusicBrainz" Version="5.0.0" />
-    <PackageReference Include="MySql.Data" Version="8.0.30" />
-    <PackageReference Include="RestSharp" Version="108.0.3-alpha.0.5" />
+    <PackageReference Include="MySql.Data" Version="8.0.31" />
+    <PackageReference Include="RestSharp" Version="108.0.3-alpha.0.11" />
     <PackageReference Include="SpotifyAPI.Web" Version="6.3.0" />
-    <PackageReference Include="System.Drawing.Common" Version="7.0.0-rc.1.22426.10" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
-    <PackageReference Include="YoutubeDLSharp" Version="0.4.2" />
-    <PackageReference Include="YoutubeExplode" Version="6.2.2" />
+    <PackageReference Include="YoutubeDLSharp" Version="1.0.0-beta" />
+    <PackageReference Include="YoutubeExplode" Version="6.2.4" />
   </ItemGroup>
 
   <ItemGroup>

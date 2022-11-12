@@ -1,5 +1,6 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
@@ -210,9 +211,9 @@ namespace SchattenclownBot.Model.Objects
                }
 
                await Task.Delay(2000);
-               CWLogger.Write("Checked", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
-               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.SympathySystemRunAsync)
-                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.SympathySystemRunAsync = true;
+               CwLogger.Write("Checked", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+               if (!AsyncFunction.LastMinuteCheck.SympathySystemRunAsync)
+                  AsyncFunction.LastMinuteCheck.SympathySystemRunAsync = true;
             }
             // ReSharper disable once FunctionNeverReturns
          });

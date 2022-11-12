@@ -3,7 +3,6 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Extensions;
 using SchattenclownBot.Model.Discord.Main;
@@ -60,18 +59,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       /// <param name="discordUser">the discordUser</param>
       /// <returns></returns>
       [SlashCommand("Poke" + Bot.isDevBot, "Poke discordUser!")]
-      public static async Task PokeAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+      public static async Task Ww(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
       {
          InteractivityExtension interactivityExtension = interactionContext.Client.GetInteractivity();
-         DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
-         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
-         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
+         DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
+         discordSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
+         discordSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
-         DiscordSelectComponent discordSelectComponent = new(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
+         DiscordStringSelectComponent discordSelectComponent = new(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
 
          await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke discordUser <@{discordUser.Id}>!"));
          DiscordMessage discordMessage = await interactionContext.GetOriginalResponseAsync();
-         InteractivityResult<ComponentInteractionCreateEventArgs> interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", TimeSpan.FromMinutes(1));
+         var interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
          if (!interactivityResult.TimedOut)
          {
             await interactivityResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
@@ -93,20 +92,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       public static async Task PokeAsync(ContextMenuContext contextMenuContext)
       {
          InteractivityExtension interactivityExtension = contextMenuContext.Client.GetInteractivity();
-         DiscordSelectComponentOption[] discordSelectComponentOptionList = new DiscordSelectComponentOption[2];
-         discordSelectComponentOptionList[0] = new DiscordSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
-         discordSelectComponentOptionList[1] = new DiscordSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
+         DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
+         discordSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
+         discordSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
-         DiscordSelectComponent discordSelectComponent = new(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
+         DiscordStringSelectComponent discordStringSelectComponent = new(placeholder: "Select a method!", discordSelectComponentOptionList, "force");
 
-         await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke discordUser <@{contextMenuContext.TargetMember.Id}>!"));
+         await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordStringSelectComponent).WithContent($"Poke discordUser <@{contextMenuContext.TargetMember.Id}>!"));
          DiscordMessage discordMessage = await contextMenuContext.GetOriginalResponseAsync();
-         InteractivityResult<ComponentInteractionCreateEventArgs> interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", TimeSpan.FromMinutes(1));
+         var interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
          if (!interactivityResult.TimedOut)
          {
             await interactivityResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
             string firstResult = interactivityResult.Result.Values.First();
-            await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(discordSelectComponent.Disable()));
+            await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(discordStringSelectComponent.Disable()));
             await PokeTask(interactivityResult.Result.Interaction, contextMenuContext.Member, contextMenuContext.TargetMember, false, firstResult == "light" ? 2 : 4, firstResult == "hard");
          }
          else
@@ -211,7 +210,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             try
             {
-               await tempChannel2.DeleteAsync();
+               if (tempChannel2 != null) await tempChannel2.DeleteAsync();
             }
             catch
             {
@@ -221,7 +220,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             try
             {
-               await tempChannel1.DeleteAsync();
+               if (tempChannel1 != null) await tempChannel1.DeleteAsync();
             }
             catch
             {
@@ -231,7 +230,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             try
             {
-               await tempCategory.DeleteAsync();
+               if (tempCategory != null) await tempCategory.DeleteAsync();
             }
             catch
             {

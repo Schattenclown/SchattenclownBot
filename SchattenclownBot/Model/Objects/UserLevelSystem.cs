@@ -1,7 +1,6 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
-using DisCatSharp.Enums;
+﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Persistence;
 using System;
 using System.Collections.Generic;
@@ -18,7 +17,6 @@ namespace SchattenclownBot.Model.Objects
       public int OnlineTicks { get; set; }
       public TimeSpan OnlineTime { get; set; }
       public double VoteRatingAvg { get; set; }
-      private const string RoleChannelLevelString = "Voice Channel Level";
 
       public static List<UserLevelSystem> Read(ulong guildId)
       {
@@ -141,8 +139,8 @@ namespace SchattenclownBot.Model.Objects
                   }
                }
                await Task.Delay(2000);
-               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRunAsync)
-                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRunAsync = true;
+               if (!AsyncFunction.LastMinuteCheck.LevelSystemRunAsync)
+                  AsyncFunction.LastMinuteCheck.LevelSystemRunAsync = true;
             }
             // ReSharper disable once FunctionNeverReturns
          });
@@ -249,7 +247,6 @@ namespace SchattenclownBot.Model.Objects
                      guildObj.GetRole(981626330007347220) //zehner  0
                   };
 
-                  string all = "";
                   foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSortedOut)
                   {
                      if (userLevelSystemItem.MemberId is not 304366130238193664 and not 523765246104567808)
@@ -259,7 +256,6 @@ namespace SchattenclownBot.Model.Objects
                         DiscordMember discordMember = guildObj.GetMemberAsync(userLevelSystemItem.MemberId).Result;
 
                         int totalLevel = CalculateLevel(userLevelSystemItem.OnlineTicks);
-                        all += discordMember.DisplayName + " " + totalLevel + " ; ";
                         string zehnerString = "";
                         string einerString = "";
 
@@ -290,7 +286,7 @@ namespace SchattenclownBot.Model.Objects
                            {
                               await discordMember.GrantRoleAsync(zehnerRole);
 
-                              CWLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                              CwLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                            }
                         }
 
@@ -303,7 +299,7 @@ namespace SchattenclownBot.Model.Objects
                            {
                               await discordMember.GrantRoleAsync(einerRole);
 
-                              CWLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                              CwLogger.Write($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                            }
                         }
 
@@ -311,7 +307,7 @@ namespace SchattenclownBot.Model.Objects
                         {
                            await discordMember.RevokeRoleAsync(revokeRoleItem);
 
-                           CWLogger.Write($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                           CwLogger.Write($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                         }
 
                         DiscordRole discordLevelRole = guildObj.GetRole(1017937277307064340);
@@ -321,15 +317,15 @@ namespace SchattenclownBot.Model.Objects
                         }
                      }
                   }
-                  CWLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                  CwLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                }
                catch (Exception ex)
                {
-                  CWLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                  CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
                }
                await Task.Delay(2000);
-               if (!SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRoleDistributionRunAsync)
-                  SchattenclownBot.Model.AsyncFunction.LastMinuteCheck.LevelSystemRoleDistributionRunAsync = true;
+               if (!AsyncFunction.LastMinuteCheck.LevelSystemRoleDistributionRunAsync)
+                  AsyncFunction.LastMinuteCheck.LevelSystemRoleDistributionRunAsync = true;
             }
          });
       }
