@@ -135,7 +135,7 @@ namespace SchattenclownBot.Model.Discord.Main
         public async Task RunAsync()
         {
             await DiscordClient.ConnectAsync();
-
+            //rest
 #pragma warning disable CS4014
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
