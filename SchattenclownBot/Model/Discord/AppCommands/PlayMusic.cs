@@ -664,7 +664,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             OptionSet optionSet = new()
             {
-               EmbedMetadata = true,
+               AddMetadata = true,
                AudioQuality = 0
             };
 
