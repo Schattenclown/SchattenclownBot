@@ -1,44 +1,54 @@
 ﻿using MySql.Data.MySqlClient;
+using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
 using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence
 {
-    internal class DB_API
-    {
-        internal static List<API> GET()
-        {
-            string sql = "SELECT * FROM CommandRequests";
+   internal class DB_API
+   {
+      internal static List<API> GET()
+      {
+         string sql = "SELECT * FROM `db_SelfApi`.`CommandRequests`";
 
-            List<API> aPIGETs = new();
-            MySqlConnection mySqlConnection = DbConnection.OpenAPIDb();
-            MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
+         List<API> aPIGETs = new();
+         MySqlConnection mySqlConnection = DbConnection.OpenAPIDb();
+         MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
 
-            if (mySqlDataReader != null)
+         if (mySqlDataReader != null)
+         {
+            while (mySqlDataReader.Read())
             {
-                while (mySqlDataReader.Read())
-                {
-                    API aPI = new()
-                    {
-                        PUTiD = mySqlDataReader.GetInt32("idPUT"),
-                        Command = mySqlDataReader.GetString("command"),
-                        RequestTimeStamp = mySqlDataReader.GetDateTime("RequestTimeStamp"),
-                        RequestSecret = mySqlDataReader.GetUInt64("RequestSecret")
-                    };
+               API aPI = new()
+               {
+                  CommandRequestID = mySqlDataReader.GetInt32("CommandRequestID"),
+                  RequestDiscordUserId = mySqlDataReader.GetUInt64("RequestDiscordUserId"),
+                  RequestSecretKey = mySqlDataReader.GetUInt64("RequestSecretKey"),
+                  RequestTimeStamp = mySqlDataReader.GetDateTime("RequestTimeStamp"),
+                  RequesterIP = mySqlDataReader.GetString("RequesterIP"),
+                  Command = mySqlDataReader.GetString("Command")
+               };
 
-                    aPIGETs.Add(aPI);
-                }
+               aPIGETs.Add(aPI);
             }
+         }
 
-            DbConnection.CloseDb(mySqlConnection);
-            return aPIGETs;
-        }
-        internal static void DELETE(int pUTiD)
-        {
-            string sql = $"DELETE FROM `db_SelfApi`.`CommandRequests` WHERE (`idPUT` = '{pUTiD}') and (`Command` = 'Test')";
-            DbConnection.ExecuteNonQueryAPI(sql);
-        }
-    }
+         DbConnection.CloseDb(mySqlConnection);
+         return aPIGETs;
+      }
+      internal static void DELETE(int commandRequestID)
+      {
+         string sql = $"DELETE FROM `db_SelfApi`.`CommandRequests` WHERE (`CommandRequests`.`CommandRequestID` = '{commandRequestID}') AND (`CommandRequests`.`RequestSecretKey` = 42069)";
+         DbConnection.ExecuteNonQueryAPI(sql);
+      }
+      public static void PUT(API aPI)
+      {
+         string sql = "INSERT INTO `db_SelfApi`.`CommandRequests` (`RequestDiscordUserId`, `RequestSecretKey`, `requesterIP`, `Command`, `Data`) " +
+                      $"VALUES ({aPI.RequestDiscordUserId}, {aPI.RequestSecretKey}, '{aPI.RequesterIP}', '{aPI.Command}', '{aPI.Data}')";
+
+         DbConnection.ExecuteNonQueryAPI(sql);
+      }
+   }
 }
 
