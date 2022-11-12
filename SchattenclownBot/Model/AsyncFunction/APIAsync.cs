@@ -36,8 +36,12 @@ internal class APIAsync
 						case "RequestUserName":
 							RequestUserNameAwnser(item);
 							break;
+						case "RequestDiscordGuildname":
+							RequestUserNameAwnser(item);
+							break;
 						default:
 							break;
+
 					}
 
 				}
