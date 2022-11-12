@@ -10,7 +10,9 @@ namespace SchattenclownBot.Model.Objects
       public ulong RequestDiscordUserId { get; set; }
       public ulong RequestSecretKey { get; set; }
       public DateTime RequestTimeStamp { get; set; }
+      public string RequesterIP { get; set; }
       public string Command { get; set; }
+      public string Data { get; set; }
       internal static List<API> GET()
       {
          return DB_API.GET();
@@ -18,6 +20,10 @@ namespace SchattenclownBot.Model.Objects
       internal static void DELETE(int commandRequestID)
       {
          DB_API.DELETE(commandRequestID);
+      }
+      public static void PUT(API aPI)
+      {
+         DB_API.PUT(aPI);
       }
    }
 }

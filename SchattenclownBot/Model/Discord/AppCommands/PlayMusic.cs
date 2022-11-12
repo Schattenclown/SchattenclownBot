@@ -112,66 +112,46 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       public static readonly List<PlayingStream> PlayingStreamList = new();
       public static readonly List<QueueItem> QueueItemList = new();
 
-      public static async Task ReadFromAPIAsync()
+      public async static void NextRequestAPI(API aPI)
       {
-         await Task.Run(async () =>
+         CWLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIP + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
+         API.DELETE(aPI.CommandRequestID);
+
+         DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
+         DiscordChannel discordChannel = await Bot.DiscordClient.GetChannelAsync(928937150546853919);
+         DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(444152594898878474);
+         DiscordMember discordMember = await discordUser.ConvertToMember(discordGuild);
+
+         if (QueueItemList.All(x => x.DiscordGuild != discordGuild))
          {
-            List<DiscordGuild> guildList;
-            do
-            {
-               guildList = Bot.DiscordClient.Guilds.Values.ToList();
-               await Task.Delay(1000);
-            } while (guildList.Count == 0);
+            discordChannel.SendMessageAsync("Nothing to skip!");
+            return;
+         }
 
-            while (true)
-            {
+         List<CancellationTokenSource> cancellationTokenSourceList = new();
+         foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == discordGuild))
+         {
+            cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
+         }
 
-               List<API> aPI_Objects = API.GET();
-               foreach (var item in aPI_Objects)
-               {
-                  Console.WriteLine(item.RequestTimeStamp);
-                  API.DELETE(item.CommandRequestID);
+         CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == discordGuild);
 
-                  DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
-                  DiscordChannel discordChannel = await Bot.DiscordClient.GetChannelAsync(928937150546853919);
-                  DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(444152594898878474);
-                  DiscordMember discordMember = await discordUser.ConvertToMember(discordGuild);
+         foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
+         {
+            cancellationToken.Cancel();
+            cancellationToken.Dispose();
+         }
 
-                  if (QueueItemList.All(x => x.DiscordGuild != discordGuild))
-                  {
-                     discordChannel.SendMessageAsync("Nothing to skip!");
-                     break;
-                  }
+         CancellationTokenSource newCancellationTokenSource = new();
+         CancellationToken newCancellationToken = newCancellationTokenSource.Token;
 
-                  List<CancellationTokenSource> cancellationTokenSourceList = new();
-                  foreach (CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == discordGuild))
-                  {
-                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
-                  }
-
-                  CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == discordGuild);
-
-                  foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
-                  {
-                     cancellationToken.Cancel();
-                     cancellationToken.Dispose();
-                  }
-
-                  CancellationTokenSource newCancellationTokenSource = new();
-                  CancellationToken newCancellationToken = newCancellationTokenSource.Token;
-
-                  foreach (QueueItem queueItem in QueueItemList.Where(x => x.DiscordGuild == discordGuild))
-                  {
-                     CancellationTokenItem newCancellationTokenItem = new(discordGuild, newCancellationTokenSource);
-                     CancellationTokenItemList.Add(newCancellationTokenItem);
-                     Task.Run(() => PlayFromQueueAsyncTask(null, Bot.DiscordClient, discordGuild, discordMember, discordChannel, queueItem, newCancellationToken, false), newCancellationToken);
-                     break;
-                  }
-               }
-
-               await Task.Delay(500);
-            }
-         });
+         foreach (QueueItem queueItem in QueueItemList.Where(x => x.DiscordGuild == discordGuild))
+         {
+            CancellationTokenItem newCancellationTokenItem = new(discordGuild, newCancellationTokenSource);
+            CancellationTokenItemList.Add(newCancellationTokenItem);
+            Task.Run(() => PlayFromQueueAsyncTask(null, Bot.DiscordClient, discordGuild, discordMember, discordChannel, queueItem, newCancellationToken, false), newCancellationToken);
+            break;
+         }
       }
 
       public static async Task TestTask()

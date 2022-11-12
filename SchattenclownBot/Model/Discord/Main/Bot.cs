@@ -139,7 +139,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #pragma warning disable CS4014
             BotTimer.BotTimerRunAsync();
             BotAlarmClock.BotAlarmClockRunAsync();
-            PlayMusic.ReadFromAPIAsync();
+            APIAsync.ReadFromAPIAsync();
             GreenCheck.CheckGreenTask(5);
             GetItRightMee6.CheckHighQualityAvailable(9);
             WhereIs.WhereIsClownRunAsync(19);

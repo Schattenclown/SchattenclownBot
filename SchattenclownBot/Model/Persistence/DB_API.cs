@@ -26,6 +26,7 @@ namespace SchattenclownBot.Model.Persistence
                   RequestDiscordUserId = mySqlDataReader.GetUInt64("RequestDiscordUserId"),
                   RequestSecretKey = mySqlDataReader.GetUInt64("RequestSecretKey"),
                   RequestTimeStamp = mySqlDataReader.GetDateTime("RequestTimeStamp"),
+                  RequesterIP = mySqlDataReader.GetString("RequesterIP"),
                   Command = mySqlDataReader.GetString("Command")
                };
 
@@ -39,6 +40,13 @@ namespace SchattenclownBot.Model.Persistence
       internal static void DELETE(int commandRequestID)
       {
          string sql = $"DELETE FROM `db_SelfApi`.`CommandRequests` WHERE (`CommandRequests`.`CommandRequestID` = '{commandRequestID}') AND (`CommandRequests`.`RequestSecretKey` = 42069)";
+         DbConnection.ExecuteNonQueryAPI(sql);
+      }
+      public static void PUT(API aPI)
+      {
+         string sql = "INSERT INTO `db_SelfApi`.`CommandRequests` (`RequestDiscordUserId`, `RequestSecretKey`, `requesterIP`, `Command`, `Data`) " +
+                      $"VALUES ({aPI.RequestDiscordUserId}, {aPI.RequestSecretKey}, '{aPI.RequesterIP}', '{aPI.Command}', '{aPI.Data}')";
+
          DbConnection.ExecuteNonQueryAPI(sql);
       }
    }
