@@ -1,4 +1,4 @@
-﻿using DisCatSharp;
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.CommandsNext;
