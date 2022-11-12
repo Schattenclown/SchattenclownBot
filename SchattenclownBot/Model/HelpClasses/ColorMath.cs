@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿// Copyright (c) Schattenclown
+
+using System.Drawing;
 
 namespace SchattenclownBot.Model.HelpClasses;
 
@@ -6,19 +8,19 @@ internal class ColorMath
 {
 	public static Color GetDominantColor(Bitmap bitmap)
 	{
-		int r = 0;
-		int g = 0;
-		int b = 0;
+		var r = 0;
+		var g = 0;
+		var b = 0;
 
-		int total = 0;
+		var total = 0;
 
 		try
 		{
-			for (int x = 0; x < bitmap.Width; x++)
+			for (var x = 0; x < bitmap.Width; x++)
 			{
-				for (int y = 0; y < bitmap.Height; y++)
+				for (var y = 0; y < bitmap.Height; y++)
 				{
-					Color clr = bitmap.GetPixel(x, y);
+					var clr = bitmap.GetPixel(x, y);
 
 					r += clr.R;
 					g += clr.G;

@@ -1,14 +1,16 @@
-﻿using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
+﻿// Copyright (c) Schattenclown
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot.Model.AsyncFunction;
 
@@ -33,8 +35,8 @@ internal class WhereIs
 				await Task.Delay(1000);
 			} while (guildList.Count == 0);
 
-			DiscordGuild mainGuild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
-			DiscordChannel discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
+			var mainGuild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
+			var discordChannelOtherPlaces = mainGuild.GetChannel(987123289619071026);
 			guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result);
 
 			while (true)
@@ -46,22 +48,22 @@ internal class WhereIs
 						await Task.Delay(1000);
 					}
 
-					bool voiceStateAny = false;
+					var voiceStateAny = false;
 					List<DiscordThreadChannel> discordThreads;
-					bool getMessagesOncePerGuild = false;
+					var getMessagesOncePerGuild = false;
 					List<DiscordMessage> discordMessagesList = new();
 					List<DiscordMember> discordMemberConnectedList = new();
 					DiscordMember lastDiscordMember = default;
 
-					foreach (DiscordGuild guildItem in guildList)
+					foreach (var guildItem in guildList)
 					{
-						List<DiscordMember> discordMemberList = guildItem.Members.Values.ToList();
+						var discordMemberList = guildItem.Members.Values.ToList();
 
 						discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
 
-						List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
+						var discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
 
-						foreach (DiscordMember discordMemberItem in discordMemberConnectedListSorted)
+						foreach (var discordMemberItem in discordMemberConnectedListSorted)
 						{
 							try
 							{
@@ -78,16 +80,16 @@ internal class WhereIs
 									discordVoiceState = discordMemberItem.VoiceState;
 								}
 
-								List<DiscordMember> discordMembersInChannel = discordVoiceState.Channel.Users.ToList();
-								List<DiscordMember> discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
+								var discordMembersInChannel = discordVoiceState.Channel.Users.ToList();
+								var discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
 								discordMembersInChannelSorted.Reverse();
 
-								string description = "";
-								foreach (DiscordMember discordMemberInChannelItem in discordMembersInChannelSorted)
+								var description = "";
+								foreach (var discordMemberInChannelItem in discordMembersInChannelSorted)
 								{
-									string descriptionLineBuilder = "";
-									int counter = 5;
-									string username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
+									var descriptionLineBuilder = "";
+									var counter = 5;
+									var username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
 									if (username is "" or " ")
 										username = discordMemberInChannelItem.Discriminator;
 									description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
@@ -113,7 +115,7 @@ internal class WhereIs
 										counter--; counter--;
 									}
 
-									for (int i = 0; i < counter; i++)
+									for (var i = 0; i < counter; i++)
 									{
 										description += "<:xx_empty:989518542456123442>";
 									}
@@ -123,7 +125,7 @@ internal class WhereIs
 
 								discordThreads = mainGuild.Threads.Values.ToList();
 
-								DiscordThreadChannel discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
+								var discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
 								discordThreadsChannel ??= await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
 
 								DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -135,15 +137,15 @@ internal class WhereIs
 
 								if (!getMessagesOncePerGuild)
 								{
-									IReadOnlyList<DiscordMessage> messages = await discordThreadsChannel.GetMessagesAsync();
+									var messages = await discordThreadsChannel.GetMessagesAsync();
 									discordMessagesList.AddRange(messages);
 									getMessagesOncePerGuild = true;
 								}
 
 								DiscordMessage discordMessage = default;
-								string content = $"<#{discordVoiceState.Channel.Id}>";
+								var content = $"<#{discordVoiceState.Channel.Id}>";
 								if (discordMessagesList != null)
-									foreach (DiscordMessage messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
+									foreach (var messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
 									{
 										discordMessage = messageItem;
 										break;
@@ -151,11 +153,11 @@ internal class WhereIs
 
 								DiscordComponentEmoji discordComponentEmojisJoinChannel = new("📞");
 								DiscordComponentEmoji discordComponentEmojisJoinServer = new("🛡");
-								DiscordComponent[] discordComponents = new DiscordComponent[2];
+								var discordComponents = new DiscordComponent[2];
 
-								DiscordChannel defaultDiscordChannel = discordVoiceState.Guild.GetDefaultChannel();
-								IReadOnlyList<DiscordInvite> discordServerInvites = await defaultDiscordChannel.GetInvitesAsync();
-								DiscordInvite discordServerInvite = discordServerInvites.FirstOrDefault(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id && x.Channel.Id == defaultDiscordChannel.Id);
+								var defaultDiscordChannel = discordVoiceState.Guild.GetDefaultChannel();
+								var discordServerInvites = await defaultDiscordChannel.GetInvitesAsync();
+								var discordServerInvite = discordServerInvites.FirstOrDefault(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id && x.Channel.Id == defaultDiscordChannel.Id);
 								discordServerInvite ??= await defaultDiscordChannel.CreateInviteAsync();
 
 								discordComponents[1] = new DiscordLinkButtonComponent(discordServerInvite.Url, "Join server!", false, discordComponentEmojisJoinServer);
@@ -171,7 +173,7 @@ internal class WhereIs
 								}
 								else
 								{
-									IReadOnlyList<DiscordInvite> discordChannelInvites = await discordVoiceState.Channel.GetInvitesAsync();
+									var discordChannelInvites = await discordVoiceState.Channel.GetInvitesAsync();
 									discordChannelInvite = discordChannelInvites.FirstOrDefault(x => x.Inviter.Id == Bot.DiscordClient.CurrentUser.Id && x.Channel.Id == discordVoiceState.Channel.Id);
 
 									discordChannelInvite ??= await discordVoiceState.Channel.CreateInviteAsync();
@@ -198,13 +200,13 @@ internal class WhereIs
 					}
 
 					discordThreads = mainGuild.Threads.Values.ToList();
-					foreach (DiscordThreadChannel discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
+					foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
 					{
-						IReadOnlyList<DiscordMessage> messages = discordThreadItem.GetMessagesAsync().Result;
+						var messages = discordThreadItem.GetMessagesAsync().Result;
 
-						foreach (DiscordMessage messageItem in messages)
+						foreach (var messageItem in messages)
 						{
-							string mentionedChannel = "";
+							var mentionedChannel = "";
 							try
 							{
 								mentionedChannel = StringCutter.RemoveUntilWord(messageItem.Content, "<#", 2);
@@ -236,14 +238,14 @@ internal class WhereIs
 
 					if (!voiceStateAny)
 					{
-						foreach (DiscordThreadChannel discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
+						foreach (var discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
 						{
 							await discordThreadItem.DeleteAsync();
 						}
 
-						IReadOnlyList<DiscordMessage> messages = await discordChannelOtherPlaces.GetMessagesAsync();
+						var messages = await discordChannelOtherPlaces.GetMessagesAsync();
 
-						foreach (DiscordMessage messageItem in messages.Where(x => x.Content == "wh3r315"))
+						foreach (var messageItem in messages.Where(x => x.Content == "wh3r315"))
 						{
 							await messageItem.DeleteAsync();
 						}

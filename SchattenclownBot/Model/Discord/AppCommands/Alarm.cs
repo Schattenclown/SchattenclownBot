@@ -1,4 +1,10 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿// Copyright (c) Schattenclown
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -8,10 +14,6 @@ using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
-
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
@@ -26,7 +28,7 @@ internal class Alarm : ApplicationCommandsModule
 	/// <param name="hour">The Hour of the Alarm in the Future.</param>
 	/// <param name="minute">The Minute of the Alarm in the Future.</param>
 	/// <returns></returns>
-	[SlashCommand("SetAlarm" + Bot.isDevBot, "Set an alarm for a specific time!")]
+	[SlashCommand("SetAlarm" + Bot.IS_DEV_BOT, "Set an alarm for a specific time!")]
 	public static async Task SetAlarmAsync(InteractionContext interactionContext, [Option("HourOfDay", "0-23")] int hour, [Option("MinuteOfDay", "0-59")] int minute)
 	{
 		//Create a Response.
@@ -41,7 +43,7 @@ internal class Alarm : ApplicationCommandsModule
 		}
 
 		//Create a DateTime Variable if the Time format was Valid.
-		DateTime dateTimeNow = DateTime.Now;
+		var dateTimeNow = DateTime.Now;
 		DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
 
 		//Check if the Alarm is a Time for Tomorrow, if it is in the Past already Today.
@@ -66,14 +68,14 @@ internal class Alarm : ApplicationCommandsModule
 	/// </summary>
 	/// <param name="interactionContext"></param>
 	/// <returns></returns>
-	[SlashCommand("MyAlarms" + Bot.isDevBot, "Look up your alarms!")]
+	[SlashCommand("MyAlarms" + Bot.IS_DEV_BOT, "Look up your alarms!")]
 	public static async Task AlarmClockLookup(InteractionContext interactionContext)
 	{
 		//Create an Response.
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
 		//Create a List where all Alarms will be Listed if there are any set.
-		System.Collections.Generic.List<BotAlarmClock> botAlarmClockList = DbBotAlarmClocks.ReadAll();
+		var botAlarmClockList = DbBotAlarmClocks.ReadAll();
 
 		//Create an Embed.
 		DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -84,10 +86,10 @@ internal class Alarm : ApplicationCommandsModule
 		};
 
 		//Switch to check if there are any Timers at all.
-		bool noTimers = true;
+		var noTimers = true;
 
 		//Search for any Alarms that match the Alarm creator and Requesting User.
-		foreach (BotAlarmClock botAlarmClockItem in botAlarmClockList.Where(botAlarmClockItem => botAlarmClockItem.MemberId == interactionContext.Member.Id))
+		foreach (var botAlarmClockItem in botAlarmClockList.Where(botAlarmClockItem => botAlarmClockItem.MemberId == interactionContext.Member.Id))
 		{
 			//Set the switch to false because at least one Alarm was found.
 			noTimers = false;

@@ -1,10 +1,10 @@
-﻿using MySql.Data.MySqlClient;
+﻿// Copyright (c) Schattenclown
+
+using System.Collections.Generic;
 
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
-
-using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence;
 
@@ -12,11 +12,11 @@ public class DbBotTimer
 {
 	public static List<BotTimer> ReadAll()
 	{
-		string sql = "SELECT * FROM ScTimers";
+		var sql = "SELECT * FROM ScTimers";
 
 		List<BotTimer> botTimerList = new();
-		MySqlConnection mySqlConnection = DbConnection.OpenDb();
-		MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
+		var mySqlConnection = DbConnection.OpenDb();
+		var mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
 
 		if (mySqlDataReader != null)
 		{
@@ -38,28 +38,28 @@ public class DbBotTimer
 	}
 	public static void Add(BotTimer botTimer)
 	{
-		string sql = "INSERT INTO ScTimers (NotificationTime, ChannelId, MemberId) " +
+		var sql = "INSERT INTO ScTimers (NotificationTime, ChannelId, MemberId) " +
 				  $"VALUES ('{botTimer.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botTimer.ChannelId}, {botTimer.MemberId})";
 		DbConnection.ExecuteNonQuery(sql);
 	}
 	public static void Delete(BotTimer botTimer)
 	{
-		string sql = $"DELETE FROM ScTimers WHERE `DBEntryID` = '{botTimer.DbEntryId}'";
+		var sql = $"DELETE FROM ScTimers WHERE `DBEntryID` = '{botTimer.DbEntryId}'";
 		DbConnection.ExecuteNonQuery(sql);
 	}
 	public static void CreateTable_BotTimer()
 	{
-		Connections connections = CsvConnections.ReadAll();
+		var connections = CsvConnections.ReadAll();
 
 
 #if DEBUG
-		string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
+		var database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
 #else
             string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
 #endif
 		database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
-		string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
+		var sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
 				  $"USE `{database}`;" +
 				  "CREATE TABLE IF NOT EXISTS `ScTimers` (" +
 				  "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," +

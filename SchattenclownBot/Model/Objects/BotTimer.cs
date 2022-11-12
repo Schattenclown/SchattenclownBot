@@ -1,11 +1,13 @@
-﻿using DisCatSharp.Entities;
-
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Persistence;
+// Copyright (c) Schattenclown
 
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Persistence;
 
 namespace SchattenclownBot.Model.Objects;
 
@@ -27,10 +29,7 @@ public class BotTimer
 		DbBotTimer.Delete(botTimer);
 		BotTimerDbRefresh();
 	}
-	public static List<BotTimer> ReadAll()
-	{
-		return DbBotTimer.ReadAll();
-	}
+	public static List<BotTimer> ReadAll() => DbBotTimer.ReadAll();
 	public static async Task BotTimerRunAsync()
 	{
 		DbBotTimer.CreateTable_BotTimer();
@@ -40,11 +39,11 @@ public class BotTimer
 		{
 			while (true)
 			{
-				foreach (BotTimer botTimerItem in BotTimerList)
+				foreach (var botTimerItem in BotTimerList)
 				{
 					if (botTimerItem.NotificationTime < DateTime.Now)
 					{
-						DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(botTimerItem.ChannelId);
+						var chn = await Bot.DiscordClient.GetChannelAsync(botTimerItem.ChannelId);
 						DiscordEmbedBuilder eb = new()
 						{
 							Color = DiscordColor.Red
@@ -52,7 +51,7 @@ public class BotTimer
 						eb.WithDescription($"<@{botTimerItem.MemberId}> Timer for {botTimerItem.NotificationTime} is up!");
 
 						Delete(botTimerItem);
-						for (int i = 0; i < 3; i++)
+						for (var i = 0; i < 3; i++)
 						{
 							await chn.SendMessageAsync(eb.Build());
 							await Task.Delay(50);
@@ -70,8 +69,5 @@ public class BotTimer
 			// ReSharper disable once FunctionNeverReturns
 		});
 	}
-	public static void BotTimerDbRefresh()
-	{
-		BotTimerList = DbBotTimer.ReadAll();
-	}
+	public static void BotTimerDbRefresh() => BotTimerList = DbBotTimer.ReadAll();
 }

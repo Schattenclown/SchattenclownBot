@@ -1,7 +1,9 @@
-﻿using DisCatSharp.CommandsNext;
-using DisCatSharp.CommandsNext.Attributes;
+﻿// Copyright (c) Schattenclown
 
 using System.Threading.Tasks;
+
+using DisCatSharp.CommandsNext;
+using DisCatSharp.CommandsNext.Attributes;
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.Commands;
@@ -17,10 +19,7 @@ internal class Main : BaseCommandModule
 	/// <param name="commandContext">The commandContext.</param>
 	/// <returns>A Task.</returns>
 	[Command("ping"), Description("Ping")]
-	public static async Task PingAsync(CommandContext commandContext)
-	{
-		await commandContext.RespondAsync($"{commandContext.Client.Ping}ms");
-	}
+	public static async Task PingAsync(CommandContext commandContext) => await commandContext.RespondAsync($"{commandContext.Client.Ping}ms");
 
 	/*/// <summary>
 	///     Set a new appearance for the bot per command.

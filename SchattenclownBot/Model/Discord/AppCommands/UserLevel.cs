@@ -1,4 +1,10 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿// Copyright (c) Schattenclown
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -6,11 +12,6 @@ using DisCatSharp.Enums;
 
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
@@ -23,21 +24,21 @@ internal class UserLevel : ApplicationCommandsModule
 	/// </summary>
 	/// <param name="interactionContext">The interactionContext</param>
 	/// <returns></returns>
-	[SlashCommand("MyLevel" + Bot.isDevBot, "Look up your level!")]
+	[SlashCommand("MyLevel" + Bot.IS_DEV_BOT, "Look up your level!")]
 	public static async Task MyLevelAsync(InteractionContext interactionContext)
 	{
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-		List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
-		List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+		var userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+		var userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
 		userLevelSystemListSorted.Reverse();
 		int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
 
-		string rank = "N/A";
+		var rank = "N/A";
 
 		await Bot.DiscordClient.GetUserAsync(interactionContext.Member.Id);
 
-		foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == interactionContext.Member.Id))
+		foreach (var userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == interactionContext.Member.Id))
 		{
 			rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
 			calculatedXpOverCurrentLevel = UserLevelSystem.CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
@@ -46,15 +47,15 @@ internal class UserLevel : ApplicationCommandsModule
 			break;
 		}
 
-		string xpString = $"{calculatedXpOverCurrentLevel} / {calculatedXpSpanToReachNextLevel} XP ";
+		var xpString = $"{calculatedXpOverCurrentLevel} / {calculatedXpSpanToReachNextLevel} XP ";
 
-		string levelString = $"Level {level}";
+		var levelString = $"Level {level}";
 
-		string xpPadLeft = xpString.PadLeft(11, ' ');
+		var xpPadLeft = xpString.PadLeft(11, ' ');
 
-		string levelPadLeft = levelString.PadLeft(8, ' ');
+		var levelPadLeft = levelString.PadLeft(8, ' ');
 
-		string temp = xpPadLeft + levelPadLeft;
+		var temp = xpPadLeft + levelPadLeft;
 
 		#region editLink
 
@@ -63,7 +64,7 @@ internal class UserLevel : ApplicationCommandsModule
 		#endregion
 
 		#region apikey
-		string urlString = "https://quickchart.io/chart?w=1000&h=180&bkg=%232f3136&c={\"type\":\"horizontalBar\",\"data\":{\"datasets\":[{\"barPercentage\":1,\"categoryPercentage\":1,\"data\":[" +
+		var urlString = "https://quickchart.io/chart?w=1000&h=180&bkg=%232f3136&c={\"type\":\"horizontalBar\",\"data\":{\"datasets\":[{\"barPercentage\":1,\"categoryPercentage\":1,\"data\":[" +
 					  $"{calculatedXpOverCurrentLevel}" +
 					  "],\"type\":\"horizontalBar\",\"label\":\"XP\",\"borderColor\":\"%23e100ff\",\"backgroundColor\":\"rgba(80,0,121,0.4)\",\"borderWidth\":3,\"xAxisID\":\"X1\",},{\"barPercentage\":1,\"categoryPercentage\":1,\"data\":[" +
 					  $"{calculatedXpSpanToReachNextLevel}" +
@@ -88,19 +89,19 @@ internal class UserLevel : ApplicationCommandsModule
 	/// <param name="interactionContext">The interactionContext</param>
 	/// <param name="discordUser"></param>
 	/// <returns></returns>
-	[SlashCommand("Level" + Bot.isDevBot, "Look up someones level!")]
+	[SlashCommand("Level" + Bot.IS_DEV_BOT, "Look up someones level!")]
 	public static async Task LevelAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
 	{
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-		List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
-		List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+		var userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+		var userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
 		userLevelSystemListSorted.Reverse();
 		int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
 
-		string rank = "N/A";
+		var rank = "N/A";
 
-		foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == discordUser.Id))
+		foreach (var userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == discordUser.Id))
 		{
 			rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
 			calculatedXpOverCurrentLevel = UserLevelSystem.CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
@@ -109,15 +110,15 @@ internal class UserLevel : ApplicationCommandsModule
 			break;
 		}
 
-		string xpString = $"{calculatedXpOverCurrentLevel} / {calculatedXpSpanToReachNextLevel} XP ";
+		var xpString = $"{calculatedXpOverCurrentLevel} / {calculatedXpSpanToReachNextLevel} XP ";
 
-		string levelString = $"Level {level}";
+		var levelString = $"Level {level}";
 
-		string xpPadLeft = xpString.PadLeft(11, ' ');
+		var xpPadLeft = xpString.PadLeft(11, ' ');
 
-		string levelPadLeft = levelString.PadLeft(8, ' ');
+		var levelPadLeft = levelString.PadLeft(8, ' ');
 
-		string temp = xpPadLeft + levelPadLeft;
+		var temp = xpPadLeft + levelPadLeft;
 
 		#region editLink
 
@@ -126,7 +127,7 @@ internal class UserLevel : ApplicationCommandsModule
 		#endregion
 
 		#region apikey
-		string urlString = "https://quickchart.io/chart?w=1000&h=180&bkg=%232f3136&c={\"type\":\"horizontalBar\",\"data\":{\"datasets\":[{\"barPercentage\":1,\"categoryPercentage\":1,\"data\":[" +
+		var urlString = "https://quickchart.io/chart?w=1000&h=180&bkg=%232f3136&c={\"type\":\"horizontalBar\",\"data\":{\"datasets\":[{\"barPercentage\":1,\"categoryPercentage\":1,\"data\":[" +
 					  $"{calculatedXpOverCurrentLevel}" +
 					  "],\"type\":\"horizontalBar\",\"label\":\"XP\",\"borderColor\":\"%23e100ff\",\"backgroundColor\":\"rgba(80,0,121,0.4)\",\"borderWidth\":3,\"xAxisID\":\"X1\",},{\"barPercentage\":1,\"categoryPercentage\":1,\"data\":[" +
 					  $"{calculatedXpSpanToReachNextLevel}" +
@@ -150,7 +151,7 @@ internal class UserLevel : ApplicationCommandsModule
 	/// </summary>
 	/// <param name="interactionContext"></param>
 	/// <returns></returns>
-	[SlashCommand("Leaderboard" + Bot.isDevBot, "Look up the leaderboard for connection time!")]
+	[SlashCommand("Leaderboard" + Bot.IS_DEV_BOT, "Look up the leaderboard for connection time!")]
 	public static async Task LeaderboardAsync(InteractionContext interactionContext)
 	{
 		//Create an Response.
@@ -159,21 +160,21 @@ internal class UserLevel : ApplicationCommandsModule
 		DiscordMember discordMember = null;
 
 		//Create List where all users are listed.
-		List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+		var userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
 
 		//Order the list by online ticks.
-		List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+		var userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
 		userLevelSystemListSorted.Reverse();
 
-		int top30 = 0;
-		string leaderboardString = "```css\n";
+		var top30 = 0;
+		var leaderboardString = "```css\n";
 
-		List<DiscordMember> discordMemberList = Bot.DiscordClient.GetGuildAsync(interactionContext.Guild.Id).Result.Members.Values.ToList();
+		var discordMemberList = Bot.DiscordClient.GetGuildAsync(interactionContext.Guild.Id).Result.Members.Values.ToList();
 
 		//Create the Leaderboard string
-		foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted)
+		foreach (var userLevelSystemItem in userLevelSystemListSorted)
 		{
-			foreach (DiscordMember discordMemberItem in discordMemberList.Where(discordMemberItem => discordMemberItem.Id == userLevelSystemItem.MemberId))
+			foreach (var discordMemberItem in discordMemberList.Where(discordMemberItem => discordMemberItem.Id == userLevelSystemItem.MemberId))
 			{
 				discordMember = discordMemberItem;
 			}
@@ -181,12 +182,12 @@ internal class UserLevel : ApplicationCommandsModule
 			if (discordMember != null)
 			{
 				DateTime date1 = new(1969, 4, 20, 4, 20, 0);
-				DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
-				TimeSpan timeSpan = date2 - date1;
+				var date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
+				var timeSpan = date2 - date1;
 
-				int calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
+				var calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
 
-				string daysString = "Days";
+				var daysString = "Days";
 				if (Convert.ToInt32($"{timeSpan:ddd}") == 1)
 					daysString = "Day ";
 

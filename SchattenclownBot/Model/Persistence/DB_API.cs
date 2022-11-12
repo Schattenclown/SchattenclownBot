@@ -1,9 +1,9 @@
-﻿using MySql.Data.MySqlClient;
+﻿// Copyright (c) Schattenclown
+
+using System.Collections.Generic;
 
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
-
-using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence;
 
@@ -11,11 +11,11 @@ internal class DB_API
 {
 	internal static List<API> GET()
 	{
-		string sql = "SELECT * FROM `db_SelfApi`.`CommandRequests`";
+		var sql = "SELECT * FROM `db_SelfApi`.`CommandRequests`";
 
 		List<API> aPIGETs = new();
-		MySqlConnection mySqlConnection = DbConnection.OpenAPIDb();
-		MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
+		var mySqlConnection = DbConnection.OpenAPIDb();
+		var mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
 
 		if (mySqlDataReader != null)
 		{
@@ -40,12 +40,12 @@ internal class DB_API
 	}
 	internal static void DELETE(int commandRequestID)
 	{
-		string sql = $"DELETE FROM `db_SelfApi`.`CommandRequests` WHERE (`CommandRequests`.`CommandRequestID` = '{commandRequestID}') AND (`CommandRequests`.`RequestSecretKey` = 42069)";
+		var sql = $"DELETE FROM `db_SelfApi`.`CommandRequests` WHERE (`CommandRequests`.`CommandRequestID` = '{commandRequestID}') AND (`CommandRequests`.`RequestSecretKey` = 42069)";
 		DbConnection.ExecuteNonQueryAPI(sql);
 	}
 	public static void PUT(API aPI)
 	{
-		string sql = "INSERT INTO `db_SelfApi`.`CommandRequests` (`RequestDiscordUserId`, `RequestSecretKey`, `requesterIP`, `Command`, `Data`) " +
+		var sql = "INSERT INTO `db_SelfApi`.`CommandRequests` (`RequestDiscordUserId`, `RequestSecretKey`, `requesterIP`, `Command`, `Data`) " +
 					 $"VALUES ({aPI.RequestDiscordUserId}, {aPI.RequestSecretKey}, '{aPI.RequesterIP}', '{aPI.Command}', '{aPI.Data}')";
 
 		DbConnection.ExecuteNonQueryAPI(sql);

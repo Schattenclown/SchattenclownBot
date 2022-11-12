@@ -1,4 +1,6 @@
-﻿using DisCatSharp.Common;
+// Copyright (c) Schattenclown
+
+using DisCatSharp.Common;
 
 namespace SchattenclownBot.Model.HelpClasses;
 
@@ -13,10 +15,5 @@ public static class TimeFormatCheck
 	/// <param name="minute">The minute.</param>
 	/// <returns>A bool.</returns>
 	public static bool TimeFormat(int hour, int minute)
-	{
-		if (hour.IsInRange(0, 24) && minute.IsInRange(0, 59))
-			return true;
-		else
-			return false;
-	}
+		=> hour.IsInRange(0, 24) && minute.IsInRange(0, 59);
 }

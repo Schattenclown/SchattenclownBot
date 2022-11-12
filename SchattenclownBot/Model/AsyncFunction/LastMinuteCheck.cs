@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) Schattenclown
+
+using System;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction;

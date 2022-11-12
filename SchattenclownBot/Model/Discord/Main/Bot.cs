@@ -1,3 +1,11 @@
+// Copyright (c) Schattenclown
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
@@ -15,18 +23,12 @@ using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Objects;
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace SchattenclownBot.Model.Discord.Main;
 
 public class Bot : IDisposable
 {
 #if DEBUG
-	public const string Prefix = "%";
+	public const string PREFIX = "%";
 #else
         public const string Prefix = "%";
 #endif
@@ -38,13 +40,13 @@ public class Bot : IDisposable
 	public InteractivityExtension Extension { get; internal set; }
 	public VoiceNextExtension NextExtension { get; internal set; }
 	private CommandsNextExtension _commandsNextExtension;
-	private const ulong DevGuild = 881868642600505354;
-	private static string _token = "";
+	private const ulong DEV_GUILD = 881868642600505354;
+	private static string s_token = "";
 	public static UserStatus CustomStatus { get; internal set; } = UserStatus.Online;
 	public static bool Custom { get; internal set; } = false;
 	public static string CustomState { get; internal set; } = "/help";
 #if DEBUG
-	public const string isDevBot = "";
+	public const string IS_DEV_BOT = "";
 #else
         public const string isDevBot = "";
 #endif
@@ -55,24 +57,24 @@ public class Bot : IDisposable
 	public Bot()
 	{
 
-		_token = Connections.DiscordBotKey;
+		s_token = Connections.DiscordBotKey;
 #if DEBUG
-		_token = Connections.DiscordBotDebug;
+		s_token = Connections.DiscordBotDebug;
 #endif
 		ShutdownRequest = new CancellationTokenSource();
 
 #if DEBUG
-		const LogLevel logLevel = LogLevel.Debug;
+		const LogLevel LOG_LEVEL = LogLevel.Debug;
 #else
             const LogLevel logLevel = LogLevel.Information;
 #endif
 		DiscordConfiguration discordConfiguration = new()
 		{
-			Token = _token,
+			Token = s_token,
 			TokenType = TokenType.Bot,
 			AutoReconnect = true,
 			MessageCacheSize = 4096,
-			MinimumLogLevel = logLevel,
+			MinimumLogLevel = LOG_LEVEL,
 			ShardCount = 1,
 			ShardId = 0,
 			Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences,
@@ -94,9 +96,9 @@ public class Bot : IDisposable
 			CheckAllGuilds = true
 		});
 
-		_commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
+		this._commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
 		{
-			StringPrefixes = new List<string> { Prefix },
+			StringPrefixes = new List<string> { PREFIX },
 			CaseSensitive = true,
 			EnableMentionPrefix = true,
 			IgnoreExtraArguments = true,
@@ -105,7 +107,7 @@ public class Bot : IDisposable
 			EnableDms = true
 		});
 
-		Extension = DiscordClient.UseInteractivity(new InteractivityConfiguration
+		this.Extension = DiscordClient.UseInteractivity(new InteractivityConfiguration
 		{
 			PaginationBehaviour = PaginationBehaviour.WrapAround,
 			PaginationDeletion = PaginationDeletion.DeleteMessage,
@@ -113,10 +115,10 @@ public class Bot : IDisposable
 			ButtonBehavior = ButtonPaginationBehavior.Disable
 		});
 
-		NextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration());
+		this.NextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration());
 
-		RegisterEventListener(DiscordClient, AppCommands, _commandsNextExtension);
-		RegisterCommands(_commandsNextExtension, AppCommands);
+		RegisterEventListener(DiscordClient, AppCommands, this._commandsNextExtension);
+		RegisterCommands(this._commandsNextExtension, AppCommands);
 	}
 
 	/// <summary>
@@ -125,8 +127,8 @@ public class Bot : IDisposable
 	public void Dispose()
 	{
 		DiscordClient.Dispose();
-		Extension = null;
-		_commandsNextExtension = null;
+		this.Extension = null;
+		this._commandsNextExtension = null;
 		DiscordClient = null;
 		AppCommands = null;
 		GC.SuppressFinalize(this);
@@ -161,7 +163,7 @@ public class Bot : IDisposable
 		await DiscordClient.UpdateStatusAsync(activity: null, userStatus: UserStatus.Offline, idleSince: null);
 		await DiscordClient.DisconnectAsync();
 		await Task.Delay(2500);
-		Dispose();
+		this.Dispose();
 	}
 
 	#region Register Commands & Events
@@ -224,14 +226,14 @@ public class Bot : IDisposable
 
 	private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
 	{
-		CWLogger.Write($"Starting with Prefix {Prefix} :3", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+		CWLogger.Write($"Starting with Prefix {PREFIX} :3", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 		CWLogger.Write($"Starting {DiscordClient.CurrentUser.Username}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 		CWLogger.Write($"DiscordClient ready!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 		CWLogger.Write($"Shard {discordClient.ShardId}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 		CWLogger.Write($"Loading Commands...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 
-		IReadOnlyDictionary<string, Command> registeredCommands = discordClient.GetCommandsNext().RegisteredCommands;
-		foreach (KeyValuePair<string, Command> command in registeredCommands)
+		var registeredCommands = discordClient.GetCommandsNext().RegisteredCommands;
+		foreach (var command in registeredCommands)
 		{
 			CWLogger.Write($"Command {command.Value.Name} loaded.", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 		}
@@ -253,17 +255,26 @@ public class Bot : IDisposable
 
 	private static Task Discord_ApplicationCommandUpdated(DiscordClient discordClient, ApplicationCommandEventArgs applicationCommandEventArgs)
 	{
-		discordClient.Logger.LogInformation($"Shard {discordClient.ShardId} sent application command updated: {applicationCommandEventArgs.Command.Name}: {applicationCommandEventArgs.Command.Id} for {applicationCommandEventArgs.Command.ApplicationId}");
+		discordClient.Logger.LogInformation(
+		"Shard {shard} sent application command updated: {comName}: {comId} for {appId}",
+		discordClient.ShardId, applicationCommandEventArgs.Command.Name, applicationCommandEventArgs.Command.Id, applicationCommandEventArgs.Command.ApplicationId
+	);
 		return Task.CompletedTask;
 	}
 	private static Task Discord_ApplicationCommandDeleted(DiscordClient discordClient, ApplicationCommandEventArgs applicationCommandEventArgs)
 	{
-		discordClient.Logger.LogInformation($"Shard {discordClient.ShardId} sent application command deleted: {applicationCommandEventArgs.Command.Name}: {applicationCommandEventArgs.Command.Id} for {applicationCommandEventArgs.Command.ApplicationId}");
+		discordClient.Logger.LogInformation(
+			"Shard {shard} sent application command deleted: {comName}: {comId} for {appId}",
+			discordClient.ShardId, applicationCommandEventArgs.Command.Name, applicationCommandEventArgs.Command.Id, applicationCommandEventArgs.Command.ApplicationId
+		);
 		return Task.CompletedTask;
 	}
 	private static Task Discord_ApplicationCommandCreated(DiscordClient discordClient, ApplicationCommandEventArgs applicationCommandEventArgs)
 	{
-		discordClient.Logger.LogInformation($"Shard {discordClient.ShardId} sent application command created: {applicationCommandEventArgs.Command.Name}: {applicationCommandEventArgs.Command.Id} for {applicationCommandEventArgs.Command.ApplicationId}");
+		discordClient.Logger.LogInformation(
+			"Shard {shard} sent application command created: {comName}: {comId} for {appId}",
+			discordClient.ShardId, applicationCommandEventArgs.Command.Name, applicationCommandEventArgs.Command.Id, applicationCommandEventArgs.Command.ApplicationId
+		);
 		return Task.CompletedTask;
 	}
 	private static Task Slash_SlashCommandExecuted(ApplicationCommandsExtension applicationCommandsExtension, SlashCommandExecutedEventArgs slashCommandExecutedEventArgs)

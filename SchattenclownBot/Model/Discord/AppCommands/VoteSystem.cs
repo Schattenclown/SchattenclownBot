@@ -1,4 +1,10 @@
-﻿using DisCatSharp;
+﻿// Copyright (c) Schattenclown
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -9,11 +15,6 @@ using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
@@ -27,10 +28,10 @@ internal class VoteSystem : ApplicationCommandsModule
 	/// <param name="interactionContext">The interactionContext</param>
 	/// <param name="discordUser">The discordUser</param>
 	/// <returns></returns>
-	[SlashCommand("GiveRating" + Bot.isDevBot, "Give an User a rating!")]
+	[SlashCommand("GiveRating" + Bot.IS_DEV_BOT, "Give an User a rating!")]
 	public static async Task GiveRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
 	{
-		DiscordStringSelectComponentOption[] DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
+		var DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
 		DiscordStringSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
 		DiscordStringSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
 		DiscordStringSelectComponentOptionList[2] = new DiscordStringSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
@@ -50,7 +51,7 @@ internal class VoteSystem : ApplicationCommandsModule
 	[ContextMenu(ApplicationCommandType.User, "Give Rating!")]
 	public static async Task GiveRatingAsync(ContextMenuContext contextMenuContext)
 	{
-		DiscordStringSelectComponentOption[] DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
+		var DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
 		DiscordStringSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
 		DiscordStringSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Rate 2", "rating_2", emoji: new DiscordComponentEmoji("⚠️"));
 		DiscordStringSelectComponentOptionList[2] = new DiscordStringSelectComponentOption("Rate 3", "rating_3", emoji: new DiscordComponentEmoji("🆗"));
@@ -95,12 +96,12 @@ internal class VoteSystem : ApplicationCommandsModule
 	/// <returns></returns>
 	public static async Task VoteRatingAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, int rating)
 	{
-		List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
+		var sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
 
-		bool foundTargetMemberInDb = false;
+		var foundTargetMemberInDb = false;
 		DiscordEmbedBuilder discordEmbedBuilder = new();
 
-		DiscordMember discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
+		var discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
 		DiscordMember discordTargetMember;
 		try
 		{
@@ -108,9 +109,9 @@ internal class VoteSystem : ApplicationCommandsModule
 		}
 		catch
 		{
-			string text = componentInteractionCreateEventArgs.Message.Content;
-			string ulongString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(text, "<@", "<@".Length), ">", 0);
-			ulong discordTargetMemberUlong = Convert.ToUInt64(ulongString);
+			var text = componentInteractionCreateEventArgs.Message.Content;
+			var ulongString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(text, "<@", "<@".Length), ">", 0);
+			var discordTargetMemberUlong = Convert.ToUInt64(ulongString);
 
 
 			SympathySystem sympathySystemObj = new()
@@ -121,7 +122,7 @@ internal class VoteSystem : ApplicationCommandsModule
 				VoteRating = rating
 			};
 
-			foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
+			foreach (var dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
 				foundTargetMemberInDb = true;
 
 
@@ -141,12 +142,12 @@ internal class VoteSystem : ApplicationCommandsModule
 
 		discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
 
-		bool memberIsFlagged91 = false;
+		var memberIsFlagged91 = false;
 		discordEmbedBuilder = new();
 
 		if (componentInteractionCreateEventArgs.Guild.Id == 928930967140331590)
 		{
-			DiscordRole discordRole = componentInteractionCreateEventArgs.Guild.GetRole(980071522427363368);
+			var discordRole = componentInteractionCreateEventArgs.Guild.GetRole(980071522427363368);
 			if (discordMember != null && discordMember.Roles.Contains(discordRole))
 			{
 				memberIsFlagged91 = true;
@@ -173,7 +174,7 @@ internal class VoteSystem : ApplicationCommandsModule
 					VoteRating = rating
 				};
 
-				foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
+				foreach (var dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
 					foundTargetMemberInDb = true;
 
 				switch (foundTargetMemberInDb)
@@ -197,13 +198,13 @@ internal class VoteSystem : ApplicationCommandsModule
 	/// <param name="interactionContext">The interactionContext.</param>
 	/// <param name="discordUser">The Discord User.</param>
 	/// <returns></returns>
-	[SlashCommand("ShowRating" + Bot.isDevBot, "Shows the rating of an user!")]
+	[SlashCommand("ShowRating" + Bot.IS_DEV_BOT, "Shows the rating of an user!")]
 	public static async Task ShowRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
 	{
-		string description = "```\n";
+		var description = "```\n";
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-		for (int i = 1; i < 6; i++)
+		for (var i = 1; i < 6; i++)
 			description += $"Rating with {i}: {SympathySystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
 		description += "```";
 		DiscordEmbedBuilder discordEmbedBuilder = new()

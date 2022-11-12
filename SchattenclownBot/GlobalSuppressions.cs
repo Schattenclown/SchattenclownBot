@@ -1,0 +1,14 @@
+﻿// Copyright (c) Schattenclown
+
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~F:SchattenclownBot.Model.Discord.Main.Bot.DEV_GUILD")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~F:SchattenclownBot.Model.Objects.UserLevelSystem.ROLE_CHANNEL_LEVEL_STRING")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.Discord.AppCommands.PlayMusic.DrivePlayCommand(DisCatSharp.ApplicationCommands.Context.InteractionContext)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.Discord.AppCommands.PlayMusic.DriveStopCommand(DisCatSharp.ApplicationCommands.Context.InteractionContext)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.Discord.AppCommands.PlayMusic.NextCommand(DisCatSharp.ApplicationCommands.Context.InteractionContext)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.Discord.AppCommands.PlayMusic.PlayCommand(DisCatSharp.ApplicationCommands.Context.InteractionContext,System.String)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.Discord.AppCommands.PlayMusic.Shuffle(DisCatSharp.ApplicationCommands.Context.InteractionContext)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.Discord.AppCommands.PlayMusic.SkipCommand(DisCatSharp.ApplicationCommands.Context.InteractionContext)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.AsyncFunction.GetItRightMee6.ItRight(DisCatSharp.DiscordClient,DisCatSharp.EventArgs.ChannelCreateEventArgs)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>", Scope = "member", Target = "~M:SchattenclownBot.Model.Discord.AppCommands.VoteSystem.GaveRating(DisCatSharp.DiscordClient,DisCatSharp.EventArgs.ComponentInteractionCreateEventArgs)~System.Threading.Tasks.Task")]

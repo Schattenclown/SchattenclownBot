@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿// Copyright (c) Schattenclown
 
 using System.Collections.Generic;
+
+using Newtonsoft.Json;
 
 namespace SchattenclownBot.Model.Objects;
 
@@ -36,7 +38,7 @@ public class MusicBrainz
 
 	public static Root CreateObj(string content)
 	{
-		Root lst = JsonConvert.DeserializeObject<Root>(content);
+		var lst = JsonConvert.DeserializeObject<Root>(content);
 
 		if (lst == null)
 			return null;

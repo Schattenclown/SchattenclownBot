@@ -1,26 +1,28 @@
-﻿using SchattenclownBot.Model.Objects;
+// Copyright (c) Schattenclown
 
 using System;
 using System.IO;
+
+using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Persistence.Connection;
 
 public class CsvConnections
 {
-	private static readonly Uri Path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
-	private static readonly Uri Filepath = new($"{Path}/Connections.csv");
+	private static readonly Uri s_path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
+	private static readonly Uri s_filepath = new($"{s_path}/Connections.csv");
 	public static Connections ReadAll()
 	{
 		try
 		{
 			Connections connections = new();
-			StreamReader streamReader = new(Filepath.LocalPath);
+			StreamReader streamReader = new(s_filepath.LocalPath);
 			while (!streamReader.EndOfStream)
 			{
-				string row = streamReader.ReadLine();
+				var row = streamReader.ReadLine();
 				if (row != null)
 				{
-					string[] infos = row.Split(';');
+					var infos = row.Split(';');
 
 					switch (infos[0])
 					{
@@ -44,7 +46,7 @@ public class CsvConnections
 							break;
 						case "SpotifyOAuth2":
 							connections.Token = new Connections.SpotifyOAuth2();
-							string[] spotifyOAuth2 = infos[1].Split('-');
+							var spotifyOAuth2 = infos[1].Split('-');
 							connections.Token.ClientId = spotifyOAuth2[0];
 							connections.Token.ClientSecret = spotifyOAuth2[1];
 							break;
@@ -59,11 +61,11 @@ public class CsvConnections
 		}
 		catch (Exception)
 		{
-			DirectoryInfo directory = new(Path.LocalPath);
+			DirectoryInfo directory = new(s_path.LocalPath);
 			if (!directory.Exists)
 				directory.Create();
 
-			StreamWriter streamWriter = new(Filepath.LocalPath);
+			StreamWriter streamWriter = new(s_filepath.LocalPath);
 			streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
 								   "DiscordBotKeyDebug;<API Key here>\n" +
 								   "MySqlConStr;<DBConnectionString here>\n" +
@@ -72,7 +74,7 @@ public class CsvConnections
 								   "SpotifyOAuth2;<ClientId-ClientSecret here>");
 
 			streamWriter.Close();
-			throw new Exception($"{Path.LocalPath}\n" +
+			throw new Exception($"{s_path.LocalPath}\n" +
 								"API key´s and database strings not configured!");
 		}
 	}

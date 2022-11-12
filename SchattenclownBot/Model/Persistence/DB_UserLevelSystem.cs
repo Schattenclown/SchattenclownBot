@@ -1,10 +1,10 @@
-﻿using MySql.Data.MySqlClient;
+﻿// Copyright (c) Schattenclown
+
+using System.Collections.Generic;
 
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
-
-using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence;
 
@@ -12,10 +12,10 @@ public static class DbUserLevelSystem
 {
 	public static List<UserLevelSystem> Read(ulong guildId)
 	{
-		string sqlCommand = $"SELECT * FROM `{guildId}_levelSystem`";
+		var sqlCommand = $"SELECT * FROM `{guildId}_levelSystem`";
 		List<UserLevelSystem> userLevelSystemList = new();
-		MySqlConnection mySqlConnection = DbConnection.OpenDb();
-		MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sqlCommand, mySqlConnection);
+		var mySqlConnection = DbConnection.OpenDb();
+		var mySqlDataReader = DbConnection.ExecuteReader(sqlCommand, mySqlConnection);
 
 		while (mySqlDataReader.Read())
 		{
@@ -33,27 +33,27 @@ public static class DbUserLevelSystem
 	}
 	public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
 	{
-		string sqlCommand = $"INSERT INTO `{guildId}_levelSystem` (MemberId, OnlineTicks, OnlineTime) " +
+		var sqlCommand = $"INSERT INTO `{guildId}_levelSystem` (MemberId, OnlineTicks, OnlineTime) " +
 						 $"VALUES ({userLevelSystem.MemberId}, {userLevelSystem.OnlineTicks}, '{userLevelSystem.OnlineTime}')";
 		DbConnection.ExecuteNonQuery(sqlCommand);
 	}
 	public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
 	{
-		string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
+		var sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
 		DbConnection.ExecuteNonQuery(sqlCommand);
 	}
 	public static void CreateTable_UserLevelSystem(ulong guildId)
 	{
-		Connections connections = CsvConnections.ReadAll();
+		var connections = CsvConnections.ReadAll();
 
 #if DEBUG
-		string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
+		var database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
 #else
             string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
 #endif
 		database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
-		string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
+		var sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
 						 $"USE `{database}`;" +
 						 $"CREATE TABLE IF NOT EXISTS `{guildId}_levelSystem` (" +
 						 "`MemberId` BIGINT NOT NULL," +

@@ -1,13 +1,14 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿// Copyright (c) Schattenclown
+
+using System.Threading.Tasks;
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 
 using SchattenclownBot.Model.Discord.Main;
-
-using System;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
@@ -26,9 +27,9 @@ internal class Main : ApplicationCommandsModule
 	[ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
 	public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
 	{
-		DiscordUser user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);
+		var user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);
 
-		DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
+		var discordEmbedBuilder = new DiscordEmbedBuilder
 		{
 			Title = $"Avatar & Banner of {user.Username}",
 			ImageUrl = user.BannerHash != null ? user.BannerUrl : null
@@ -41,12 +42,12 @@ internal class Main : ApplicationCommandsModule
 	/// </summary>
 	/// <param name="interactionContext">The interactionContext.</param>
 	/// <returns></returns>
-	[SlashCommand(Bot.isDevBot + "Invite", "Invite $chattenclown")]
+	[SlashCommand(Bot.IS_DEV_BOT + "Invite", "Invite $chattenclown")]
 	public static async Task InviteAsync(InteractionContext interactionContext)
 	{
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-		Uri botInvite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
+		var botInvite = interactionContext.Client.GetInAppOAuth(Permissions.Administrator);
 
 		await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent(botInvite.AbsoluteUri));
 	}

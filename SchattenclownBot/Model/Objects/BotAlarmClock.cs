@@ -1,11 +1,13 @@
-﻿using DisCatSharp.Entities;
-
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Persistence;
+﻿// Copyright (c) Schattenclown
 
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Persistence;
 
 namespace SchattenclownBot.Model.Objects;
 
@@ -37,11 +39,11 @@ public class BotAlarmClock
 		{
 			while (true)
 			{
-				foreach (BotAlarmClock botAlarmClockItem in BotAlarmClockList)
+				foreach (var botAlarmClockItem in BotAlarmClockList)
 				{
 					if (botAlarmClockItem.NotificationTime < DateTime.Now)
 					{
-						DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(botAlarmClockItem.ChannelId);
+						var chn = await Bot.DiscordClient.GetChannelAsync(botAlarmClockItem.ChannelId);
 						DiscordEmbedBuilder eb = new()
 						{
 							Color = DiscordColor.Red
@@ -49,7 +51,7 @@ public class BotAlarmClock
 						eb.WithDescription($"<@{botAlarmClockItem.MemberId}> Alarm for {botAlarmClockItem.NotificationTime} rings!");
 
 						Delete(botAlarmClockItem);
-						for (int i = 0; i < 3; i++)
+						for (var i = 0; i < 3; i++)
 						{
 							await chn.SendMessageAsync(eb.Build());
 							await Task.Delay(50);
@@ -67,8 +69,5 @@ public class BotAlarmClock
 			// ReSharper disable once FunctionNeverReturns
 		});
 	}
-	public static void BotAlarmClocksDbRefresh()
-	{
-		BotAlarmClockList = DbBotAlarmClocks.ReadAll();
-	}
+	public static void BotAlarmClocksDbRefresh() => BotAlarmClockList = DbBotAlarmClocks.ReadAll();
 }

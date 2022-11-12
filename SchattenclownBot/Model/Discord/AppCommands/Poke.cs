@@ -1,29 +1,28 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿// Copyright (c) Schattenclown
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
-using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Extensions;
 
 using SchattenclownBot.Model.Discord.Main;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
 internal class Poke : ApplicationCommandsModule
 {
-	[SlashCommand("DaddysPoke" + Bot.isDevBot, "Harder daddy!")]
+	[SlashCommand("DaddysPoke" + Bot.IS_DEV_BOT, "Harder daddy!")]
 	public static async Task DaddysPokeAsync(InteractionContext interactionContext, [Option("discordUser", "@...")] DiscordUser discordUser)
 	{
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
-		DiscordMember discordMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
+		var discordMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
 		if (discordMember.VoiceState == null)
 		{
 			await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Not connected"));
@@ -31,10 +30,10 @@ internal class Poke : ApplicationCommandsModule
 		}
 		try
 		{
-			DiscordChannel currentDiscordChannel = discordMember.VoiceState.Channel;
-			IReadOnlyList<DiscordChannel> discordChannels = await interactionContext.Guild.GetChannelsAsync();
-			IEnumerable<DiscordChannel> discordVoiceChannels = discordChannels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != currentDiscordChannel.Id && !x.Users.Any());
-			foreach (DiscordChannel discordChannel in discordVoiceChannels)
+			var currentDiscordChannel = discordMember.VoiceState.Channel;
+			var discordChannels = await interactionContext.Guild.GetChannelsAsync();
+			var discordVoiceChannels = discordChannels.Where(x => x.Type == ChannelType.Voice).Where(x => x.Id != currentDiscordChannel.Id && !x.Users.Any());
+			foreach (var discordChannel in discordVoiceChannels)
 			{
 				try
 				{
@@ -61,25 +60,25 @@ internal class Poke : ApplicationCommandsModule
 	/// <param name="interactionContext">The interactionContext</param>
 	/// <param name="discordUser">the discordUser</param>
 	/// <returns></returns>
-	[SlashCommand("Poke" + Bot.isDevBot, "Poke discordUser!")]
+	[SlashCommand("Poke" + Bot.IS_DEV_BOT, "Poke discordUser!")]
 	public static async Task PokeAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
 	{
-		InteractivityExtension interactivityExtension = interactionContext.Client.GetInteractivity();
-		DiscordStringSelectComponentOption[] DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
+		var interactivityExtension = interactionContext.Client.GetInteractivity();
+		var DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
 		DiscordStringSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
 		DiscordStringSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
 		DiscordStringSelectComponent DiscordStringSelectComponent = new(placeholder: "Select a method!", DiscordStringSelectComponentOptionList, "force");
 
 		await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(DiscordStringSelectComponent).WithContent($"Poke discordUser <@{discordUser.Id}>!"));
-		DiscordMessage discordMessage = await interactionContext.GetOriginalResponseAsync();
-		InteractivityResult<ComponentInteractionCreateEventArgs> interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
+		var discordMessage = await interactionContext.GetOriginalResponseAsync();
+		var interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
 		if (!interactivityResult.TimedOut)
 		{
 			await interactivityResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
-			string firstResult = interactivityResult.Result.Values.First();
+			var firstResult = interactivityResult.Result.Values.First();
 			await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(DiscordStringSelectComponent.Disable()));
-			DiscordMember discordTargetMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
+			var discordTargetMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
 			await PokeTask(interactivityResult.Result.Interaction, interactionContext.Member, discordTargetMember, false, firstResult == "light" ? 2 : 4, firstResult == "hard");
 		}
 		else
@@ -94,20 +93,20 @@ internal class Poke : ApplicationCommandsModule
 	[ContextMenu(ApplicationCommandType.User, "Poke discordUser!")]
 	public static async Task PokeAsync(ContextMenuContext contextMenuContext)
 	{
-		InteractivityExtension interactivityExtension = contextMenuContext.Client.GetInteractivity();
-		DiscordStringSelectComponentOption[] DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
+		var interactivityExtension = contextMenuContext.Client.GetInteractivity();
+		var DiscordStringSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
 		DiscordStringSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Light", "light", emoji: new DiscordComponentEmoji("👉"));
 		DiscordStringSelectComponentOptionList[1] = new DiscordStringSelectComponentOption("Hard", "hard", emoji: new DiscordComponentEmoji("🤜"));
 
 		DiscordStringSelectComponent DiscordStringSelectComponent = new(placeholder: "Select a method!", DiscordStringSelectComponentOptionList, "force");
 
 		await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(DiscordStringSelectComponent).WithContent($"Poke discordUser <@{contextMenuContext.TargetMember.Id}>!"));
-		DiscordMessage discordMessage = await contextMenuContext.GetOriginalResponseAsync();
-		InteractivityResult<ComponentInteractionCreateEventArgs> interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
+		var discordMessage = await contextMenuContext.GetOriginalResponseAsync();
+		var interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
 		if (!interactivityResult.TimedOut)
 		{
 			await interactivityResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
-			string firstResult = interactivityResult.Result.Values.First();
+			var firstResult = interactivityResult.Result.Values.First();
 			await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(DiscordStringSelectComponent.Disable()));
 			await PokeTask(interactivityResult.Result.Interaction, contextMenuContext.Member, contextMenuContext.TargetMember, false, firstResult == "light" ? 2 : 4, firstResult == "hard");
 		}
@@ -136,17 +135,17 @@ internal class Poke : ApplicationCommandsModule
 
 		await discordInteraction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
 
-		bool rightToMove = false;
+		var rightToMove = false;
 
-		List<DiscordRole> discordRoleList = discordMember.Roles.ToList();
+		var discordRoleList = discordMember.Roles.ToList();
 
-		foreach (DiscordRole dummy in discordRoleList.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
+		foreach (var dummy in discordRoleList.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
 			rightToMove = true;
 
-		bool desktopHasValue = false;
-		bool webHasValue = false;
-		bool mobileHasValue = false;
-		bool presenceWasNull = false;
+		var desktopHasValue = false;
+		var webHasValue = false;
+		var mobileHasValue = false;
+		var presenceWasNull = false;
 
 		if (discordTargetMember.Presence != null)
 		{
@@ -168,7 +167,7 @@ internal class Poke : ApplicationCommandsModule
 
 			try
 			{
-				DiscordEmoji discordEmojis = DiscordEmoji.FromName(Bot.DiscordClient, ":no_entry_sign:");
+				var discordEmojis = DiscordEmoji.FromName(Bot.DiscordClient, ":no_entry_sign:");
 
 				tempCategory = discordInteraction.Guild.CreateChannelCategoryAsync("%Temp%").Result;
 				tempChannel1 = discordInteraction.Guild.CreateVoiceChannelAsync(discordEmojis, tempCategory).Result;
@@ -184,7 +183,7 @@ internal class Poke : ApplicationCommandsModule
 			{
 				currentChannel = discordTargetMember.VoiceState.Channel;
 
-				for (int i = 0; i < pokeAmount; i++)
+				for (var i = 0; i < pokeAmount; i++)
 				{
 					await discordTargetMember.PlaceInAsync(tempChannel1);
 					await Task.Delay(250);
@@ -253,10 +252,10 @@ internal class Poke : ApplicationCommandsModule
 		}
 		else if (mobileHasValue)
 		{
-			string description = "Their phone will explode STOP!\n";
+			var description = "Their phone will explode STOP!\n";
 
-			DiscordEmoji discordEmojisWhiteCheckMark = DiscordEmoji.FromName(Bot.DiscordClient, ":white_check_mark:");
-			DiscordEmoji discordEmojisCheckX = DiscordEmoji.FromName(Bot.DiscordClient, ":x:");
+			var discordEmojisWhiteCheckMark = DiscordEmoji.FromName(Bot.DiscordClient, ":white_check_mark:");
+			var discordEmojisCheckX = DiscordEmoji.FromName(Bot.DiscordClient, ":x:");
 
 			if (discordTargetMember.Presence.ClientStatus.Desktop.HasValue)
 				description += discordEmojisWhiteCheckMark + " Desktop" + "\n";
@@ -280,7 +279,7 @@ internal class Poke : ApplicationCommandsModule
 
 		if (deleteResponseAsync)
 		{
-			for (int i = 3; i > 0; i--)
+			for (var i = 3; i > 0; i--)
 			{
 				discordEmbedBuilder.AddField(new DiscordEmbedField("This message will be deleted in", $"{i} Seconds"));
 				await discordInteraction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));

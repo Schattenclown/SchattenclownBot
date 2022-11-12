@@ -1,11 +1,13 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
+﻿// Copyright (c) Schattenclown
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DisCatSharp;
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.EventArgs;
 
 namespace SchattenclownBot.Model.AsyncFunction;
 
@@ -15,21 +17,21 @@ internal class NewChannelCheck
 	{
 		if (eventArgs.Guild.Id == 928930967140331590)
 		{
-			DiscordGuild guild = client.GetGuildAsync(928930967140331590).Result;
-			IReadOnlyList<DiscordChannel> channels = guild.GetChannelsAsync().Result;
+			var guild = client.GetGuildAsync(928930967140331590).Result;
+			var channels = guild.GetChannelsAsync().Result;
 			List<DiscordChannel> rightChannels = new();
 
-			DiscordChannel parrentchannel = client.GetChannelAsync(928937353593118731).Result;
-			DiscordChannel mainChannel = client.GetChannelAsync(1022234777539051590).Result;
+			var parrentchannel = client.GetChannelAsync(928937353593118731).Result;
+			var mainChannel = client.GetChannelAsync(1022234777539051590).Result;
 
 
-			foreach (DiscordChannel channel in channels.Where(x => x.ParentId == 928937353593118731))
+			foreach (var channel in channels.Where(x => x.ParentId == 928937353593118731))
 			{
 				rightChannels.Add(channel);
 			}
 
-			int compairInt = 1;
-			foreach (DiscordChannel channel in rightChannels)
+			var compairInt = 1;
+			foreach (var channel in rightChannels)
 			{
 				if (client.GetChannelAsync(channel.Id).Result.Users.Any())
 					compairInt++;
@@ -37,13 +39,13 @@ internal class NewChannelCheck
 
 			if (compairInt >= rightChannels.Count)
 			{
-				DiscordChannel newChannel = guild.CreateChannelAsync("Other", ChannelType.Voice, parrentchannel, Optional<string>.None, 384000).Result;
+				var newChannel = guild.CreateChannelAsync("Other", ChannelType.Voice, parrentchannel, Optional<string>.None, 384000).Result;
 				rightChannels.Add(newChannel);
 			}
 
 			compairInt = 0;
-			bool oneFree = false;
-			foreach (DiscordChannel channel in rightChannels)
+			var oneFree = false;
+			foreach (var channel in rightChannels)
 			{
 				if (channel != mainChannel)
 				{

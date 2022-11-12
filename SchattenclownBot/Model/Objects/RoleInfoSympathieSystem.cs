@@ -1,4 +1,6 @@
-﻿namespace SchattenclownBot.Model.Objects;
+﻿// Copyright (c) Schattenclown
+
+namespace SchattenclownBot.Model.Objects;
 
 public class RoleInfoSympathySystem
 {

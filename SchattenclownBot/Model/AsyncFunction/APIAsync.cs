@@ -1,12 +1,14 @@
-﻿using DisCatSharp.Entities;
-
-using SchattenclownBot.Model.Discord.AppCommands;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Objects;
+﻿// Copyright (c) Schattenclown
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.AppCommands;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.AsyncFunction;
 
@@ -25,7 +27,7 @@ internal class APIAsync
 
 			while (true)
 			{
-				List<API> aPI_Objects = API.GET();
+				var aPI_Objects = API.GET();
 				foreach (var item in aPI_Objects)
 				{
 					switch (item.Command)
@@ -52,8 +54,8 @@ internal class APIAsync
 	public static async void RequestUserNameAwnser(API aPI)
 	{
 		API.DELETE(aPI.CommandRequestID);
-		DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(aPI.RequestDiscordUserId);
-		API aPIresult = aPI;
+		var discordUser = await Bot.DiscordClient.GetUserAsync(aPI.RequestDiscordUserId);
+		var aPIresult = aPI;
 		aPIresult.Data = discordUser.Username;
 		aPIresult.Command = "RequestUserNameAwnser";
 		API.PUT(aPIresult);

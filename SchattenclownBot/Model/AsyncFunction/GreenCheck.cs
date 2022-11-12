@@ -1,12 +1,14 @@
-﻿using DisCatSharp.Entities;
-
-using SchattenclownBot.Model.Discord.Main;
+﻿// Copyright (c) Schattenclown
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.AsyncFunction;
 
@@ -25,7 +27,7 @@ internal class GreenCheck
 						await Task.Delay(1000);
 					}
 
-					DiscordGuild guild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
+					var guild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
 
 					List<DiscordRole> roleCheckListNegative = new()
 					{
@@ -38,8 +40,8 @@ internal class GreenCheck
                         guild.GetRole(928934609251627069) //#226ace        Blue
                         };
 
-					DiscordRole grey = guild.GetRole(928932796934799401); //#b1b1b1         Grey
-					DiscordRole green = guild.GetRole(928934209484099615); //#11ff11        Green
+					var grey = guild.GetRole(928932796934799401); //#b1b1b1         Grey
+					var green = guild.GetRole(928934209484099615); //#11ff11        Green
 
 					List<DiscordRole> roleCheckList = new()
 					{
@@ -86,15 +88,15 @@ internal class GreenCheck
                         guild.GetRole(1017937277307064340) //level
                         };
 
-					List<DiscordMember> discordMembers = guild.Members.Values.ToList();
+					var discordMembers = guild.Members.Values.ToList();
 
-					foreach (DiscordMember discordMember in discordMembers)
+					foreach (var discordMember in discordMembers)
 					{
 						IEnumerable<DiscordRole> discordMemberRoles = discordMember.Roles;
 
 						List<DiscordRole> discordRoles = new();
 
-						foreach (DiscordRole role in discordMemberRoles)
+						foreach (var role in discordMemberRoles)
 						{
 							if (!roleCheckList.Contains(role))
 								discordRoles.Add(role);
@@ -102,9 +104,9 @@ internal class GreenCheck
 
 						if (discordRoles.Contains(grey))
 						{
-							bool lever = true;
+							var lever = true;
 
-							foreach (DiscordRole role in discordRoles)
+							foreach (var role in discordRoles)
 							{
 								if (roleCheckListNegative.Contains(role))
 									lever = false;

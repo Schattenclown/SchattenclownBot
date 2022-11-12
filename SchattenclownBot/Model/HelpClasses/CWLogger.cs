@@ -1,6 +1,8 @@
-﻿using SchattenclownBot.Model.HelpClasses;
+﻿// Copyright (c) Schattenclown
 
 using System;
+
+using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot;
 

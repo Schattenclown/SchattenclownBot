@@ -1,4 +1,10 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿// Copyright (c) Schattenclown
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -8,10 +14,6 @@ using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence;
-
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
@@ -26,7 +28,7 @@ internal class Timer : ApplicationCommandsModule
 	/// <param name="hour">The Hour of the Alarm in the Future.</param>
 	/// <param name="minute">The Minute of the Alarm in the Future.</param>
 	/// <returns></returns>
-	[SlashCommand("SetTimer" + Bot.isDevBot, "Set a timer!")]
+	[SlashCommand("SetTimer" + Bot.IS_DEV_BOT, "Set a timer!")]
 	internal static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
 	{
 		//Create a Response.
@@ -40,7 +42,7 @@ internal class Timer : ApplicationCommandsModule
 			return;
 		}
 
-		DateTime dateTimeNow = DateTime.Now;
+		var dateTimeNow = DateTime.Now;
 		BotTimer botTimer = new()
 		{
 			ChannelId = interactionContext.Channel.Id,
@@ -58,14 +60,14 @@ internal class Timer : ApplicationCommandsModule
 	/// </summary>
 	/// <param name="interactionContext"></param>
 	/// <returns></returns>
-	[SlashCommand("MyTimers" + Bot.isDevBot, "Look up your timers!")]
+	[SlashCommand("MyTimers" + Bot.IS_DEV_BOT, "Look up your timers!")]
 	internal static async Task TimerLookup(InteractionContext interactionContext)
 	{
 		//Create a Response.
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
 		//Create an List with all Timers that where found in the Database.
-		System.Collections.Generic.List<BotTimer> botTimerList = DbBotTimer.ReadAll();
+		var botTimerList = DbBotTimer.ReadAll();
 
 		//Create an Embed.
 		DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -76,10 +78,10 @@ internal class Timer : ApplicationCommandsModule
 		};
 
 		//Switch to check if any Timers where set at all.
-		bool noTimers = true;
+		var noTimers = true;
 
 		//Search for any Timers that match the Timer creator and Requesting User.
-		foreach (BotTimer botTimerItem in botTimerList.Where(botTimerItem => botTimerItem.MemberId == interactionContext.Member.Id))
+		foreach (var botTimerItem in botTimerList.Where(botTimerItem => botTimerItem.MemberId == interactionContext.Member.Id))
 		{
 			//Set the switch to false because at least one Timer was found.
 			noTimers = false;

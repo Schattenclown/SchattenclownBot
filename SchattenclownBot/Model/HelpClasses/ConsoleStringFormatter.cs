@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Schattenclown
+
+using System;
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.HelpClasses;
@@ -28,9 +30,6 @@ public class ConsoleStringFormatter
 			Console.WriteLine("██");
 		}
 	}
-	public static void FillRow()
-	{
-		Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-	}
+	public static void FillRow() => Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
 }
 

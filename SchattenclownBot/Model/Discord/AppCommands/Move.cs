@@ -1,4 +1,9 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿// Copyright (c) Schattenclown
+
+using System.Linq;
+using System.Threading.Tasks;
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -6,22 +11,19 @@ using DisCatSharp.Enums;
 
 using SchattenclownBot.Model.Discord.Main;
 
-using System.Linq;
-using System.Threading.Tasks;
-
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
 internal class Move : ApplicationCommandsModule
 {
-	[SlashCommand("Move" + Bot.isDevBot, "MassMove the whole channel your in to a different one!")]
+	[SlashCommand("Move" + Bot.IS_DEV_BOT, "MassMove the whole channel your in to a different one!")]
 	public static async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)] DiscordChannel discordTargetChannel)
 	{
-		System.Collections.Generic.List<DiscordRole> discordPermissions = interactionContext.Member.Roles.ToList();
-		bool rightToMove = false;
+		var discordPermissions = interactionContext.Member.Roles.ToList();
+		var rightToMove = false;
 
-		foreach (DiscordRole dummy in discordPermissions.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
+		foreach (var dummy in discordPermissions.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
 			rightToMove = true;
 
 		await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -33,10 +35,10 @@ internal class Move : ApplicationCommandsModule
 
 			if (interactionContext.Member.VoiceState.Channel != null)
 			{
-				DiscordChannel source = interactionContext.Member.VoiceState.Channel;
+				var source = interactionContext.Member.VoiceState.Channel;
 
-				System.Collections.Generic.IReadOnlyList<DiscordMember> members = source.Users;
-				foreach (DiscordMember member in members)
+				var members = source.Users;
+				foreach (var member in members)
 					await member.PlaceInAsync(discordTargetChannel);
 
 				await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Done!"));

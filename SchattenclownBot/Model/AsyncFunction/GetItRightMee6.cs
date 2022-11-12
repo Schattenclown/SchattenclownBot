@@ -1,15 +1,17 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
-
-using SchattenclownBot.Model.Discord.Main;
+﻿// Copyright (c) Schattenclown
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
+using DisCatSharp;
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.EventArgs;
+
+using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.AsyncFunction;
 
@@ -44,10 +46,10 @@ internal class GetItRightMee6
 
 			while (true)
 			{
-				bool bool384KbNotAvailable = false;
+				var bool384KbNotAvailable = false;
 				DiscordGuild mainGuild = null;
 
-				foreach (DiscordGuild guildItem in guildList.Where(x => x.Id == 928930967140331590))
+				foreach (var guildItem in guildList.Where(x => x.Id == 928930967140331590))
 				{
 					mainGuild = guildItem;
 				}
@@ -57,7 +59,7 @@ internal class GetItRightMee6
 
 				IEnumerable<DiscordChannel> discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice).ToList();
 
-				foreach (DiscordChannel discordChannelItem in discordChannels)
+				foreach (var discordChannelItem in discordChannels)
 				{
 					try
 					{
@@ -78,7 +80,7 @@ internal class GetItRightMee6
 
 				if (bool384KbNotAvailable)
 				{
-					foreach (DiscordChannel discordChannelItem in discordChannels)
+					foreach (var discordChannelItem in discordChannels)
 					{
 						try
 						{

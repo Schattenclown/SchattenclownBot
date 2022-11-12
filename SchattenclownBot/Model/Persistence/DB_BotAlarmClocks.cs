@@ -1,10 +1,10 @@
-﻿using MySql.Data.MySqlClient;
+﻿// Copyright (c) Schattenclown
+
+using System.Collections.Generic;
 
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SchattenclownBot.Model.Persistence.Connection;
-
-using System.Collections.Generic;
 
 namespace SchattenclownBot.Model.Persistence;
 
@@ -12,11 +12,11 @@ public class DbBotAlarmClocks
 {
 	public static List<BotAlarmClock> ReadAll()
 	{
-		string sql = "SELECT * FROM ScAlarmClocks";
+		var sql = "SELECT * FROM ScAlarmClocks";
 
 		List<BotAlarmClock> botAlarmClockList = new();
-		MySqlConnection mySqlConnection = DbConnection.OpenDb();
-		MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
+		var mySqlConnection = DbConnection.OpenDb();
+		var mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
 
 		if (mySqlDataReader != null)
 		{
@@ -38,28 +38,28 @@ public class DbBotAlarmClocks
 	}
 	public static void Add(BotAlarmClock botAlarmClock)
 	{
-		string sql = "INSERT INTO ScAlarmClocks (NotificationTime, ChannelId, MemberId) " +
+		var sql = "INSERT INTO ScAlarmClocks (NotificationTime, ChannelId, MemberId) " +
 				  $"VALUES ('{botAlarmClock.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botAlarmClock.ChannelId}, {botAlarmClock.MemberId})";
 		DbConnection.ExecuteNonQuery(sql);
 	}
 	public static void Delete(BotAlarmClock botAlarmClock)
 	{
-		string sql = $"DELETE FROM ScAlarmClocks WHERE `DBEntryID` = '{botAlarmClock.DbEntryId}'";
+		var sql = $"DELETE FROM ScAlarmClocks WHERE `DBEntryID` = '{botAlarmClock.DbEntryId}'";
 		DbConnection.ExecuteNonQuery(sql);
 	}
 	public static void CreateTable_BotAlarmClock()
 	{
-		Connections connections = CsvConnections.ReadAll();
+		var connections = CsvConnections.ReadAll();
 
 #if DEBUG
-		string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
+		var database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
 #else
             string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
 
 #endif
 		database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
 
-		string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
+		var sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
 				  $"USE `{database}`;" +
 				  "CREATE TABLE IF NOT EXISTS `ScAlarmClocks` (" +
 				  "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," +

@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Schattenclown
+
+using System;
 
 namespace SchattenclownBot.Model.HelpClasses;
 
@@ -16,10 +18,9 @@ public class StringCutter
 	/// <returns>A string.</returns>
 	public static string RemoveUntilWord(string inputString, string keyWord, int removeWordInt)
 	{
-		if (inputString == null)
-			return null;
-
-		return !inputString.Contains(keyWord) ? inputString : inputString[(inputString.IndexOf(keyWord, StringComparison.Ordinal) + removeWordInt)..];
+		return inputString == null
+			? null
+			: !inputString.Contains(keyWord) ? inputString : inputString[(inputString.IndexOf(keyWord, StringComparison.Ordinal) + removeWordInt)..];
 	}
 	/// <summary>
 	/// Removes the after keyWord.
@@ -33,7 +34,7 @@ public class StringCutter
 		if (!inputString.Contains(keyWord))
 			return inputString;
 
-		int index = inputString.LastIndexOf(keyWord, StringComparison.Ordinal);
+		var index = inputString.LastIndexOf(keyWord, StringComparison.Ordinal);
 		if (index > 0)
 			inputString = inputString[..(index + keepWordInt)];
 

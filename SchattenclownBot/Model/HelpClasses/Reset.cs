@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) Schattenclown
+
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
@@ -28,8 +30,8 @@ public class Reset
 		Console.ForegroundColor = ConsoleColor.Gray;
 
 		// Get file path of current process 
-		string filePath = Assembly.GetExecutingAssembly().Location;
-		string newFilepath = "";
+		var filePath = Assembly.GetExecutingAssembly().Location;
+		var newFilepath = "";
 		//BotDLL.dll
 
 		if (filePath.Contains("Debug"))

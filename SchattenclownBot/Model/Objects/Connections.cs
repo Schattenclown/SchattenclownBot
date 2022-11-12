@@ -1,7 +1,9 @@
-﻿using SchattenclownBot.Model.Persistence.Connection;
+﻿// Copyright (c) Schattenclown
 
 using System;
 using System.Reflection;
+
+using SchattenclownBot.Model.Persistence.Connection;
 
 namespace SchattenclownBot.Model.Objects;
 

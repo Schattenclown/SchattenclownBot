@@ -1,13 +1,15 @@
-﻿using DisCatSharp.Entities;
-
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Persistence;
+// Copyright (c) Schattenclown
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Persistence;
 
 namespace SchattenclownBot.Model.Objects;
 
@@ -21,49 +23,19 @@ public class SympathySystem
 	public int VotedRating { get; set; }
 	public RoleInfoSympathySystem RoleInfo { get; set; }
 
-	public static List<SympathySystem> ReadAll(ulong guildId)
-	{
-		return DbSympathySystem.ReadAll(guildId);
-	}
-	public static void Add(SympathySystem sympathySystem)
-	{
-		DbSympathySystem.Add(sympathySystem);
-	}
-	public static void Change(SympathySystem sympathySystem)
-	{
-		DbSympathySystem.Change(sympathySystem);
-	}
-	public static void CreateTable_SympathySystem(ulong guildId)
-	{
-		DbSympathySystem.CreateTable_SympathySystem(guildId);
-	}
-	public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
-	{
-		return DbSympathySystem.ReadAllRoleInfo(guildId);
-	}
-	public static void AddRoleInfo(SympathySystem sympathySystem)
-	{
-		DbSympathySystem.AddRoleInfo(sympathySystem);
-	}
-	public static void ChangeRoleInfo(SympathySystem sympathySystem)
-	{
-		DbSympathySystem.ChangeRoleInfo(sympathySystem);
-	}
-	public static bool CheckRoleInfoExists(ulong guildId, int ratingValue)
-	{
-		return DbSympathySystem.CheckRoleInfoExists(guildId, ratingValue);
-	}
-	public static void CreateTable_RoleInfoSympathySystem(ulong guildId)
-	{
-		DbSympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
-	}
-	public static int GetUserRatings(ulong guildId, ulong votedUserId, int voteRating)
-	{
-		return DbSympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
-	}
+	public static List<SympathySystem> ReadAll(ulong guildId) => DbSympathySystem.ReadAll(guildId);
+	public static void Add(SympathySystem sympathySystem) => DbSympathySystem.Add(sympathySystem);
+	public static void Change(SympathySystem sympathySystem) => DbSympathySystem.Change(sympathySystem);
+	public static void CreateTable_SympathySystem(ulong guildId) => DbSympathySystem.CreateTable_SympathySystem(guildId);
+	public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId) => DbSympathySystem.ReadAllRoleInfo(guildId);
+	public static void AddRoleInfo(SympathySystem sympathySystem) => DbSympathySystem.AddRoleInfo(sympathySystem);
+	public static void ChangeRoleInfo(SympathySystem sympathySystem) => DbSympathySystem.ChangeRoleInfo(sympathySystem);
+	public static bool CheckRoleInfoExists(ulong guildId, int ratingValue) => DbSympathySystem.CheckRoleInfoExists(guildId, ratingValue);
+	public static void CreateTable_RoleInfoSympathySystem(ulong guildId) => DbSympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
+	public static int GetUserRatings(ulong guildId, ulong votedUserId, int voteRating) => DbSympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
 	public static async Task SympathySystemRunAsync(int executeSecond)
 	{
-		bool levelSystemVirgin = true;
+		var levelSystemVirgin = true;
 
 		await Task.Run(async () =>
 		{
@@ -78,8 +50,8 @@ public class SympathySystem
 				{
 					if (levelSystemVirgin)
 					{
-						List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
-						foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
+						var guildsList = Bot.DiscordClient.Guilds.ToList();
+						foreach (var guildItem in guildsList)
 						{
 							CreateTable_SympathySystem(guildItem.Value.Id);
 							CreateTable_RoleInfoSympathySystem(guildItem.Value.Id);
@@ -97,21 +69,21 @@ public class SympathySystem
 					await Task.Delay(1000);
 				}
 
-				List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
-				foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
+				var guildsList = Bot.DiscordClient.Guilds.ToList();
+				foreach (var guildItem in guildsList)
 				{
-					DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
-					IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
+					var discordGuildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
+					var discordMembers = discordGuildObj.Members;
 
-					List<SympathySystem> sympathySystemsList = ReadAll(guildItem.Value.Id);
-					List<RoleInfoSympathySystem> roleInfoSympathySystemsList = ReadAllRoleInfo(guildItem.Value.Id);
+					var sympathySystemsList = ReadAll(guildItem.Value.Id);
+					var roleInfoSympathySystemsList = ReadAllRoleInfo(guildItem.Value.Id);
 					List<DiscordRole> discordRoleList = new();
 
-					foreach (KeyValuePair<ulong, DiscordMember> discordMemberItem in discordMembers)
+					foreach (var discordMemberItem in discordMembers)
 					{
 						discordRoleList.Clear();
 
-						foreach (RoleInfoSympathySystem item in roleInfoSympathySystemsList)
+						foreach (var item in roleInfoSympathySystemsList)
 						{
 							if (item.RatingOne != 0)
 								discordRoleList.Add(discordGuildObj.GetRole(item.RatingOne));
@@ -127,12 +99,12 @@ public class SympathySystem
 
 						if (discordRoleList.Count == 5 && discordMemberItem.Value.Id != 523765246104567808)
 						{
-							int counts = 1;
-							int ratingsadded = 0;
+							var counts = 1;
+							var ratingsadded = 0;
 							double rating;
 							SympathySystem sympathySystemObj = new();
 
-							foreach (SympathySystem sympathySystemItem in sympathySystemsList)
+							foreach (var sympathySystemItem in sympathySystemsList)
 							{
 								if (discordMemberItem.Value.Id == sympathySystemItem.VotedUserId)
 								{

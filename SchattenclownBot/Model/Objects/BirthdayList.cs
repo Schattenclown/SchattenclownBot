@@ -1,11 +1,13 @@
-﻿using DisCatSharp.Entities;
-
-using SchattenclownBot.Model.Discord.Main;
+﻿// Copyright (c) Schattenclown
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DisCatSharp.Entities;
+
+using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.Objects;
 
@@ -13,10 +15,10 @@ public class BirthdayList
 {
 	public static async Task GenerateBirthdayList()
 	{
-		List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
+		var guildsList = Bot.DiscordClient.Guilds.ToList();
 		List<KeyValuePair<ulong, DateTime>> birthdays = new();
 
-		bool levelSystemVirgin = true;
+		var levelSystemVirgin = true;
 		do
 		{
 			if (Bot.DiscordClient.Guilds.ToList().Count != 0)
@@ -28,15 +30,15 @@ public class BirthdayList
 			await Task.Delay(1000);
 		} while (levelSystemVirgin);
 
-		foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
+		foreach (var guildItem in guildsList)
 		{
 			if (guildItem.Value.Id == 928930967140331590)
 			{
-				DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
-				IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
-				foreach (KeyValuePair<ulong, DiscordMember> discordMemberItem in discordMembers)
+				var discordGuildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
+				var discordMembers = discordGuildObj.Members;
+				foreach (var discordMemberItem in discordMembers)
 				{
-					DateTime birthday = GenerateDateTime(discordMemberItem.Value);
+					var birthday = GenerateDateTime(discordMemberItem.Value);
 					DateTime dateTimeComparer = new(9999, 9, 9);
 					if (birthday != dateTimeComparer)
 						birthdays.Add(new KeyValuePair<ulong, DateTime>(discordMemberItem.Value.Id, birthday));
@@ -48,18 +50,18 @@ public class BirthdayList
 		if (birthdays.Count != 0)
 			birthdays.Sort((ps1, ps2) => DateTime.Compare(ps1.Value.Date, ps2.Value.Date));
 
-		string listString = "";
+		var listString = "";
 
-		foreach (KeyValuePair<ulong, DateTime> item in birthdays)
+		foreach (var item in birthdays)
 		{
 			listString += $"``{item.Value.Day:00}.{item.Value.Month:00} -`` <@{item.Key}>\n";
 		}
 
-		foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
+		foreach (var guildItem in guildsList)
 		{
 			if (guildItem.Value.Id == 928930967140331590)
 			{
-				DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(928938948221366334);
+				var chn = await Bot.DiscordClient.GetChannelAsync(928938948221366334);
 				DiscordEmbedBuilder eb = new()
 				{
 					Color = DiscordColor.Red
@@ -95,16 +97,16 @@ public class BirthdayList
 					await Task.Delay(1000);
 				}
 
-				foreach (DiscordGuild discordGuild in guildList.Where(x => x.Id == 928930967140331590))
+				foreach (var discordGuild in guildList.Where(x => x.Id == 928930967140331590))
 				{
-					DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(discordGuild.Id).Result;
-					IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
-					foreach (KeyValuePair<ulong, DiscordMember> discordMemberItem in discordMembers)
+					var discordGuildObj = Bot.DiscordClient.GetGuildAsync(discordGuild.Id).Result;
+					var discordMembers = discordGuildObj.Members;
+					foreach (var discordMemberItem in discordMembers)
 					{
-						DateTime birthday = GenerateDateTime(discordMemberItem.Value);
+						var birthday = GenerateDateTime(discordMemberItem.Value);
 						if (DateTime.Now.Day == birthday.Day && DateTime.Now.Month == birthday.Month)
 						{
-							DiscordChannel discordChannel = discordGuildObj.GetChannel(928958632421363732);
+							var discordChannel = discordGuildObj.GetChannel(928958632421363732);
 							await discordChannel.SendMessageAsync($"{discordMemberItem.Value.Mention} Heute Burtseltag gehabt");
 						}
 					}
@@ -117,17 +119,17 @@ public class BirthdayList
 	}
 	public static DateTime GenerateDateTime(DiscordMember discordMember)
 	{
-		string birthdayDay = "";
-		int birthdayMonth = 0;
+		var birthdayDay = "";
+		var birthdayMonth = 0;
 
-		List<DiscordRole> discordMemberRoleList = discordMember.Roles.ToList();
+		var discordMemberRoleList = discordMember.Roles.ToList();
 
-		DiscordGuild discordGuildObj = Bot.DiscordClient.GetGuildAsync(discordMember.Guild.Id).Result;
+		var discordGuildObj = Bot.DiscordClient.GetGuildAsync(discordMember.Guild.Id).Result;
 
-		DiscordRole zehner0 = discordGuildObj.GetRole(945301296330723348);
-		DiscordRole zehner1 = discordGuildObj.GetRole(945301296993427517);
-		DiscordRole zehner2 = discordGuildObj.GetRole(945301298012647444);
-		DiscordRole zehner3 = discordGuildObj.GetRole(945301298704683048);
+		var zehner0 = discordGuildObj.GetRole(945301296330723348);
+		var zehner1 = discordGuildObj.GetRole(945301296993427517);
+		var zehner2 = discordGuildObj.GetRole(945301298012647444);
+		var zehner3 = discordGuildObj.GetRole(945301298704683048);
 
 		if (discordMemberRoleList.Contains(zehner0))
 			birthdayDay += "0";
@@ -138,16 +140,16 @@ public class BirthdayList
 		if (discordMemberRoleList.Contains(zehner3))
 			birthdayDay += "3";
 
-		DiscordRole einer0 = discordGuildObj.GetRole(945301303649787904);
-		DiscordRole einer1 = discordGuildObj.GetRole(945301749437177856);
-		DiscordRole einer2 = discordGuildObj.GetRole(945301753035903036);
-		DiscordRole einer3 = discordGuildObj.GetRole(945302992507252736);
-		DiscordRole einer4 = discordGuildObj.GetRole(945302996630249532);
-		DiscordRole einer5 = discordGuildObj.GetRole(945302999604002836);
-		DiscordRole einer6 = discordGuildObj.GetRole(945303002917535845);
-		DiscordRole einer7 = discordGuildObj.GetRole(945309817252237332);
-		DiscordRole einer8 = discordGuildObj.GetRole(945309808096063498);
-		DiscordRole einer9 = discordGuildObj.GetRole(945309830934044683);
+		var einer0 = discordGuildObj.GetRole(945301303649787904);
+		var einer1 = discordGuildObj.GetRole(945301749437177856);
+		var einer2 = discordGuildObj.GetRole(945301753035903036);
+		var einer3 = discordGuildObj.GetRole(945302992507252736);
+		var einer4 = discordGuildObj.GetRole(945302996630249532);
+		var einer5 = discordGuildObj.GetRole(945302999604002836);
+		var einer6 = discordGuildObj.GetRole(945303002917535845);
+		var einer7 = discordGuildObj.GetRole(945309817252237332);
+		var einer8 = discordGuildObj.GetRole(945309808096063498);
+		var einer9 = discordGuildObj.GetRole(945309830934044683);
 
 		if (discordMemberRoleList.Contains(einer0))
 			birthdayDay += "0";
@@ -170,18 +172,18 @@ public class BirthdayList
 		if (discordMemberRoleList.Contains(einer9))
 			birthdayDay += "9";
 
-		DiscordRole month1 = discordGuildObj.GetRole(945301816285990983);
-		DiscordRole month2 = discordGuildObj.GetRole(945301818559324211);
-		DiscordRole month3 = discordGuildObj.GetRole(945301830152372244);
-		DiscordRole month4 = discordGuildObj.GetRole(945309841403043870);
-		DiscordRole month5 = discordGuildObj.GetRole(945309844200624139);
-		DiscordRole month6 = discordGuildObj.GetRole(945309847048577114);
-		DiscordRole month7 = discordGuildObj.GetRole(945309847467999243);
-		DiscordRole month8 = discordGuildObj.GetRole(945309848273297458);
-		DiscordRole month9 = discordGuildObj.GetRole(945309848864718891);
-		DiscordRole month10 = discordGuildObj.GetRole(945329632205475900);
-		DiscordRole month11 = discordGuildObj.GetRole(945309850273988648);
-		DiscordRole month12 = discordGuildObj.GetRole(945310176163004476);
+		var month1 = discordGuildObj.GetRole(945301816285990983);
+		var month2 = discordGuildObj.GetRole(945301818559324211);
+		var month3 = discordGuildObj.GetRole(945301830152372244);
+		var month4 = discordGuildObj.GetRole(945309841403043870);
+		var month5 = discordGuildObj.GetRole(945309844200624139);
+		var month6 = discordGuildObj.GetRole(945309847048577114);
+		var month7 = discordGuildObj.GetRole(945309847467999243);
+		var month8 = discordGuildObj.GetRole(945309848273297458);
+		var month9 = discordGuildObj.GetRole(945309848864718891);
+		var month10 = discordGuildObj.GetRole(945329632205475900);
+		var month11 = discordGuildObj.GetRole(945309850273988648);
+		var month12 = discordGuildObj.GetRole(945310176163004476);
 
 		if (discordMemberRoleList.Contains(month1))
 			birthdayMonth = 1;

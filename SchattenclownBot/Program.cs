@@ -1,8 +1,10 @@
-﻿using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
+// Copyright (c) Schattenclown
 
 using System;
 using System.Threading.Tasks;
+
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot;
 
@@ -11,7 +13,7 @@ namespace SchattenclownBot;
 /// </summary>
 internal class Program
 {
-	private static Bot _bot;
+	private static Bot s_bot;
 	/// <summary>
 	/// the boot task
 	/// </summary>
@@ -34,8 +36,8 @@ internal class Program
 		{
 			try
 			{
-				_bot = new Bot();
-				_bot.RunAsync().Wait();
+				s_bot = new Bot();
+				s_bot.RunAsync().Wait();
 				await Task.Delay(1000);
 			}
 			catch
