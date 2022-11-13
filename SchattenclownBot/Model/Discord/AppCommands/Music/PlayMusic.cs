@@ -16,7 +16,6 @@ using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Tracing;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -51,7 +50,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
       public static async void NextTrackRequestApi(Api aPi)
       {
-         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5]", "").Replace("<", ""), ConsoleColor.DarkYellow);
          Api.Delete(aPi.CommandRequestId);
 
          DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
@@ -92,7 +91,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
       }
       public static async void PreviousTrackRequestApi(Api aPi)
       {
-         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5]", "").Replace("<", ""), ConsoleColor.DarkYellow);
          Api.Delete(aPi.CommandRequestId);
 
          DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
@@ -108,8 +107,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
          foreach (QueueItem queueItem in QueueItemList.Where(x => x.DiscordGuild == discordGuild))
          {
-            int indexOfPlaying = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.YouTubeUri)) - 1;
-            int indexOfLast = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.YouTubeUri)) - 2;
+            int indexOfPlaying = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild
+                                                                    && ((x.SpotifyUri == queueItem.SpotifyUri && x.SpotifyUri != null && queueItem.SpotifyUri != null)
+                                                                        || x.YouTubeUri == queueItem.YouTubeUri && x.YouTubeUri != null && queueItem.YouTubeUri != null)) - 1;
+
+            int indexOfLast = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild
+                                                                 && ((x.SpotifyUri == queueItem.SpotifyUri && x.SpotifyUri != null && queueItem.SpotifyUri != null)
+                                                                     || x.YouTubeUri == queueItem.YouTubeUri && x.YouTubeUri != null && queueItem.YouTubeUri != null)) - 2;
 
             if (indexOfLast >= 0)
             {
@@ -738,7 +742,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      }
                      catch (Exception ex)
                      {
-                        CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+                        CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__12]", "").Replace("<", ""), ConsoleColor.Red);
                      }
 
                      if (cancellationToken.IsCancellationRequested)
@@ -1490,8 +1494,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                   foreach (QueueItem queueItem in QueueItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
-                     int indexOfPlaying = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.SpotifyUri)) - 1;
-                     int indexOfLast = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.SpotifyUri)) - 2;
+                     int indexOfPlaying = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild
+                                                                             && ((x.SpotifyUri == queueItem.SpotifyUri && x.SpotifyUri != null && queueItem.SpotifyUri != null)
+                                                                                || x.YouTubeUri == queueItem.YouTubeUri && x.YouTubeUri != null && queueItem.YouTubeUri != null)) - 1;
+
+                     int indexOfLast = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild
+                                                                          && ((x.SpotifyUri == queueItem.SpotifyUri && x.SpotifyUri != null && queueItem.SpotifyUri != null)
+                                                                              || x.YouTubeUri == queueItem.YouTubeUri && x.YouTubeUri != null && queueItem.YouTubeUri != null)) - 2;
 
                      if (indexOfLast >= 0)
                      {
