@@ -48,6 +48,10 @@ namespace SchattenclownBot.Model.AsyncFunction
                         RequestUserNameAnswer(item);
                         CwLogger.Write($"Login from {item.Data} with Id: {item.RequestDiscordUserId} at {item.RequestTimeStamp} with Ip: {item.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
                         break;
+                     case "RequestDiscordGuildname":
+                        RequestDiscordGuildname(item);
+                        CwLogger.Write($"Login from {item.Data} with Id: {item.RequestDiscordUserId} at {item.RequestTimeStamp} with Ip: {item.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
+                        break;
                      case "ApiPlay":
                         ApiPlay(item);
                         break;
@@ -64,6 +68,22 @@ namespace SchattenclownBot.Model.AsyncFunction
          DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(aPi.RequestDiscordUserId);
          aPi.Data = discordUser.Username;
          aPi.Command = "RequestUserNameAnswer";
+         Api.Put(aPi);
+      }
+      public static void RequestDiscordGuildname(Api aPi)
+      {
+         Api.Delete(aPi.CommandRequestId);
+
+         foreach (var guild in Bot.DiscordClient.Guilds.Values)
+         {
+            foreach (var member in guild.Members.Values.Where(x => x.VoiceState != null && x.Id == aPi.RequestDiscordUserId))
+            {
+               aPi.Data = guild.Name;
+               break;
+            }
+         }
+
+         aPi.Command = "RequestDiscordGuildnameAnswer";
          Api.Put(aPi);
       }
       public static async Task ApiPlay(Api aPi)
