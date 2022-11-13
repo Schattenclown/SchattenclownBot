@@ -11,13 +11,14 @@ using DisCatSharp.VoiceNext;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.AppCommands;
+using SchattenclownBot.Model.Discord.AppCommands.Music;
+using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot.Model.Discord.Main
 {

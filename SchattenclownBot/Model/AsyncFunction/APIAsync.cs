@@ -1,5 +1,5 @@
 ﻿using DisCatSharp.Entities;
-using SchattenclownBot.Model.Discord.AppCommands;
+using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Objects;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
-   internal class ApiAsync
+    internal class ApiAsync
    {
       public static async Task ReadFromApiAsync()
       {
@@ -28,8 +28,11 @@ namespace SchattenclownBot.Model.AsyncFunction
                {
                   switch (item.Command)
                   {
-                     case "Next_Song":
-                        PlayMusic.NextRequestApi(item);
+                     case "NextTrack":
+                        PlayMusic.NextTrackRequestApi(item);
+                        break;
+                     case "LastTrack":
+                        PlayMusic.LastRequestApi(item);
                         break;
                      case "RequestUserName":
                         RequestUserNameAnswer(item);
