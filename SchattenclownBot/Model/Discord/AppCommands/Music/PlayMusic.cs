@@ -50,7 +50,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
       public static async void NextTrackRequestApi(Api aPi)
       {
-         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5]", "").Replace("<", ""), ConsoleColor.DarkYellow);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
          Api.Delete(aPi.CommandRequestId);
 
          DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
@@ -91,7 +91,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
       }
       public static async void PreviousTrackRequestApi(Api aPi)
       {
-         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5]", "").Replace("<", ""), ConsoleColor.DarkYellow);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
          Api.Delete(aPi.CommandRequestId);
 
          DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
@@ -742,7 +742,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      }
                      catch (Exception ex)
                      {
-                        CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__12]", "").Replace("<", ""), ConsoleColor.Red);
+                        CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__12", "").Replace("<", ""), ConsoleColor.Red);
                      }
 
                      if (cancellationToken.IsCancellationRequested)
