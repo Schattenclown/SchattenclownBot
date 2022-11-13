@@ -31,8 +31,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                      case "NextTrack":
                         PlayMusic.NextTrackRequestApi(item);
                         break;
-                     case "LastTrack":
-                        PlayMusic.LastRequestApi(item);
+                     case "PreviousTrack":
+                        PlayMusic.PreviousTrackRequestApi(item);
                         break;
                      case "RequestUserName":
                         RequestUserNameAnswer(item);

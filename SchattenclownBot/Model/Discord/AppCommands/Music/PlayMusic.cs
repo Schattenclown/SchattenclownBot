@@ -90,7 +90,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             break;
          }
       }
-      public static async void LastRequestApi(Api aPi)
+      public static async void PreviousTrackRequestApi(Api aPi)
       {
          CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
          Api.Delete(aPi.CommandRequestId);
