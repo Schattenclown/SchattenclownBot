@@ -108,8 +108,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
          foreach (QueueItem queueItem in QueueItemList.Where(x => x.DiscordGuild == discordGuild))
          {
-            int indexOfPlaying = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.SpotifyUri)) - 1;
-            int indexOfLast = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.SpotifyUri)) - 2;
+            int indexOfPlaying = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.YouTubeUri)) - 1;
+            int indexOfLast = PlayedQueueItemList.FindIndex(x => x.DiscordGuild == queueItem.DiscordGuild && (x.SpotifyUri == queueItem.SpotifyUri || x.YouTubeUri == queueItem.YouTubeUri)) - 2;
 
             if (indexOfLast >= 0)
             {
@@ -253,6 +253,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      Video firstVideo = await youtubeClient.Videos.GetAsync(firstVideoId);
 
                      await PlayQueueAsyncTask(interactionContext, new Uri(firstVideo.Url), null);
+                     PlayedQueueItemList.Add(new QueueItem(interactionContext.Guild, new Uri(firstVideo.Url), null));
                      tracksAdded++;
                   }
 
