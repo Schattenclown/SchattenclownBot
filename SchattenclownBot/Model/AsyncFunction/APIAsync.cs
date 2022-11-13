@@ -1,14 +1,17 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
-    internal class ApiAsync
+   internal class ApiAsync
    {
       public static async Task ReadFromApiAsync()
       {
@@ -36,6 +39,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                         break;
                      case "RequestUserName":
                         RequestUserNameAnswer(item);
+                        CwLogger.Write($"Login from {item.Data} with Id: {item.RequestDiscordUserId} at {item.RequestTimeStamp} with Ip: {item.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
                         break;
                   }
 
