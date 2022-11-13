@@ -91,7 +91,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
       }
       public static async void PreviousTrackRequestApi(Api aPi)
       {
-         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__6", "").Replace("<", ""), ConsoleColor.DarkYellow);
          Api.Delete(aPi.CommandRequestId);
 
          DiscordGuild discordGuild = await Bot.DiscordClient.GetGuildAsync(928930967140331590);
