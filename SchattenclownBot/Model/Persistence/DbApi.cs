@@ -26,7 +26,8 @@ namespace SchattenclownBot.Model.Persistence
                   RequestSecretKey = mySqlDataReader.GetUInt64("RequestSecretKey"),
                   RequestTimeStamp = mySqlDataReader.GetDateTime("RequestTimeStamp"),
                   RequesterIp = mySqlDataReader.GetString("RequesterIP"),
-                  Command = mySqlDataReader.GetString("Command")
+                  Command = mySqlDataReader.GetString("Command"),
+                  Data = mySqlDataReader.GetString("Data")
                };
 
                apiHandles.Add(aPi);

@@ -558,6 +558,408 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          }
       }
 
+      public static async Task ApiPlay(Api api)
+      {
+         string webLink = api.Data;
+         DiscordMember discordMember = default;
+         DiscordGuild discordGuild = default;
+         DiscordChannel discordChannel = await Bot.DiscordClient.GetChannelAsync(928937150546853919);
+
+         foreach (var guild in Bot.DiscordClient.Guilds.Values)
+         {
+            foreach (var member in guild.Members.Values.Where(x => x.VoiceState != null && x.Id == api.RequestDiscordUserId))
+            {
+               discordMember = member;
+               discordGuild = guild;
+               break;
+            }
+         }
+
+
+         if (discordMember.VoiceState == null)
+         {
+            await discordChannel.SendMessageAsync("You must be connected!");
+            return;
+         }
+
+         if (QueueCreatingList.Exists(x => x.DiscordGuild == discordGuild))
+         {
+            await discordChannel.SendMessageAsync("The queue is already being generated. Please wait until the first queue is generated! " +
+                                                               $"{QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount}/" +
+                                                               $"{QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount} Please wait!");
+            return;
+         }
+         else if (!NoMusicPlaying(discordGuild))
+         {
+            await discordChannel.SendMessageAsync("Queue is being created! Please be patient!");
+         }
+
+         Uri webLinkUri;
+         try
+         {
+            webLinkUri = new Uri(webLink);
+         }
+         catch
+         {
+            await discordChannel.SendMessageAsync("Please check your link, something is wrong! The https:// tag may be missing");
+            return;
+         }
+
+         bool isYouTube = false;
+         bool isYouTubePlaylist = false;
+         bool isYouTubePlaylistWithIndex = false;
+         bool isSpotify = false;
+         bool isSpotifyPlaylist = false;
+         bool isSpotifyAlbum = false;
+         int tracksAdded = 0;
+
+         if (webLink.Contains("watch?v=") || webLink.Contains("youtu.be") || webLink.Contains("&list=") || webLink.Contains("playlist?list="))
+         {
+            isYouTube = true;
+
+            if (webLink.Contains("&list=") || webLink.Contains("playlist?list="))
+            {
+               isYouTubePlaylist = true;
+
+               if (webLink.Contains("&index="))
+                  isYouTubePlaylistWithIndex = true;
+            }
+         }
+         else if (webLink.Contains("/track/") || webLink.Contains("/playlist/") || webLink.Contains("/album/") || webLink.Contains(":album:"))
+         {
+            isSpotify = true;
+
+            if (webLink.Contains("/playlist/"))
+               isSpotifyPlaylist = true;
+            else if (webLink.Contains("/album/") || webLink.Contains(":album:"))
+               isSpotifyAlbum = true;
+         }
+         else
+         {
+            await discordChannel.SendMessageAsync("Sag ICH!!!");
+            return;
+         }
+
+         if (isYouTube)
+         {
+            try
+            {
+               if (isYouTubePlaylist)
+               {
+                  int playlistSelectedVideoIndex = 1;
+                  string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveAfterWord(StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&list=", "&list=".Length), "&index=", 0), "&ab_channel=", 0), "&start_radio=", 0);
+                  bool isYouTubeMix = webLinkUri.AbsoluteUri.Contains("&ab_channel=") || webLinkUri.AbsoluteUri.Contains("&start_radio=");
+                  YoutubeClient youtubeClient = new();
+
+                  QueueCreatingList.Add(new QueueCreating(discordGuild, 0, 0));
+
+                  if (isYouTubePlaylistWithIndex)
+                  {
+                     playlistSelectedVideoIndex = Convert.ToInt32(StringCutter.RemoveAfterWord(StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "&index=", "&index=".Length), "&ab_channel=", 0), "&start_radio=", 0));
+                     string firstVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
+                     Video firstVideo = await youtubeClient.Videos.GetAsync(firstVideoId);
+
+                     await ApiPlayQueueAsyncTask(Bot.DiscordClient, discordGuild, discordMember, discordChannel, new Uri(firstVideo.Url), null);
+                     PlayedQueueItemList.Add(new QueueItem(discordGuild, new Uri(firstVideo.Url), null));
+                     tracksAdded++;
+                  }
+
+                  List<PlaylistVideo> playlistVideos = new(await youtubeClient.Playlists.GetVideosAsync(playlistId));
+
+                  if (playlistSelectedVideoIndex != 1 && !isYouTubeMix)
+                  {
+                     playlistVideos.RemoveRange(0, playlistSelectedVideoIndex);
+                  }
+                  else if (isYouTubePlaylistWithIndex)
+                  {
+                     playlistVideos.RemoveRange(0, 1);
+                  }
+
+                  QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAmount = playlistVideos.Count;
+
+                  int startIndex = 0;
+                  if (NoMusicPlaying(discordGuild))
+                  {
+                     await ApiPlayQueueAsyncTask(Bot.DiscordClient, discordGuild, discordMember, discordChannel, new Uri(playlistVideos[startIndex].Url), null);
+                     PlayedQueueItemList.Add(new QueueItem(discordGuild, new Uri(playlistVideos[startIndex].Url), null));
+                     QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                     tracksAdded++;
+                     startIndex++;
+                  }
+
+                  var cancellationTokenSource = CancellationTokenItemList.First(x => x.DiscordGuild == discordGuild).CancellationTokenSource;
+
+                  while (startIndex < playlistVideos.Count)
+                  {
+                     try
+                     {
+                        if (cancellationTokenSource.IsCancellationRequested)
+                           break;
+
+                        QueueItemList.Add(new QueueItem(discordGuild, new Uri(playlistVideos[startIndex].Url), null));
+                        PlayedQueueItemList.Add(new QueueItem(discordGuild, new Uri(playlistVideos[startIndex].Url), null));
+                        QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                        tracksAdded++;
+                     }
+                     catch (Exception ex)
+                     {
+                        await discordChannel.SendMessageAsync("Error adding " + playlistVideos[startIndex].Url + " " + ex.Message);
+                     }
+                     startIndex++;
+                  }
+               }
+               else
+               {
+                  //https://youtu.be/EW6c8o5ctRI
+                  string selectedVideoId;
+                  if (webLink.Contains("youtu.be"))
+                     selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "youtu.be/", "youtu.be/".Length), "&list=", 0);
+                  else
+                     selectedVideoId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
+
+                  Uri selectedVideoUri = new("https://www.youtube.com/watch?v=" + selectedVideoId);
+                  QueueCreatingList.Add(new QueueCreating(discordGuild, 1, 0));
+
+
+                  if (NoMusicPlaying(discordGuild))
+                  {
+                     await ApiPlayQueueAsyncTask(Bot.DiscordClient, discordGuild, discordMember, discordChannel, selectedVideoUri, null);
+                     PlayedQueueItemList.Add(new QueueItem(discordGuild, selectedVideoUri, null));
+                     QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                     tracksAdded++;
+                  }
+                  else
+                  {
+                     try
+                     {
+                        QueueItemList.Add(new QueueItem(discordGuild, selectedVideoUri, null));
+                        PlayedQueueItemList.Add(new QueueItem(discordGuild, selectedVideoUri, null));
+                        QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                        tracksAdded++;
+                     }
+                     catch (Exception ex)
+                     {
+                        await discordChannel.SendMessageAsync("Error adding " + selectedVideoUri + " " + ex.Message);
+                        return;
+                     }
+                  }
+               }
+            }
+            catch (Exception ex)
+            {
+               QueueCreatingList.RemoveAll(x => x.DiscordGuild == discordGuild);
+               await discordChannel.SendMessageAsync("Error!\n" + ex.Message);
+            }
+         }
+         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+         else if (isSpotify)
+         {
+            SpotifyClient spotifyClient = GetSpotifyClientConfig();
+
+            if (isSpotifyPlaylist)
+            {
+               string playlistId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
+
+               PlaylistGetItemsRequest playlistGetItemsRequest = new()
+               {
+                  Offset = 0
+               };
+
+               List<PlaylistTrack<IPlayableItem>> playlistTrackList = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
+
+               if (playlistTrackList is { Count: >= 100 })
+               {
+                  try
+                  {
+                     while (true)
+                     {
+                        playlistGetItemsRequest.Offset += 100;
+
+                        List<PlaylistTrack<IPlayableItem>> playlistTrackListSecond = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
+
+                        if (playlistTrackListSecond != null)
+                        {
+                           playlistTrackList.AddRange(playlistTrackListSecond);
+
+                           if (playlistTrackListSecond.Count < 100)
+                              break;
+                        }
+                     }
+                  }
+                  catch
+                  {
+                     // ignored
+                  }
+               }
+
+               if (playlistTrackList != null)
+               {
+                  QueueCreatingList.Add(new QueueCreating(discordGuild, playlistTrackList.Count, 0));
+
+                  if (playlistTrackList.Count != 0)
+                  {
+                     int startIndex = 0;
+                     if (NoMusicPlaying(discordGuild))
+                     {
+                        FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
+
+                        try
+                        {
+                           FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
+                           Uri youTubeUri = await new PlayMusic().SearchYoutubeFromSpotify(fullTrack);
+                           await ApiPlayQueueAsyncTask(Bot.DiscordClient, discordGuild, discordMember, discordChannel, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id));
+                           PlayedQueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id)));
+                           QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                           tracksAdded++;
+                        }
+                        catch (Exception ex)
+                        {
+                           await discordChannel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + playlistTrack!.Id + " " + ex.Message);
+                        }
+
+                        startIndex++;
+                     }
+                     var cancellationTokenSource = CancellationTokenItemList.First(x => x.DiscordGuild == discordGuild).CancellationTokenSource;
+
+                     while (startIndex < playlistTrackList.Count)
+                     {
+                        FullTrack playlistTrack = playlistTrackList[startIndex].Track as FullTrack;
+
+                        if (cancellationTokenSource.IsCancellationRequested)
+                           break;
+
+                        try
+                        {
+                           FullTrack fullTrack = spotifyClient.Tracks.Get(playlistTrack!.Id).Result;
+                           Uri youTubeUri = await new PlayMusic().SearchYoutubeFromSpotify(fullTrack);
+                           QueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id)));
+                           PlayedQueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + playlistTrack!.Id)));
+                           QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                           tracksAdded++;
+                        }
+                        catch (Exception ex)
+                        {
+                           await discordChannel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + playlistTrack!.Id + " " + ex.Message);
+                        }
+
+                        startIndex++;
+                     }
+                  }
+               }
+            }
+            else if (isSpotifyAlbum)
+            {
+               string albumId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(StringCutter.RemoveUntilWord(webLink, "/album/", "/album/".Length), ":album:", ":album:".Length), "?si", 0);
+               List<SimpleTrack> simpleTrackList = spotifyClient.Albums.GetTracks(albumId).Result.Items;
+
+               if (simpleTrackList != null && simpleTrackList.Count != 0)
+               {
+                  QueueCreatingList.Add(new QueueCreating(discordGuild, simpleTrackList.Count, 0));
+
+                  int startIndex = 0;
+
+                  if (NoMusicPlaying(discordGuild))
+                  {
+                     SimpleTrack simpleTrack = simpleTrackList[startIndex];
+                     try
+                     {
+                        FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
+                        Uri youTubeUri = await new PlayMusic().SearchYoutubeFromSpotify(fullTrack);
+                        await ApiPlayQueueAsyncTask(Bot.DiscordClient, discordGuild, discordMember, discordChannel, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id));
+                        PlayedQueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id)));
+                        QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                        tracksAdded++;
+                     }
+                     catch (Exception ex)
+                     {
+                        await discordChannel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + simpleTrack!.Id + " " + ex.Message);
+                     }
+
+                     startIndex++;
+                  }
+
+                  while (startIndex < simpleTrackList.Count)
+                  {
+                     SimpleTrack simpleTrack = simpleTrackList[startIndex];
+                     try
+                     {
+                        FullTrack fullTrack = spotifyClient.Tracks.Get(simpleTrack!.Id).Result;
+                        Uri youTubeUri = await new PlayMusic().SearchYoutubeFromSpotify(fullTrack);
+                        QueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id)));
+                        PlayedQueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + simpleTrack!.Id)));
+                        QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                        tracksAdded++;
+                     }
+                     catch (Exception ex)
+                     {
+                        await discordChannel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + simpleTrack!.Id + " " + ex.Message);
+                     }
+
+                     startIndex++;
+                  }
+               }
+            }
+            else
+            {
+               string trackId = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(webLink, "/track/", "/track/".Length), "?si", 0);
+               QueueCreatingList.Add(new QueueCreating(discordGuild, 1, 0));
+
+               if (NoMusicPlaying(discordGuild))
+               {
+                  FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
+
+                  try
+                  {
+                     Uri youTubeUri = await new PlayMusic().SearchYoutubeFromSpotify(fullTrack);
+                     await ApiPlayQueueAsyncTask(Bot.DiscordClient, discordGuild, discordMember, discordChannel, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId));
+                     PlayedQueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId)));
+                     QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                     tracksAdded++;
+                  }
+                  catch (Exception ex)
+                  {
+                     await discordChannel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + fullTrack!.Id + " " + ex.Message);
+                  }
+
+               }
+               else
+               {
+                  FullTrack fullTrack = spotifyClient.Tracks.Get(trackId).Result;
+
+                  try
+                  {
+                     Uri youTubeUri = await new PlayMusic().SearchYoutubeFromSpotify(fullTrack);
+                     QueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId)));
+                     PlayedQueueItemList.Add(new QueueItem(discordGuild, youTubeUri, new Uri("https://open.spotify.com/track/" + trackId)));
+                     QueueCreatingList.Find(x => x.DiscordGuild == discordGuild)!.QueueAddedAmount++;
+                     tracksAdded++;
+                  }
+                  catch (Exception ex)
+                  {
+                     await discordChannel.SendMessageAsync("Error adding " + "https://open.spotify.com/track/" + fullTrack!.Id + " " + ex.Message);
+                  }
+               }
+            }
+         }
+
+         QueueCreatingList.RemoveAll(x => x.DiscordGuild == discordGuild);
+         await Task.Delay(500);
+
+         if (NoMusicPlaying(discordGuild))
+         {
+            if (tracksAdded == 1)
+               await discordChannel.SendMessageAsync($"{tracksAdded} track is now added to the queue!");
+            else
+               await discordChannel.SendMessageAsync($"{tracksAdded} tracks are now added to the queue!");
+         }
+         else
+         {
+            if (tracksAdded == 1)
+               await discordChannel.SendMessageAsync($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!");
+            else
+               await discordChannel.SendMessageAsync($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!");
+         }
+      }
       private async Task<Uri> SearchYoutubeFromSpotify(FullTrack fullTrack)
       {
          YoutubeClient youtubeClient = new();
@@ -599,6 +1001,28 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          try
          {
             Task.Run(() => PlayFromQueueAsyncTask(interactionContext, null, null, null, null, queueItem, cancellationToken, true, true), cancellationToken);
+         }
+         catch
+         {
+            CancellationTokenItemList.Remove(dcCancellationTokenKeyPair);
+         }
+
+         return Task.CompletedTask;
+      }
+      private static Task ApiPlayQueueAsyncTask(DiscordClient discordClient, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel interactionChannel, Uri youtubeUri, Uri spotifyUri)
+      {
+         CancellationTokenSource tokenSource = new();
+         CancellationToken cancellationToken = tokenSource.Token;
+         DcCancellationTokenItem dcCancellationTokenKeyPair = new(discordGuild, tokenSource);
+         CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
+
+         QueueItem queueItem = new(discordGuild, youtubeUri, spotifyUri);
+
+         QueueItemList.Add(queueItem);
+
+         try
+         {
+            Task.Run(() => PlayFromQueueAsyncTask(null, discordClient, discordGuild, discordMember, interactionChannel, queueItem, cancellationToken, true, true), cancellationToken);
          }
          catch
          {
