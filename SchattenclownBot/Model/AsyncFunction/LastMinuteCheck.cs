@@ -16,9 +16,9 @@ namespace SchattenclownBot.Model.AsyncFunction
       public static bool CheckBirthdayGz;
       public static bool SympathySystemRunAsync;
 
-      public static async Task Check(int executeSecond)
+      public static void Check(int executeSecond)
       {
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             while (true)
             {

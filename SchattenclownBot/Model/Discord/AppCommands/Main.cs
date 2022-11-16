@@ -17,11 +17,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands;
 internal class Main : ApplicationCommandsModule
 {
    /// <summary>
-   ///     Get the Avatar and Banner of an User.
+   ///     HandlerReader the Avatar and Banner of an User.
    /// </summary>
    /// <param name="contextMenuContext">The contextMenuContext.</param>
    /// <returns></returns>
-   [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
+   [ContextMenu(ApplicationCommandType.User, "HandlerReader avatar & banner!")]
    public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
    {
       DiscordUser user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);

@@ -25,12 +25,12 @@ namespace SchattenclownBot.Model.Objects
          DbBotAlarmClocks.Delete(botAlarmClock);
          BotAlarmClocksDbRefresh();
       }
-      public static async Task BotAlarmClockRunAsync()
+      public static void BotAlarmClockRunAsync()
       {
          DbBotAlarmClocks.CreateTable_BotAlarmClock();
          BotAlarmClockList = DbBotAlarmClocks.ReadAll();
 
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             while (true)
             {
@@ -59,7 +59,6 @@ namespace SchattenclownBot.Model.Objects
                if (!AsyncFunction.LastMinuteCheck.BotAlarmClockRunAsync)
                   AsyncFunction.LastMinuteCheck.BotAlarmClockRunAsync = true;
             }
-            // ReSharper disable once FunctionNeverReturns
          });
       }
       public static void BotAlarmClocksDbRefresh()

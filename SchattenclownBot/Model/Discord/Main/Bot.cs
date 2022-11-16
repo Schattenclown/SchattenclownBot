@@ -137,11 +137,10 @@ namespace SchattenclownBot.Model.Discord.Main
       public async Task RunAsync()
       {
          await DiscordClient.ConnectAsync();
-         //rest
-#pragma warning disable CS4014
+
          BotTimer.BotTimerRunAsync();
          BotAlarmClock.BotAlarmClockRunAsync();
-         ApiAsync.ReadFromApiAsync();
+         API_Handler.RunInnerHandlerAsync();
          GreenCheck.CheckGreenTask(5);
          GetItRightMee6.CheckHighQualityAvailable(9);
          WhereIs.WhereIsClownRunAsync(19);
@@ -150,9 +149,7 @@ namespace SchattenclownBot.Model.Discord.Main
          BirthdayList.CheckBirthdayGz(49);
          SympathySystem.SympathySystemRunAsync(59);
          LastMinuteCheck.Check(0);
-         BirthdayList.GenerateBirthdayList();
-         //PlayMusic.TestTask();
-#pragma warning restore CS4014
+         await BirthdayList.GenerateBirthdayList();
 
          while (!ShutdownRequest.IsCancellationRequested)
          {
@@ -164,7 +161,7 @@ namespace SchattenclownBot.Model.Discord.Main
          Dispose();
       }
 
-      #region Register Commands & Events
+      #region RegisterForControlPanel Commands & Events
 
       /// <summary>
       /// Registers the event listener.
@@ -202,6 +199,7 @@ namespace SchattenclownBot.Model.Discord.Main
          DiscordClient.VoiceStateUpdated += PlayMusic.GotKickedEvent;
          DiscordClient.ComponentInteractionCreated += PlayMusic.ButtonPressEvent;
          DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
+         DiscordClient.ComponentInteractionCreated += RegisterForControlPanel.RegisterEvent;
       }
 
       /// <summary>
@@ -220,6 +218,7 @@ namespace SchattenclownBot.Model.Discord.Main
          applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Timer>();
          applicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
          applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
+         applicationCommandsExtension.RegisterGlobalCommands<RegisterForControlPanel>();
       }
 
       private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)

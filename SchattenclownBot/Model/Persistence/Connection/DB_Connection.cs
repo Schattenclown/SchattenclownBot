@@ -6,10 +6,10 @@ using System.Reflection;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
-   class DbConnection
+   class DB_Connection
    {
       private static string _token = "";
-      public static MySqlConnection OpenDb()
+      public static MySqlConnection OpenDB()
       {
          _token = Bot.Connections.MySqlConStr;
 #if DEBUG
@@ -31,7 +31,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
 
          return connection;
       }
-      public static MySqlConnection OpenApiDb()
+      public static MySqlConnection API_OpenDB()
       {
          _token = Bot.Connections.MySqlApiConStr;
 #if DEBUG
@@ -53,31 +53,31 @@ namespace SchattenclownBot.Model.Persistence.Connection
 
          return connection;
       }
-      public static void CloseDb(MySqlConnection connection)
+      public static void CloseDB(MySqlConnection connection)
       {
          connection.Close();
       }
       public static void ExecuteNonQuery(string sql)
       {
-         MySqlConnection connection = OpenDb();
+         MySqlConnection connection = OpenDB();
          MySqlCommand sqlCommand = new(sql, connection);
          int ret = sqlCommand.ExecuteNonQuery();
          if (ret != -1)
          {
             CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          }
-         CloseDb(connection);
+         CloseDB(connection);
       }
-      public static void ExecuteNonQueryApi(string sql)
+      public static void API_ExecuteNonQuery(string sql)
       {
-         MySqlConnection connection = OpenApiDb();
+         MySqlConnection connection = API_OpenDB();
          MySqlCommand sqlCommand = new(sql, connection);
          int ret = sqlCommand.ExecuteNonQuery();
          if (ret != -1)
          {
             CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          }
-         CloseDb(connection);
+         CloseDB(connection);
       }
       public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
       {

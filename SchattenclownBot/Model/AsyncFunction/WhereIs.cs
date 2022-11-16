@@ -12,9 +12,9 @@ namespace SchattenclownBot.Model.AsyncFunction
 {
    internal class WhereIs
    {
-      public static async Task WhereIsClownRunAsync(int executeSecond)
+      public static void WhereIsClownRunAsync(int executeSecond)
       {
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             if (Bot.DiscordClient.CurrentUser.Id != 890063457246937129)
                return;

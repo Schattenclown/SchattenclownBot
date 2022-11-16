@@ -59,11 +59,11 @@ namespace SchattenclownBot.Model.Objects
 
          return xpSpanToReachNextLevel;
       }
-      public static async Task LevelSystemRunAsync(int executeSecond)
+      public static void LevelSystemRunAsync(int executeSecond)
       {
          bool levelSystemVirgin = true;
 
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             while (DateTime.Now.Second != executeSecond)
             {
@@ -145,18 +145,18 @@ namespace SchattenclownBot.Model.Objects
             // ReSharper disable once FunctionNeverReturns
          });
       }
-      public static async Task LevelSystemRoleDistributionRunAsync(int executeSecond)
+      public static void LevelSystemRoleDistributionRunAsync(int executeSecond)
       {
-         while (DateTime.Now.Second != executeSecond)
+         Task.Run(async () =>
          {
-            await Task.Delay(1000);
-         }
+            while (DateTime.Now.Second != executeSecond)
+            {
+               await Task.Delay(1000);
+            }
 
-         bool levelSystemRoleDistributionVirgin = true;
-         DiscordGuild guildObj = null;
+            bool levelSystemRoleDistributionVirgin = true;
+            DiscordGuild guildObj = null;
 
-         await Task.Run(async () =>
-         {
             while (DateTime.Now.Second != executeSecond)
             {
                await Task.Delay(1000);

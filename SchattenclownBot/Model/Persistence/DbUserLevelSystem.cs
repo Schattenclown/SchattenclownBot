@@ -12,8 +12,8 @@ namespace SchattenclownBot.Model.Persistence
       {
          string sqlCommand = $"SELECT * FROM `{guildId}_levelSystem`";
          List<UserLevelSystem> userLevelSystemList = new();
-         MySqlConnection mySqlConnection = DbConnection.OpenDb();
-         MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sqlCommand, mySqlConnection);
+         MySqlConnection mySqlConnection = DB_Connection.OpenDB();
+         MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
 
          while (mySqlDataReader.Read())
          {
@@ -26,19 +26,19 @@ namespace SchattenclownBot.Model.Persistence
             userLevelSystemList.Add(userLevelSystemObj);
          }
 
-         DbConnection.CloseDb(mySqlConnection);
+         DB_Connection.CloseDB(mySqlConnection);
          return userLevelSystemList;
       }
       public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
       {
          string sqlCommand = $"INSERT INTO `{guildId}_levelSystem` (MemberId, OnlineTicks, OnlineTime) " +
                           $"VALUES ({userLevelSystem.MemberId}, {userLevelSystem.OnlineTicks}, '{userLevelSystem.OnlineTime}')";
-         DbConnection.ExecuteNonQuery(sqlCommand);
+         DB_Connection.ExecuteNonQuery(sqlCommand);
       }
       public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
       {
          string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
-         DbConnection.ExecuteNonQuery(sqlCommand);
+         DB_Connection.ExecuteNonQuery(sqlCommand);
       }
       public static void CreateTable_UserLevelSystem(ulong guildId)
       {
@@ -60,7 +60,7 @@ namespace SchattenclownBot.Model.Persistence
                           "PRIMARY KEY (MemberId)" +
                           ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
-         DbConnection.ExecuteNonQuery(sqlCommand);
+         DB_Connection.ExecuteNonQuery(sqlCommand);
       }
    }
 }

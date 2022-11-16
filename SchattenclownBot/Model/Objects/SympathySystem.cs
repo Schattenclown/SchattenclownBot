@@ -60,11 +60,11 @@ namespace SchattenclownBot.Model.Objects
       {
          return DbSympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
       }
-      public static async Task SympathySystemRunAsync(int executeSecond)
+      public static void SympathySystemRunAsync(int executeSecond)
       {
          bool levelSystemVirgin = true;
 
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             while (DateTime.Now.Second != executeSecond)
             {

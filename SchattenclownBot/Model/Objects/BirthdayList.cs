@@ -69,9 +69,9 @@ namespace SchattenclownBot.Model.Objects
          }
       }
 
-      public static async Task CheckBirthdayGz(int executeSecond)
+      public static void CheckBirthdayGz(int executeSecond)
       {
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             while (DateTime.Now.Second != executeSecond)
             {

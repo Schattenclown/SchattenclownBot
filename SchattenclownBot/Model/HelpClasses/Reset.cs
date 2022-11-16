@@ -27,7 +27,7 @@ namespace SchattenclownBot.Model.HelpClasses
          Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
          Console.ForegroundColor = ConsoleColor.Gray;
 
-         // Get file path of current process 
+         // HandlerReader file path of current process 
          string filePath = Assembly.GetExecutingAssembly().Location;
          string newFilepath = "";
          //BotDLL.dll

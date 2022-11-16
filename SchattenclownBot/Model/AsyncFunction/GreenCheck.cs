@@ -11,9 +11,9 @@ namespace SchattenclownBot.Model.AsyncFunction
 {
    internal class GreenCheck
    {
-      public static async Task CheckGreenTask(int executeSecond)
+      public static void CheckGreenTask(int executeSecond)
       {
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             if (Bot.DiscordClient.CurrentUser.Id == 890063457246937129)
             {

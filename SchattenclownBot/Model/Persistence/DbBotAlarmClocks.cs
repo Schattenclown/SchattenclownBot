@@ -13,8 +13,8 @@ namespace SchattenclownBot.Model.Persistence
          string sql = "SELECT * FROM ScAlarmClocks";
 
          List<BotAlarmClock> botAlarmClockList = new();
-         MySqlConnection mySqlConnection = DbConnection.OpenDb();
-         MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
+         MySqlConnection mySqlConnection = DB_Connection.OpenDB();
+         MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sql, mySqlConnection);
 
          if (mySqlDataReader != null)
          {
@@ -31,19 +31,19 @@ namespace SchattenclownBot.Model.Persistence
             }
          }
 
-         DbConnection.CloseDb(mySqlConnection);
+         DB_Connection.CloseDB(mySqlConnection);
          return botAlarmClockList;
       }
       public static void Add(BotAlarmClock botAlarmClock)
       {
          string sql = "INSERT INTO ScAlarmClocks (NotificationTime, ChannelId, MemberId) " +
                    $"VALUES ('{botAlarmClock.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botAlarmClock.ChannelId}, {botAlarmClock.MemberId})";
-         DbConnection.ExecuteNonQuery(sql);
+         DB_Connection.ExecuteNonQuery(sql);
       }
       public static void Delete(BotAlarmClock botAlarmClock)
       {
          string sql = $"DELETE FROM ScAlarmClocks WHERE `DBEntryID` = '{botAlarmClock.DbEntryId}'";
-         DbConnection.ExecuteNonQuery(sql);
+         DB_Connection.ExecuteNonQuery(sql);
       }
       public static void CreateTable_BotAlarmClock()
       {
@@ -67,7 +67,7 @@ namespace SchattenclownBot.Model.Persistence
                    "PRIMARY KEY (`DBEntryID`)) " +
                    "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
 
-         DbConnection.ExecuteNonQuery(sql);
+         DB_Connection.ExecuteNonQuery(sql);
       }
    }
 }

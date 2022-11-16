@@ -63,16 +63,16 @@ namespace SchattenclownBot.Model.Persistence.Connection
                directory.Create();
 
             StreamWriter streamWriter = new(Filepath.LocalPath);
-            streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" +
-                                   "DiscordBotKeyDebug;<API Key here>\n" +
+            streamWriter.WriteLine("DiscordBotKey;<RunInnerHandlerAsync Key here>\n" +
+                                   "DiscordBotKeyDebug;<RunInnerHandlerAsync Key here>\n" +
                                    "MySqlConStr;<DBConnectionString here>\n" +
                                    "MySqlConStrDebug;<DBConnectionString here>\n" +
-                                   "AcoustIdApiKey;<Api Key here>\n" +
+                                   "AcoustIdApiKey;<RunInnerHandlerAsync Key here>\n" +
                                    "SpotifyOAuth2;<ClientId-ClientSecret here>");
 
             streamWriter.Close();
             throw new Exception($"{Path.LocalPath}\n" +
-                                "API key´s and database strings not configured!");
+                                "RunInnerHandlerAsync key´s and database strings not configured!");
          }
       }
    }

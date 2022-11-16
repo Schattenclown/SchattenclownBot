@@ -40,7 +40,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             return;
          }
 
-         // Get the command's description from the SlashCommand attribute we used to register the command.
+         // HandlerReader the command's description from the SlashCommand attribute we used to register the command.
          SlashCommandAttribute slashCommandAttribute = command.GetCustomAttribute<SlashCommandAttribute>();
          DiscordEmbedBuilder discordEmbedBuilder = new()
          {
@@ -52,7 +52,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          // If the guild has a custom guild icon, set the embed's thumbnail to that icon.
          if (context.Guild != null && context.Guild.IconUrl != null)
          {
-            // CHALLENGE: Replace the jpg to the highest resolution png file using the Discord API.
+            // CHALLENGE: Replace the jpg to the highest resolution png file using the Discord RunInnerHandlerAsync.
             discordEmbedBuilder.WithThumbnail(context.Guild.IconUrl);
          }
 
@@ -90,7 +90,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       /// <param name="commandName">Name of the command.</param>
       public static void SearchCommands(Type type, string commandName = "")
       {
-         // Get all nested group commands in the type variable/class
+         // HandlerReader all nested group commands in the type variable/class
          IEnumerable<Type> nestedTypes = type.GetNestedTypes().Where(type => type?.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
          // If any nested group commands are available
          if (nestedTypes.Any())
@@ -110,7 +110,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
          else
          {
-            // Get all slash commands in the class
+            // HandlerReader all slash commands in the class
             IEnumerable<MethodInfo> commands = type.GetMethods().Where(method => method.GetCustomAttribute<SlashCommandAttribute>() != null);
             if (commands.Any())
             {

@@ -25,9 +25,9 @@ namespace SchattenclownBot.Model.AsyncFunction
          return Task.CompletedTask;
       }
 
-      public static async Task CheckHighQualityAvailable(int executeSecond)
+      public static void CheckHighQualityAvailable(int executeSecond)
       {
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             while (DateTime.Now.Second != executeSecond)
             {

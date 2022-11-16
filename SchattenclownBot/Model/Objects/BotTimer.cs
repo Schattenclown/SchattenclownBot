@@ -28,12 +28,12 @@ namespace SchattenclownBot.Model.Objects
       {
          return DbBotTimer.ReadAll();
       }
-      public static async Task BotTimerRunAsync()
+      public static void BotTimerRunAsync()
       {
          DbBotTimer.CreateTable_BotTimer();
          BotTimerList = DbBotTimer.ReadAll();
 
-         await Task.Run(async () =>
+         Task.Run(async () =>
          {
             while (true)
             {
@@ -62,7 +62,6 @@ namespace SchattenclownBot.Model.Objects
                if (!AsyncFunction.LastMinuteCheck.BotTimerRunAsync)
                   AsyncFunction.LastMinuteCheck.BotTimerRunAsync = true;
             }
-            // ReSharper disable once FunctionNeverReturns
          });
       }
       public static void BotTimerDbRefresh()
