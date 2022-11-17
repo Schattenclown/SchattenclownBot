@@ -740,31 +740,109 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          }
       }
 
+      public class VideoResultFromYTSearch
+      {
+         public VideoSearchResult VideoSearchResult { get; set; }
+         public TimeSpan OffsetTimeSpan { get; set; }
+         public int Hits { get; set; }
+
+         public VideoResultFromYTSearch(VideoSearchResult videoSearchResult, TimeSpan offsetTimeSpan, int hits)
+         {
+            VideoSearchResult = videoSearchResult;
+            OffsetTimeSpan = offsetTimeSpan;
+            Hits = hits;
+         }
+      }
+
       private static async Task<Uri> SearchYoutubeFromSpotify(FullTrack fullTrack)
       {
+         List<VideoResultFromYTSearch> results = new();
          YoutubeClient youtubeClient = new();
 
-         string artists = fullTrack.Artists.Aggregate("", (current, artist) => current + artist.Name);
+         string artists = fullTrack.Artists.Aggregate("", (current, artist) => current + " " + artist.Name);
 
          IReadOnlyList<VideoSearchResult> videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{artists} - {fullTrack.Name} - {fullTrack.ExternalIds.Values.FirstOrDefault()}").CollectAsync(5);
-         VideoSearchResult rightItem = null;
-         foreach (VideoSearchResult item in videoSearchResults)
+
+         foreach (VideoSearchResult result in videoSearchResults)
          {
-            if (item.Title == fullTrack.Name && fullTrack.Artists.Any(x => x.Name == item.Author.ChannelTitle))
+            if (result.Title.ToLower() == fullTrack.Name.ToLower() && fullTrack.Artists.Any(x => x.Name.ToLower() == result.Author.ChannelTitle.Replace(" - Topic", "").ToLower()))
             {
-               rightItem = item;
+               results.Add(new VideoResultFromYTSearch(result, new TimeSpan(0), 0));
             }
          }
 
-         if (rightItem != null)
-            return new Uri(rightItem.Url);
-
-         if (videoSearchResults.Count == 0)
+         try
          {
-            videoSearchResults = await youtubeClient.Search.GetVideosAsync($"{artists} - {fullTrack.Name}").CollectAsync(3);
+            results.Add(new VideoResultFromYTSearch(youtubeClient.Search.GetVideosAsync($"{artists} {fullTrack.Name}").CollectAsync(1).Result[0], new TimeSpan(0), 0));
+         }
+         catch
+         {
          }
 
-         return new Uri(videoSearchResults[0].Url);
+         try
+         {
+            results.Add(new VideoResultFromYTSearch(youtubeClient.Search.GetVideosAsync($"{fullTrack.Name} {artists}").CollectAsync(1).Result[0], new TimeSpan(0), 0));
+         }
+         catch
+         {
+         }
+
+         try
+         {
+            results.Add(new VideoResultFromYTSearch(youtubeClient.Search.GetVideosAsync($"{fullTrack.ExternalIds.Values.FirstOrDefault()}").CollectAsync(1).Result[0], new TimeSpan(0), 0));
+         }
+         catch
+         {
+         }
+
+         TimeSpan t1 = TimeSpan.FromMilliseconds(fullTrack.DurationMs);
+         foreach (var result in results)
+         {
+            if (result.VideoSearchResult.Title.ToLower().Contains(fullTrack.Name.ToLower()))
+               result.Hits++;
+
+            foreach (var artist in fullTrack.Artists)
+            {
+               if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(artist.Name.ToLower()))
+                  result.Hits++;
+
+               if (result.VideoSearchResult.Title.ToLower().Contains(artist.Name.ToLower()))
+                  result.Hits++;
+            }
+
+            TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
+            result.OffsetTimeSpan = t2 - t1;
+         }
+
+         results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
+
+         results.FirstOrDefault().Hits++;
+
+         results.OrderBy((search => search.Hits));
+         
+         DiscordEmbedBuilder discordEmbedBuilder = new()
+         {
+            Title = $"Spotify <{fullTrack.ExternalIds.Values.FirstOrDefault()}>"
+         };
+         discordEmbedBuilder.AddField(new DiscordEmbedField($"{t1:mm\\:ss}   |   {artists}   -   {fullTrack.Name}", fullTrack.ExternalUrls.Values.FirstOrDefault()));
+
+         int i = 1;
+         foreach (var result in results)
+         {
+            discordEmbedBuilder.AddField(
+               new DiscordEmbedField($"Result number {i}", $"{result.Hits} hints   |   {result.OffsetTimeSpan:mm\\:ss} TimeSpanOffset"));
+
+            discordEmbedBuilder.AddField(new DiscordEmbedField("" +
+                                                               $"{TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds):mm\\:ss}   |   " +
+                                                               $"{result.VideoSearchResult.Author.ChannelTitle}   -   " +
+                                                               $"{result.VideoSearchResult.Title}",
+               result.VideoSearchResult.Url));
+            i++;
+         }
+
+         await Bot.DebugDiscordChannel.SendMessageAsync(discordEmbedBuilder.Build());
+
+         return new Uri(results.FirstOrDefault().VideoSearchResult.Url);
       }
 
       private static Task PlayQueueAsyncTask(InteractionContext interactionContext, DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel discordChannel, Uri youtubeUri, Uri spotifyUri)

@@ -46,7 +46,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             SecretVault secretVaultRead = SecretVault.Read(eventArgs.User.Id);
 
-            if (secretVaultRead == null)
+            if (secretVaultRead.DiscordUserId == 0)
             {
                SecretVault secretVault = new()
                {
@@ -56,6 +56,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   SecretKey = sha256(eventArgs.Interaction.Data.Components[1].Value)
                };
                SecretVault.Register(secretVault);
+               await eventArgs.User.ConvertToMember(eventArgs.Guild).Result.SendMessageAsync("You can now authenticate yourself in the SchattenclownBot control panel with your username and password.");
             }
             else
             {

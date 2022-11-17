@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Tls;
 
 namespace SchattenclownBot.Model.Discord.Main
 {
@@ -33,6 +34,7 @@ namespace SchattenclownBot.Model.Discord.Main
       public static readonly Connections Connections = Connections.GetConnections();
       public static CancellationTokenSource ShutdownRequest;
       public static DiscordClient DiscordClient;
+      public static DiscordChannel DebugDiscordChannel;
       public static ApplicationCommandsExtension AppCommands;
       public InteractivityExtension Extension { get; private set; }
       public VoiceNextExtension NextExtension { get; }
@@ -150,6 +152,8 @@ namespace SchattenclownBot.Model.Discord.Main
          SympathySystem.SympathySystemRunAsync(59);
          LastMinuteCheck.Check(0);
          await BirthdayList.GenerateBirthdayList();
+
+         DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
 
          while (!ShutdownRequest.IsCancellationRequested)
          {
