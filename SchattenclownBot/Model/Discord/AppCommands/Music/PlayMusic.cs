@@ -203,20 +203,20 @@ internal class PlayMusic : ApplicationCommandsModule
    [SlashCommand("Play" + Bot.isDevBot, "Play Spotify or YouTube links!")]
    private static void PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
    {
-      PlayAsyncTask(interactionContext, webLink, null, false);
+      AddSongsToQueueAsync(interactionContext, webLink, null, false);
    }
 
    public static void API_PlayRequest(API api)
    {
-      PlayAsyncTask(null, null, api, false);
+      AddSongsToQueueAsync(null, null, api, false);
    }
 
    public static void API_ShufflePlayRequest(API api)
    {
-      PlayAsyncTask(null, null, api, true);
+      AddSongsToQueueAsync(null, null, api, true);
    }
 
-   private static async Task PlayAsyncTask(InteractionContext interactionContext, string webLink, API aPI, bool isShufflePlay)
+   private static async Task AddSongsToQueueAsync(InteractionContext interactionContext, string webLink, API aPI, bool isShufflePlay)
    {
       DiscordGuild interactionDiscordGuild = default;
       DiscordMember interactionDiscordMember = default;
@@ -769,28 +769,28 @@ internal class PlayMusic : ApplicationCommandsModule
                }
             }
          }
+      }
 
-         QueueCreatingList.RemoveAll(x => x.DiscordGuild == interactionDiscordGuild);
-         await Task.Delay(500);
+      QueueCreatingList.RemoveAll(x => x.DiscordGuild == interactionDiscordGuild);
+      await Task.Delay(500);
 
-         CancellationTokenSource cancellationTokenSourceEnd = CancellationTokenItemList.First(x => x.DiscordGuild == interactionDiscordGuild).CancellationTokenSource;
-         if (!interactionDiscordChannel.Users.Contains(Bot.DiscordClient.CurrentUser) || (!interactionDiscordChannel.Users.Contains(Bot.DiscordClient.CurrentUser) && cancellationTokenSourceEnd.IsCancellationRequested))
-            return;
+      CancellationTokenSource cancellationTokenSourceEnd = CancellationTokenItemList.First(x => x.DiscordGuild == interactionDiscordGuild).CancellationTokenSource;
+      if (!interactionDiscordChannel.Users.Contains(Bot.DiscordClient.CurrentUser) || (!interactionDiscordChannel.Users.Contains(Bot.DiscordClient.CurrentUser) && cancellationTokenSourceEnd.IsCancellationRequested))
+         return;
 
-         if (NoMusicPlaying(interactionDiscordGuild))
-         {
-            if (tracksAdded == 1)
-               await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} track is now added to the queue!")));
-            else
-               await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} tracks are now added to the queue!")));
-         }
+      if (NoMusicPlaying(interactionDiscordGuild))
+      {
+         if (tracksAdded == 1)
+            await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} track is now added to the queue!")));
          else
-         {
-            if (tracksAdded == 1)
-               await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!")));
-            else
-               await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!")));
-         }
+            await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} tracks are now added to the queue!")));
+      }
+      else
+      {
+         if (tracksAdded == 1)
+            await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!")));
+         else
+            await interactionDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!")));
       }
    }
 
