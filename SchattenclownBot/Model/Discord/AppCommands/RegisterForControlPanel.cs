@@ -56,11 +56,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   SecretKey = sha256(eventArgs.Interaction.Data.Components[1].Value)
                };
                SecretVault.Register(secretVault);
-               await eventArgs.User.ConvertToMember(eventArgs.Guild).Result.SendMessageAsync("You can now authenticate yourself in the SchattenclownBot control panel with your username and password.");
+               await eventArgs.User.ConvertToMember(eventArgs.Guild).Result.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You can now authenticate yourself in the SchattenclownBot control panel with your username and password.")));
             }
             else
             {
-               await eventArgs.User.ConvertToMember(eventArgs.Guild).Result.SendMessageAsync("You are already registered. If you forgot your password ask <@444152594898878474>.");
+               await eventArgs.User.ConvertToMember(eventArgs.Guild).Result.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You are already registered. If you forgot your password ask <@444152594898878474>.")));
             }
          }
       }
