@@ -1,13 +1,13 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Persistence.DB;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
-   public class BotAlarmClock
+    public class BotAlarmClock
    {
       public int DbEntryId { get; set; }
       public DateTime NotificationTime { get; set; }
@@ -17,18 +17,18 @@ namespace SchattenclownBot.Model.Objects
       public static List<BotAlarmClock> BotAlarmClockList;
       public static void Add(BotAlarmClock botAlarmClock)
       {
-         DbBotAlarmClocks.Add(botAlarmClock);
+         DB_BotAlarmClocks.Add(botAlarmClock);
          BotAlarmClocksDbRefresh();
       }
       public static void Delete(BotAlarmClock botAlarmClock)
       {
-         DbBotAlarmClocks.Delete(botAlarmClock);
+         DB_BotAlarmClocks.Delete(botAlarmClock);
          BotAlarmClocksDbRefresh();
       }
       public static void BotAlarmClockRunAsync()
       {
-         DbBotAlarmClocks.CreateTable_BotAlarmClock();
-         BotAlarmClockList = DbBotAlarmClocks.ReadAll();
+         DB_BotAlarmClocks.CreateTable_BotAlarmClock();
+         BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
 
          Task.Run(async () =>
          {
@@ -53,7 +53,7 @@ namespace SchattenclownBot.Model.Objects
                }
 
                if (DateTime.Now.Second == 30)
-                  BotAlarmClockList = DbBotAlarmClocks.ReadAll();
+                  BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
 
                await Task.Delay(1000 * 1);
                if (!AsyncFunction.LastMinuteCheck.BotAlarmClockRunAsync)
@@ -63,7 +63,7 @@ namespace SchattenclownBot.Model.Objects
       }
       public static void BotAlarmClocksDbRefresh()
       {
-         BotAlarmClockList = DbBotAlarmClocks.ReadAll();
+         BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
       }
    }
 }

@@ -16,12 +16,13 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.HelpClasses;
 using System.Reflection;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music
 {
-   internal class PlayMusicDrive : ApplicationCommandsModule
+    internal class PlayMusicDrive : ApplicationCommandsModule
    {
-      private static readonly List<DcCancellationTokenItem> CancellationTokenItemList = new();
+      private static readonly List<DC_CancellationTokenItem> CancellationTokenItemList = new();
       public static readonly List<QueueTrack> QueueTracks = new();
       public static readonly List<QueueTrack> CompareQueueTracks = new();
       /*
@@ -178,7 +179,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                {
                   CancellationTokenSource tokenSource = new();
                   CancellationToken cancellationToken = tokenSource.Token;
-                  DcCancellationTokenItem dcCancellationTokenKeyPair = new(interactionContext.Guild, tokenSource);
+                  DC_CancellationTokenItem dcCancellationTokenKeyPair = new(interactionContext.Guild, tokenSource);
                   CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
                   try
@@ -209,11 +210,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   return;
                }
 
-               await StopMusicTask(new GCM(interactionContext.Guild, interactionContext.Channel, interactionContext.Member), false);
+               await StopMusicTask(new GMC(interactionContext.Guild, interactionContext.Channel, interactionContext.Member), false);
 
                CancellationTokenSource tokenSource = new();
                CancellationToken cancellationToken = tokenSource.Token;
-               DcCancellationTokenItem dcCancellationTokenKeyPair = new(interactionContext.Guild, tokenSource);
+               DC_CancellationTokenItem dcCancellationTokenKeyPair = new(interactionContext.Guild, tokenSource);
                CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
                try
@@ -244,7 +245,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                bool nothingToStop = true;
                List<CancellationTokenSource> cancellationTokenSourceList = new();
-               foreach (DcCancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+               foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                {
                   nothingToStop = false;
                   cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
@@ -261,7 +262,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                }
 
                QueueTrack queueTrack = default;
-               foreach (var item in QueueTracks.Where(x => x.GCM.DiscordGuild == eventArgs.Guild && x.HasBeenPlayed == false))
+               foreach (var item in QueueTracks.Where(x => x.GMC.DiscordGuild == eventArgs.Guild && x.HasBeenPlayed == false))
                {
                   queueTrack = item;
                   break;
@@ -269,12 +270,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                CancellationTokenSource tokenSource = new();
                CancellationToken cancellationToken = tokenSource.Token;
-               DcCancellationTokenItem dcCancellationTokenKeyPair = new(eventArgs.Guild, tokenSource);
+               DC_CancellationTokenItem dcCancellationTokenKeyPair = new(eventArgs.Guild, tokenSource);
                CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
                try
                {
-                  Task.Run(() => PlayFromQueueAsyncTask(new GCM(eventArgs.Guild, eventArgs.Channel, discordMember), queueTrack, cancellationToken), cancellationToken);
+                  Task.Run(() => PlayFromQueueAsyncTask(new GMC(eventArgs.Guild, eventArgs.Channel, discordMember), queueTrack, cancellationToken), cancellationToken);
                }
                catch (Exception ex)
                {
@@ -293,7 +294,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   return Task.CompletedTask;
                }
 
-               StopMusicTask(new GCM(eventArgs.Guild, eventArgs.Channel, discordMember), false);
+               StopMusicTask(new GMC(eventArgs.Guild, eventArgs.Channel, discordMember), false);
 
                break;
             }
@@ -333,7 +334,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                }
 
                List<CancellationTokenSource> cancellationTokenSourceList = new();
-               foreach (DcCancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+               foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                {
                   cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
                }
@@ -351,7 +352,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                foreach (QueueItem queueItem in QueueItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                {
-                  DcCancellationTokenItem newDcCancellationTokenItem = new(eventArgs.Guild, newCancellationTokenSource);
+                  DC_CancellationTokenItem newDcCancellationTokenItem = new(eventArgs.Guild, newCancellationTokenSource);
                   CancellationTokenItemList.Add(newDcCancellationTokenItem);
 
                   //Task.Run(() => PlayFromQueueAsyncTask(eventArgs.Guild, discordMember, eventArgs.Channel, queueItem, newCancellationToken, false), newCancellationToken);
@@ -369,14 +370,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   return Task.CompletedTask;
                }
 
-               if (QueueTracks.All(x => x.GCM.DiscordGuild != eventArgs.Guild && x.HasBeenPlayed))
+               if (QueueTracks.All(x => x.GMC.DiscordGuild != eventArgs.Guild && x.HasBeenPlayed))
                {
                   eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Nothing to skip!")));
                   return Task.CompletedTask;
                }
 
                List<CancellationTokenSource> cancellationTokenSourceList = new();
-               foreach (DcCancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+               foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                {
                   cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
                }
@@ -392,12 +393,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                CancellationTokenSource newCancellationTokenSource = new();
                CancellationToken newCancellationToken = newCancellationTokenSource.Token;
 
-               foreach (var queueTrack in QueueTracks.Where(x => x.GCM.DiscordGuild == eventArgs.Guild && !x.HasBeenPlayed))
+               foreach (var queueTrack in QueueTracks.Where(x => x.GMC.DiscordGuild == eventArgs.Guild && !x.HasBeenPlayed))
                {
-                  DcCancellationTokenItem newDcCancellationTokenItem = new(eventArgs.Guild, newCancellationTokenSource);
+                  DC_CancellationTokenItem newDcCancellationTokenItem = new(eventArgs.Guild, newCancellationTokenSource);
                   CancellationTokenItemList.Add(newDcCancellationTokenItem);
 
-                  Task.Run(() => PlayFromQueueAsyncTask(new GCM(eventArgs.Guild, eventArgs.Channel, discordMember), queueTrack, newCancellationToken), newCancellationToken);
+                  Task.Run(() => PlayFromQueueAsyncTask(new GMC(eventArgs.Guild, eventArgs.Channel, discordMember), queueTrack, newCancellationToken), newCancellationToken);
                   break;
                }
 
@@ -412,7 +413,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   return Task.CompletedTask;
                }
 
-               StopMusicTask(new GCM(eventArgs.Guild, eventArgs.Channel, discordMember), false);
+               StopMusicTask(new GMC(eventArgs.Guild, eventArgs.Channel, discordMember), false);
 
                break;
             }

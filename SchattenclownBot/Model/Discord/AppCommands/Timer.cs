@@ -6,7 +6,7 @@ using DisCatSharp.Enums;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Persistence.DB;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
-   internal class Timer : ApplicationCommandsModule
+    internal class Timer : ApplicationCommandsModule
    {
       /// <summary>
       ///     Set an Timer per Command.
@@ -63,7 +63,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          //Create an List with all Timers that where found in the Database.
-         System.Collections.Generic.List<BotTimer> botTimerList = DbBotTimer.ReadAll();
+         System.Collections.Generic.List<BotTimer> botTimerList = DB_BotTimer.ReadAll();
 
          //Create an Embed.
          DiscordEmbedBuilder discordEmbedBuilder = new()

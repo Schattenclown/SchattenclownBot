@@ -1,13 +1,13 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Persistence.DB;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
-   public class BotTimer
+    public class BotTimer
    {
       public int DbEntryId { get; set; }
       public DateTime NotificationTime { get; set; }
@@ -16,22 +16,22 @@ namespace SchattenclownBot.Model.Objects
       public static List<BotTimer> BotTimerList;
       public static void Add(BotTimer botTimer)
       {
-         DbBotTimer.Add(botTimer);
+         DB_BotTimer.Add(botTimer);
          BotTimerDbRefresh();
       }
       public static void Delete(BotTimer botTimer)
       {
-         DbBotTimer.Delete(botTimer);
+         DB_BotTimer.Delete(botTimer);
          BotTimerDbRefresh();
       }
       public static List<BotTimer> ReadAll()
       {
-         return DbBotTimer.ReadAll();
+         return DB_BotTimer.ReadAll();
       }
       public static void BotTimerRunAsync()
       {
-         DbBotTimer.CreateTable_BotTimer();
-         BotTimerList = DbBotTimer.ReadAll();
+         DB_BotTimer.CreateTable_BotTimer();
+         BotTimerList = DB_BotTimer.ReadAll();
 
          Task.Run(async () =>
          {
@@ -56,7 +56,7 @@ namespace SchattenclownBot.Model.Objects
                }
 
                if (DateTime.Now.Second == 15)
-                  BotTimerList = DbBotTimer.ReadAll();
+                  BotTimerList = DB_BotTimer.ReadAll();
 
                await Task.Delay(1000 * 1);
                if (!AsyncFunction.LastMinuteCheck.BotTimerRunAsync)
@@ -66,7 +66,7 @@ namespace SchattenclownBot.Model.Objects
       }
       public static void BotTimerDbRefresh()
       {
-         BotTimerList = DbBotTimer.ReadAll();
+         BotTimerList = DB_BotTimer.ReadAll();
       }
    }
 }

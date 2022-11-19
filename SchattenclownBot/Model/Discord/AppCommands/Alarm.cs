@@ -6,7 +6,7 @@ using DisCatSharp.Enums;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Persistence.DB;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
-   internal class Alarm : ApplicationCommandsModule
+    internal class Alarm : ApplicationCommandsModule
    {
       /// <summary>
       ///     Set an Alarm clock per command.
@@ -71,7 +71,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          //Create a List where all Alarms will be Listed if there are any set.
-         System.Collections.Generic.List<BotAlarmClock> botAlarmClockList = DbBotAlarmClocks.ReadAll();
+         System.Collections.Generic.List<BotAlarmClock> botAlarmClockList = DB_BotAlarmClocks.ReadAll();
 
          //Create an Embed.
          DiscordEmbedBuilder discordEmbedBuilder = new()

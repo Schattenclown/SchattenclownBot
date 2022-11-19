@@ -153,7 +153,8 @@ namespace SchattenclownBot.Model.Discord.Main
          LastMinuteCheck.Check(0);
          await BirthdayList.GenerateBirthdayList();
 
-         DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
+
+         DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
 
          while (!ShutdownRequest.IsCancellationRequested)
          {

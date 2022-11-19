@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -18,10 +8,21 @@ using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SpotifyAPI.Web;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -41,41 +42,23 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music;
 
 internal class PlayMusic : ApplicationCommandsModule
 {
-   private static readonly List<DcCancellationTokenItem> CancellationTokenItemList = new();
+   private static readonly List<DC_CancellationTokenItem> CancellationTokenItemList = new();
    public static readonly List<QueueTrack> QueueTracks = new();
-   public static readonly List<QueueTrack> CompareQueueTracks = new();
 
    public static async void NextTrackRequestApi(API aPI)
    {
       CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
       API.DELETE(aPI.CommandRequestId);
 
-      GCM gCM = new();
-
-      foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
+      GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
+      if (gMC == null)
       {
-         foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == aPI.RequestDiscordUserId))
-         {
-            gCM.DiscordGuild = guildItem;
-            gCM.DiscordMember = memberItem;
-            gCM.DiscordChannel = memberItem.VoiceState.Channel;
-            break;
-         }
+         gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
+         await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
+         return;
       }
 
-      if (gCM.DiscordMember == null)
-      {
-         foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
-         {
-            foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == aPI.RequestDiscordUserId))
-            {
-               await memberItem.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-               return;
-            }
-         }
-      }
-
-      PlayNextTrackFromQueue(gCM);
+      PlayNextTrackFromQueue(gMC);
    }
 
    public static async void PreviousTrackRequestApi(API aPI)
@@ -83,28 +66,15 @@ internal class PlayMusic : ApplicationCommandsModule
       CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__6", "").Replace("<", ""), ConsoleColor.DarkYellow);
       API.DELETE(aPI.CommandRequestId);
 
-      GCM gCM = new();
-
-      foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
-      foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == aPI.RequestDiscordUserId))
+      GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
+      if (gMC == null)
       {
-         gCM.DiscordGuild = guildItem;
-         gCM.DiscordMember = memberItem;
-         gCM.DiscordChannel = memberItem.VoiceState.Channel;
-         break;
+         gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
+         await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
+         return;
       }
 
-      if (gCM.DiscordMember == null)
-      {
-         foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
-         foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == aPI.RequestDiscordUserId))
-         {
-            await memberItem.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-            return;
-         }
-      }
-
-      PlayPreviousTrackFromQueue(gCM);
+      PlayPreviousTrackFromQueue(gMC);
    }
 
    private static bool NoMusicPlaying(DiscordGuild discordGuild)
@@ -141,43 +111,25 @@ internal class PlayMusic : ApplicationCommandsModule
 
    private static async Task AddTracksToQueueAsyncTask(ulong requestDiscordUserId, string webLink, bool isShufflePlay)
    {
-      GCM gCM = new();
-
-      foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
-      foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == requestDiscordUserId && x.VoiceState != null))
+      GMC gMC = GMC.FromDiscordUserID(requestDiscordUserId);
+      if (gMC == null)
       {
-         gCM.DiscordGuild = guildItem;
-         gCM.DiscordMember = memberItem;
-         gCM.DiscordChannel = memberItem.VoiceState.Channel;
-         break;
-      }
-
-      if (gCM.DiscordMember == null)
-      {
-         foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
-         foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == requestDiscordUserId))
-         {
-            await memberItem.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-            return;
-         }
-      }
-
-      if (gCM.DiscordGuild == null || gCM.DiscordChannel == null)
-      {
+         gMC = GMC.MemberFromID(requestDiscordUserId);
+         await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
          return;
       }
 
-      if (QueueTracks.Any(x => x.GCM.DiscordChannel == gCM.DiscordChannel && !x.IsAdded))
+      if (QueueTracks.Any(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.IsAdded))
       {
-         int addedCount = QueueTracks.Count(x => x.GCM.DiscordChannel == gCM.DiscordChannel && x.IsAdded);
-         int notAddedCount = QueueTracks.Count(x => x.GCM.DiscordChannel == gCM.DiscordChannel && !x.IsAdded);
-         await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("The queue is already being generated. Please wait until the first queue is generated! " + $"{addedCount}/ " + $"{notAddedCount} Please wait!")));
+         int addedCount = QueueTracks.Count(x => x.GMC.DiscordChannel == gMC.DiscordChannel && x.IsAdded);
+         int notAddedCount = QueueTracks.Count(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.IsAdded);
+         await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("The queue is already being generated. Please wait until the first queue is generated! " + $"{addedCount}/ " + $"{notAddedCount} Please wait!")));
          return;
       }
 
-      if (!NoMusicPlaying(gCM.DiscordGuild))
+      if (!NoMusicPlaying(gMC.DiscordGuild))
       {
-         await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Queue is being created! Please be patient!")));
+         await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Queue is being created! Please be patient!")));
       }
 
       Uri webLinkUri;
@@ -187,16 +139,17 @@ internal class PlayMusic : ApplicationCommandsModule
       }
       catch
       {
-         await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Please check your link, something is wrong! The https:// tag may be missing")));
+         await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Please check your link, something is wrong! The https:// tag may be missing")));
          return;
       }
 
+      List<FullTrack> fullTracks = new();
       int tracksAdded = 0;
 
       DeterminedStreamingService determinedStreamingService = new DeterminedStreamingService().IdentifyStreamingService(webLink);
       if (determinedStreamingService.Nothing)
       {
-         await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Sag ICH!!!")));
+         await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Sag ICH!!!")));
          return;
       }
 
@@ -231,7 +184,7 @@ internal class PlayMusic : ApplicationCommandsModule
 
                foreach (PlaylistVideo item in playlistVideos)
                {
-                  QueueTracks.Add(new QueueTrack(gCM, new Uri(item.Url), item.Title, item.Author.ChannelTitle));
+                  QueueTracks.Add(new QueueTrack(gMC, new Uri(item.Url), item.Title, item.Author.ChannelTitle));
                   tracksAdded++;
                }
             }
@@ -249,19 +202,41 @@ internal class PlayMusic : ApplicationCommandsModule
 
                Video videoData = await youtubeClient.Videos.GetAsync("https://www.youtube.com/watch?v=" + selectedVideoId);
 
-               QueueTracks.Add(new QueueTrack(gCM, new Uri(videoData.Url), videoData.Title, videoData.Author.ChannelTitle));
+               QueueTracks.Add(new QueueTrack(gMC, new Uri(videoData.Url), videoData.Title, videoData.Author.ChannelTitle));
                tracksAdded++;
             }
          }
          catch (Exception ex)
          {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Error!\n" + ex.Message)));
+            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Error!\n" + ex.Message)));
+         }
+
+         if (NoMusicPlaying(gMC.DiscordGuild))
+         {
+            if (tracksAdded == 1)
+            {
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} track is now added to the queue!")));
+            }
+            else
+            {
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} tracks are now added to the queue!")));
+            }
+         }
+         else
+         {
+            if (tracksAdded == 1)
+            {
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!")));
+            }
+            else
+            {
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!")));
+            }
          }
       }
       else if (determinedStreamingService.IsSpotify)
       {
          SpotifyClient spotifyClient = GetSpotifyClientConfig();
-         List<FullTrack> fullTracks = new();
 
          if (determinedStreamingService.IsSpotifyPlaylist)
          {
@@ -333,59 +308,62 @@ internal class PlayMusic : ApplicationCommandsModule
 
          foreach (FullTrack item in fullTracks)
          {
-            QueueTrack queueTrack = new(gCM, item);
+            QueueTrack queueTrack = new(gMC, item);
             queueTracks.Add(queueTrack);
             QueueTracks.Add(queueTrack);
          }
 
-         foreach (QueueTrack item in queueTracks)
+         Task.Run(async () =>
          {
-            SpotifyQueueAddSearchAsync(item);
-            tracksAdded++;
+            if (fullTracks.Count == 1)
+            {
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} track!")));
+            }
+            else
+            {
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} tracks!")));
+            }
+
+            foreach (QueueTrack item in queueTracks)
+            {
+               SpotifyQueueAddSearchAsync(item);
+               tracksAdded++;
+               await Task.Delay(100);
+            }
+
+            if (NoMusicPlaying(gMC.DiscordGuild))
+            {
+               if (tracksAdded == 1)
+               {
+                  await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} track is now added to the queue!")));
+               }
+               else
+               {
+                  await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} tracks are now added to the queue!")));
+               }
+            }
+            else
+            {
+               if (tracksAdded == 1)
+               {
+                  await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!")));
+               }
+               else
+               {
+                  await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!")));
+               }
+            }
+         });
+      }
+
+      if (NoMusicPlaying(gMC.DiscordGuild))
+      {
+         while (!QueueTracks.FirstOrDefault(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed)!.IsAdded)
+         {
             await Task.Delay(100);
          }
-      }
 
-      if (NoMusicPlaying(gCM.DiscordGuild))
-      {
-         while (!QueueTracks.FirstOrDefault().IsAdded)
-         {
-            await Task.Delay(1000);
-         }
-
-         await PlayFromQueueTask(gCM, QueueTracks.FirstOrDefault());
-      }
-
-      if (tracksAdded == 1)
-      {
-         await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Generating queue for {tracksAdded} track!")));
-      }
-      else
-      {
-         await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Generating queue for {tracksAdded} tracks!")));
-      }
-
-      if (NoMusicPlaying(gCM.DiscordGuild))
-      {
-         if (tracksAdded == 1)
-         {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} track is now added to the queue!")));
-         }
-         else
-         {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} tracks are now added to the queue!")));
-         }
-      }
-      else
-      {
-         if (tracksAdded == 1)
-         {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!")));
-         }
-         else
-         {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!")));
-         }
+         await PlayFromQueueTask(gMC, QueueTracks.FirstOrDefault(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed));
       }
    }
 
@@ -448,10 +426,39 @@ internal class PlayMusic : ApplicationCommandsModule
 
       return fullTracksMixed;
    }
+   public static List<QueueTrack> ShuffleQueueTracks(List<QueueTrack> queueTrack)
+   {
+      List<QueueTrack> queueTrackMixed = new();
+
+      int queueLength = queueTrack.Count;
+      List<int> intListMixed = new();
+
+      for (int i = 0; i < queueLength; i++)
+      {
+         bool foundNumber = false;
+
+         do
+         {
+            int randomInt = new Random().Next(0, queueLength);
+            if (!intListMixed.Contains(randomInt))
+            {
+               intListMixed.Add(randomInt);
+               foundNumber = true;
+            }
+         } while (!foundNumber);
+      }
+
+      foreach (int randomInt in intListMixed)
+      {
+         queueTrackMixed.Add(queueTrack[randomInt]);
+      }
+
+      return queueTrackMixed;
+   }
 
    public static void SpotifyQueueAddSearchAsync(QueueTrack queueTrack)
    {
-      Task.Run(async () =>
+      Task.Run(() =>
       {
          QueueTrack editQueueTrack = QueueTracks.Find(x => x.FullTrack == queueTrack.FullTrack);
 
@@ -553,16 +560,16 @@ internal class PlayMusic : ApplicationCommandsModule
       return new Uri(results.FirstOrDefault().VideoSearchResult.Url);
    }
 
-   private static Task PlayFromQueueTask(GCM gCM, QueueTrack queueTrack)
+   private static Task PlayFromQueueTask(GMC gMC, QueueTrack queueTrack)
    {
       CancellationTokenSource tokenSource = new();
       CancellationToken cancellationToken = tokenSource.Token;
-      DcCancellationTokenItem dcCancellationTokenKeyPair = new(gCM.DiscordGuild, tokenSource);
+      DC_CancellationTokenItem dcCancellationTokenKeyPair = new(gMC.DiscordGuild, tokenSource);
       CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
       try
       {
-         Task.Run(() => PlayFromQueueAsyncTask(gCM, queueTrack, cancellationToken), cancellationToken);
+         Task.Run(() => PlayFromQueueAsyncTask(gMC, queueTrack, cancellationToken), cancellationToken);
       }
       catch
       {
@@ -572,7 +579,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return Task.CompletedTask;
    }
 
-   private static async Task PlayFromQueueAsyncTask(GCM gCM, QueueTrack queueTrack, CancellationToken cancellationToken)
+   private static async Task PlayFromQueueAsyncTask(GMC gMC, QueueTrack queueTrack, CancellationToken cancellationToken)
    {
       VoiceNextExtension voiceNext = Bot.DiscordClient.GetVoiceNext();
       if (voiceNext == null)
@@ -580,8 +587,8 @@ internal class PlayMusic : ApplicationCommandsModule
          return;
       }
 
-      VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(gCM.DiscordGuild);
-      DiscordVoiceState voiceState = gCM.DiscordMember?.VoiceState;
+      VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(gMC.DiscordGuild);
+      DiscordVoiceState voiceState = gMC.DiscordMember?.VoiceState;
       if (voiceState?.Channel == null)
       {
          return;
@@ -647,12 +654,12 @@ internal class PlayMusic : ApplicationCommandsModule
 
          if (audioDownload.ErrorOutput.Length > 1)
          {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().WithContent($"{audioDownload.ErrorOutput[1]} `{queueTrack.YouTubeUri.AbsoluteUri}`"));
+            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().WithContent($"{audioDownload.ErrorOutput[1]} `{queueTrack.YouTubeUri.AbsoluteUri}`"));
          }
          else
          {
             discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(audioDownload.Data), audioDownloadMetaData, null);
-            DiscordMessage discordMessage = await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
+            DiscordMessage discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
 
             ProcessStartInfo ffmpegProcessStartInfo = new()
             {
@@ -708,14 +715,14 @@ internal class PlayMusic : ApplicationCommandsModule
 
             if (!cancellationToken.IsCancellationRequested)
             {
-               CancellationTokenItemList.RemoveAll(x => x.CancellationTokenSource.Token == cancellationToken && x.DiscordGuild == gCM.DiscordGuild);
+               CancellationTokenItemList.RemoveAll(x => x.CancellationTokenSource.Token == cancellationToken && x.DiscordGuild == gMC.DiscordGuild);
             }
          }
       }
       catch (Exception ex)
       {
          await Bot.DebugDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(ex.ToString())));
-         await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Something went wrong!\n")));
+         await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Something went wrong!\n")));
       }
       finally
       {
@@ -723,18 +730,18 @@ internal class PlayMusic : ApplicationCommandsModule
 
          if (!cancellationToken.IsCancellationRequested)
          {
-            if (QueueTracks.All(x => x.GCM.DiscordGuild == gCM.DiscordGuild && x.HasBeenPlayed))
+            if (QueueTracks.All(x => x.GMC.DiscordGuild == gMC.DiscordGuild && x.HasBeenPlayed))
             {
-               await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue is empty!")));
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue is empty!")));
 
                List<CancellationTokenSource> cancellationTokenSourceList = new();
 
-               foreach (DcCancellationTokenItem item in CancellationTokenItemList.Where(x => x.DiscordGuild == gCM.DiscordGuild))
+               foreach (DC_CancellationTokenItem item in CancellationTokenItemList.Where(x => x.DiscordGuild == gMC.DiscordGuild))
                {
                   cancellationTokenSourceList.Add(item.CancellationTokenSource);
                }
 
-               CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gCM.DiscordGuild);
+               CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gMC.DiscordGuild);
 
                foreach (CancellationTokenSource item in cancellationTokenSourceList)
                {
@@ -747,13 +754,13 @@ internal class PlayMusic : ApplicationCommandsModule
 
             foreach (QueueTrack queueTrackItem in QueueTracks)
             {
-               if (queueTrackItem.GCM.DiscordGuild == gCM.DiscordGuild && queueTrackItem.HasBeenPlayed == false)
+               if (queueTrackItem.GMC.DiscordGuild == gMC.DiscordGuild && queueTrackItem.HasBeenPlayed == false)
                {
                   CancellationTokenSource cancellationTokenSource = new();
                   CancellationToken token = cancellationTokenSource.Token;
-                  CancellationTokenItemList.Add(new DcCancellationTokenItem(gCM.DiscordGuild, cancellationTokenSource));
+                  CancellationTokenItemList.Add(new DC_CancellationTokenItem(gMC.DiscordGuild, cancellationTokenSource));
 
-                  Task.Run(() => PlayFromQueueAsyncTask(gCM, queueTrackItem, token));
+                  Task.Run(() => PlayFromQueueAsyncTask(gMC, queueTrackItem, token));
                   break;
                }
             }
@@ -1145,7 +1152,7 @@ internal class PlayMusic : ApplicationCommandsModule
          return;
       }
 
-      await StopMusicTask(new GCM(interactionContext.Guild, interactionContext.Channel, interactionContext.Member), true);
+      await StopMusicTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel), true);
    }
 
    [SlashCommand("Shuffle" + Bot.isDevBot, "Randomize the queue!")]
@@ -1154,49 +1161,35 @@ internal class PlayMusic : ApplicationCommandsModule
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
       await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Shuffle requested!"));
 
-      ShuffleQueueTracksAsyncTask(new GCM(interactionContext.Guild, interactionContext.Channel, interactionContext.Member));
+      ShuffleQueueTracksAsyncTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel));
    }
 
    public static async Task API_Shuffle(API aPI)
    {
-      GCM gCM = new();
-      foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
-      foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == aPI.RequestDiscordUserId))
+      GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
+      if (gMC == null)
       {
-         gCM.DiscordGuild = guildItem;
-         gCM.DiscordMember = memberItem;
-         gCM.DiscordChannel = memberItem.VoiceState.Channel;
-         break;
-      }
-
-      if (gCM.DiscordMember == null)
-      {
-         foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
-         foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == aPI.RequestDiscordUserId))
-         {
-            await memberItem.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-            return;
-         }
-
+         gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
+         await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
          return;
       }
 
-      ShuffleQueueTracksAsyncTask(gCM);
+      ShuffleQueueTracksAsyncTask(gMC);
    }
 
-   public static async Task ShuffleQueueTracksAsyncTask(GCM gCM)
+   public static async Task ShuffleQueueTracksAsyncTask(GMC gMC)
    {
-      if (QueueTracks.Any(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.IsAdded))
+      if (QueueTracks.Any(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.IsAdded))
       {
-         int queueItemsInt = QueueTracks.Count(x => x.GCM.DiscordGuild == gCM.DiscordGuild && x.IsAdded);
-         int queueItemsNotAddedInt = QueueTracks.Count(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.IsAdded);
-         await gCM.DiscordMember.VoiceState.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Queue is being created! " + $"{queueItemsInt}/" + $"{queueItemsNotAddedInt} Please wait!")));
+         int queueItemsInt = QueueTracks.Count(x => x.GMC.DiscordGuild == gMC.DiscordGuild && x.IsAdded);
+         int queueItemsNotAddedInt = QueueTracks.Count(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.IsAdded);
+         await gMC.DiscordMember.VoiceState.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Queue is being created! " + $"{queueItemsInt}/" + $"{queueItemsNotAddedInt} Please wait!")));
       }
       else
       {
-         List<QueueTrack> queueTracksMixed = new(ShuffleQueueTracks(QueueTracks.FindAll(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.HasBeenPlayed)));
+         List<QueueTrack> queueTracksMixed = new(ShuffleQueueTracks(QueueTracks.FindAll(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed)));
 
-         QueueTracks.RemoveAll(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.HasBeenPlayed);
+         QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed);
 
          foreach (QueueTrack queueTrack in queueTracksMixed)
          {
@@ -1205,55 +1198,24 @@ internal class PlayMusic : ApplicationCommandsModule
 
          if (queueTracksMixed.Count == 0)
          {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Its late i have to leave!")));
+            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Its late i have to leave!")));
          }
          else
          {
-            await gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
+            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
          }
       }
    }
-
-   public static List<QueueTrack> ShuffleQueueTracks(List<QueueTrack> queueTrack)
-   {
-      List<QueueTrack> queueTrackMixed = queueTrack;
-
-      int queueLength = queueTrack.Count;
-      List<int> intListMixed = new();
-
-      for (int i = 0; i < queueLength; i++)
-      {
-         bool foundNumber = false;
-
-         do
-         {
-            int randomInt = new Random().Next(0, queueLength);
-            if (!intListMixed.Contains(randomInt))
-            {
-               intListMixed.Add(randomInt);
-               foundNumber = true;
-            }
-         } while (!foundNumber);
-      }
-
-      foreach (int randomInt in intListMixed)
-      {
-         queueTrackMixed.Add(queueTrack[randomInt]);
-      }
-
-      return queueTrackMixed;
-   }
-
    internal static Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
    {
       eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
-      if (QueueTracks.Any(x => x.GCM.DiscordGuild == eventArgs.Guild))
+      if (QueueTracks.Any(x => x.GMC.DiscordGuild == eventArgs.Guild))
       {
          DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
-         GCM gCM = new(eventArgs.Guild, eventArgs.Channel, discordMember);
+         GMC gMC = new(eventArgs.Guild, discordMember, eventArgs.Channel);
 
-         if (gCM.DiscordMember.VoiceState == null)
+         if (gMC.DiscordMember.VoiceState == null)
          {
             eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
             return Task.CompletedTask;
@@ -1262,96 +1224,101 @@ internal class PlayMusic : ApplicationCommandsModule
          switch (eventArgs.Id)
          {
             case "PreviousTrackStream":
-            {
-               PlayPreviousTrackFromQueue(gCM);
-               break;
-            }
-            case "NextTrackStream":
-            {
-               PlayNextTrackFromQueue(gCM);
-               break;
-            }
-            case "StopTrackStream":
-            {
-               StopMusicTask(new GCM(eventArgs.Guild, eventArgs.Channel, discordMember), false);
-               break;
-            }
-            case "ShuffleStream":
-            {
-               gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Shuffle requested!")));
-               ShuffleQueueTracksAsyncTask(gCM);
-               break;
-            }
-            case "ShowQueueStream":
-            {
-               DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Loading!"))).Result;
-
-               if (QueueTracks.All(x => x.GCM.DiscordGuild != gCM.DiscordGuild && x.HasBeenPlayed))
                {
-                  discordMessage.ModifyAsync("Queue is empty!");
+                  PlayPreviousTrackFromQueue(gMC);
+                  break;
                }
-               else
+            case "NextTrackStream":
                {
-                  string descriptionString = "";
-                  DiscordEmbedBuilder discordEmbedBuilder = new();
+                  PlayNextTrackFromQueue(gMC);
+                  break;
+               }
+            case "StopTrackStream":
+               {
+                  StopMusicTask(new GMC(eventArgs.Guild, discordMember, eventArgs.Channel), false);
+                  break;
+               }
+            case "ShuffleStream":
+               {
+                  gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested!")));
+                  ShuffleQueueTracksAsyncTask(gMC);
+                  break;
+               }
+            case "ShowQueueStream":
+               {
+                  DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Loading!"))).Result;
 
-                  List<QueueTrack> queueTracks = QueueTracks.FindAll(x => x.GCM.DiscordChannel == gCM.DiscordChannel && !x.HasBeenPlayed);
-
-                  for (int i = 0; i < 15; i++)
+                  if (QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild && x.HasBeenPlayed))
                   {
-                     if (queueTracks.Count == i)
+                     discordMessage.ModifyAsync("Queue is empty!");
+                  }
+                  else
+                  {
+                     string descriptionString = "";
+                     DiscordEmbedBuilder discordEmbedBuilder = new();
+
+                     List<QueueTrack> queueTracks = QueueTracks.FindAll(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.HasBeenPlayed);
+
+                     for (int i = 0; i < 15; i++)
                      {
-                        break;
+                        if (queueTracks.Count == i)
+                        {
+                           break;
+                        }
+
+                        if (queueTracks[i].FullTrack != null)
+                        {
+                           descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({queueTracks[i].SpotifyUri.AbsoluteUri})]  " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
+                        }
+                        else
+                        {
+                           descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
+                        }
                      }
 
-                     if (queueTracks[i].FullTrack != null)
-                     {
-                        descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({queueTracks[i].SpotifyUri.AbsoluteUri})]  " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
-                     }
-                     else
-                     {
-                        descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
-                     }
+                     discordEmbedBuilder.Title = $"{queueTracks.Count} Track/s in queue!";
+                     discordEmbedBuilder.WithDescription(descriptionString);
+                     discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder));
                   }
 
-                  discordEmbedBuilder.Title = $"{queueTracks.Count} Track/s in queue!";
-                  discordEmbedBuilder.WithDescription(descriptionString);
-                  discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder));
+                  break;
                }
-
-               break;
-            }
          }
       }
 
       return Task.CompletedTask;
    }
 
-   private static void PlayPreviousTrackFromQueue(GCM gCM)
+   private static void PlayPreviousTrackFromQueue(GMC gMC)
    {
-      /*if (QueueTracks.Any(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.HasBeenPlayed))
+      if (QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild))
       {
-         gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Wrong universe!")));
+         gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue empty!")));
          return;
-      }*/
+      }
 
-      QueueTrack item = QueueTracks.First(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.HasBeenPlayed);
+      QueueTrack item = QueueTracks.First(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed);
 
-      int indexOfPlaying = QueueTracks.FindIndex(x => x.GCM.DiscordGuild == item.GCM.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null))) - 1;
+      int indexOfPlaying = QueueTracks.FindIndex(x => x.GMC.DiscordGuild == item.GMC.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null))) - 1;
+      int indexOfLast = QueueTracks.FindIndex(x => x.GMC.DiscordGuild == item.GMC.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null))) - 2;
+      if (indexOfLast == -1)
+      {
+         gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Wrong universe!")));
+         return;
+      }
+
       QueueTrack playingQueueTrack = QueueTracks[indexOfPlaying];
       playingQueueTrack.HasBeenPlayed = false;
-
-      int indexOfLast = QueueTracks.FindIndex(x => x.GCM.DiscordGuild == item.GCM.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null))) - 2;
       QueueTrack lastQueueTrack = QueueTracks[indexOfLast];
       lastQueueTrack.HasBeenPlayed = false;
 
       List<CancellationTokenSource> cancellationTokenSourceList = new();
-      foreach (DcCancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == gCM.DiscordGuild))
+      foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == gMC.DiscordGuild))
       {
          cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
       }
 
-      CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gCM.DiscordGuild);
+      CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gMC.DiscordGuild);
 
       foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
       {
@@ -1362,31 +1329,31 @@ internal class PlayMusic : ApplicationCommandsModule
       CancellationTokenSource newCancellationTokenSource = new();
       CancellationToken newCancellationToken = newCancellationTokenSource.Token;
 
-      foreach (QueueTrack queueTrack in QueueTracks.Where(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.HasBeenPlayed))
+      foreach (QueueTrack queueTrack in QueueTracks.Where(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed))
       {
-         DcCancellationTokenItem newDcCancellationTokenItem = new(gCM.DiscordGuild, newCancellationTokenSource);
+         DC_CancellationTokenItem newDcCancellationTokenItem = new(gMC.DiscordGuild, newCancellationTokenSource);
          CancellationTokenItemList.Add(newDcCancellationTokenItem);
 
-         Task.Run(() => PlayFromQueueAsyncTask(gCM, queueTrack, newCancellationToken), newCancellationToken);
+         Task.Run(() => PlayFromQueueAsyncTask(gMC, queueTrack, newCancellationToken), newCancellationToken);
          break;
       }
    }
 
-   private static void PlayNextTrackFromQueue(GCM gCM)
+   private static void PlayNextTrackFromQueue(GMC gMC)
    {
-      if (QueueTracks.All(x => x.GCM.DiscordGuild != gCM.DiscordGuild && x.HasBeenPlayed))
+      if (QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild && x.HasBeenPlayed))
       {
-         gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Nothing to skip!")));
+         gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Nothing to skip!")));
          return;
       }
 
       List<CancellationTokenSource> cancellationTokenSourceList = new();
-      foreach (DcCancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == gCM.DiscordGuild))
+      foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == gMC.DiscordGuild))
       {
          cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
       }
 
-      CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gCM.DiscordGuild);
+      CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gMC.DiscordGuild);
 
       foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
       {
@@ -1397,27 +1364,27 @@ internal class PlayMusic : ApplicationCommandsModule
       CancellationTokenSource newCancellationTokenSource = new();
       CancellationToken newCancellationToken = newCancellationTokenSource.Token;
 
-      foreach (QueueTrack queueTrack in QueueTracks.Where(x => x.GCM.DiscordGuild == gCM.DiscordGuild && !x.HasBeenPlayed))
+      foreach (QueueTrack queueTrack in QueueTracks.Where(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed))
       {
-         DcCancellationTokenItem newDcCancellationTokenItem = new(gCM.DiscordGuild, newCancellationTokenSource);
+         DC_CancellationTokenItem newDcCancellationTokenItem = new(gMC.DiscordGuild, newCancellationTokenSource);
          CancellationTokenItemList.Add(newDcCancellationTokenItem);
 
-         Task.Run(() => PlayFromQueueAsyncTask(gCM, queueTrack, newCancellationToken), newCancellationToken);
+         Task.Run(() => PlayFromQueueAsyncTask(gMC, queueTrack, newCancellationToken), newCancellationToken);
          break;
       }
    }
 
-   private static Task StopMusicTask(GCM gCM, bool sendStopped)
+   private static Task StopMusicTask(GMC gMC, bool sendStopped)
    {
       bool nothingToStop = true;
       List<CancellationTokenSource> cancellationTokenSourceList = new();
-      foreach (DcCancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == gCM.DiscordGuild))
+      foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == gMC.DiscordGuild))
       {
          nothingToStop = false;
          cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
       }
 
-      CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gCM.DiscordGuild);
+      CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == gMC.DiscordGuild);
 
       foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
       {
@@ -1427,15 +1394,15 @@ internal class PlayMusic : ApplicationCommandsModule
 
       if (sendStopped)
       {
-         gCM.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(nothingToStop ? "Nothing to stop!" : "Stopped the music!")));
+         gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(nothingToStop ? "Nothing to stop!" : "Stopped the music!")));
       }
 
-      QueueTracks.RemoveAll(x => x.GCM.DiscordGuild == gCM.DiscordGuild);
+      QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == gMC.DiscordGuild);
 
       try
       {
          VoiceNextExtension voiceNext = Bot.DiscordClient.GetVoiceNext();
-         VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(gCM.DiscordGuild);
+         VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(gMC.DiscordGuild);
          if (voiceNextConnection != null)
          {
             voiceNextConnection.Disconnect();
@@ -1460,7 +1427,7 @@ internal class PlayMusic : ApplicationCommandsModule
             {
                bool nothingToStop = true;
                List<CancellationTokenSource> cancellationTokenSourceList = new();
-               foreach (DcCancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+               foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                {
                   nothingToStop = false;
                   {
@@ -1476,7 +1443,7 @@ internal class PlayMusic : ApplicationCommandsModule
                   cancellationToken.Dispose();
                }
 
-               QueueTracks.RemoveAll(x => x.GCM.DiscordGuild == eventArgs.Guild);
+               QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == eventArgs.Guild);
 
                eventArgs.Channel.SendMessageAsync(nothingToStop ? "Queue void and Left!" : "Stopped the music!");
                VoiceNextExtension voiceNext = client.GetVoiceNext();
@@ -1503,7 +1470,7 @@ internal class PlayMusic : ApplicationCommandsModule
          {
             if (eventArgs.User == client.CurrentUser)
             {
-               await StopMusicTask(new GCM(eventArgs.Guild, eventArgs.Channel, eventArgs.User.ConvertToMember(eventArgs.Guild).Result), false);
+               await StopMusicTask(new GMC(eventArgs.Guild, eventArgs.User.ConvertToMember(eventArgs.Guild).Result, eventArgs.Channel), false);
             }
          }
       }

@@ -39,4 +39,8 @@
     <AdditionalDesignTimeBuildInput Remove="FakesAssemblies\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\Discord\AppCommands\Music\API_Requests\" />
+  </ItemGroup>
+
 </Project>

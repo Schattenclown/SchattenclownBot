@@ -1,7 +1,7 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Persistence.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
-   public class UserLevelSystem
+    public class UserLevelSystem
    {
       public ulong MemberId { get; set; }
       public ulong GuildId { get; set; }
@@ -20,19 +20,19 @@ namespace SchattenclownBot.Model.Objects
 
       public static List<UserLevelSystem> Read(ulong guildId)
       {
-         return DbUserLevelSystem.Read(guildId);
+         return DB_UserLevelSystem.Read(guildId);
       }
       public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
       {
-         DbUserLevelSystem.Add(guildId, userLevelSystem);
+         DB_UserLevelSystem.Add(guildId, userLevelSystem);
       }
       public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
       {
-         DbUserLevelSystem.Change(guildId, userLevelSystem);
+         DB_UserLevelSystem.Change(guildId, userLevelSystem);
       }
       public static void CreateTable_UserLevelSystem(ulong guildId)
       {
-         DbUserLevelSystem.CreateTable_UserLevelSystem(guildId);
+         DB_UserLevelSystem.CreateTable_UserLevelSystem(guildId);
       }
       public static int CalculateLevel(int onlineTicks)
       {

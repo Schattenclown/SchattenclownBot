@@ -1,7 +1,7 @@
 ﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Persistence;
+using SchattenclownBot.Model.Persistence.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Objects
 {
-   public class SympathySystem
+    public class SympathySystem
    {
       public int VoteTableId { get; set; }
       public ulong VotingUserId { get; set; }
@@ -22,43 +22,43 @@ namespace SchattenclownBot.Model.Objects
 
       public static List<SympathySystem> ReadAll(ulong guildId)
       {
-         return DbSympathySystem.ReadAll(guildId);
+         return DB_SympathySystem.ReadAll(guildId);
       }
       public static void Add(SympathySystem sympathySystem)
       {
-         DbSympathySystem.Add(sympathySystem);
+         DB_SympathySystem.Add(sympathySystem);
       }
       public static void Change(SympathySystem sympathySystem)
       {
-         DbSympathySystem.Change(sympathySystem);
+         DB_SympathySystem.Change(sympathySystem);
       }
       public static void CreateTable_SympathySystem(ulong guildId)
       {
-         DbSympathySystem.CreateTable_SympathySystem(guildId);
+         DB_SympathySystem.CreateTable_SympathySystem(guildId);
       }
       public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
       {
-         return DbSympathySystem.ReadAllRoleInfo(guildId);
+         return DB_SympathySystem.ReadAllRoleInfo(guildId);
       }
       public static void AddRoleInfo(SympathySystem sympathySystem)
       {
-         DbSympathySystem.AddRoleInfo(sympathySystem);
+         DB_SympathySystem.AddRoleInfo(sympathySystem);
       }
       public static void ChangeRoleInfo(SympathySystem sympathySystem)
       {
-         DbSympathySystem.ChangeRoleInfo(sympathySystem);
+         DB_SympathySystem.ChangeRoleInfo(sympathySystem);
       }
       public static bool CheckRoleInfoExists(ulong guildId, int ratingValue)
       {
-         return DbSympathySystem.CheckRoleInfoExists(guildId, ratingValue);
+         return DB_SympathySystem.CheckRoleInfoExists(guildId, ratingValue);
       }
       public static void CreateTable_RoleInfoSympathySystem(ulong guildId)
       {
-         DbSympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
+         DB_SympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
       }
       public static int GetUserRatings(ulong guildId, ulong votedUserId, int voteRating)
       {
-         return DbSympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
+         return DB_SympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
       }
       public static void SympathySystemRunAsync(int executeSecond)
       {
