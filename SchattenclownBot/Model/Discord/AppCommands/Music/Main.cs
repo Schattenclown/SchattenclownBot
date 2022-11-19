@@ -1,14 +1,4 @@
-﻿using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.VoiceNext;
-using MetaBrainz.MusicBrainz;
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
-using SpotifyAPI.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -18,6 +8,16 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.VoiceNext;
+using MetaBrainz.MusicBrainz;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Objects;
+using SpotifyAPI.Web;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -201,7 +201,7 @@ internal class Main
       finally
       {
          await voiceTransmitSink.FlushAsync();
-         
+
          if (!cancellationToken.IsCancellationRequested)
          {
             if (QueueTracks.All(x => x.GMC.DiscordGuild == gMC.DiscordGuild && x.HasBeenPlayed))
@@ -666,9 +666,10 @@ internal class Main
             {
                if (QueueTracks.All(x => x.GMC.DiscordChannel != gMC.DiscordChannel))
                {
-                  await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription($"Queue generation stopped!")));
+                  await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue generation stopped!")));
                   return;
                }
+
                SpotifyQueueAddSearchAsync(item);
                tracksAdded++;
                await Task.Delay(50);

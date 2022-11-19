@@ -16,6 +16,7 @@ using DisCatSharp.VoiceNext;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.AppCommands;
+using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
@@ -27,7 +28,7 @@ public class Bot : IDisposable
 #if DEBUG
    public const string Prefix = "%";
 #else
-        public const string Prefix = "%";
+   public const string Prefix = "%";
 #endif
    //public static readonly ulong DevGuild = 881868642600505354;
    public static readonly Connections Connections = Connections.GetConnections();
@@ -46,7 +47,7 @@ public class Bot : IDisposable
 #if DEBUG
    public const string isDevBot = "";
 #else
-        public const string isDevBot = "";
+   public const string isDevBot = "";
 #endif
 
    /// <summary>
@@ -63,7 +64,7 @@ public class Bot : IDisposable
 #if DEBUG
       const LogLevel logLevel = LogLevel.Debug;
 #else
-            const LogLevel logLevel = LogLevel.Information;
+      const LogLevel logLevel = LogLevel.Information;
 #endif
       DiscordConfiguration discordConfiguration = new()
       {
@@ -159,7 +160,7 @@ public class Bot : IDisposable
          await Task.Delay(2000);
       }
 
-      await DiscordClient.UpdateStatusAsync(null, UserStatus.Offline, null);
+      await DiscordClient.UpdateStatusAsync(null, UserStatus.Offline);
       await DiscordClient.DisconnectAsync();
       await Task.Delay(2500);
       Dispose();
@@ -199,9 +200,9 @@ public class Bot : IDisposable
       //Custom Events
       DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
       //DiscordClient.VoiceStateUpdated += NewChannelCheck.CheckTask;
-      DiscordClient.VoiceStateUpdated += Discord.AppCommands.Music.Events.PanicLeaveEvent;
-      DiscordClient.VoiceStateUpdated += Discord.AppCommands.Music.Events.GotKickedEvent;
-      DiscordClient.ComponentInteractionCreated += Discord.AppCommands.Music.Events.ButtonPressEvent;
+      DiscordClient.VoiceStateUpdated += Events.PanicLeaveEvent;
+      DiscordClient.VoiceStateUpdated += Events.GotKickedEvent;
+      DiscordClient.ComponentInteractionCreated += Events.ButtonPressEvent;
       DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
       DiscordClient.ComponentInteractionCreated += RegisterForControlPanel.RegisterEvent;
    }
@@ -217,7 +218,7 @@ public class Bot : IDisposable
       applicationCommandsExtension.RegisterGlobalCommands<Alarm>();
       applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>();
       applicationCommandsExtension.RegisterGlobalCommands<Move>();
-      applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Music.DiscordRequests>();
+      applicationCommandsExtension.RegisterGlobalCommands<DiscordRequests>();
       applicationCommandsExtension.RegisterGlobalCommands<Poke>();
       applicationCommandsExtension.RegisterGlobalCommands<Timer>();
       applicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
@@ -244,7 +245,7 @@ public class Bot : IDisposable
          Name = Custom ? CustomState : "/help",
          ActivityType = ActivityType.Competing
       };
-      discordClient.UpdateStatusAsync(discordActivity, Custom ? CustomStatus : UserStatus.Online, null);
+      discordClient.UpdateStatusAsync(discordActivity, Custom ? CustomStatus : UserStatus.Online);
       CwLogger.Write("Bot ready!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Green);
       return Task.CompletedTask;
    }

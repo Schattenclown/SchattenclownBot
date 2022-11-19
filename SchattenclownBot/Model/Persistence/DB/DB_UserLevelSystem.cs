@@ -49,7 +49,7 @@ public static class DB_UserLevelSystem
 #if DEBUG
       string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RmUntil(connections.MySqlConStr, "Database=", 9);
+      string database = StringCutter.RmUntil(connections.MySqlConStr, "Database=", 9);
 #endif
       database = StringCutter.RmAfter(database, "; Uid", 0);
 
