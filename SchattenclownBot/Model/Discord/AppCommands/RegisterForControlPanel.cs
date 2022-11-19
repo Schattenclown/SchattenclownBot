@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -9,6 +8,7 @@ using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -38,8 +38,12 @@ internal class RegisterForControlPanel : ApplicationCommandsModule
 
    public static async Task RegisterEvent(DiscordClient sender, ComponentInteractionCreateEventArgs eventArgs)
    {
+
       if (eventArgs.Id == "RegisterForm")
       {
+         //await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+         await eventArgs.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Working on it.")));
+
          SecretVault secretVaultRead = SecretVault.Read(eventArgs.User.Id);
 
          if (secretVaultRead.DiscordUserId == 0)
@@ -49,8 +53,10 @@ internal class RegisterForControlPanel : ApplicationCommandsModule
                DiscordGuildId = eventArgs.Guild.Id,
                DiscordUserId = eventArgs.User.Id,
                Username = eventArgs.Interaction.Data.Components[0].Value,
-               SecretKey = SHA256FromString.SHA256(eventArgs.Interaction.Data.Components[1].Value)
+               SecretKey = SHA256FromString.ComputeSha256Hash(eventArgs.Interaction.Data.Components[1].Value)
             };
+
+
             SecretVault.Register(secretVault);
             await eventArgs.User.ConvertToMember(eventArgs.Guild).Result.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("You can now authenticate yourself in the SchattenclownBot control panel with your username and password.")));
          }

@@ -90,12 +90,12 @@ internal class API_Handler
 
    public static void NextTrackRequestApi(API aPI)
    {
-      APIRequests.NextTrackRequestApi(aPI);
+      APIRequests.API_NextTrackRequest(aPI);
    }
 
    public static void PreviousTrackRequestApi(API aPI)
    {
-      APIRequests.PreviousTrackRequestApi(aPI);
+      APIRequests.API_PreviousTrackRequest(aPI);
    }
 
    public static void API_PlayRequest(API aPI)
@@ -113,7 +113,7 @@ internal class API_Handler
    public static void API_ShuffleRequest(API aPI)
    {
       API.DELETE(aPI.CommandRequestId);
-      Task aPI_ShuffleTask = APIRequests.API_Shuffle(aPI);
+      Task aPI_ShuffleTask = APIRequests.API_ShuffleRequest(aPI);
       if (aPI_ShuffleTask.IsCompleted)
       {
          //maybe POST Success

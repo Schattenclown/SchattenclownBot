@@ -15,8 +15,9 @@ internal class DiscordRequests : ApplicationCommandsModule
    internal async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-      await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Working on it."));
-      Main.AddTracksToQueueAsyncTask(interactionContext.Member.Id, webLink, false);
+      await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Working on it.")));
+
+      await Main.AddTracksToQueueAsyncTask(interactionContext.Member.Id, webLink, false);
    }
 
    [SlashCommand("Stop" + Bot.isDevBot, "Stop the music!")]
@@ -26,7 +27,7 @@ internal class DiscordRequests : ApplicationCommandsModule
 
       if (interactionContext.Member.VoiceState == null)
       {
-         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected!"));
+         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected.")));
          return;
       }
 
@@ -34,11 +35,11 @@ internal class DiscordRequests : ApplicationCommandsModule
    }
 
    [SlashCommand("Shuffle" + Bot.isDevBot, "Randomize the queue!")]
-   internal async Task Shuffle(InteractionContext interactionContext)
+   internal async Task ShuffleCommand(InteractionContext interactionContext)
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-      await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Shuffle requested!"));
+      await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested.")));
 
-      Main.ShuffleQueueTracksAsyncTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel));
+      await Main.ShuffleQueueTracksAsyncTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel));
    }
 }

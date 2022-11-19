@@ -199,9 +199,9 @@ public class Bot : IDisposable
       //Custom Events
       DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
       //DiscordClient.VoiceStateUpdated += NewChannelCheck.CheckTask;
-      DiscordClient.VoiceStateUpdated += PlayMusic.PanicLeaveEvent;
-      DiscordClient.VoiceStateUpdated += PlayMusic.GotKickedEvent;
-      DiscordClient.ComponentInteractionCreated += PlayMusic.ButtonPressEvent;
+      DiscordClient.VoiceStateUpdated += Discord.AppCommands.Music.Events.PanicLeaveEvent;
+      DiscordClient.VoiceStateUpdated += Discord.AppCommands.Music.Events.GotKickedEvent;
+      DiscordClient.ComponentInteractionCreated += Discord.AppCommands.Music.Events.ButtonPressEvent;
       DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
       DiscordClient.ComponentInteractionCreated += RegisterForControlPanel.RegisterEvent;
    }
@@ -217,7 +217,7 @@ public class Bot : IDisposable
       applicationCommandsExtension.RegisterGlobalCommands<Alarm>();
       applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>();
       applicationCommandsExtension.RegisterGlobalCommands<Move>();
-      applicationCommandsExtension.RegisterGlobalCommands<PlayMusic>();
+      applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Music.DiscordRequests>();
       applicationCommandsExtension.RegisterGlobalCommands<Poke>();
       applicationCommandsExtension.RegisterGlobalCommands<Timer>();
       applicationCommandsExtension.RegisterGlobalCommands<UserLevel>();

@@ -1,16 +1,26 @@
-﻿using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using DisCatSharp.Entities;
+﻿using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music;
 
 internal class APIRequests
 {
-   internal static async void NextTrackRequestApi(API aPI)
+   internal static void API_PlayRequest(API api)
+   {
+      _ = Main.AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, false);
+   }
+
+   internal static void API_ShufflePlayRequest(API api)
+   {
+      _ = Main.AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, true);
+   }
+
+   internal static async void API_NextTrackRequest(API aPI)
    {
       CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
       API.DELETE(aPI.CommandRequestId);
@@ -26,7 +36,7 @@ internal class APIRequests
       Main.PlayNextTrackFromQueue(gMC);
    }
 
-   internal static async void PreviousTrackRequestApi(API aPI)
+   internal static async void API_PreviousTrackRequest(API aPI)
    {
       CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__6", "").Replace("<", ""), ConsoleColor.DarkYellow);
       API.DELETE(aPI.CommandRequestId);
@@ -42,17 +52,7 @@ internal class APIRequests
       Main.PlayPreviousTrackFromQueue(gMC);
    }
 
-   internal static void API_PlayRequest(API api)
-   {
-      Main.AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, false);
-   }
-
-   internal static void API_ShufflePlayRequest(API api)
-   {
-      Main.AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, true);
-   }
-
-   internal static async Task API_Shuffle(API aPI)
+   internal static async Task API_ShuffleRequest(API aPI)
    {
       GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
       if (gMC == null)
@@ -62,6 +62,6 @@ internal class APIRequests
          return;
       }
 
-      Main.ShuffleQueueTracksAsyncTask(gMC);
+      _ = Main.ShuffleQueueTracksAsyncTask(gMC);
    }
 }
