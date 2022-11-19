@@ -723,7 +723,7 @@ internal class Main
             {
                editQueueTrack.YouTubeUri = SearchYoutubeFromSpotify(queueTrack.FullTrack);
                editQueueTrack.IsAdded = true;
-               Console.WriteLine("added");
+               CwLogger.Write($"{queueTrack.GMC.DiscordGuild.Name}   |   {queueTrack.Title} - {queueTrack.Artist}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
             }
             else
             {
