@@ -205,8 +205,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                         string mentionedChannel = "";
                         try
                         {
-                           mentionedChannel = StringCutter.RemoveUntilWord(messageItem.Content, "<#", 2);
-                           mentionedChannel = StringCutter.RemoveAfterWord(mentionedChannel, ">", 0);
+                           mentionedChannel = StringCutter.RmUntil(messageItem.Content, "<#", 2);
+                           mentionedChannel = StringCutter.RmAfter(mentionedChannel, ">", 0);
                         }
                         catch
                         {

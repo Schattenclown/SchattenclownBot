@@ -50,12 +50,12 @@ namespace SchattenclownBot.Model.Persistence
          Connections connections = CsvConnections.ReadAll();
 
 #if DEBUG
-         string database = StringCutter.RemoveUntilWord(connections.MySqlConStrDebug, "Database=", 9);
+         string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RemoveUntilWord(connections.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RmUntil(connections.MySqlConStr, "Database=", 9);
 
 #endif
-         database = StringCutter.RemoveAfterWord(database, "; Uid", 0);
+         database = StringCutter.RmAfter(database, "; Uid", 0);
 
          string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" +
                    $"USE `{database}`;" +

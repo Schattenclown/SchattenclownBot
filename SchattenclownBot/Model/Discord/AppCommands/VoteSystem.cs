@@ -106,7 +106,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          catch
          {
             string text = componentInteractionCreateEventArgs.Message.Content;
-            string ulongString = StringCutter.RemoveAfterWord(StringCutter.RemoveUntilWord(text, "<@", "<@".Length), ">", 0);
+            string ulongString = StringCutter.RmAfter(StringCutter.RmUntil(text, "<@", "<@".Length), ">", 0);
             ulong discordTargetMemberUlong = Convert.ToUInt64(ulongString);
 
 

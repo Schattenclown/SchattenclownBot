@@ -14,7 +14,7 @@ namespace SchattenclownBot.Model.HelpClasses
       /// <param name="keyWord">The keyWord.</param>
       /// <param name="removeWordInt">The integer +/- from the keyWord.</param>
       /// <returns>A string.</returns>
-      public static string RemoveUntilWord(string inputString, string keyWord, int removeWordInt)
+      public static string RmUntil(string inputString, string keyWord, int removeWordInt)
       {
          if (inputString == null)
             return null;
@@ -28,7 +28,7 @@ namespace SchattenclownBot.Model.HelpClasses
       /// <param name="keyWord">The keyWord.</param>
       /// <param name="keepWordInt">The integer +/- from the keyWord.</param>
       /// <returns>A string.</returns>
-      public static string RemoveAfterWord(string inputString, string keyWord, int keepWordInt)
+      public static string RmAfter(string inputString, string keyWord, int keepWordInt)
       {
          if (!inputString.Contains(keyWord))
             return inputString;

@@ -8,15 +8,15 @@ namespace SchattenclownBot.Model.HelpClasses
       {
          if (writeLineString.Contains("CREATE TABLE IF NOT EXISTS"))
          {
-            writeLineString = StringCutter.RemoveAfterWord(writeLineString, "` (`", 0);
-            writeLineString = StringCutter.RemoveAfterWord(writeLineString, " (`", 0);
-            writeLineString = StringCutter.RemoveUntilWord(writeLineString, "CREATE TABLE IF NOT EXISTS `", "CREATE TABLE IF NOT EXISTS `".Length);
+            writeLineString = StringCutter.RmAfter(writeLineString, "` (`", 0);
+            writeLineString = StringCutter.RmAfter(writeLineString, " (`", 0);
+            writeLineString = StringCutter.RmUntil(writeLineString, "CREATE TABLE IF NOT EXISTS `", "CREATE TABLE IF NOT EXISTS `".Length);
          }
 
          if (callerFunction.Contains("<<") || callerFunction.Contains(">b__0>d"))
          {
-            callerFunction = StringCutter.RemoveUntilWord(callerFunction, "<<", "<<".Length);
-            callerFunction = StringCutter.RemoveAfterWord(callerFunction, ">b__0>d", 0);
+            callerFunction = StringCutter.RmUntil(callerFunction, "<<", "<<".Length);
+            callerFunction = StringCutter.RmAfter(callerFunction, ">b__0>d", 0);
             color = ConsoleColor.Cyan;
          }
 
@@ -32,8 +32,8 @@ namespace SchattenclownBot.Model.HelpClasses
       {
          if (callerFunction.Contains("<<") || callerFunction.Contains(">b__0>d"))
          {
-            callerFunction = StringCutter.RemoveUntilWord(callerFunction, "<<", "<<".Length);
-            callerFunction = StringCutter.RemoveAfterWord(callerFunction, ">b__0>d", 0);
+            callerFunction = StringCutter.RmUntil(callerFunction, "<<", "<<".Length);
+            callerFunction = StringCutter.RmAfter(callerFunction, ">b__0>d", 0);
             color = ConsoleColor.Cyan;
          }
          Console.ForegroundColor = ConsoleColor.Gray;

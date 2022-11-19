@@ -34,12 +34,12 @@ namespace SchattenclownBot.Model.HelpClasses
 
          if (filePath.Contains("Debug"))
          {
-            filePath = StringCutter.RemoveAfterWord(filePath, "Debug", 0);
+            filePath = StringCutter.RmAfter(filePath, "Debug", 0);
             newFilepath = filePath + "Debug\\net6.0\\SchattenclownBot.exe";
          }
          else if (filePath.Contains("Release"))
          {
-            filePath = StringCutter.RemoveAfterWord(filePath, "Release", 0);
+            filePath = StringCutter.RmAfter(filePath, "Release", 0);
             newFilepath = filePath + "Release\\net6.0\\SchattenclownBot.exe";
          }
 

@@ -105,7 +105,7 @@ namespace SchattenclownBot.Model.AsyncFunction
       public static void API_ShuffleRequest(API aPI)
       {
          API.DELETE(aPI.CommandRequestId);
-         Task aPI_ShuffleTask = PlayMusic.API_ShufflePlaylist(aPI);
+         Task aPI_ShuffleTask = PlayMusic.API_Shuffle(aPI);
          if (aPI_ShuffleTask.IsCompleted)
          {
             //maybe POST Success
