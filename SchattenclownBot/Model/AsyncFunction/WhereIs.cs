@@ -189,7 +189,7 @@ internal class WhereIs
                         }
 
                         lastDiscordMember = discordMemberItem;
-                        CwLogger.Write("\n\n" + description.Replace("<:xx_talk:989518547803848704>``", "  ").Replace("<:xx_empty:989518542456123442>", " ").Replace("``", " |").Replace("<:xx_mute:989518546541346856>", "M").Replace("<:xx_deaf:989518540400906270>", "D").Replace("<:xx_cam:989518538819645460>", "C").Replace("<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>", "L"), MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                        CwLogger.Write("\n\n" + description.Replace("<:xx_talk:989518547803848704>``", "  ").Replace("<:xx_empty:989518542456123442>", " ").Replace("``", " | ").Replace("<:xx_mute:989518546541346856>", "M").Replace("<:xx_deaf:989518540400906270>", "D").Replace("<:xx_cam:989518538819645460>", "C").Replace("<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>", "L"), MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                         await Task.Delay(2000);
                      }
                      catch (Exception ex)
