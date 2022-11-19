@@ -1,33 +1,34 @@
-﻿using DisCatSharp;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.Model.Discord.Main;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
    /// <summary>
-   /// Shows advanced usage of ChoiceProvider attribute with Reflection.
-   /// Notice how Ping inherits the ApplicationCommandsModule.
+   ///    Shows advanced usage of ChoiceProvider attribute with Reflection.
+   ///    Notice how Ping inherits the ApplicationCommandsModule.
    /// </summary>
    public class TriggerHelp : ApplicationCommandsModule
    {
       /// <summary>
-      /// Slash command registers the name and command description.
+      ///    Slash command registers the name and command description.
       /// </summary>
       /// <param name="context">Interaction context</param>
       /// <param name="commandName">The name of the command to get help on</param>
       [SlashCommand("trigger_help" + Bot.isDevBot, "Sends the help menu for the bot.")]
       public static async Task Command(InteractionContext context,
-          // ChoiceProvider calls the Provider() method, which gives a list of slash commands. This is called once, when commands are being registered to Discord.
-          [ChoiceProvider(typeof(TriggerHelpChoiceProvider)), Option("command", "The name of the command to get help on.")] string commandName)
+         // ChoiceProvider calls the Provider() method, which gives a list of slash commands. This is called once, when commands are being registered to Discord.
+         [ChoiceProvider(typeof(TriggerHelpChoiceProvider)), Option("command", "The name of the command to get help on.")]
+         string commandName)
       {
          // Using the TriggerHelpChoiceProvider class, we know that whatever the user gives us *should* be in the Commands dictionary, provided that they use tab completion. If they don't, say we couldn't find the command. 
          if (!TriggerHelpChoiceProvider.Commands.TryGetValue(commandName, out MethodInfo command))
@@ -77,14 +78,47 @@ namespace SchattenclownBot.Model.Discord.AppCommands
    }
 
    /// <summary>
-   /// Choice provider for manage_permissions command
+   ///    Choice provider for manage_permissions command
    /// </summary>
    public class TriggerHelpChoiceProvider : IChoiceProvider
    {
       internal static Dictionary<string, MethodInfo> Commands = new();
 
       /// <summary>
-      /// Adding all commands and subcommands to Commands field.
+      ///    Using Reflection, we search our program for ApplicationCommandsModules and register them as commands.
+      /// </summary>
+      /// <returns>A list of application slash commands.</returns>
+      public Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
+      {
+         List<DiscordApplicationCommandOptionChoice> discordApplicationCommandOptionChoices = new();
+
+         // All top level command classes
+         IEnumerable<Type> commandClasses = Assembly.GetEntryAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(ApplicationCommandsModule)) && !type.IsNested);
+
+         // Find all command or subgroup commands from the classes
+         foreach (Type command in commandClasses)
+         {
+            SearchCommands(command);
+         }
+
+         // SearchCommands registers the commands into a Dictionary<string, MethodInfo>. Since we only need the command name, we can just select the keys.
+         foreach (string commandName in Commands.Keys)
+         {
+            // Create the new choice option: new DiscordApplicationCommandOptionChoice("public name", "value"). Very similar to a dictionary.
+            DiscordApplicationCommandOptionChoice discordApplicationCommandOptionChoice = new(commandName, commandName);
+            // Add the new option to the other options.
+            discordApplicationCommandOptionChoices.Add(discordApplicationCommandOptionChoice);
+         }
+
+         // Sort the options alphabetically, in case Discord doesn't do that for us already.
+         discordApplicationCommandOptionChoices.Sort((DiscordApplicationCommandOptionChoice x, DiscordApplicationCommandOptionChoice y) => x.Name.CompareTo(y.Name));
+
+         // Return our commands to the help function.
+         return Task.FromResult(discordApplicationCommandOptionChoices.AsEnumerable());
+      }
+
+      /// <summary>
+      ///    Adding all commands and subcommands to Commands field.
       /// </summary>
       /// <param name="type">Type of the command.</param>
       /// <param name="commandName">Name of the command.</param>
@@ -130,39 +164,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                }
             }
          }
-      }
-
-      /// <summary>
-      /// Using Reflection, we search our program for ApplicationCommandsModules and register them as commands.
-      /// </summary>
-      /// <returns>A list of application slash commands.</returns>
-      public Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
-      {
-         List<DiscordApplicationCommandOptionChoice> discordApplicationCommandOptionChoices = new();
-
-         // All top level command classes
-         IEnumerable<Type> commandClasses = Assembly.GetEntryAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(ApplicationCommandsModule)) && !type.IsNested);
-
-         // Find all command or subgroup commands from the classes
-         foreach (Type command in commandClasses)
-         {
-            SearchCommands(command);
-         }
-
-         // SearchCommands registers the commands into a Dictionary<string, MethodInfo>. Since we only need the command name, we can just select the keys.
-         foreach (string commandName in Commands.Keys)
-         {
-            // Create the new choice option: new DiscordApplicationCommandOptionChoice("public name", "value"). Very similar to a dictionary.
-            DiscordApplicationCommandOptionChoice discordApplicationCommandOptionChoice = new(commandName, commandName);
-            // Add the new option to the other options.
-            discordApplicationCommandOptionChoices.Add(discordApplicationCommandOptionChoice);
-         }
-
-         // Sort the options alphabetically, in case Discord doesn't do that for us already.
-         discordApplicationCommandOptionChoices.Sort((DiscordApplicationCommandOptionChoice x, DiscordApplicationCommandOptionChoice y) => x.Name.CompareTo(y.Name));
-
-         // Return our commands to the help function.
-         return Task.FromResult(discordApplicationCommandOptionChoices.AsEnumerable());
       }
    }
 }

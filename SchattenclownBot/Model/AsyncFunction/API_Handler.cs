@@ -90,30 +90,30 @@ internal class API_Handler
 
    public static void NextTrackRequestApi(API aPI)
    {
-      PlayMusic.NextTrackRequestApi(aPI);
+      APIRequests.NextTrackRequestApi(aPI);
    }
 
    public static void PreviousTrackRequestApi(API aPI)
    {
-      PlayMusic.PreviousTrackRequestApi(aPI);
+      APIRequests.PreviousTrackRequestApi(aPI);
    }
 
    public static void API_PlayRequest(API aPI)
    {
       API.DELETE(aPI.CommandRequestId);
-      PlayMusic.API_PlayRequest(aPI);
+      APIRequests.API_PlayRequest(aPI);
    }
 
    public static void API_ShufflePlayRequest(API aPI)
    {
       API.DELETE(aPI.CommandRequestId);
-      PlayMusic.API_ShufflePlayRequest(aPI);
+      APIRequests.API_ShufflePlayRequest(aPI);
    }
 
    public static void API_ShuffleRequest(API aPI)
    {
       API.DELETE(aPI.CommandRequestId);
-      Task aPI_ShuffleTask = PlayMusic.API_Shuffle(aPI);
+      Task aPI_ShuffleTask = APIRequests.API_Shuffle(aPI);
       if (aPI_ShuffleTask.IsCompleted)
       {
          //maybe POST Success

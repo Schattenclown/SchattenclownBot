@@ -1,19 +1,4 @@
-﻿using DisCatSharp;
-using DisCatSharp.ApplicationCommands;
-using DisCatSharp.ApplicationCommands.Attributes;
-using DisCatSharp.ApplicationCommands.Context;
-using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
-using DisCatSharp.VoiceNext;
-using MetaBrainz.MusicBrainz;
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
-using SpotifyAPI.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -23,6 +8,16 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.VoiceNext;
+using MetaBrainz.MusicBrainz;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Objects;
+using SpotifyAPI.Web;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -32,57 +27,19 @@ using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos;
 using File = TagLib.File;
 
-// ReSharper disable UnusedMember.Local
-#pragma warning disable CS4014
-
-// ReSharper disable MethodSupportsCancellation
-// ReSharper disable UnusedMember.Global
-
 namespace SchattenclownBot.Model.Discord.AppCommands.Music;
 
-internal class PlayMusic : ApplicationCommandsModule
+internal class Main
 {
-   private static readonly List<DC_CancellationTokenItem> CancellationTokenItemList = new();
-   public static readonly List<QueueTrack> QueueTracks = new();
+   internal static readonly List<DC_CancellationTokenItem> CancellationTokenItemList = new();
+   internal static readonly List<QueueTrack> QueueTracks = new();
 
-   public static async void NextTrackRequestApi(API aPI)
-   {
-      CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
-      API.DELETE(aPI.CommandRequestId);
-
-      GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
-      if (gMC == null)
-      {
-         gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
-         await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-         return;
-      }
-
-      PlayNextTrackFromQueue(gMC);
-   }
-
-   public static async void PreviousTrackRequestApi(API aPI)
-   {
-      CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__6", "").Replace("<", ""), ConsoleColor.DarkYellow);
-      API.DELETE(aPI.CommandRequestId);
-
-      GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
-      if (gMC == null)
-      {
-         gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
-         await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-         return;
-      }
-
-      PlayPreviousTrackFromQueue(gMC);
-   }
-
-   private static bool NoMusicPlaying(DiscordGuild discordGuild)
+   internal static bool NoMusicPlaying(DiscordGuild discordGuild)
    {
       return CancellationTokenItemList.All(cancellationTokenItem => cancellationTokenItem.DiscordGuild != discordGuild);
    }
 
-   public static SpotifyClient GetSpotifyClientConfig()
+   internal static SpotifyClient GetSpotifyClientConfig()
    {
       SpotifyClientConfig spotifyClientConfig = SpotifyClientConfig.CreateDefault();
       ClientCredentialsRequest clientCredentialsRequest = new(Bot.Connections.Token.ClientId, Bot.Connections.Token.ClientSecret);
@@ -91,25 +48,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return spotifyClient;
    }
 
-   [SlashCommand("Play" + Bot.isDevBot, "Play Spotify or YouTube links!")]
-   private async Task PlayCommand(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
-   {
-      await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-      await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Working on it."));
-      AddTracksToQueueAsyncTask(interactionContext.Member.Id, webLink, false);
-   }
-
-   public static void API_PlayRequest(API api)
-   {
-      AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, false);
-   }
-
-   public static void API_ShufflePlayRequest(API api)
-   {
-      AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, true);
-   }
-
-   private static async Task AddTracksToQueueAsyncTask(ulong requestDiscordUserId, string webLink, bool isShufflePlay)
+   internal static async Task AddTracksToQueueAsyncTask(ulong requestDiscordUserId, string webLink, bool isShufflePlay)
    {
       GMC gMC = GMC.FromDiscordUserID(requestDiscordUserId);
       if (gMC == null)
@@ -367,7 +306,7 @@ internal class PlayMusic : ApplicationCommandsModule
       }
    }
 
-   private static List<PlaylistVideo> ShufflePlayListForYouTube(List<PlaylistVideo> playlistVideos)
+   internal static List<PlaylistVideo> ShufflePlayListForYouTube(List<PlaylistVideo> playlistVideos)
    {
       List<PlaylistVideo> playlistVideosMixed = new();
 
@@ -397,7 +336,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return playlistVideosMixed;
    }
 
-   private static List<FullTrack> ShufflePlayListForSpotify(List<FullTrack> fullTracks)
+   internal static List<FullTrack> ShufflePlayListForSpotify(List<FullTrack> fullTracks)
    {
       List<FullTrack> fullTracksMixed = new();
 
@@ -426,7 +365,8 @@ internal class PlayMusic : ApplicationCommandsModule
 
       return fullTracksMixed;
    }
-   public static List<QueueTrack> ShuffleQueueTracks(List<QueueTrack> queueTrack)
+
+   internal static List<QueueTrack> ShuffleQueueTracks(List<QueueTrack> queueTrack)
    {
       List<QueueTrack> queueTrackMixed = new();
 
@@ -456,7 +396,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return queueTrackMixed;
    }
 
-   public static void SpotifyQueueAddSearchAsync(QueueTrack queueTrack)
+   internal static void SpotifyQueueAddSearchAsync(QueueTrack queueTrack)
    {
       Task.Run(() =>
       {
@@ -484,7 +424,7 @@ internal class PlayMusic : ApplicationCommandsModule
       });
    }
 
-   private static Uri SearchYoutubeFromSpotify(FullTrack fullTrack)
+   internal static Uri SearchYoutubeFromSpotify(FullTrack fullTrack)
    {
       List<VideoResultFromYTSearch> results = new();
       YoutubeClient youtubeClient = new();
@@ -560,7 +500,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return new Uri(results.FirstOrDefault().VideoSearchResult.Url);
    }
 
-   private static Task PlayFromQueueTask(GMC gMC, QueueTrack queueTrack)
+   internal static Task PlayFromQueueTask(GMC gMC, QueueTrack queueTrack)
    {
       CancellationTokenSource tokenSource = new();
       CancellationToken cancellationToken = tokenSource.Token;
@@ -579,7 +519,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return Task.CompletedTask;
    }
 
-   private static async Task PlayFromQueueAsyncTask(GMC gMC, QueueTrack queueTrack, CancellationToken cancellationToken)
+   internal static async Task PlayFromQueueAsyncTask(GMC gMC, QueueTrack queueTrack, CancellationToken cancellationToken)
    {
       VoiceNextExtension voiceNext = Bot.DiscordClient.GetVoiceNext();
       if (voiceNext == null)
@@ -768,7 +708,7 @@ internal class PlayMusic : ApplicationCommandsModule
       }
    }
 
-   public static string TimeLineStringBuilderWhilePlaying(int timeSpanAdvanceInt, TimeSpan totalTimeSpan, CancellationToken cancellationToken)
+   internal static string TimeLineStringBuilderWhilePlaying(int timeSpanAdvanceInt, TimeSpan totalTimeSpan, CancellationToken cancellationToken)
    {
       TimeSpan playerAdvanceTimeSpan = TimeSpan.FromSeconds(timeSpanAdvanceInt);
 
@@ -792,7 +732,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return descriptionString;
    }
 
-   public static string TimeLineStringBuilderAfterTrack(int timeSpanAdvanceInt, TimeSpan totalTimeSpan, CancellationToken cancellationToken)
+   internal static string TimeLineStringBuilderAfterTrack(int timeSpanAdvanceInt, TimeSpan totalTimeSpan, CancellationToken cancellationToken)
    {
       TimeSpan playerAdvanceTimeSpan = TimeSpan.FromSeconds(timeSpanAdvanceInt);
 
@@ -823,7 +763,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return descriptionString;
    }
 
-   private static string PlayerAdvance(int timeSpanAdvanceInt, TimeSpan totalTimeSpan)
+   internal static string PlayerAdvance(int timeSpanAdvanceInt, TimeSpan totalTimeSpan)
    {
       string[] strings = new string[15];
       string playerAdvanceString = "";
@@ -852,7 +792,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return playerAdvanceString;
    }
 
-   public static AcoustId.Root AcoustIdFromFingerPrint(Uri filePathUri)
+   internal static AcoustId.Root AcoustIdFromFingerPrint(Uri filePathUri)
    {
       string[] fingerPrintDuration = default;
       string[] fingerPrintFingerprint = default;
@@ -887,7 +827,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return acoustId;
    }
 
-   public static DiscordEmbedBuilder CustomDiscordEmbedBuilder(DiscordEmbedBuilder discordEmbedBuilder, QueueTrack queueTrack, Uri filePathUri, VideoData audioDownloadMetaData, File metaTagFileToPlay)
+   internal static DiscordEmbedBuilder CustomDiscordEmbedBuilder(DiscordEmbedBuilder discordEmbedBuilder, QueueTrack queueTrack, Uri filePathUri, VideoData audioDownloadMetaData, File metaTagFileToPlay)
    {
       if (metaTagFileToPlay == null)
       {
@@ -1141,43 +1081,7 @@ internal class PlayMusic : ApplicationCommandsModule
       return discordEmbedBuilder;
    }
 
-   [SlashCommand("Stop" + Bot.isDevBot, "Stop the music!")]
-   private async Task StopCommand(InteractionContext interactionContext)
-   {
-      await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-      if (interactionContext.Member.VoiceState == null)
-      {
-         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected!"));
-         return;
-      }
-
-      await StopMusicTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel), true);
-   }
-
-   [SlashCommand("Shuffle" + Bot.isDevBot, "Randomize the queue!")]
-   private async Task Shuffle(InteractionContext interactionContext)
-   {
-      await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-      await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Shuffle requested!"));
-
-      ShuffleQueueTracksAsyncTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel));
-   }
-
-   public static async Task API_Shuffle(API aPI)
-   {
-      GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
-      if (gMC == null)
-      {
-         gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
-         await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-         return;
-      }
-
-      ShuffleQueueTracksAsyncTask(gMC);
-   }
-
-   public static async Task ShuffleQueueTracksAsyncTask(GMC gMC)
+   internal static async Task ShuffleQueueTracksAsyncTask(GMC gMC)
    {
       if (QueueTracks.Any(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.IsAdded))
       {
@@ -1206,90 +1110,8 @@ internal class PlayMusic : ApplicationCommandsModule
          }
       }
    }
-   internal static Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
-   {
-      eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
-      if (QueueTracks.Any(x => x.GMC.DiscordGuild == eventArgs.Guild))
-      {
-         DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
-         GMC gMC = new(eventArgs.Guild, discordMember, eventArgs.Channel);
-
-         if (gMC.DiscordMember.VoiceState == null)
-         {
-            eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
-            return Task.CompletedTask;
-         }
-
-         switch (eventArgs.Id)
-         {
-            case "PreviousTrackStream":
-               {
-                  PlayPreviousTrackFromQueue(gMC);
-                  break;
-               }
-            case "NextTrackStream":
-               {
-                  PlayNextTrackFromQueue(gMC);
-                  break;
-               }
-            case "StopTrackStream":
-               {
-                  StopMusicTask(new GMC(eventArgs.Guild, discordMember, eventArgs.Channel), false);
-                  break;
-               }
-            case "ShuffleStream":
-               {
-                  gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested!")));
-                  ShuffleQueueTracksAsyncTask(gMC);
-                  break;
-               }
-            case "ShowQueueStream":
-               {
-                  DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Loading!"))).Result;
-
-                  if (QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild && x.HasBeenPlayed))
-                  {
-                     discordMessage.ModifyAsync("Queue is empty!");
-                  }
-                  else
-                  {
-                     string descriptionString = "";
-                     DiscordEmbedBuilder discordEmbedBuilder = new();
-
-                     List<QueueTrack> queueTracks = QueueTracks.FindAll(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.HasBeenPlayed);
-
-                     for (int i = 0; i < 15; i++)
-                     {
-                        if (queueTracks.Count == i)
-                        {
-                           break;
-                        }
-
-                        if (queueTracks[i].FullTrack != null)
-                        {
-                           descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({queueTracks[i].SpotifyUri.AbsoluteUri})]  " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
-                        }
-                        else
-                        {
-                           descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
-                        }
-                     }
-
-                     discordEmbedBuilder.Title = $"{queueTracks.Count} Track/s in queue!";
-                     discordEmbedBuilder.WithDescription(descriptionString);
-                     discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder));
-                  }
-
-                  break;
-               }
-         }
-      }
-
-      return Task.CompletedTask;
-   }
-
-   private static void PlayPreviousTrackFromQueue(GMC gMC)
+   internal static void PlayPreviousTrackFromQueue(GMC gMC)
    {
       if (QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild))
       {
@@ -1339,7 +1161,7 @@ internal class PlayMusic : ApplicationCommandsModule
       }
    }
 
-   private static void PlayNextTrackFromQueue(GMC gMC)
+   internal static void PlayNextTrackFromQueue(GMC gMC)
    {
       if (QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild && x.HasBeenPlayed))
       {
@@ -1374,7 +1196,7 @@ internal class PlayMusic : ApplicationCommandsModule
       }
    }
 
-   private static Task StopMusicTask(GMC gMC, bool sendStopped)
+   internal static Task StopMusicTask(GMC gMC, bool sendStopped)
    {
       bool nothingToStop = true;
       List<CancellationTokenSource> cancellationTokenSourceList = new();
@@ -1414,69 +1236,5 @@ internal class PlayMusic : ApplicationCommandsModule
       }
 
       return Task.CompletedTask;
-   }
-
-   internal static async Task PanicLeaveEvent(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
-   {
-      try
-      {
-         DiscordMember discordMember = await client.CurrentUser.ConvertToMember(eventArgs.Guild);
-         if (eventArgs.Before != null && eventArgs.After != null && discordMember.VoiceState != null)
-         {
-            if (eventArgs.User == client.CurrentUser && eventArgs.After != null && eventArgs.Before.Channel != eventArgs.After.Channel)
-            {
-               bool nothingToStop = true;
-               List<CancellationTokenSource> cancellationTokenSourceList = new();
-               foreach (DC_CancellationTokenItem cancellationTokenItem in CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
-               {
-                  nothingToStop = false;
-                  {
-                     cancellationTokenSourceList.Add(cancellationTokenItem.CancellationTokenSource);
-                  }
-               }
-
-               CancellationTokenItemList.RemoveAll(x => x.DiscordGuild == eventArgs.Guild);
-
-               foreach (CancellationTokenSource cancellationToken in cancellationTokenSourceList)
-               {
-                  cancellationToken.Cancel();
-                  cancellationToken.Dispose();
-               }
-
-               QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == eventArgs.Guild);
-
-               eventArgs.Channel.SendMessageAsync(nothingToStop ? "Queue void and Left!" : "Stopped the music!");
-               VoiceNextExtension voiceNext = client.GetVoiceNext();
-               VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
-               if (voiceNextConnection != null)
-               {
-                  voiceNextConnection.Disconnect();
-               }
-            }
-         }
-      }
-      catch
-      {
-         // ignored
-      }
-   }
-
-   internal static async Task GotKickedEvent(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
-   {
-      try
-      {
-         DiscordMember discordMember = await client.CurrentUser.ConvertToMember(eventArgs.Guild);
-         if (discordMember.VoiceState == null)
-         {
-            if (eventArgs.User == client.CurrentUser)
-            {
-               await StopMusicTask(new GMC(eventArgs.Guild, eventArgs.User.ConvertToMember(eventArgs.Guild).Result, eventArgs.Channel), false);
-            }
-         }
-      }
-      catch
-      {
-         // ignored
-      }
    }
 }

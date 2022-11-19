@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
@@ -9,6 +7,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
@@ -50,7 +49,7 @@ internal class RegisterForControlPanel : ApplicationCommandsModule
                DiscordGuildId = eventArgs.Guild.Id,
                DiscordUserId = eventArgs.User.Id,
                Username = eventArgs.Interaction.Data.Components[0].Value,
-               SecretKey = HelpClasses.SHA256FromString.SHA256(eventArgs.Interaction.Data.Components[1].Value)
+               SecretKey = SHA256FromString.SHA256(eventArgs.Interaction.Data.Components[1].Value)
             };
             SecretVault.Register(secretVault);
             await eventArgs.User.ConvertToMember(eventArgs.Guild).Result.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("You can now authenticate yourself in the SchattenclownBot control panel with your username and password.")));

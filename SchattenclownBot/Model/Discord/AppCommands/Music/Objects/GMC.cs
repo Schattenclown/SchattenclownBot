@@ -1,21 +1,25 @@
-﻿using DisCatSharp.Entities;
+﻿using System.Linq;
+using DisCatSharp.Entities;
 using SchattenclownBot.Model.Discord.Main;
-using System.Linq;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 
 public class GMC
 {
-   public DiscordGuild DiscordGuild { get; set; }
-   public DiscordMember DiscordMember { get; set; }
-   public DiscordChannel DiscordChannel { get; set; }
-
    public GMC(DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel discordChannel)
    {
       DiscordGuild = discordGuild;
       DiscordMember = discordMember;
       DiscordChannel = discordChannel;
    }
+
+   public GMC()
+   {
+   }
+
+   public DiscordGuild DiscordGuild { get; set; }
+   public DiscordMember DiscordMember { get; set; }
+   public DiscordChannel DiscordChannel { get; set; }
 
    public static GMC FromDiscordUserID(ulong discordUserID)
    {
@@ -52,9 +56,5 @@ public class GMC
       }
 
       return null;
-   }
-
-   public GMC()
-   {
    }
 }

@@ -1,23 +1,23 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿using System;
+using System.Threading.Tasks;
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.Model.Discord.Main;
-using System;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
 /// <summary>
-///     The AppCommands.
+///    The AppCommands.
 /// </summary>
 internal class Main : ApplicationCommandsModule
 {
    /// <summary>
-   ///     HandlerReader the Avatar and Banner of an User.
+   ///    HandlerReader the Avatar and Banner of an User.
    /// </summary>
    /// <param name="contextMenuContext">The contextMenuContext.</param>
    /// <returns></returns>
@@ -35,7 +35,7 @@ internal class Main : ApplicationCommandsModule
    }
 
    /// <summary>
-   ///     Creates an Invite link.
+   ///    Creates an Invite link.
    /// </summary>
    /// <param name="interactionContext">The interactionContext.</param>
    /// <returns></returns>

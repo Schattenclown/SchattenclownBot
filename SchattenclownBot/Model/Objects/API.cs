@@ -1,6 +1,6 @@
-﻿using SchattenclownBot.Model.Persistence.DB_API;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SchattenclownBot.Model.Persistence.DB_API;
 
 namespace SchattenclownBot.Model.Objects;
 
