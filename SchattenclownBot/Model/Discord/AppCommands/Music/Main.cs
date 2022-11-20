@@ -417,8 +417,12 @@ internal class Main
          }
          else
          {
-            await discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
+            if (discordMessage != null)
+               await discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
+            else
+               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
          }
+
       }
    }
 
@@ -797,6 +801,8 @@ internal class Main
          TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
          result.OffsetTimeSpan = t2 - t1;
 
+         if (result.OffsetTimeSpan < TimeSpan.FromMilliseconds(0))
+            result.OffsetTimeSpan = TimeSpan.FromMilliseconds(result.OffsetTimeSpan.TotalMilliseconds * -1.0);
       }
 
       results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
