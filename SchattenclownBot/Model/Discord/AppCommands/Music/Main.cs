@@ -780,7 +780,8 @@ internal class Main
       TimeSpan t1 = TimeSpan.FromMilliseconds(durationMs);
       foreach (VideoResultFromYTSearch result in results)
       {
-         if (!trackName.ToLower().Contains("instrumental") && result.VideoSearchResult.Title.ToLower().Contains("instrumental"))
+                              if (!trackName.ToLower().Contains("instrumental") && result.VideoSearchResult.Title.ToLower().Contains("instrumental") ||
+             trackName.ToLower().Contains("instrumental") && !result.VideoSearchResult.Title.ToLower().Contains("instrumental"))
             result.Hits--;
 
 
