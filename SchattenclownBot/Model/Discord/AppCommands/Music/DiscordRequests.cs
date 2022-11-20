@@ -9,6 +9,7 @@ using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music;
 
+[SlashCommandGroup("music", "Music commands", dmPermission: false)]
 internal class DiscordRequests : ApplicationCommandsModule
 {
    [SlashCommand("Play" + Bot.isDevBot, "Play Spotify or YouTube links!")]
