@@ -16,7 +16,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using YoutubeDLSharp;
@@ -393,13 +392,13 @@ internal class Main
       return fullTracksMixed;
    }
 
-   internal static async Task ShuffleQueueTracksAsyncTask(GMC gMC)
+   internal static async Task ShuffleQueueTracksAsyncTask(GMC gMC, DiscordMessage discordMessage)
    {
       if (QueueTracks.Any(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.IsAdded))
       {
          int queueItemsInt = QueueTracks.Count(x => x.GMC.DiscordGuild == gMC.DiscordGuild && x.IsAdded);
          int queueItemsNotAddedInt = QueueTracks.Count(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed);
-         await gMC.DiscordMember.VoiceState.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue is being created! " + $"{queueItemsInt}/" + $"{queueItemsNotAddedInt} Please wait!")));
+         await discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue is being created! " + $"{queueItemsInt}/" + $"{queueItemsNotAddedInt} Please wait!")));
       }
       else
       {
@@ -414,11 +413,11 @@ internal class Main
 
          if (queueTracksMixed.Count == 0)
          {
-            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Its late i have to leave!")));
+            await discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Its late i have to leave!")));
          }
          else
          {
-            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
+            await discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
          }
       }
    }
@@ -762,14 +761,16 @@ internal class Main
 
       foreach (var item in resultsFromYt)
       {
-         results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 0));
+         if (item.Duration != null)
+            results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 0));
       }
 
       resultsFromYt = youtubeClient.Search.GetVideosAsync($"{externalIds}").CollectAsync(5).Result;
 
       foreach (var item in resultsFromYt)
       {
-         results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 1));
+         if (item.Duration != null)
+            results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 1));
       }
 
       TimeSpan t1 = TimeSpan.FromMilliseconds(durationMs);
@@ -796,10 +797,11 @@ internal class Main
 
          TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
          result.OffsetTimeSpan = t2 - t1;
+
       }
 
       results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
-      
+
       results.FirstOrDefault().Hits++;
 
       results = results.OrderBy(search => search.Hits).ToList();
