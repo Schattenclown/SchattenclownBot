@@ -780,6 +780,10 @@ internal class Main
       TimeSpan t1 = TimeSpan.FromMilliseconds(durationMs);
       foreach (VideoResultFromYTSearch result in results)
       {
+         if (!trackName.ToLower().Contains("Instrumental") && result.VideoSearchResult.Title.ToLower().Contains("Instrumental"))
+            result.Hits--;
+
+
          if (result.VideoSearchResult.Title.ToLower().Contains(trackName.ToLower()))
          {
             result.Hits++;
@@ -789,7 +793,7 @@ internal class Main
          {
             if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(artist.Name.ToLower()))
             {
-               result.Hits += 2;
+               result.Hits++;
             }
 
             if (result.VideoSearchResult.Title.ToLower().Contains(artist.Name.ToLower()))
@@ -797,6 +801,7 @@ internal class Main
                result.Hits++;
             }
          }
+
 
          TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
          result.OffsetTimeSpan = t2 - t1;
@@ -807,7 +812,7 @@ internal class Main
 
       results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
 
-      results.FirstOrDefault().Hits += 2;
+      results.FirstOrDefault().Hits++;
 
       results = results.OrderBy(search => search.Hits).ToList();
       results.Reverse();
