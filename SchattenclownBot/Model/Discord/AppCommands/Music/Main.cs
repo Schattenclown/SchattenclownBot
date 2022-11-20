@@ -127,9 +127,9 @@ internal class Main
          discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
          discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", false, discordComponentEmojisQueue);
 
-         if (audioDownload.ErrorOutput.Length > 1)
+         if (!audioDownload.Success)
          {
-            await Bot.DebugDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(audioDownload.ErrorOutput.Aggregate("", (current, Errors) => current + Errors + "\n\n"))));
+            await Bot.DebugDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(audioDownload.ErrorOutput.Aggregate("", (current, Errors) => current + Errors + "\n\n" + queueTrack.YouTubeUri.AbsoluteUri))));
             await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Something went wrong!\n")));
          }
          else
@@ -159,7 +159,7 @@ internal class Main
 
                   try
                   {
-                     if (timeSpanAdvanceInt % 10 == 0)
+                     if (timeSpanAdvanceInt % 1 == 0)
                      {
                         discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
                         await discordMessage.ModifyAsync(x => x.AddComponents(discordMessage.Components).AddEmbed(discordEmbedBuilder.Build()));
