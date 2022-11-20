@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using DisCatSharp.Entities;
+﻿using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.VoiceNext;
 using MetaBrainz.MusicBrainz;
@@ -18,6 +8,16 @@ using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SpotifyAPI.Web;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -708,13 +708,13 @@ internal class Main
       List<VideoResultFromYTSearch> results = new();
       YoutubeClient youtubeClient = new();
 
-      string artists = fullTrack.Artists[0].Name;
+      string artist = fullTrack.Artists[0].Name;
       string trackName = fullTrack.Name;
       string externalIds = fullTrack.ExternalIds.Values.FirstOrDefault();
       int durationMs = fullTrack.DurationMs;
       List<SimpleArtist> artistsArray = fullTrack.Artists;
 
-      IReadOnlyList<VideoSearchResult> resultsFromYt = youtubeClient.Search.GetVideosAsync($"{artists} {trackName}").CollectAsync(5).Result;
+      IReadOnlyList<VideoSearchResult> resultsFromYt = youtubeClient.Search.GetVideosAsync($"{artist} {trackName}").CollectAsync(5).Result;
 
       foreach (VideoSearchResult item in resultsFromYt)
       {
@@ -741,14 +741,13 @@ internal class Main
          if (result.VideoSearchResult.Title.ToLower().Contains(trackName.ToLower()))
             result.Hits++;
 
-         foreach (SimpleArtist artist in artistsArray)
+         foreach (SimpleArtist item in artistsArray)
          {
-            if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(artist.Name.ToLower()))
-               result.Hits++;
-
-            if (result.VideoSearchResult.Title.ToLower().Contains(artist.Name.ToLower()))
+            if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(item.Name.ToLower()))
                result.Hits++;
          }
+         if (result.VideoSearchResult.Title.ToLower().Contains(artist.ToLower()))
+            result.Hits++;
 
 
          TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
@@ -769,7 +768,7 @@ internal class Main
       {
          Title = $"Spotify <{externalIds}>"
       };
-      discordEmbedBuilder.AddField(new DiscordEmbedField($"{t1:mm\\:ss}   |   {artists}   -   {trackName}", externalIds));
+      discordEmbedBuilder.AddField(new DiscordEmbedField($"{t1:mm\\:ss}   |   {artist}   -   {trackName}", externalIds));
 
       int i = 1;
       foreach (VideoResultFromYTSearch result in results)
