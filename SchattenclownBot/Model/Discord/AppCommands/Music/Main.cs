@@ -16,6 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using YoutubeDLSharp;
@@ -768,7 +769,7 @@ internal class Main
 
       foreach (var item in resultsFromYt)
       {
-         results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 0));
+         results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 1));
       }
 
       TimeSpan t1 = TimeSpan.FromMilliseconds(durationMs);
@@ -784,6 +785,7 @@ internal class Main
             if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(artist.Name.ToLower()))
             {
                result.Hits++;
+               result.Hits++;
             }
 
             if (result.VideoSearchResult.Title.ToLower().Contains(artist.Name.ToLower()))
@@ -797,15 +799,11 @@ internal class Main
       }
 
       results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
-
-      /*if (results.FirstOrDefault().OffsetTimeSpan < TimeSpan.FromMilliseconds(0))
-      {
-         results.Reverse();
-      }*/
-
+      
       results.FirstOrDefault().Hits++;
 
-      results.OrderBy(search => search.Hits);
+      results = results.OrderBy(search => search.Hits).ToList();
+      results.Reverse();
 
       DiscordEmbedBuilder discordEmbedBuilder = new()
       {
