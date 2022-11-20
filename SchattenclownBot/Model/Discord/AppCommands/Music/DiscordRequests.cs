@@ -16,8 +16,15 @@ internal class DiscordRequests : ApplicationCommandsModule
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
       await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Working on it.")));
-
       await Main.AddTracksToQueueAsyncTask(interactionContext.Member.Id, webLink, false);
+   }
+
+   [SlashCommand("ShufflePlay" + Bot.isDevBot, "Play Spotify or YouTube links!")]
+   internal async Task ShufflePlay(InteractionContext interactionContext, [Option("Link", "Link!")] string webLink)
+   {
+      await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+      await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Working on it.")));
+      await Main.AddTracksToQueueAsyncTask(interactionContext.Member.Id, webLink, true);
    }
 
    [SlashCommand("Stop" + Bot.isDevBot, "Stop the music!")]

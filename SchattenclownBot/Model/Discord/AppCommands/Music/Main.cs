@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using DisCatSharp.Entities;
+﻿using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.VoiceNext;
 using MetaBrainz.MusicBrainz;
@@ -18,12 +8,23 @@ using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SpotifyAPI.Web;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Playlists;
+using YoutubeExplode.Search;
 using YoutubeExplode.Videos;
 using File = TagLib.File;
 
@@ -128,7 +129,8 @@ internal class Main
 
          if (audioDownload.ErrorOutput.Length > 1)
          {
-            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().WithContent($"{audioDownload.ErrorOutput[1]} `{queueTrack.YouTubeUri.AbsoluteUri}`"));
+            await Bot.DebugDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(audioDownload.ErrorOutput.Aggregate("", (current, Errors) => current + Errors + "\n\n"))));
+            await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Something went wrong!\n")));
          }
          else
          {
@@ -200,7 +202,10 @@ internal class Main
       }
       finally
       {
-         await voiceTransmitSink.FlushAsync();
+         if (voiceTransmitSink != null)
+         {
+            await voiceTransmitSink.FlushAsync();
+         }
 
          if (!cancellationToken.IsCancellationRequested)
          {
@@ -653,13 +658,14 @@ internal class Main
 
          _ = Task.Run(async () =>
          {
+            DiscordMessage discordMessage;
             if (fullTracks.Count == 1)
             {
-               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} track!")));
+               discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} track!")));
             }
             else
             {
-               await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} tracks!")));
+               discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} tracks!")));
             }
 
             foreach (QueueTrack item in queueTracks)
@@ -675,6 +681,7 @@ internal class Main
                await Task.Delay(50);
             }
 
+            await discordMessage.DeleteAsync();
             if (NoMusicPlaying(gMC.DiscordGuild))
             {
                if (tracksAdded == 1)
@@ -744,26 +751,24 @@ internal class Main
       List<VideoResultFromYTSearch> results = new();
       YoutubeClient youtubeClient = new();
 
-      string artists = fullTrack.Artists.Aggregate("", (current, artist) => current + " " + artist.Name);
+      string artists = fullTrack.Artists[0].Name;
       string trackName = fullTrack.Name;
       string externalIds = fullTrack.ExternalIds.Values.FirstOrDefault();
       int durationMs = fullTrack.DurationMs;
       List<SimpleArtist> artistsArray = fullTrack.Artists;
 
-      try
+      IReadOnlyList<VideoSearchResult> resultsFromYt = youtubeClient.Search.GetVideosAsync($"{artists} {trackName}").CollectAsync(5).Result;
+
+      foreach (var item in resultsFromYt)
       {
-         results.Add(new VideoResultFromYTSearch(youtubeClient.Search.GetVideosAsync($"{artists} {trackName}").CollectAsync(1).Result[0], new TimeSpan(0), 0));
-      }
-      catch
-      {
+         results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 0));
       }
 
-      try
+      resultsFromYt = youtubeClient.Search.GetVideosAsync($"{externalIds}").CollectAsync(5).Result;
+
+      foreach (var item in resultsFromYt)
       {
-         results.Add(new VideoResultFromYTSearch(youtubeClient.Search.GetVideosAsync($"{externalIds}").CollectAsync(1).Result[0], new TimeSpan(0), 0));
-      }
-      catch
-      {
+         results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 0));
       }
 
       TimeSpan t1 = TimeSpan.FromMilliseconds(durationMs);
@@ -792,6 +797,11 @@ internal class Main
       }
 
       results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
+
+      /*if (results.FirstOrDefault().OffsetTimeSpan < TimeSpan.FromMilliseconds(0))
+      {
+         results.Reverse();
+      }*/
 
       results.FirstOrDefault().Hits++;
 
