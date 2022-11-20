@@ -62,6 +62,6 @@ internal class APIRequests
          return;
       }
 
-      _ = Main.ShuffleQueueTracksAsyncTask(gMC);
+      _ = Main.ShuffleQueueTracksAsyncTask(gMC, null);
    }
 }
