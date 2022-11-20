@@ -17,7 +17,6 @@ public class DB_BotAlarmClocks
       MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sql, mySqlConnection);
 
       if (mySqlDataReader != null)
-      {
          while (mySqlDataReader.Read())
          {
             BotAlarmClock botAlarmClock = new()
@@ -29,7 +28,6 @@ public class DB_BotAlarmClocks
             };
             botAlarmClockList.Add(botAlarmClock);
          }
-      }
 
       DB_Connection.CloseDB(mySqlConnection);
       return botAlarmClockList;

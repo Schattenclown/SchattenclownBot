@@ -1,14 +1,4 @@
-﻿using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.VoiceNext;
-using MetaBrainz.MusicBrainz;
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
-using SpotifyAPI.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -18,6 +8,16 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.VoiceNext;
+using MetaBrainz.MusicBrainz;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Objects;
+using SpotifyAPI.Web;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -58,16 +58,12 @@ internal class Main
    {
       VoiceNextExtension voiceNext = Bot.DiscordClient.GetVoiceNext();
       if (voiceNext == null)
-      {
          return;
-      }
 
       VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(gMC.DiscordGuild);
       DiscordVoiceState voiceState = gMC.DiscordMember?.VoiceState;
       if (voiceState?.Channel == null)
-      {
          return;
-      }
 
       voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
 
@@ -99,9 +95,7 @@ internal class Main
          VideoData audioDownloadMetaData = youtubeDl.RunVideoDataFetch(queueTrack.YouTubeUri.AbsoluteUri).Result.Data;
          TimeSpan audioDownloadTimeSpan = default;
          if (audioDownloadMetaData?.Duration != null)
-         {
             audioDownloadTimeSpan = new TimeSpan(0, 0, 0, (int)audioDownloadMetaData.Duration.Value);
-         }
 
          DiscordEmbedBuilder discordEmbedBuilder = new();
 
@@ -190,9 +184,7 @@ internal class Main
             }
 
             if (!cancellationToken.IsCancellationRequested)
-            {
                CancellationTokenItemList.RemoveAll(x => x.CancellationTokenSource.Token == cancellationToken && x.DiscordGuild == gMC.DiscordGuild);
-            }
          }
       }
       catch (Exception ex)
@@ -203,9 +195,7 @@ internal class Main
       finally
       {
          if (voiceTransmitSink != null)
-         {
             await voiceTransmitSink.FlushAsync();
-         }
 
          if (!cancellationToken.IsCancellationRequested)
          {
@@ -233,7 +223,8 @@ internal class Main
 
             foreach (QueueTrack queueTrackItem in QueueTracks)
             {
-               if (queueTrackItem.GMC.DiscordGuild == gMC.DiscordGuild && queueTrackItem.HasBeenPlayed == false)
+               if (queueTrackItem.GMC.DiscordGuild == gMC.DiscordGuild &&
+                   queueTrackItem.HasBeenPlayed == false)
                {
                   CancellationTokenSource cancellationTokenSource = new();
                   CancellationToken token = cancellationTokenSource.Token;
@@ -422,7 +413,6 @@ internal class Main
             else
                await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("Queue has been altered!")));
          }
-
       }
    }
 
@@ -475,9 +465,7 @@ internal class Main
       }
 
       if (!NoMusicPlaying(gMC.DiscordGuild))
-      {
          await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Queue is being created! Please be patient!")));
-      }
 
       Uri webLinkUri;
       try
@@ -513,21 +501,16 @@ internal class Main
                bool isYouTubeMix = webLinkUri.AbsoluteUri.Contains("&ab_channel=") || webLinkUri.AbsoluteUri.Contains("&start_radio=");
 
                if (determinedStreamingService.IsYouTubePlaylistWithIndex)
-               {
                   playlistSelectedVideoIndex = Convert.ToInt32(StringCutter.RmAfter(StringCutter.RmAfter(StringCutter.RmUntil(webLink, "&index=", "&index=".Length), "&ab_channel=", 0), "&start_radio=", 0));
-               }
 
                List<PlaylistVideo> playlistVideos = new(await youtubeClient.Playlists.GetVideosAsync(playlistId));
 
                if (isShufflePlay)
-               {
                   playlistVideos = ShufflePlayListForYouTube(playlistVideos);
-               }
 
-               if (playlistSelectedVideoIndex != 1 && !isYouTubeMix)
-               {
+               if (playlistSelectedVideoIndex != 1 &&
+                   !isYouTubeMix)
                   playlistVideos.RemoveRange(0, playlistSelectedVideoIndex);
-               }
 
                foreach (PlaylistVideo item in playlistVideos)
                {
@@ -539,13 +522,9 @@ internal class Main
             {
                string selectedVideoId;
                if (webLink.Contains("youtu.be"))
-               {
                   selectedVideoId = StringCutter.RmAfter(StringCutter.RmUntil(webLink, "youtu.be/", "youtu.be/".Length), "&list=", 0);
-               }
                else
-               {
                   selectedVideoId = StringCutter.RmAfter(StringCutter.RmUntil(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
-               }
 
                Video videoData = await youtubeClient.Videos.GetAsync("https://www.youtube.com/watch?v=" + selectedVideoId);
 
@@ -561,24 +540,16 @@ internal class Main
          if (NoMusicPlaying(gMC.DiscordGuild))
          {
             if (tracksAdded == 1)
-            {
                await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} track is now added to the queue!")));
-            }
             else
-            {
                await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} tracks are now added to the queue!")));
-            }
          }
          else
          {
             if (tracksAdded == 1)
-            {
                await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!")));
-            }
             else
-            {
                await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!")));
-            }
          }
       }
       else if (determinedStreamingService.IsSpotify)
@@ -597,7 +568,6 @@ internal class Main
             List<PlaylistTrack<IPlayableItem>> iPlayableItems = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
 
             if (iPlayableItems is { Count: >= 100 })
-            {
                try
                {
                   while (true)
@@ -611,9 +581,7 @@ internal class Main
                         iPlayableItems.AddRange(playlistTrackListSecond);
 
                         if (playlistTrackListSecond.Count < 100)
-                        {
                            break;
-                        }
                      }
                   }
                }
@@ -621,7 +589,6 @@ internal class Main
                {
                   // ignored
                }
-            }
 
             foreach (PlaylistTrack<IPlayableItem> iPlayableItem in iPlayableItems)
             {
@@ -647,9 +614,7 @@ internal class Main
          }
 
          if (isShufflePlay)
-         {
             fullTracks = ShufflePlayListForSpotify(fullTracks);
-         }
 
          List<QueueTrack> queueTracks = new();
 
@@ -664,13 +629,9 @@ internal class Main
          {
             DiscordMessage discordMessage;
             if (fullTracks.Count == 1)
-            {
                discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} track!")));
-            }
             else
-            {
                discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} tracks!")));
-            }
 
             foreach (QueueTrack item in queueTracks)
             {
@@ -689,24 +650,16 @@ internal class Main
             if (NoMusicPlaying(gMC.DiscordGuild))
             {
                if (tracksAdded == 1)
-               {
                   await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} track is now added to the queue!")));
-               }
                else
-               {
                   await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"{tracksAdded} tracks are now added to the queue!")));
-               }
             }
             else
             {
                if (tracksAdded == 1)
-               {
                   await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} track is now added to the queue!")));
-               }
                else
-               {
                   await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription($"Music is already playing or will at any moment! {tracksAdded} tracks are now added to the queue!")));
-               }
             }
          });
       }
@@ -763,7 +716,7 @@ internal class Main
 
       IReadOnlyList<VideoSearchResult> resultsFromYt = youtubeClient.Search.GetVideosAsync($"{artists} {trackName}").CollectAsync(5).Result;
 
-      foreach (var item in resultsFromYt)
+      foreach (VideoSearchResult item in resultsFromYt)
       {
          if (item.Duration != null)
             results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 0));
@@ -771,7 +724,7 @@ internal class Main
 
       resultsFromYt = youtubeClient.Search.GetVideosAsync($"{externalIds}").CollectAsync(5).Result;
 
-      foreach (var item in resultsFromYt)
+      foreach (VideoSearchResult item in resultsFromYt)
       {
          if (item.Duration != null)
             results.Add(new VideoResultFromYTSearch(item, new TimeSpan(0), 1));
@@ -780,27 +733,21 @@ internal class Main
       TimeSpan t1 = TimeSpan.FromMilliseconds(durationMs);
       foreach (VideoResultFromYTSearch result in results)
       {
-                              if (!trackName.ToLower().Contains("instrumental") && result.VideoSearchResult.Title.ToLower().Contains("instrumental") ||
-             trackName.ToLower().Contains("instrumental") && !result.VideoSearchResult.Title.ToLower().Contains("instrumental"))
+         if ((!trackName.ToLower().Contains("instrumental") && result.VideoSearchResult.Title.ToLower().Contains("instrumental")) ||
+             (trackName.ToLower().Contains("instrumental") && !result.VideoSearchResult.Title.ToLower().Contains("instrumental")))
             result.Hits--;
 
 
          if (result.VideoSearchResult.Title.ToLower().Contains(trackName.ToLower()))
-         {
             result.Hits++;
-         }
 
          foreach (SimpleArtist artist in artistsArray)
          {
             if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(artist.Name.ToLower()))
-            {
                result.Hits++;
-            }
 
             if (result.VideoSearchResult.Title.ToLower().Contains(artist.Name.ToLower()))
-            {
                result.Hits++;
-            }
          }
 
 
@@ -855,9 +802,7 @@ internal class Main
       }
 
       if (sendStopped)
-      {
          gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(nothingToStop ? "Nothing to stop!" : "Stopped the music!")));
-      }
 
       QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == gMC.DiscordGuild);
 
@@ -866,9 +811,7 @@ internal class Main
          VoiceNextExtension voiceNext = Bot.DiscordClient.GetVoiceNext();
          VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(gMC.DiscordGuild);
          if (voiceNextConnection != null)
-         {
             voiceNextConnection.Disconnect();
-         }
       }
       catch
       {
@@ -886,18 +829,12 @@ internal class Main
 
       string descriptionString = "⏹️";
       if (cancellationToken.IsCancellationRequested)
-      {
          descriptionString = "▶️";
-      }
 
       if (playerAdvanceTimeSpan.Hours != 0)
-      {
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
-      }
       else
-      {
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
-      }
 
       return descriptionString;
    }
@@ -909,26 +846,18 @@ internal class Main
       string durationString = playerAdvanceTimeSpan.Hours != 0 ? $"{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}" : $"{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}";
 
       if (!cancellationToken.IsCancellationRequested)
-      {
          return $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
-      }
 
       string descriptionString = "⏹️";
       if (cancellationToken.IsCancellationRequested)
-      {
          descriptionString = "▶️";
-      }
 
       string playerAdvanceString = PlayerAdvance(timeSpanAdvanceInt, totalTimeSpan);
 
       if (playerAdvanceTimeSpan.Hours != 0)
-      {
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
-      }
       else
-      {
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
-      }
 
       return descriptionString;
    }
@@ -945,13 +874,9 @@ internal class Main
       for (int i = 0; i < strings.Length; i++)
       {
          if (Convert.ToInt32(dotPositionInInt) == i)
-         {
             strings[i] = "🔘";
-         }
          else
-         {
             strings[i] = "▬";
-         }
       }
 
       foreach (string item in strings)
@@ -1032,7 +957,8 @@ internal class Main
          }
 
          AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
-         if (acoustIdRoot.Results?.Count > 0 && acoustIdRoot.Results[0].Recordings?[0].Releases != null)
+         if (acoustIdRoot.Results?.Count > 0 &&
+             acoustIdRoot.Results[0].Recordings?[0].Releases != null)
          {
             DateTime rightAlbumDateTime = new();
             AcoustId.Release rightAlbum = new();
@@ -1047,25 +973,18 @@ internal class Main
                      break;
                   }
 
-                  if (albumItem.Date == null || albumItem.Date.Year == 0)
-                  {
+                  if (albumItem.Date == null ||
+                      albumItem.Date.Year == 0)
                      continue;
-                  }
 
                   if (albumItem.Date.Month == 0)
-                  {
                      albumItem.Date.Month = 1;
-                  }
 
                   if (albumItem.Date.Day == 0)
-                  {
                      albumItem.Date.Day = 1;
-                  }
 
                   if (rightAlbumDateTime.Equals(new DateTime()))
-                  {
                      rightAlbumDateTime = new DateTime(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
-                  }
 
                   DateTime albumItemDateTime = new(albumItem.Date.Year, albumItem.Date.Month, albumItem.Date.Day);
                   if (rightAlbumDateTime >= albumItemDateTime)
@@ -1076,9 +995,7 @@ internal class Main
                }
 
                if (rightAlbum.Title == "")
-               {
                   albumTitle = rightAlbum.Title;
-               }
             }
 
             recordingMbId = acoustIdRoot.Results[0].Recordings[0].Id;
@@ -1086,25 +1003,18 @@ internal class Main
 
             string genres = "";
             if (iRecording.Genres != null)
-            {
                foreach (char genre in genres)
                {
                   genres += genre;
 
                   if (genres.Last() != genre)
-                  {
                      genres += ", ";
-                  }
                }
-            }
 
             if (genres != "")
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
-            }
 
             if (rightAlbum.Id != null && needThumbnail)
-            {
                try
                {
                   discordEmbedBuilder.WithThumbnail($"https://coverartarchive.org/release/{rightAlbum.Id}/front");
@@ -1118,7 +1028,6 @@ internal class Main
                {
                   //invalid url
                }
-            }
          }
 
          if (needThumbnail)
@@ -1131,14 +1040,10 @@ internal class Main
          }
 
          if (recordingMbId != "")
-         {
             discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[-🔗-](https://musicbrainz.org/recording/{recordingMbId})]", true));
-         }
 
          if (albumTitle != "")
-         {
             discordEmbedBuilder.AddField(new DiscordEmbedField("Album", albumTitle, true));
-         }
 
          discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
       }
@@ -1147,14 +1052,10 @@ internal class Main
          discordEmbedBuilder.Title = metaTagFileToPlay.Tag.Title;
          discordEmbedBuilder.WithAuthor(metaTagFileToPlay.Tag.JoinedPerformers);
          if (metaTagFileToPlay.Tag.Album != null)
-         {
             discordEmbedBuilder.AddField(new DiscordEmbedField("Album", metaTagFileToPlay.Tag.Album, true));
-         }
 
          if (metaTagFileToPlay.Tag.JoinedGenres != null)
-         {
             discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", metaTagFileToPlay.Tag.JoinedGenres, true));
-         }
 
          if (metaTagFileToPlay.Tag.MusicBrainzReleaseId != null)
          {
@@ -1171,7 +1072,6 @@ internal class Main
             catch
             {
                if (metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
-               {
                   try
                   {
                      bitmapStream = new HttpClient().GetStreamAsync($"https://coverartarchive.org/release-group/{metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId}/front").Result;
@@ -1181,7 +1081,6 @@ internal class Main
                   {
                      //ignore
                   }
-               }
             }
             finally
             {
@@ -1194,57 +1093,38 @@ internal class Main
             }
          }
 
-         if (metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId == null && metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId == null)
+         if (metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId == null &&
+             metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId == null)
          {
             if (metaTagFileToPlay.Tag.MusicBrainzArtistId != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", metaTagFileToPlay.Tag.MusicBrainzArtistId));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzDiscId != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", metaTagFileToPlay.Tag.MusicBrainzDiscId));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzReleaseArtistId != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", metaTagFileToPlay.Tag.MusicBrainzReleaseArtistId));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzReleaseCountry != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", metaTagFileToPlay.Tag.MusicBrainzReleaseCountry));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzReleaseId != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", metaTagFileToPlay.Tag.MusicBrainzReleaseId));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzReleaseStatus != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", metaTagFileToPlay.Tag.MusicBrainzReleaseStatus));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzReleaseType != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", metaTagFileToPlay.Tag.MusicBrainzReleaseType));
-            }
 
             if (metaTagFileToPlay.Tag.MusicBrainzTrackId != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", metaTagFileToPlay.Tag.MusicBrainzTrackId));
-            }
 
             if (metaTagFileToPlay.Tag.MusicIpId != null)
-            {
                discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", metaTagFileToPlay.Tag.MusicIpId));
-            }
          }
       }
 

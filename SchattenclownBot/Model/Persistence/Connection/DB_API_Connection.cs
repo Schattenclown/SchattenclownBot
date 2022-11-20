@@ -43,9 +43,7 @@ internal class DB_API_Connection
       MySqlCommand sqlCommand = new(sql, connection);
       int ret = sqlCommand.ExecuteNonQuery();
       if (ret != -1)
-      {
          CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
-      }
 
       API_CloseDB(connection);
    }

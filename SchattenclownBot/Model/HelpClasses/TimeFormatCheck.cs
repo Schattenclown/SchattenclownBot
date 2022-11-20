@@ -14,10 +14,9 @@ public static class TimeFormatCheck
    /// <returns>A bool.</returns>
    public static bool TimeFormat(int hour, int minute)
    {
-      if (hour.IsInRange(0, 24) && minute.IsInRange(0, 59))
-      {
+      if (hour.IsInRange(0, 24) &&
+          minute.IsInRange(0, 59))
          return true;
-      }
 
       return false;
    }

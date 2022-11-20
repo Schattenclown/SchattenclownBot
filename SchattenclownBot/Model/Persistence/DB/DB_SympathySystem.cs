@@ -105,25 +105,15 @@ public static class DB_SympathySystem
       string sqlCommand = $"INSERT INTO `{sympathySystem.GuildId}_roleinfo` (GuildRoleID, RatingValue, GuildID)";
 
       if (sympathySystem.RoleInfo.RatingOne != 0)
-      {
          sqlCommand += $"VALUES({sympathySystem.RoleInfo.RatingOne}, 1, {sympathySystem.GuildId})";
-      }
       else if (sympathySystem.RoleInfo.RatingTwo != 0)
-      {
          sqlCommand += $"VALUES({sympathySystem.RoleInfo.RatingTwo}, 2, {sympathySystem.GuildId})";
-      }
       else if (sympathySystem.RoleInfo.RatingThree != 0)
-      {
          sqlCommand += $"VALUES({sympathySystem.RoleInfo.RatingThree}, 3, {sympathySystem.GuildId})";
-      }
       else if (sympathySystem.RoleInfo.RatingFour != 0)
-      {
          sqlCommand += $"VALUES({sympathySystem.RoleInfo.RatingFour}, 4, {sympathySystem.GuildId})";
-      }
       else if (sympathySystem.RoleInfo.RatingFive != 0)
-      {
          sqlCommand += $"VALUES({sympathySystem.RoleInfo.RatingFive}, 5, {sympathySystem.GuildId})";
-      }
 
       DB_Connection.ExecuteNonQuery(sqlCommand);
    }
@@ -133,25 +123,15 @@ public static class DB_SympathySystem
       string sqlCommand = $"UPDATE `{sympathySystem.GuildId}_roleinfo` SET GuildRoleID=";
 
       if (sympathySystem.RoleInfo.RatingOne != 0)
-      {
          sqlCommand += $"{sympathySystem.RoleInfo.RatingOne} WHERE RatingValue=1";
-      }
       else if (sympathySystem.RoleInfo.RatingTwo != 0)
-      {
          sqlCommand += $"{sympathySystem.RoleInfo.RatingTwo} WHERE RatingValue=2";
-      }
       else if (sympathySystem.RoleInfo.RatingThree != 0)
-      {
          sqlCommand += $"{sympathySystem.RoleInfo.RatingThree} WHERE RatingValue=3";
-      }
       else if (sympathySystem.RoleInfo.RatingFour != 0)
-      {
          sqlCommand += $"{sympathySystem.RoleInfo.RatingFour} WHERE RatingValue=4";
-      }
       else if (sympathySystem.RoleInfo.RatingFive != 0)
-      {
          sqlCommand += $"{sympathySystem.RoleInfo.RatingFive} WHERE RatingValue=5";
-      }
 
       DB_Connection.ExecuteNonQuery(sqlCommand);
    }
@@ -166,9 +146,7 @@ public static class DB_SympathySystem
       while (mySqlDataReader.Read())
       {
          if (mySqlDataReader.GetInt32("RatingValue") == ratingValue)
-         {
             return true;
-         }
       }
 
       DB_Connection.CloseDB(mySqlConnection);

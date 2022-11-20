@@ -31,9 +31,7 @@ internal class NewChannelCheck
          foreach (DiscordChannel channel in rightChannels)
          {
             if (client.GetChannelAsync(channel.Id).Result.Users.Any())
-            {
                compareInt++;
-            }
          }
 
          if (compareInt >= rightChannels.Count)
@@ -49,9 +47,7 @@ internal class NewChannelCheck
             if (channel != mainChannel)
             {
                if (!client.GetChannelAsync(channel.Id).Result.Users.Any())
-               {
                   compareInt++;
-               }
 
                if (compareInt == 3 || oneFree)
                {

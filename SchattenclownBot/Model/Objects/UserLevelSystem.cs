@@ -81,7 +81,6 @@ public class UserLevelSystem
          do
          {
             if (Bot.DiscordClient.Guilds.ToList().Count != 0)
-            {
                if (levelSystemVirgin)
                {
                   List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
@@ -92,7 +91,6 @@ public class UserLevelSystem
 
                   levelSystemVirgin = false;
                }
-            }
 
             await Task.Delay(1000);
          } while (levelSystemVirgin);
@@ -113,7 +111,10 @@ public class UserLevelSystem
                IReadOnlyDictionary<ulong, DiscordMember> guildMembers = guildItem.Value.Members;
                foreach (KeyValuePair<ulong, DiscordMember> memberItem in guildMembers)
                {
-                  if (memberItem.Value.VoiceState != null && !memberItem.Value.VoiceState.IsSelfDeafened && !memberItem.Value.VoiceState.IsSuppressed && !memberItem.Value.IsBot)
+                  if (memberItem.Value.VoiceState != null &&
+                      !memberItem.Value.VoiceState.IsSelfDeafened &&
+                      !memberItem.Value.VoiceState.IsSuppressed &&
+                      !memberItem.Value.IsBot)
                   {
                      UserLevelSystem userLevelSystemObj = new();
                      userLevelSystemObj.MemberId = memberItem.Value.Id;
@@ -151,9 +152,7 @@ public class UserLevelSystem
 
             await Task.Delay(2000);
             if (!LastMinuteCheck.LevelSystemRunAsync)
-            {
                LastMinuteCheck.LevelSystemRunAsync = true;
-            }
          }
          // ReSharper disable once FunctionNeverReturns
       });
@@ -179,7 +178,6 @@ public class UserLevelSystem
          do
          {
             if (Bot.DiscordClient.Guilds.ToList().Count != 0)
-            {
                if (levelSystemRoleDistributionVirgin)
                {
                   List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
@@ -190,7 +188,6 @@ public class UserLevelSystem
 
                   levelSystemRoleDistributionVirgin = false;
                }
-            }
 
             await Task.Delay(1000);
          } while (levelSystemRoleDistributionVirgin);
@@ -276,9 +273,7 @@ public class UserLevelSystem
                      string einerString = "";
 
                      if (totalLevel >= 10)
-                     {
                         zehnerString = Convert.ToString(totalLevel / 10);
-                     }
 
                      einerString = (totalLevel % 10) switch
                      {
@@ -330,9 +325,7 @@ public class UserLevelSystem
 
                      DiscordRole discordLevelRole = guildObj.GetRole(1017937277307064340);
                      if (!discordMember.Roles.Contains(discordLevelRole))
-                     {
                         await discordMember.GrantRoleAsync(discordLevelRole);
-                     }
                   }
                }
 
@@ -345,9 +338,7 @@ public class UserLevelSystem
 
             await Task.Delay(2000);
             if (!LastMinuteCheck.LevelSystemRoleDistributionRunAsync)
-            {
                LastMinuteCheck.LevelSystemRoleDistributionRunAsync = true;
-            }
          }
       });
    }

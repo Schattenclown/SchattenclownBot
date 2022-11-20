@@ -63,7 +63,6 @@ internal class VoteSystem : ApplicationCommandsModule
    public static async Task GaveRating(DiscordClient sender, ComponentInteractionCreateEventArgs eventArgs)
    {
       if (eventArgs.Values.Length > 0)
-      {
          switch (eventArgs.Values[0])
          {
             case "rating_1":
@@ -82,7 +81,6 @@ internal class VoteSystem : ApplicationCommandsModule
                await VoteRatingAsync(eventArgs, 5);
                break;
          }
-      }
    }
 
    /// <summary>
@@ -146,17 +144,17 @@ internal class VoteSystem : ApplicationCommandsModule
       if (componentInteractionCreateEventArgs.Guild.Id == 928930967140331590)
       {
          DiscordRole discordRole = componentInteractionCreateEventArgs.Guild.GetRole(980071522427363368);
-         if (discordMember != null && discordMember.Roles.Contains(discordRole))
-         {
+         if (discordMember != null &&
+             discordMember.Roles.Contains(discordRole))
             memberIsFlagged91 = true;
-         }
       }
 
       if (memberIsFlagged91)
       {
          discordEmbedBuilder.Description = "U are Flagged +91 u cant vote!";
       }
-      else if (discordMember != null && discordMember.Id == discordTargetMember.Id)
+      else if (discordMember != null &&
+               discordMember.Id == discordTargetMember.Id)
       {
          discordEmbedBuilder.Description = "NoNoNo we don´t do this around here! CHEATER!";
       }

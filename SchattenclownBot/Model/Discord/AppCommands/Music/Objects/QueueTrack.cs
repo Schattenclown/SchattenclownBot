@@ -16,13 +16,9 @@ public class QueueTrack
       for (int i = 0; i < fullTrack.Artists.Count; i++)
       {
          if (fullTrack.Artists.Count != i + 1)
-         {
             Artist += FullTrack.Artists[i].Name + ", ";
-         }
          else
-         {
             Artist += FullTrack.Artists[i].Name;
-         }
       }
    }
 

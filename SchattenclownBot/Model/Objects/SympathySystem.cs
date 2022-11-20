@@ -85,7 +85,6 @@ public class SympathySystem
          do
          {
             if (Bot.DiscordClient.Guilds.ToList().Count != 0)
-            {
                if (levelSystemVirgin)
                {
                   List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
@@ -97,7 +96,6 @@ public class SympathySystem
 
                   levelSystemVirgin = false;
                }
-            }
 
             await Task.Delay(1000);
          } while (levelSystemVirgin);
@@ -126,28 +124,19 @@ public class SympathySystem
                   foreach (RoleInfoSympathySystem item in roleInfoSympathySystemsList)
                   {
                      if (item.RatingOne != 0)
-                     {
                         discordRoleList.Add(discordGuildObj.GetRole(item.RatingOne));
-                     }
                      else if (item.RatingTwo != 0)
-                     {
                         discordRoleList.Add(discordGuildObj.GetRole(item.RatingTwo));
-                     }
                      else if (item.RatingThree != 0)
-                     {
                         discordRoleList.Add(discordGuildObj.GetRole(item.RatingThree));
-                     }
                      else if (item.RatingFour != 0)
-                     {
                         discordRoleList.Add(discordGuildObj.GetRole(item.RatingFour));
-                     }
                      else if (item.RatingFive != 0)
-                     {
                         discordRoleList.Add(discordGuildObj.GetRole(item.RatingFive));
-                     }
                   }
 
-                  if (discordRoleList.Count == 5 && discordMemberItem.Value.Id != 523765246104567808)
+                  if (discordRoleList.Count == 5 &&
+                      discordMemberItem.Value.Id != 523765246104567808)
                   {
                      int counts = 1;
                      int ratingsadded = 0;
@@ -165,10 +154,11 @@ public class SympathySystem
 
                            sympathySystemObj.VotedRating = Convert.ToInt32(Math.Round(rating));
 
-                           if (rating == 1.5 || rating == 2.5 || rating == 3.5 || rating == 4.5)
-                           {
+                           if (rating == 1.5 ||
+                               rating == 2.5 ||
+                               rating == 3.5 ||
+                               rating == 4.5)
                               sympathySystemObj.VotedRating = Convert.ToInt32(Math.Round(rating, 0, MidpointRounding.ToPositiveInfinity));
-                           }
 
                            counts++;
                         }
@@ -236,9 +226,7 @@ public class SympathySystem
             await Task.Delay(2000);
             CwLogger.Write("Checked", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
             if (!LastMinuteCheck.SympathySystemRunAsync)
-            {
                LastMinuteCheck.SympathySystemRunAsync = true;
-            }
          }
          // ReSharper disable once FunctionNeverReturns
       });

@@ -16,7 +16,6 @@ internal class GreenCheck
       Task.Run(async () =>
       {
          if (Bot.DiscordClient.CurrentUser.Id == 890063457246937129)
-         {
             while (true)
             {
                while (DateTime.Now.Second != executeSecond)
@@ -96,9 +95,7 @@ internal class GreenCheck
                   foreach (DiscordRole role in discordMemberRoles)
                   {
                      if (!roleCheckList.Contains(role))
-                     {
                         discordRoles.Add(role);
-                     }
                   }
 
                   if (discordRoles.Contains(grey))
@@ -108,9 +105,7 @@ internal class GreenCheck
                      foreach (DiscordRole role in discordRoles)
                      {
                         if (roleCheckListNegative.Contains(role))
-                        {
                            lever = false;
-                        }
                      }
 
                      if (discordRoles.Count > 2 && lever)
@@ -124,11 +119,8 @@ internal class GreenCheck
 
                await Task.Delay(1000);
                if (!LastMinuteCheck.CheckGreenTask)
-               {
                   LastMinuteCheck.CheckGreenTask = true;
-               }
             }
-         }
       });
    }
 }

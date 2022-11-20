@@ -17,7 +17,6 @@ public class DB_BotTimer
       MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sql, mySqlConnection);
 
       if (mySqlDataReader != null)
-      {
          while (mySqlDataReader.Read())
          {
             BotTimer botTimer = new()
@@ -29,7 +28,6 @@ public class DB_BotTimer
             };
             botTimerList.Add(botTimer);
          }
-      }
 
       DB_Connection.CloseDB(mySqlConnection);
       return botTimerList;

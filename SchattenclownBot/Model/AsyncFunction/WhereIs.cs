@@ -17,9 +17,7 @@ internal class WhereIs
       Task.Run(async () =>
       {
          if (Bot.DiscordClient.CurrentUser.Id != 890063457246937129)
-         {
             return;
-         }
 
          while (DateTime.Now.Second != executeSecond)
          {
@@ -68,7 +66,9 @@ internal class WhereIs
                         voiceStateAny = true;
                         lastDiscordMember ??= discordMemberItem;
                         DiscordVoiceState discordVoiceState;
-                        if (lastDiscordMember.VoiceState == null || discordMemberItem.VoiceState == null || (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem))
+                        if (lastDiscordMember.VoiceState == null ||
+                            discordMemberItem.VoiceState == null ||
+                            (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem))
                         {
                            lastDiscordMember = discordMemberItem;
                            continue;
@@ -81,39 +81,44 @@ internal class WhereIs
                         discordMembersInChannelSorted.Reverse();
 
                         string description = "";
+                        string descriptionForConsole = "";
                         foreach (DiscordMember discordMemberInChannelItem in discordMembersInChannelSorted)
                         {
                            string descriptionLineBuilder = "";
+                           string descriptionLineBuilderForConsole = "";
                            int counter = 5;
                            string username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
                            if (username is "" or " ")
-                           {
                               username = discordMemberInChannelItem.Discriminator;
-                           }
 
                            description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
+                           descriptionForConsole += "  "+ username.PadRight(16).Remove(16) + "   |   ";
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                            {
                               descriptionLineBuilder += "<:xx_mute:989518546541346856>";
+                              descriptionLineBuilderForConsole += "M ";
                               counter--;
                            }
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
                            {
                               descriptionLineBuilder += "<:xx_deaf:989518540400906270>";
+                              descriptionLineBuilderForConsole += "D ";
                               counter--;
                            }
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
                            {
                               descriptionLineBuilder += "<:xx_cam:989518538819645460>";
+                              descriptionLineBuilderForConsole += "C ";
                               counter--;
                            }
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfStream)
                            {
                               descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
+                              descriptionLineBuilderForConsole += "L ";
                               counter--;
                               counter--;
                            }
@@ -121,9 +126,11 @@ internal class WhereIs
                            for (int i = 0; i < counter; i++)
                            {
                               description += "<:xx_empty:989518542456123442>";
+                              descriptionLineBuilderForConsole += "  ";
                            }
 
                            description += descriptionLineBuilder + "\n";
+                           descriptionForConsole += descriptionLineBuilderForConsole + "\n";
                         }
 
                         discordThreads = mainGuild.Threads.Values.ToList();
@@ -148,13 +155,11 @@ internal class WhereIs
                         DiscordMessage discordMessage = default;
                         string content = $"<#{discordVoiceState.Channel.Id}>";
                         if (discordMessagesList != null)
-                        {
                            foreach (DiscordMessage messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
                            {
                               discordMessage = messageItem;
                               break;
                            }
-                        }
 
                         DiscordComponentEmoji discordComponentEmojisJoinChannel = new("📞");
                         DiscordComponentEmoji discordComponentEmojisJoinServer = new("🛡");
@@ -189,7 +194,7 @@ internal class WhereIs
                         }
 
                         lastDiscordMember = discordMemberItem;
-                        CwLogger.Write("\n\n" + description.Replace("<:xx_talk:989518547803848704>``", "  ").Replace("<:xx_empty:989518542456123442>", " ").Replace("``", " | ").Replace("<:xx_mute:989518546541346856>", "M").Replace("<:xx_deaf:989518540400906270>", "D").Replace("<:xx_cam:989518538819645460>", "C").Replace("<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>", "L"), MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                        CwLogger.Write("\n\n" + descriptionForConsole, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                         await Task.Delay(2000);
                      }
                      catch (Exception ex)
@@ -226,19 +231,16 @@ internal class WhereIs
                      try
                      {
                         if (mentionedChannel != null)
-                        {
                            discordChannel = Bot.DiscordClient.GetChannelAsync(Convert.ToUInt64(mentionedChannel)).Result;
-                        }
                      }
                      catch
                      {
                         // ignored
                      }
 
-                     if (discordChannel == null || !discordChannel.Users.Any())
-                     {
+                     if (discordChannel == null ||
+                         !discordChannel.Users.Any())
                         await messageItem.DeleteAsync();
-                     }
 
                      await Task.Delay(1000);
                   }
@@ -265,9 +267,7 @@ internal class WhereIs
                CwLogger.Write("Finished", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
 
                if (!LastMinuteCheck.WhereIsClownRunAsync)
-               {
                   LastMinuteCheck.WhereIsClownRunAsync = true;
-               }
             }
             catch (Exception ex)
             {

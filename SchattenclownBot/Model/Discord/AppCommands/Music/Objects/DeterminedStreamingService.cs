@@ -14,32 +14,34 @@ internal class DeterminedStreamingService
    {
       DeterminedStreamingService result = new();
 
-      if (webLink.Contains("watch?v=") || webLink.Contains("youtu.be") || webLink.Contains("&list=") || webLink.Contains("playlist?list="))
+      if (webLink.Contains("watch?v=") ||
+          webLink.Contains("youtu.be") ||
+          webLink.Contains("&list=") ||
+          webLink.Contains("playlist?list="))
       {
          result.IsYouTube = true;
 
-         if (webLink.Contains("&list=") || webLink.Contains("playlist?list="))
+         if (webLink.Contains("&list=") ||
+             webLink.Contains("playlist?list="))
          {
             result.IsYouTubePlaylist = true;
 
             if (webLink.Contains("&index="))
-            {
                result.IsYouTubePlaylistWithIndex = true;
-            }
          }
       }
-      else if (webLink.Contains("/track/") || webLink.Contains("/playlist/") || webLink.Contains("/album/") || webLink.Contains(":album:"))
+      else if (webLink.Contains("/track/") ||
+               webLink.Contains("/playlist/") ||
+               webLink.Contains("/album/") ||
+               webLink.Contains(":album:"))
       {
          result.IsSpotify = true;
 
          if (webLink.Contains("/playlist/"))
-         {
             result.IsSpotifyPlaylist = true;
-         }
-         else if (webLink.Contains("/album/") || webLink.Contains(":album:"))
-         {
+         else if (webLink.Contains("/album/") ||
+                  webLink.Contains(":album:"))
             result.IsSpotifyAlbum = true;
-         }
       }
       else
       {

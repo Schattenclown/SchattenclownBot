@@ -16,7 +16,6 @@ internal class DB_API_Requests
       MySqlDataReader mySqlDataReader = DB_API_Connection.API_ExecuteReader(sql, mySqlConnection);
 
       if (mySqlDataReader != null)
-      {
          while (mySqlDataReader.Read())
          {
             API aPI = new()
@@ -32,7 +31,6 @@ internal class DB_API_Requests
 
             aPI_Objects.Add(aPI);
          }
-      }
 
       DB_API_Connection.API_CloseDB(mySqlConnection);
       return aPI_Objects;

@@ -88,9 +88,7 @@ internal class Timer : ApplicationCommandsModule
 
       //Set the Title so the User knows no Timers for him where found.
       if (noTimers)
-      {
          discordEmbedBuilder.Title = "No timers set!";
-      }
 
       //Edit the Response and add the Embed.
       await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));

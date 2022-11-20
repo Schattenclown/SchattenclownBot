@@ -52,9 +52,7 @@ internal class GetItRightMee6
             }
 
             if (mainGuild == null)
-            {
                return;
-            }
 
             IEnumerable<DiscordChannel> discordChannels = mainGuild.Channels.Values.Where(x => x.Type == ChannelType.Voice).ToList();
 
@@ -63,13 +61,11 @@ internal class GetItRightMee6
                try
                {
                   if (discordChannelItem.Id != 982330147141218344)
-                  {
                      if (discordChannelItem.Bitrate != 384000)
                      {
                         await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
                         CwLogger.Write($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                      }
-                  }
                }
                catch
                {
@@ -80,19 +76,16 @@ internal class GetItRightMee6
             }
 
             if (bool384KbNotAvailable)
-            {
                foreach (DiscordChannel discordChannelItem in discordChannels)
                {
                   try
                   {
                      if (discordChannelItem.Id != 982330147141218344)
-                     {
                         if (discordChannelItem.Bitrate != 256000)
                         {
                            await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
                            CwLogger.Write($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                         }
-                     }
                   }
                   catch
                   {
@@ -100,13 +93,10 @@ internal class GetItRightMee6
                      break;
                   }
                }
-            }
 
             await Task.Delay(1000);
             if (!LastMinuteCheck.CheckHighQualityAvailable)
-            {
                LastMinuteCheck.CheckHighQualityAvailable = true;
-            }
          }
       });
    }

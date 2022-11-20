@@ -13,7 +13,8 @@ internal class CwLogger
          writeLineString = StringCutter.RmUntil(writeLineString, "CREATE TABLE IF NOT EXISTS `", "CREATE TABLE IF NOT EXISTS `".Length);
       }
 
-      if (callerFunction.Contains("<<") || callerFunction.Contains(">b__0>d"))
+      if (callerFunction.Contains("<<") ||
+          callerFunction.Contains(">b__0>d"))
       {
          callerFunction = StringCutter.RmUntil(callerFunction, "<<", "<<".Length);
          callerFunction = StringCutter.RmAfter(callerFunction, ">b__0>d", 0);
@@ -30,7 +31,8 @@ internal class CwLogger
 
    public static void Write(Exception ex, string callerFunction, ConsoleColor color)
    {
-      if (callerFunction.Contains("<<") || callerFunction.Contains(">b__0>d"))
+      if (callerFunction.Contains("<<") ||
+          callerFunction.Contains(">b__0>d"))
       {
          callerFunction = StringCutter.RmUntil(callerFunction, "<<", "<<".Length);
          callerFunction = StringCutter.RmAfter(callerFunction, ">b__0>d", 0);

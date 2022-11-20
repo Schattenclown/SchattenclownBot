@@ -45,9 +45,7 @@ internal class Alarm : ApplicationCommandsModule
 
       //Check if the Alarm is a Time for Tomorrow, if it is in the Past already Today.
       if (alarm < DateTime.Now)
-      {
          alarm = alarm.AddDays(1);
-      }
 
       //Create an AlarmObject and add it to the Database.
       BotAlarmClock botAlarmClock = new()
@@ -98,9 +96,7 @@ internal class Alarm : ApplicationCommandsModule
 
       //Set the Title so the User knows no Alarms for him where found.
       if (noTimers)
-      {
          discordEmbedBuilder.Title = "No alarms set!";
-      }
 
       //Edit the Response and add the Embed.
       await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));

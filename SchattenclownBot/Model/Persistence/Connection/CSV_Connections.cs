@@ -65,9 +65,7 @@ public class CSV_Connections
       {
          DirectoryInfo directory = new(Path.LocalPath);
          if (!directory.Exists)
-         {
             directory.Create();
-         }
 
          StreamWriter streamWriter = new(Filepath.LocalPath);
          streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" + "DiscordBotKeyDebug;<API Key here>\n" + "MySqlConStr;<DBConnectionString here>\n" + "MySqlConStrDebug;<DBConnectionString here>\n" + "MySqlAPIConStr;<DBConnectionString here>\n" + "MySqlAPIConStrDebug;<DBConnectionString here>\n" + "AcoustIdApiKey;<API Key here>\n" + "SpotifyOAuth2;<ClientId-ClientSecret here>");

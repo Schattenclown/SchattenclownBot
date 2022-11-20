@@ -17,9 +17,7 @@ public class StringCutter
    public static string RmUntil(string inputString, string keyWord, int removeWordInt)
    {
       if (inputString == null)
-      {
          return null;
-      }
 
       return !inputString.Contains(keyWord) ? inputString : inputString[(inputString.IndexOf(keyWord, StringComparison.Ordinal) + removeWordInt)..];
    }
@@ -34,15 +32,11 @@ public class StringCutter
    public static string RmAfter(string inputString, string keyWord, int keepWordInt)
    {
       if (!inputString.Contains(keyWord))
-      {
          return inputString;
-      }
 
       int index = inputString.LastIndexOf(keyWord, StringComparison.Ordinal);
       if (index > 0)
-      {
          inputString = inputString[..(index + keepWordInt)];
-      }
 
       return inputString;
    }

@@ -56,15 +56,11 @@ public class BotAlarmClock
             }
 
             if (DateTime.Now.Second == 30)
-            {
                BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
-            }
 
             await Task.Delay(1000 * 1);
             if (!LastMinuteCheck.BotAlarmClockRunAsync)
-            {
                LastMinuteCheck.BotAlarmClockRunAsync = true;
-            }
          }
       });
    }

@@ -61,15 +61,11 @@ public class BotTimer
             }
 
             if (DateTime.Now.Second == 15)
-            {
                BotTimerList = DB_BotTimer.ReadAll();
-            }
 
             await Task.Delay(1000 * 1);
             if (!LastMinuteCheck.BotTimerRunAsync)
-            {
                LastMinuteCheck.BotTimerRunAsync = true;
-            }
          }
       });
    }

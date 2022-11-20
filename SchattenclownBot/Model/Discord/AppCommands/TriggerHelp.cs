@@ -51,7 +51,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          };
 
          // If the guild has a custom guild icon, set the embed's thumbnail to that icon.
-         if (context.Guild != null && context.Guild.IconUrl != null)
+         if (context.Guild != null &&
+             context.Guild.IconUrl != null)
          {
             // CHALLENGE: Replace the jpg to the highest resolution png file using the Discord RunInnerHandlerAsync.
             discordEmbedBuilder.WithThumbnail(context.Guild.IconUrl);

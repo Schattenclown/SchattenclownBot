@@ -10,9 +10,7 @@ internal class AcoustId
       Root lst = JsonConvert.DeserializeObject<Root>(content);
 
       if (lst == null)
-      {
          return null;
-      }
 
       Root obj = new()
       {

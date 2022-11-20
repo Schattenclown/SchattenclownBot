@@ -166,7 +166,9 @@ internal class Poke : ApplicationCommandsModule
          presenceWasNull = true;
       }
 
-      if (discordTargetMember.VoiceState != null && rightToMove && (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
+      if (discordTargetMember.VoiceState != null &&
+          rightToMove &&
+          (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
       {
          DiscordChannel currentChannel = default;
          DiscordChannel tempCategory = default;
@@ -221,9 +223,7 @@ internal class Poke : ApplicationCommandsModule
          try
          {
             if (tempChannel2 != null)
-            {
                await tempChannel2.DeleteAsync();
-            }
          }
          catch
          {
@@ -234,9 +234,7 @@ internal class Poke : ApplicationCommandsModule
          try
          {
             if (tempChannel1 != null)
-            {
                await tempChannel1.DeleteAsync();
-            }
          }
          catch
          {
@@ -247,9 +245,7 @@ internal class Poke : ApplicationCommandsModule
          try
          {
             if (tempCategory != null)
-            {
                await tempCategory.DeleteAsync();
-            }
          }
          catch
          {
@@ -275,31 +271,19 @@ internal class Poke : ApplicationCommandsModule
          DiscordEmoji discordEmojisCheckX = DiscordEmoji.FromName(Bot.DiscordClient, ":x:");
 
          if (discordTargetMember.Presence.ClientStatus.Desktop.HasValue)
-         {
             description += discordEmojisWhiteCheckMark + " Desktop" + "\n";
-         }
          else
-         {
             description += discordEmojisCheckX + " Desktop" + "\n";
-         }
 
          if (discordTargetMember.Presence.ClientStatus.Web.HasValue)
-         {
             description += discordEmojisWhiteCheckMark + " Web" + "\n";
-         }
          else
-         {
             description += discordEmojisCheckX + " Web" + "\n";
-         }
 
          if (discordTargetMember.Presence.ClientStatus.Mobile.HasValue)
-         {
             description += discordEmojisWhiteCheckMark + " Mobile";
-         }
          else
-         {
             description += discordEmojisCheckX + " Mobile";
-         }
 
          discordEmbedBuilder.Description = description;
 
