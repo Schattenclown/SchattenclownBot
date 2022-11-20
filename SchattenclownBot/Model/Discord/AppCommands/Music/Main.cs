@@ -807,7 +807,7 @@ internal class Main
 
       results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
 
-      results.FirstOrDefault().Hits++;
+      results.FirstOrDefault().Hits += 2;
 
       results = results.OrderBy(search => search.Hits).ToList();
       results.Reverse();
