@@ -786,7 +786,6 @@ internal class Main
             if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(artist.Name.ToLower()))
             {
                result.Hits++;
-               result.Hits++;
             }
 
             if (result.VideoSearchResult.Title.ToLower().Contains(artist.Name.ToLower()))
