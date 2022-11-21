@@ -735,22 +735,38 @@ internal class Main
       }
 
       TimeSpan t1 = TimeSpan.FromMilliseconds(durationMs);
+      bool artistInChannel = false;
       foreach (VideoResultFromYTSearch result in results)
       {
          if ((!trackName.ToLower().Contains("instrumental") && result.VideoSearchResult.Title.ToLower().Contains("instrumental")) ||
              (trackName.ToLower().Contains("instrumental") && !result.VideoSearchResult.Title.ToLower().Contains("instrumental")))
             result.Hits--;
 
+         if ((!trackName.ToLower().Contains("bass boosted") && result.VideoSearchResult.Title.ToLower().Contains("bass boosted")) ||
+             (trackName.ToLower().Contains("bass boosted") && !result.VideoSearchResult.Title.ToLower().Contains("bass boosted")))
+            result.Hits--;
+
+         if ((!trackName.ToLower().Contains("mix") && result.VideoSearchResult.Title.ToLower().Contains("mix")) ||
+             (trackName.ToLower().Contains("mix") && !result.VideoSearchResult.Title.ToLower().Contains("mix")))
+            result.Hits--;
+
+         if ((!trackName.ToLower().Contains("live") && result.VideoSearchResult.Title.ToLower().Contains("live")) ||
+             (trackName.ToLower().Contains("live") && !result.VideoSearchResult.Title.ToLower().Contains("live")))
+            result.Hits--;
 
          if (result.VideoSearchResult.Title.ToLower().Contains(trackName.ToLower()))
             result.Hits++;
 
          foreach (SimpleArtist item in artistsArray)
          {
-            if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(item.Name.ToLower()))
+            if (result.VideoSearchResult.Author.ChannelTitle.ToLower().Contains(item.Name.ToLower()) ||
+                item.Name.ToLower().Contains(result.VideoSearchResult.Author.ChannelTitle.ToLower()))
+            {
                result.Hits++;
+               artistInChannel = true;
+            }
          }
-         if (result.VideoSearchResult.Title.ToLower().Contains(artist.ToLower()))
+         if (!artistInChannel && result.VideoSearchResult.Title.ToLower().Contains(artist.ToLower()))
             result.Hits++;
 
 

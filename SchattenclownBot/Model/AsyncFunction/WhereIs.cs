@@ -92,33 +92,33 @@ internal class WhereIs
                               username = discordMemberInChannelItem.Discriminator;
 
                            description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
-                           descriptionForConsole += "  "+ username.PadRight(16).Remove(16) + "   |   ";
+                           descriptionForConsole += ""+ username.PadRight(16).Remove(16) + "   |   ";
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                            {
                               descriptionLineBuilder += "<:xx_mute:989518546541346856>";
-                              descriptionLineBuilderForConsole += "M ";
+                              descriptionLineBuilderForConsole += "M";
                               counter--;
                            }
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
                            {
                               descriptionLineBuilder += "<:xx_deaf:989518540400906270>";
-                              descriptionLineBuilderForConsole += "D ";
+                              descriptionLineBuilderForConsole += "D";
                               counter--;
                            }
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
                            {
                               descriptionLineBuilder += "<:xx_cam:989518538819645460>";
-                              descriptionLineBuilderForConsole += "C ";
+                              descriptionLineBuilderForConsole += "C";
                               counter--;
                            }
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfStream)
                            {
                               descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
-                              descriptionLineBuilderForConsole += "L ";
+                              descriptionLineBuilderForConsole += " L";
                               counter--;
                               counter--;
                            }
@@ -126,7 +126,7 @@ internal class WhereIs
                            for (int i = 0; i < counter; i++)
                            {
                               description += "<:xx_empty:989518542456123442>";
-                              descriptionLineBuilderForConsole += "  ";
+                              descriptionForConsole += " ";
                            }
 
                            description += descriptionLineBuilder + "\n";
