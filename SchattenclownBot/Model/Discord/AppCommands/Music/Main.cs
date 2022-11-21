@@ -71,7 +71,7 @@ internal class Main
 
       try
       {
-         QueueTracks.Find(x => x == queueTrack).HasBeenPlayed = true;
+         QueueTracks.Find(x => x == queueTrack)!.HasBeenPlayed = true;
 
          Uri networkDriveUri = new(@"N:\");
          YoutubeDL youtubeDl = new()
@@ -199,9 +199,13 @@ internal class Main
 
          if (!cancellationToken.IsCancellationRequested)
          {
-            if (QueueTracks.All(x => x.GMC.DiscordGuild == gMC.DiscordGuild && x.HasBeenPlayed))
+            List<QueueTrack> queueTracksTemp = QueueTracks.FindAll(x => x.GMC.DiscordGuild == gMC.DiscordGuild);
+
+            if (queueTracksTemp.All(x => x.HasBeenPlayed))
             {
+
                await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue is empty!")));
+               QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == gMC.DiscordGuild);
 
                List<CancellationTokenSource> cancellationTokenSourceList = new();
 
