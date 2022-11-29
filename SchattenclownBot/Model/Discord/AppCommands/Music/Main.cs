@@ -754,6 +754,10 @@ internal class Main
              (trackName.ToLower().Contains("live") && !result.VideoSearchResult.Title.ToLower().Contains("live")))
             result.Hits--;
 
+         if ((!trackName.ToLower().Contains("reagiert") && result.VideoSearchResult.Title.ToLower().Contains("reagiert")) ||
+             (trackName.ToLower().Contains("reagiert") && !result.VideoSearchResult.Title.ToLower().Contains("reagiert")))
+            result.Hits--;
+
          if (result.VideoSearchResult.Title.ToLower().Contains(trackName.ToLower()))
             result.Hits++;
 
@@ -772,14 +776,49 @@ internal class Main
 
          TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
          result.OffsetTimeSpan = t2 - t1;
-
-         if (result.OffsetTimeSpan < TimeSpan.FromMilliseconds(0))
-            result.OffsetTimeSpan = TimeSpan.FromMilliseconds(result.OffsetTimeSpan.TotalMilliseconds * -1.0);
       }
 
-      results.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
 
-      results.FirstOrDefault().Hits++;
+      List<VideoResultFromYTSearch> exact = results.FindAll(x => x.OffsetTimeSpan == TimeSpan.FromMilliseconds(0));
+      List<VideoResultFromYTSearch> positiv = results.FindAll(x => x.OffsetTimeSpan > TimeSpan.FromMilliseconds(0));
+      List<VideoResultFromYTSearch> negativ = results.FindAll(x => x.OffsetTimeSpan < TimeSpan.FromMilliseconds(0));
+
+      if (exact.Any())
+         exact[0].Hits += 2;
+
+      positiv.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
+
+      negativ.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
+
+      List<VideoResultFromYTSearch> topresult = new();
+
+
+      if (positiv.Any())
+      {
+         topresult.Add(positiv[0]);
+
+      }
+
+      if (negativ.Any())
+      {
+         negativ[0].OffsetTimeSpan *= -1;
+         topresult.Add(negativ[0]);
+
+      }
+
+      if (topresult.Any())
+      {
+         topresult.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
+         topresult[0].Hits++;
+      }
+
+
+
+      results.Clear();
+
+      results.AddRange(exact);
+      results.AddRange(positiv);
+      results.AddRange(negativ);
 
       results = results.OrderBy(search => search.Hits).ToList();
       results.Reverse();
