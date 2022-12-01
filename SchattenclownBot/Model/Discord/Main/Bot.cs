@@ -152,8 +152,10 @@ public class Bot : IDisposable
       LastMinuteCheck.Check(0);
       await BirthdayList.GenerateBirthdayList();
 
-
+      DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
+#if DEBUG
       DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
+#endif
 
       while (!ShutdownRequest.IsCancellationRequested)
       {

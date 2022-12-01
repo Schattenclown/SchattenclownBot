@@ -738,25 +738,14 @@ internal class Main
       bool artistInChannel = false;
       foreach (VideoResultFromYTSearch result in results)
       {
-         if ((!trackName.ToLower().Contains("instrumental") && result.VideoSearchResult.Title.ToLower().Contains("instrumental")) ||
-             (trackName.ToLower().Contains("instrumental") && !result.VideoSearchResult.Title.ToLower().Contains("instrumental")))
-            result.Hits--;
+         string[] blacklist = new[] { "instrumental", "bass boosted", "mix", "live", "reagiert" };
 
-         if ((!trackName.ToLower().Contains("bass boosted") && result.VideoSearchResult.Title.ToLower().Contains("bass boosted")) ||
-             (trackName.ToLower().Contains("bass boosted") && !result.VideoSearchResult.Title.ToLower().Contains("bass boosted")))
-            result.Hits--;
-
-         if ((!trackName.ToLower().Contains("mix") && result.VideoSearchResult.Title.ToLower().Contains("mix")) ||
-             (trackName.ToLower().Contains("mix") && !result.VideoSearchResult.Title.ToLower().Contains("mix")))
-            result.Hits--;
-
-         if ((!trackName.ToLower().Contains("live") && result.VideoSearchResult.Title.ToLower().Contains("live")) ||
-             (trackName.ToLower().Contains("live") && !result.VideoSearchResult.Title.ToLower().Contains("live")))
-            result.Hits--;
-
-         if ((!trackName.ToLower().Contains("reagiert") && result.VideoSearchResult.Title.ToLower().Contains("reagiert")) ||
-             (trackName.ToLower().Contains("reagiert") && !result.VideoSearchResult.Title.ToLower().Contains("reagiert")))
-            result.Hits--;
+         foreach (string item in blacklist)
+         {
+            if ((!trackName.ToLower().Contains(item.ToLower()) && result.VideoSearchResult.Title.ToLower().Contains(item.ToLower())) ||
+                (trackName.ToLower().Contains(item.ToLower()) && !result.VideoSearchResult.Title.ToLower().Contains(item.ToLower())))
+               result.Hits--;
+         }
 
          if (result.VideoSearchResult.Title.ToLower().Contains(trackName.ToLower()))
             result.Hits++;
@@ -778,52 +767,51 @@ internal class Main
          result.OffsetTimeSpan = t2 - t1;
       }
 
-
       List<VideoResultFromYTSearch> exact = results.FindAll(x => x.OffsetTimeSpan == TimeSpan.FromMilliseconds(0));
-      List<VideoResultFromYTSearch> positiv = results.FindAll(x => x.OffsetTimeSpan > TimeSpan.FromMilliseconds(0));
-      List<VideoResultFromYTSearch> negativ = results.FindAll(x => x.OffsetTimeSpan < TimeSpan.FromMilliseconds(0));
+      List<VideoResultFromYTSearch> positive = results.FindAll(x => x.OffsetTimeSpan > TimeSpan.FromMilliseconds(0));
+      List<VideoResultFromYTSearch> negative = results.FindAll(x => x.OffsetTimeSpan < TimeSpan.FromMilliseconds(0));
 
       if (exact.Any())
+      {
+         exact = exact.OrderBy(search => search.Hits).ToList();
+         exact.Reverse();
          exact[0].Hits += 2;
-
-      positiv.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
-
-      negativ.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
-
-      List<VideoResultFromYTSearch> topresult = new();
-
-
-      if (positiv.Any())
-      {
-         topresult.Add(positiv[0]);
-
       }
 
-      if (negativ.Any())
-      {
-         negativ[0].OffsetTimeSpan *= -1;
-         topresult.Add(negativ[0]);
+      positive.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
 
+      negative.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
+
+      List<VideoResultFromYTSearch> topResults = new();
+
+
+      if (positive.Any())
+      {
+         topResults.Add(positive[0]);
       }
 
-      if (topresult.Any())
+      if (negative.Any())
       {
-         topresult.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
-         topresult[0].Hits++;
+         negative[0].OffsetTimeSpan *= -1;
+         topResults.Add(negative[0]);
       }
 
-
+      if (topResults.Any())
+      {
+         topResults.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
+         topResults[0].Hits++;
+      }
 
       results.Clear();
 
       results.AddRange(exact);
-      results.AddRange(positiv);
-      results.AddRange(negativ);
+      results.AddRange(positive);
+      results.AddRange(negative);
 
       results = results.OrderBy(search => search.Hits).ToList();
       results.Reverse();
 
-      DiscordEmbedBuilder discordEmbedBuilder = new()
+      /*DiscordEmbedBuilder discordEmbedBuilder = new()
       {
          Title = $"Spotify <{externalIds}>"
       };
@@ -836,6 +824,40 @@ internal class Main
 
          discordEmbedBuilder.AddField(new DiscordEmbedField("" + $"{TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds):mm\\:ss}   |   " + $"{result.VideoSearchResult.Author.ChannelTitle}   -   " + $"{result.VideoSearchResult.Title}", result.VideoSearchResult.Url));
          i++;
+      }
+      try
+      {
+         _ = await Bot.DebugDiscordChannel.SendMessageAsync(discordEmbedBuilder.Build());
+      }
+      catch (Exception ex)
+      {
+         Console.WriteLine(ex);
+      }*/
+
+      int i = 1;
+
+      string something = $"\n\n{t1:mm\\:ss}   |   {artist}   -   {trackName}\n";
+      foreach (VideoResultFromYTSearch result in results)
+      {
+         something += $"Result number {i}\n";
+         something += $"{result.Hits} hints   |   {result.OffsetTimeSpan:mm\\:ss} TimeSpanOffset\n";
+
+         something += $"{TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds):mm\\:ss}   |   " + $"{result.VideoSearchResult.Author.ChannelTitle}   -   " + $"{result.VideoSearchResult.Title}\n";
+         something += result.VideoSearchResult.Url + "\n";
+         i++;
+      }
+
+      try
+      {
+         Uri Path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
+         Uri Filepath = new($"{Path}/MusicDebug.log");
+         StreamWriter streamWriter = new StreamWriter(Filepath.AbsolutePath, true);
+         streamWriter.Write(something);
+         streamWriter.Close();
+      }
+      catch (Exception ex)
+      {
+         CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.Red);
       }
 
       return new Uri(results.FirstOrDefault().VideoSearchResult.Url);
