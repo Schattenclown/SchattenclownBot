@@ -152,7 +152,7 @@ internal class Main
                Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
                Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
 
-               CwLogger.Write($"Playing {queueTrack.Title} - YT:{queueTrack.YouTubeUri} | SY:{queueTrack.SpotifyUri} ON {gMC.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+               CwLogger.Write($"Playing {queueTrack.Title} - YT:{queueTrack.YouTubeUri} | SY:{queueTrack.SpotifyUri} ON {gMC.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__3", "").Replace("<", ""), ConsoleColor.Yellow);
 
                int timeSpanAdvanceInt = 0;
                while (!ffmpegCopyTask.IsCompleted)
@@ -699,7 +699,7 @@ internal class Main
             {
                editQueueTrack.YouTubeUri = SearchYoutubeFromSpotify(queueTrack.FullTrack);
                editQueueTrack.IsAdded = true;
-               CwLogger.Write($"{queueTrack.GMC.DiscordGuild.Name}   |   {queueTrack.Title} - {queueTrack.Artist}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
+               CwLogger.Write($"{queueTrack.GMC.DiscordGuild.Name}   |   {queueTrack.Title} - {queueTrack.Artist}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace("<>c__DisplayClass11_0", "Queue Add"), ConsoleColor.DarkCyan);
             }
             else
             {
@@ -1121,10 +1121,17 @@ internal class Main
          if (needThumbnail)
          {
             discordEmbedBuilder.WithThumbnail(audioDownloadMetaData.Thumbnails[18].Url);
+            try
+            {
+               Bitmap bitmapAlbumCover = new(new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result);
+               Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
+               discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
 
-            Bitmap bitmapAlbumCover = new(new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result);
-            Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
-            discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
+            }
+            catch (Exception e)
+            {
+               Console.WriteLine(e);
+            }
          }
 
          if (recordingMbId != "")
