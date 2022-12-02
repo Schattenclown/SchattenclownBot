@@ -58,12 +58,18 @@ internal class Main
    {
       VoiceNextExtension voiceNext = Bot.DiscordClient.GetVoiceNext();
       if (voiceNext == null)
+      {
+         CwLogger.Write($"On server {gMC.DiscordGuild.Name} VoiceNext was NULL", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
          return;
+      }
 
       VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(gMC.DiscordGuild);
       DiscordVoiceState voiceState = gMC.DiscordMember?.VoiceState;
       if (voiceState?.Channel == null)
+      {
+         CwLogger.Write($"On server {gMC.DiscordGuild.Name} voiceState was NULL", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
          return;
+      }
 
       voiceNextConnection ??= await voiceNext.ConnectAsync(voiceState.Channel);
 
@@ -145,6 +151,8 @@ internal class Main
                voiceTransmitSink.VolumeModifier = 0.2;
                Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
                Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
+
+               CwLogger.Write($"Playing {queueTrack.Title} - YT:{queueTrack.YouTubeUri} | SY:{queueTrack.SpotifyUri} ON {gMC.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
 
                int timeSpanAdvanceInt = 0;
                while (!ffmpegCopyTask.IsCompleted)
