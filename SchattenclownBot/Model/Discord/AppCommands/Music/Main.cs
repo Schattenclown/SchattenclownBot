@@ -241,7 +241,7 @@ internal class Main
                   CancellationTokenSource cancellationTokenSource = new();
                   CancellationToken token = cancellationTokenSource.Token;
                   CancellationTokenItemList.Add(new DC_CancellationTokenItem(gMC.DiscordGuild, cancellationTokenSource));
-
+                  gMC.DiscordMember = Bot.DiscordClient.CurrentUser.ConvertToMember(gMC.DiscordGuild).Result;
                   _ = Task.Run(() => PlayFromQueueAsyncTask(gMC, queueTrackItem, token), token);
                   break;
                }
@@ -844,7 +844,7 @@ internal class Main
 
       int i = 1;
 
-      string something = $"\n\n{t1:mm\\:ss}   |   {artist}   -   {trackName}\n";
+      string something = $"\n\n {fullTrack.ExternalUrls.FirstOrDefault()} \n{t1:mm\\:ss}   |   {artist}   -   {trackName}\n";
       foreach (VideoResultFromYTSearch result in results)
       {
          something += $"Result number {i}\n";

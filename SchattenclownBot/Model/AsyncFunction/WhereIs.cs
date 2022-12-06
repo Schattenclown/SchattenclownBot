@@ -195,7 +195,7 @@ internal class WhereIs
                         }
 
                         lastDiscordMember = discordMemberItem;
-                        CwLogger.Write("\n\n" + descriptionForConsole, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                        CwLogger.Write(discordMemberItem.Guild.Id + "   " + discordMemberItem.Guild.Name + "\n\n" + descriptionForConsole, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                         await Task.Delay(2000);
                      }
                      catch (Exception ex)
