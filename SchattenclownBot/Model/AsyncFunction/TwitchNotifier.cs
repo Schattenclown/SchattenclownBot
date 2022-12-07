@@ -70,8 +70,8 @@ namespace SchattenclownBot.Model.AsyncFunction
          {
             Settings =
             {
-               ClientId = "gp762nuuoqcoxypju8c569th9wz7q5",
-               AccessToken = "iwx3nmid6wm5zcvucxz0npc7rfgmey"
+               ClientId = "reseted",
+               AccessToken = "reseted"
             }
          };
 
@@ -141,7 +141,6 @@ namespace SchattenclownBot.Model.AsyncFunction
             if (twitchNotifierItem.TwitchChannelUrl.ToLower() == e.Channel.ToLower())
             {
                var discordGuild = Bot.DiscordClient.GetGuildAsync(twitchNotifierItem.DiscordGuildId).Result;
-               var discordMember = Bot.DiscordClient.GetUserAsync(twitchNotifierItem.DiscordMemberId).Result.ConvertToMember(discordGuild).Result;
                var discordChannel = Bot.DiscordClient.GetChannelAsync(twitchNotifierItem.DiscordChannelId).Result;
                var discordRole = discordGuild.GetRole(twitchNotifierItem.DiscordRoleId);
 
