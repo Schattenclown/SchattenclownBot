@@ -119,7 +119,7 @@ internal class WhereIs
                            if (discordMemberInChannelItem.VoiceState.IsSelfStream)
                            {
                               descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
-                              descriptionLineBuilderForConsole += "L";
+                              descriptionLineBuilderForConsole += "Li";
                               counter--;
                               counter--;
                            }
