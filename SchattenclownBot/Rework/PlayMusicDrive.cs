@@ -179,7 +179,7 @@ internal class PlayMusicDrive : ApplicationCommandsModule
       if (NoMusicPlaying(interactionContext.Guild))
       {
          CancellationTokenSource tokenSource = new();
-         CancellationToken cancellationToken = tokenSource.Token;
+         CancellationToken cancellationToken = tokenSource.SpotifyToken;
          DC_CancellationTokenItem dcCancellationTokenKeyPair = new(interactionContext.Guild, tokenSource);
          CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
@@ -215,7 +215,7 @@ internal class PlayMusicDrive : ApplicationCommandsModule
       await StopMusicTask(new GMC(interactionContext.Guild, interactionContext.Channel, interactionContext.Member), false);
 
       CancellationTokenSource tokenSource = new();
-      CancellationToken cancellationToken = tokenSource.Token;
+      CancellationToken cancellationToken = tokenSource.SpotifyToken;
       DC_CancellationTokenItem dcCancellationTokenKeyPair = new(interactionContext.Guild, tokenSource);
       CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
@@ -271,7 +271,7 @@ internal class PlayMusicDrive : ApplicationCommandsModule
             }
 
             CancellationTokenSource tokenSource = new();
-            CancellationToken cancellationToken = tokenSource.Token;
+            CancellationToken cancellationToken = tokenSource.SpotifyToken;
             DC_CancellationTokenItem dcCancellationTokenKeyPair = new(eventArgs.Guild, tokenSource);
             CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
@@ -350,7 +350,7 @@ internal class PlayMusicDrive : ApplicationCommandsModule
             }
 
             CancellationTokenSource newCancellationTokenSource = new();
-            CancellationToken newCancellationToken = newCancellationTokenSource.Token;
+            CancellationToken newCancellationToken = newCancellationTokenSource.SpotifyToken;
 
             foreach (QueueItem queueItem in QueueItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
             {
@@ -393,7 +393,7 @@ internal class PlayMusicDrive : ApplicationCommandsModule
             }
 
             CancellationTokenSource newCancellationTokenSource = new();
-            CancellationToken newCancellationToken = newCancellationTokenSource.Token;
+            CancellationToken newCancellationToken = newCancellationTokenSource.SpotifyToken;
 
             foreach (QueueTrack queueTrack in QueueTracks.Where(x => x.GMC.DiscordGuild == eventArgs.Guild && !x.HasBeenPlayed))
             {

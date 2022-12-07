@@ -1,7 +1,7 @@
-﻿using System;
-using System.Reflection;
-using SchattenclownBot.Model.HelpClasses;
+﻿using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Persistence.Connection;
+using System;
+using System.Reflection;
 
 namespace SchattenclownBot.Model.Objects;
 
@@ -14,7 +14,8 @@ public class Connections
    public string MySqlAPIConStr { get; set; }
    public string MySqlAPIConStrDebug { get; set; }
    public string AcoustIdApiKey { get; set; }
-   public SpotifyOAuth2 Token { get; set; }
+   public SpotifyOAuth2 SpotifyToken { get; set; }
+   public TwitchOAuth2 TwitchToken { get; set; }
    public string YouTubeApiKey { get; set; }
 
    public static Connections GetConnections()
@@ -31,6 +32,12 @@ public class Connections
    }
 
    public class SpotifyOAuth2
+   {
+      public string ClientId { get; set; }
+      public string ClientSecret { get; set; }
+   }
+
+   public class TwitchOAuth2
    {
       public string ClientId { get; set; }
       public string ClientSecret { get; set; }

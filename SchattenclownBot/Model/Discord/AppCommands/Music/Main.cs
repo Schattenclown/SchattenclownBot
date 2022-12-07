@@ -1234,7 +1234,7 @@ internal class Main
    internal static SpotifyClient GetSpotifyClientConfig()
    {
       SpotifyClientConfig spotifyClientConfig = SpotifyClientConfig.CreateDefault();
-      ClientCredentialsRequest clientCredentialsRequest = new(Bot.Connections.Token.ClientId, Bot.Connections.Token.ClientSecret);
+      ClientCredentialsRequest clientCredentialsRequest = new(Bot.Connections.SpotifyToken.ClientId, Bot.Connections.SpotifyToken.ClientSecret);
       ClientCredentialsTokenResponse clientCredentialsTokenResponse = new OAuthClient(spotifyClientConfig).RequestToken(clientCredentialsRequest).Result;
       SpotifyClient spotifyClient = new(clientCredentialsTokenResponse.AccessToken);
       return spotifyClient;

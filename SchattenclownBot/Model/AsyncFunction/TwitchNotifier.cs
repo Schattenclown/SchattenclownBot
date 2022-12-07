@@ -70,8 +70,8 @@ namespace SchattenclownBot.Model.AsyncFunction
          {
             Settings =
             {
-               ClientId = "reseted",
-               AccessToken = "reseted"
+               ClientId = Bot.Connections.TwitchToken.ClientId,
+               AccessToken = Bot.Connections.TwitchToken.ClientSecret
             }
          };
 
