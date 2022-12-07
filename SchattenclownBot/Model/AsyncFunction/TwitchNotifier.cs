@@ -179,12 +179,12 @@ namespace SchattenclownBot.Model.AsyncFunction
 
       internal static void MonitorOnOnServiceTick(object sender, OnServiceTickArgs e)
       {
-         Console.WriteLine("Checked");
+         //Console.WriteLine("Checked");
       }
 
       internal static void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
       {
-         Console.WriteLine("Monitor_OnStreamUpdate");
+         //Console.WriteLine("Monitor_OnStreamUpdate");
       }
 
       internal static void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
