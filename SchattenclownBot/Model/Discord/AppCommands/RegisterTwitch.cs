@@ -3,13 +3,13 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using SchattenclownBot.Model.AsyncFunction;
 
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
@@ -25,39 +25,45 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
+         if (interactionContext.Member.Roles.All(x => (x.Permissions & Permissions.Administrator) == 0))
+         {
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("unprvlegiert"));
+            return;
+         }
+
          List<TwitchNotifier> something = TwitchNotifier.Read(interactionContext.Guild.Id);
 
          /*if (something.Count == 0)
          {*/
-            var twitchNotifierObj = new TwitchNotifier
-            {
-               DiscordGuildId = interactionContext.Guild.Id,
-               DiscordMemberId = interactionContext.Member.Id,
-               DiscordChannelId = discordTargetChannel.Id,
-               DiscordRoleId = discordTargetRole.Id
-            };
+         var twitchNotifierObj = new TwitchNotifier
+         {
+            DiscordGuildId = interactionContext.Guild.Id,
+            DiscordMemberId = interactionContext.Member.Id,
+            DiscordChannelId = discordTargetChannel.Id,
+            DiscordRoleId = discordTargetRole.Id
+         };
 
-            try
+         try
+         {
+            if (Convert.ToUInt64(twitchThing) > 0)
             {
-               if (Convert.ToUInt64(twitchThing) > 0)
-               {
-                  twitchNotifierObj.TwitchUserId = Convert.ToUInt64(twitchThing);
-               }
+               twitchNotifierObj.TwitchUserId = Convert.ToUInt64(twitchThing);
             }
-            catch
-            {
-               //ignore
-            }
-            finally
-            {
-               if (twitchThing.Contains("https://"))
-                  twitchThing = StringCutter.RmUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
+         }
+         catch
+         {
+            //ignore
+         }
+         finally
+         {
+            if (twitchThing.Contains("https://"))
+               twitchThing = StringCutter.RmUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
 
-               twitchNotifierObj.TwitchChannelUrl = twitchThing;
-            }
-            TwitchNotifier.Add(twitchNotifierObj);
-            TwitchNotifier.SetMonitoring();
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Maybe" + twitchNotifierObj));
+            twitchNotifierObj.TwitchChannelUrl = twitchThing;
+         }
+         TwitchNotifier.Add(twitchNotifierObj);
+         TwitchNotifier.SetMonitoring();
+         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Maybe" + twitchNotifierObj));
          /*}*/
       }
    }
