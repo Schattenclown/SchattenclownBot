@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.CommandsNext;
@@ -19,6 +14,12 @@ using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using TwitchLib.Api;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
 
 namespace SchattenclownBot.Model.Discord.Main;
@@ -139,6 +140,9 @@ public class Bot : IDisposable
    {
       await DiscordClient.ConnectAsync();
 
+      await TwitchNotifier.CreateTable_TwitchNotifier();
+      _ = TwitchNotifier.Run();
+
       BotTimer.BotTimerRunAsync();
       BotAlarmClock.BotAlarmClockRunAsync();
       API_Handler.RunInnerHandlerAsync();
@@ -152,8 +156,9 @@ public class Bot : IDisposable
       LastMinuteCheck.Check(0);
       await BirthdayList.GenerateBirthdayList();
 
+#if RELEASE
       DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
-#if DEBUG
+#elif DEBUG
       DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
 #endif
 
@@ -226,6 +231,7 @@ public class Bot : IDisposable
       applicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
       applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
       applicationCommandsExtension.RegisterGlobalCommands<RegisterForControlPanel>();
+      applicationCommandsExtension.RegisterGlobalCommands<RegisterTwitch>();
    }
 
    private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)

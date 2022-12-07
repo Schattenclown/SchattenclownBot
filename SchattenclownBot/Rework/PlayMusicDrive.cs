@@ -26,14 +26,14 @@ internal class PlayMusicDrive : ApplicationCommandsModule
    public static readonly List<QueueTrack> QueueTracks = new();
    public static readonly List<QueueTrack> CompareQueueTracks = new();
 
-   [SlashCommand("Skip" + Bot.isDevBot, "Skip this track!")]
+   [SlashCommand("Skip" + TwitchAPI.isDevBot, "Skip this track!")]
    private async Task SkipCommand(InteractionContext interactionContext)
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
       await NextTrackTask(interactionContext);
    }
 
-   [SlashCommand("Next" + Bot.isDevBot, "Skip this track!")]
+   [SlashCommand("Next" + TwitchAPI.isDevBot, "Skip this track!")]
    private async Task NextCommand(InteractionContext interactionContext)
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -159,7 +159,7 @@ internal class PlayMusicDrive : ApplicationCommandsModule
       }
    }
 
-   [SlashCommand("DrivePlay" + Bot.isDevBot, "Just plays some random music!")]
+   [SlashCommand("DrivePlay" + TwitchAPI.isDevBot, "Just plays some random music!")]
    private async Task DrivePlayCommand(InteractionContext interactionContext)
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

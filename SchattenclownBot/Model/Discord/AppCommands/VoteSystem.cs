@@ -225,7 +225,7 @@ internal class VoteSystem : ApplicationCommandsModule
    /// <param name="voteRating">The RatingValue the role stands for.</param>
    /// <param name="discordRole">The discordRole.</param>
    /// <returns></returns>
-   [SlashCommand("RatingSetup" + Bot.isDevBot, "Set up the roles for the Rating System!")]
+   [SlashCommand("RatingSetup" + TwitchAPI.isDevBot, "Set up the roles for the Rating System!")]
    public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
    {
        bool found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));

@@ -33,7 +33,7 @@ internal class Main : BaseCommandModule
    [Command("mode"), Description("Change the appearance of the bots status")]
    public async Task SetModeAsync(CommandContext commandContext, [Description("Status mode to set. [ 1=offline | 2=online | 3=dnd] ")] int sts = 2, [Description("Status message to set."), RemainingText] string msg = null)
    {
-       msg ??= $"{Bot.Prefix}help";
+       msg ??= $"{TwitchAPI.Prefix}help";
 
        UserStatus status = sts switch
        {
@@ -52,10 +52,10 @@ internal class Main : BaseCommandModule
            Platform = status == UserStatus.Streaming ? "twitch" : null,
            StreamUrl = status == UserStatus.Streaming ? "https://twitch.tv/lulalaby" : null
        };
-       await Bot.DiscordClient.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
-       Bot.Custom = true;
-       Bot.CustomState = msg;
-       Bot.CustomStatus = status;
+       await TwitchAPI.DiscordClient.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
+       TwitchAPI.Custom = true;
+       TwitchAPI.CustomState = msg;
+       TwitchAPI.CustomStatus = status;
 
        await commandContext.Message.DeleteAsync("Command Hide");
    }*/
