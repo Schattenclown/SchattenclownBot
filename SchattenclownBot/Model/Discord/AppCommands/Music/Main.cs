@@ -101,14 +101,19 @@ internal class Main
 
          DiscordEmbedBuilder discordEmbedBuilder = new();
 
+         //<a:twitch:1050340762459586560>
+         //<:spotify:1050436741393297470>
+         //<:youtube:1050436748578136184>
+         //<:MusicBrainz:1050439464452894720>
+
          if (queueTrack.SpotifyUri == null)
          {
-            discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[-🔗-]({queueTrack.YouTubeUri.AbsoluteUri})]", true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[<:youtube:1050436748578136184> Open]({queueTrack.YouTubeUri.AbsoluteUri})]", true));
          }
          else
          {
-            discordEmbedBuilder.AddField(new DiscordEmbedField("Spotify", $"[[-🔗-]({queueTrack.SpotifyUri.AbsoluteUri})]", true));
-            discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[-🔗-]({queueTrack.YouTubeUri.AbsoluteUri})]", true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Spotify", $"[[<:spotify:1050436741393297470> Open]({queueTrack.SpotifyUri.AbsoluteUri})]", true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[<:youtube:1050436748578136184> Open]({queueTrack.YouTubeUri.AbsoluteUri})]", true));
          }
 
          DiscordComponentEmoji discordComponentEmojisPrevious = new("⏮️");
@@ -1112,9 +1117,9 @@ internal class Main
                Console.WriteLine(e);
             }
          }
-
+         
          if (recordingMbId != "")
-            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[-🔗-](https://musicbrainz.org/recording/{recordingMbId})]", true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[<:MusicBrainz:1050439464452894720> Open](https://musicbrainz.org/recording/{recordingMbId})]", true));
 
          if (albumTitle != "")
             discordEmbedBuilder.AddField(new DiscordEmbedField("Album", albumTitle, true));

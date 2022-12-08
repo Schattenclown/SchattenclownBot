@@ -8,6 +8,7 @@ using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
+using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music;
 
@@ -65,16 +66,22 @@ internal class Events
                   DiscordEmbedBuilder discordEmbedBuilder = new();
 
                   List<QueueTrack> queueTracks = Main.QueueTracks.FindAll(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.HasBeenPlayed);
+                     
 
-                  for (int i = 0; i < 15; i++)
+                     //<a:twitch:1050340762459586560>
+                     //<:spotify:1050436741393297470>
+                     //<:youtube:1050436748578136184>
+                     //<:MusicBrainz:1050439464452894720>
+
+                     for (int i = 0; i < 15; i++)
                   {
                      if (queueTracks.Count == i)
                         break;
 
                      if (queueTracks[i].FullTrack != null)
-                        descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + "[🔗[Spotify]" + $"({queueTracks[i].SpotifyUri.AbsoluteUri})]  " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
+                        descriptionString += "[<:youtube:1050436748578136184> [YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + "[<:spotify:1050436741393297470> [Spotify]" + $"({queueTracks[i].SpotifyUri.AbsoluteUri})]  " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
                      else
-                        descriptionString += "[🔗[YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
+                        descriptionString += "[<:youtube:1050436748578136184> [YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
                   }
 
                   discordEmbedBuilder.Title = $"{queueTracks.Count} Track/s in queue!";
