@@ -25,10 +25,14 @@ namespace SchattenclownBot.Model.AsyncFunction
       public DiscordMessage DiscordMessage { get; set; }
       public override string ToString()
       {
-         return $"DiscordGuildId: {DiscordGuildId}" +
-                $"\nDiscordMemberId: <@{DiscordMemberId}>" +
-                $"\nDiscordChannelId: <#{DiscordChannelId}>" +
-                $"\nDiscordRoleId: <@{DiscordRoleId}>" +
+         DiscordGuild discordGuild = Bot.DiscordClient.GetGuildAsync(DiscordGuildId).Result;
+         DiscordChannel discordChannel = Bot.DiscordClient.GetChannelAsync(DiscordChannelId).Result;
+         DiscordRole discordRole = discordGuild.GetRole(DiscordRoleId);
+
+         return $"DiscordGuild: {discordGuild.Name}" +
+                $"\nDiscordMember: <@{DiscordMemberId}>" +
+                $"\nDiscordChannel: {discordChannel.Mention}" +
+                $"\nDiscordRole: {discordRole.Mention}" +
                 $"\nTwitchUserId: {TwitchUserId}" +
                 $"\nTwitchChannelUrl: {TwitchChannelUrl}";
       }
