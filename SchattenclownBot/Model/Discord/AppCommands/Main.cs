@@ -26,11 +26,7 @@ internal class Main : ApplicationCommandsModule
    {
       DiscordUser user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);
 
-      DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
-      {
-         Title = $"Avatar & Banner of {user.Username}",
-         ImageUrl = user.BannerHash != null ? user.BannerUrl : null
-      }.WithThumbnail(user.AvatarUrl).WithColor(user.BannerColor ?? DiscordColor.Purple).WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+      DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder { Title = $"Avatar & Banner of {user.Username}", ImageUrl = user.BannerHash != null ? user.BannerUrl : null }.WithThumbnail(user.AvatarUrl).WithColor(user.BannerColor ?? DiscordColor.Purple).WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl).WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
       await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddEmbed(discordEmbedBuilder.Build()));
    }
 

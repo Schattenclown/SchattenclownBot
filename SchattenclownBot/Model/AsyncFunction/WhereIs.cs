@@ -120,7 +120,7 @@ internal class WhereIs
                            if (discordMemberInChannelItem.VoiceState.IsSelfStream)
                            {
                               descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
-                              descriptionLineBuilderForConsole += "Li";
+                              descriptionLineBuilderForConsole += "_-.L";
                               counter--;
                               counter--;
                            }
@@ -132,7 +132,7 @@ internal class WhereIs
                            }
 
                            description += descriptionLineBuilder + "\n";
-                           descriptionForConsole += descriptionLineBuilderForConsole + "\n";
+                           descriptionForConsole += descriptionLineBuilderForConsole.Replace("_-.L", "L") + "\n";
                         }
 
                         discordThreads = mainGuild.Threads.Values.ToList();
@@ -140,10 +140,7 @@ internal class WhereIs
                         DiscordThreadChannel discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
                         discordThreadsChannel ??= await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
 
-                        DiscordEmbedBuilder discordEmbedBuilder = new()
-                        {
-                           Color = new DiscordColor(17, 17, 17)
-                        };
+                        DiscordEmbedBuilder discordEmbedBuilder = new() { Color = new DiscordColor(17, 17, 17) };
                         discordEmbedBuilder.WithFooter(discordVoiceState.Guild.Name + " | " + discordVoiceState.Channel.Name, discordVoiceState.Guild.IconUrl);
                         discordEmbedBuilder.WithTimestamp(DateTime.Now);
 

@@ -19,13 +19,7 @@ public class DB_BotTimer
       if (mySqlDataReader != null)
          while (mySqlDataReader.Read())
          {
-            BotTimer botTimer = new()
-            {
-               DbEntryId = mySqlDataReader.GetInt32("DBEntryID"),
-               NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"),
-               ChannelId = mySqlDataReader.GetUInt64("ChannelId"),
-               MemberId = mySqlDataReader.GetUInt64("MemberId")
-            };
+            BotTimer botTimer = new() { DbEntryId = mySqlDataReader.GetInt32("DBEntryID"), NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"), ChannelId = mySqlDataReader.GetUInt64("ChannelId"), MemberId = mySqlDataReader.GetUInt64("MemberId") };
             botTimerList.Add(botTimer);
          }
 

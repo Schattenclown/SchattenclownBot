@@ -90,11 +90,7 @@ internal class Main
             IgnoreDownloadErrors = false
          };
 
-         OptionSet optionSet = new()
-         {
-            AddMetadata = true,
-            AudioQuality = 0
-         };
+         OptionSet optionSet = new() { AddMetadata = true, AudioQuality = 0 };
 
          optionSet.AddCustomOption("--output", networkDriveUri.AbsolutePath + "%(title)s-%(id)s-%(release_date)s.%(ext)s");
          RunResult<string> audioDownload = await youtubeDl.RunAudioDownload(queueTrack.YouTubeUri.AbsoluteUri, AudioConversionFormat.Mp3, new CancellationToken(), null, null, optionSet);
@@ -137,13 +133,7 @@ internal class Main
             discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(audioDownload.Data), audioDownloadMetaData, null);
             DiscordMessage discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
 
-            ProcessStartInfo ffmpegProcessStartInfo = new()
-            {
-               FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
-               Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
-               RedirectStandardOutput = true,
-               UseShellExecute = false
-            };
+            ProcessStartInfo ffmpegProcessStartInfo = new() { FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false };
             Process ffmpegProcess = Process.Start(ffmpegProcessStartInfo);
             if (ffmpegProcess != null)
             {
@@ -571,10 +561,7 @@ internal class Main
          {
             string playlistId = StringCutter.RmAfter(StringCutter.RmUntil(webLink, "/playlist/", "/playlist/".Length), "?si", 0);
 
-            PlaylistGetItemsRequest playlistGetItemsRequest = new()
-            {
-               Offset = 0
-            };
+            PlaylistGetItemsRequest playlistGetItemsRequest = new() { Offset = 0 };
 
             List<PlaylistTrack<IPlayableItem>> iPlayableItems = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
 
@@ -978,13 +965,7 @@ internal class Main
    {
       string[] fingerPrintDuration = default;
       string[] fingerPrintFingerprint = default;
-      ProcessStartInfo fingerPrintCalculationProcessStartInfo = new()
-      {
-         FileName = "..\\..\\..\\Model\\Executables\\fpcalc\\fpcalc.exe",
-         Arguments = filePathUri.AbsolutePath,
-         RedirectStandardOutput = true,
-         UseShellExecute = false
-      };
+      ProcessStartInfo fingerPrintCalculationProcessStartInfo = new() { FileName = "..\\..\\..\\Model\\Executables\\fpcalc\\fpcalc.exe", Arguments = filePathUri.AbsolutePath, RedirectStandardOutput = true, UseShellExecute = false };
       Process fingerPrintCalculationProcess = Process.Start(fingerPrintCalculationProcessStartInfo);
       if (fingerPrintCalculationProcess != null)
       {

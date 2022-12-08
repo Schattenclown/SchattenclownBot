@@ -1,4 +1,8 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -6,10 +10,6 @@ using DisCatSharp.Enums;
 using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -21,7 +21,7 @@ internal class RegisterTwitch : ApplicationCommandsModule
    /// <param name="interactionContext">The interactionContext</param>
    /// <returns></returns>
    [SlashCommand("TwitchRegister" + Bot.isDevBot, "Add Twitch notifier!")]
-   public static async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#...")][ChannelTypes(ChannelType.Text)] DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
+   public static async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#...")] [ChannelTypes(ChannelType.Text)] DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -42,20 +42,12 @@ internal class RegisterTwitch : ApplicationCommandsModule
       }
       else
       {
-         TwitchNotifier twitchNotifierObj = new()
-         {
-            DiscordGuildId = interactionContext.Guild.Id,
-            DiscordMemberId = interactionContext.Member.Id,
-            DiscordChannelId = discordTargetChannel.Id,
-            DiscordRoleId = discordTargetRole.Id
-         };
+         TwitchNotifier twitchNotifierObj = new() { DiscordGuildId = interactionContext.Guild.Id, DiscordMemberId = interactionContext.Member.Id, DiscordChannelId = discordTargetChannel.Id, DiscordRoleId = discordTargetRole.Id };
 
          try
          {
             if (Convert.ToUInt64(twitchThing) > 0)
-            {
                twitchNotifierObj.TwitchUserId = Convert.ToUInt64(twitchThing);
-            }
          }
          catch
          {

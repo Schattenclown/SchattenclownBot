@@ -108,13 +108,7 @@ internal class VoteSystem : ApplicationCommandsModule
          ulong discordTargetMemberUlong = Convert.ToUInt64(ulongString);
 
 
-         SympathySystem sympathySystemObj = new()
-         {
-            VotingUserId = discordMember.Id,
-            VotedUserId = discordTargetMemberUlong,
-            GuildId = componentInteractionCreateEventArgs.Guild.Id,
-            VoteRating = rating
-         };
+         SympathySystem sympathySystemObj = new() { VotingUserId = discordMember.Id, VotedUserId = discordTargetMemberUlong, GuildId = componentInteractionCreateEventArgs.Guild.Id, VoteRating = rating };
 
          foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
          {
@@ -162,13 +156,7 @@ internal class VoteSystem : ApplicationCommandsModule
       {
          if (discordMember != null)
          {
-            SympathySystem sympathySystemObj = new()
-            {
-               VotingUserId = discordMember.Id,
-               VotedUserId = discordTargetMember.Id,
-               GuildId = componentInteractionCreateEventArgs.Guild.Id,
-               VoteRating = rating
-            };
+            SympathySystem sympathySystemObj = new() { VotingUserId = discordMember.Id, VotedUserId = discordTargetMember.Id, GuildId = componentInteractionCreateEventArgs.Guild.Id, VoteRating = rating };
 
             foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
             {
@@ -208,12 +196,7 @@ internal class VoteSystem : ApplicationCommandsModule
       }
 
       description += "```";
-      DiscordEmbedBuilder discordEmbedBuilder = new()
-      {
-         Title = $"Votes for {discordUser.Username}",
-         Color = DiscordColor.Purple,
-         Description = description
-      };
+      DiscordEmbedBuilder discordEmbedBuilder = new() { Title = $"Votes for {discordUser.Username}", Color = DiscordColor.Purple, Description = description };
 
       await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
    }

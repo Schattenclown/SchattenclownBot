@@ -88,13 +88,7 @@ public class Bot : IDisposable
 
       DiscordClient = new DiscordClient(discordConfiguration);
 
-      AppCommands = DiscordClient.UseApplicationCommands(new ApplicationCommandsConfiguration
-      {
-         EnableDefaultHelp = true,
-         DebugStartup = true,
-         ManualOverride = true,
-         CheckAllGuilds = true
-      });
+      AppCommands = DiscordClient.UseApplicationCommands(new ApplicationCommandsConfiguration { EnableDefaultHelp = true, DebugStartup = true, ManualOverride = true, CheckAllGuilds = true });
 
       _commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
       {
@@ -107,13 +101,7 @@ public class Bot : IDisposable
          EnableDms = true
       });
 
-      Extension = DiscordClient.UseInteractivity(new InteractivityConfiguration
-      {
-         PaginationBehaviour = PaginationBehaviour.WrapAround,
-         PaginationDeletion = PaginationDeletion.DeleteMessage,
-         PollBehaviour = PollBehaviour.DeleteEmojis,
-         ButtonBehavior = ButtonPaginationBehavior.Disable
-      });
+      Extension = DiscordClient.UseInteractivity(new InteractivityConfiguration { PaginationBehaviour = PaginationBehaviour.WrapAround, PaginationDeletion = PaginationDeletion.DeleteMessage, PollBehaviour = PollBehaviour.DeleteEmojis, ButtonBehavior = ButtonPaginationBehavior.Disable });
 
       NextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration());
 
@@ -262,11 +250,7 @@ public class Bot : IDisposable
          CwLogger.Write($"Command {command.Value.Name} loaded.", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
       }
 
-      DiscordActivity discordActivity = new()
-      {
-         Name = Custom ? CustomState : "/help",
-         ActivityType = ActivityType.Competing
-      };
+      DiscordActivity discordActivity = new() { Name = Custom ? CustomState : "/help", ActivityType = ActivityType.Competing };
       discordClient.UpdateStatusAsync(discordActivity, Custom ? CustomStatus : UserStatus.Online);
       CwLogger.Write("Bot ready!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Green);
       return Task.CompletedTask;

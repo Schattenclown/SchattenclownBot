@@ -12,11 +12,7 @@ internal class AcoustId
       if (lst == null)
          return null;
 
-      Root obj = new()
-      {
-         Results = lst.Results,
-         Status = lst.Status
-      };
+      Root obj = new() { Results = lst.Results, Status = lst.Status };
 
       return obj;
    }

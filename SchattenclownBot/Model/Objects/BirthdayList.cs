@@ -61,10 +61,7 @@ public class BirthdayList
          if (guildItem.Value.Id == 928930967140331590)
          {
             DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(928938948221366334);
-            DiscordEmbedBuilder eb = new()
-            {
-               Color = DiscordColor.Red
-            };
+            DiscordEmbedBuilder eb = new() { Color = DiscordColor.Red };
             eb.WithDescription(listString);
             await chn.SendMessageAsync(eb.Build());
             break;

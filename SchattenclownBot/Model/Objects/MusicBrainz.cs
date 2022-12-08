@@ -12,11 +12,7 @@ public class MusicBrainz
       if (lst == null)
          return null;
 
-      Root obj = new()
-      {
-         Images = lst.Images,
-         Release = lst.Release
-      };
+      Root obj = new() { Images = lst.Images, Release = lst.Release };
 
       return obj;
    }

@@ -27,12 +27,7 @@ public class GMC
       {
          foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == discordUserID))
          {
-            GMC gMC = new()
-            {
-               DiscordGuild = guildItem,
-               DiscordMember = memberItem,
-               DiscordChannel = memberItem.VoiceState.Channel
-            };
+            GMC gMC = new() { DiscordGuild = guildItem, DiscordMember = memberItem, DiscordChannel = memberItem.VoiceState.Channel };
             return gMC;
          }
       }
@@ -46,11 +41,7 @@ public class GMC
       {
          foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == discordUserID))
          {
-            GMC gMC = new()
-            {
-               DiscordGuild = guildItem,
-               DiscordMember = memberItem
-            };
+            GMC gMC = new() { DiscordGuild = guildItem, DiscordMember = memberItem };
             return gMC;
          }
       }

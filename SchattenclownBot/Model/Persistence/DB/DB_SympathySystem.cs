@@ -18,13 +18,7 @@ public static class DB_SympathySystem
 
       while (mySqlDataReader.Read())
       {
-         SympathySystem sympathySystemObj = new()
-         {
-            VotingUserId = mySqlDataReader.GetUInt64("VotingUserID"),
-            VotedUserId = mySqlDataReader.GetUInt64("VotedUserID"),
-            GuildId = mySqlDataReader.GetUInt64("GuildID"),
-            VoteRating = mySqlDataReader.GetInt32("VoteRating")
-         };
+         SympathySystem sympathySystemObj = new() { VotingUserId = mySqlDataReader.GetUInt64("VotingUserID"), VotedUserId = mySqlDataReader.GetUInt64("VotedUserID"), GuildId = mySqlDataReader.GetUInt64("GuildID"), VoteRating = mySqlDataReader.GetInt32("VoteRating") };
 
          sympathySystemList.Add(sympathySystemObj);
       }

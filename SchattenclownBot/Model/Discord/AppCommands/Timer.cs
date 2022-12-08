@@ -40,12 +40,7 @@ internal class Timer : ApplicationCommandsModule
       }
 
       DateTime dateTimeNow = DateTime.Now;
-      BotTimer botTimer = new()
-      {
-         ChannelId = interactionContext.Channel.Id,
-         MemberId = interactionContext.Member.Id,
-         NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
-      };
+      BotTimer botTimer = new() { ChannelId = interactionContext.Channel.Id, MemberId = interactionContext.Member.Id, NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute) };
       BotTimer.Add(botTimer);
 
       //Edit the Response and add the Embed.
@@ -67,12 +62,7 @@ internal class Timer : ApplicationCommandsModule
       List<BotTimer> botTimerList = DB_BotTimer.ReadAll();
 
       //Create an Embed.
-      DiscordEmbedBuilder discordEmbedBuilder = new()
-      {
-         Title = "Your timers",
-         Color = DiscordColor.Purple,
-         Description = $"<@{interactionContext.Member.Id}>"
-      };
+      DiscordEmbedBuilder discordEmbedBuilder = new() { Title = "Your timers", Color = DiscordColor.Purple, Description = $"<@{interactionContext.Member.Id}>" };
 
       //Switch to check if any Timers where set at all.
       bool noTimers = true;

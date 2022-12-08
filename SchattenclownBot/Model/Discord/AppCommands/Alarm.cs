@@ -48,12 +48,7 @@ internal class Alarm : ApplicationCommandsModule
          alarm = alarm.AddDays(1);
 
       //Create an AlarmObject and add it to the Database.
-      BotAlarmClock botAlarmClock = new()
-      {
-         ChannelId = interactionContext.Channel.Id,
-         MemberId = interactionContext.Member.Id,
-         NotificationTime = alarm
-      };
+      BotAlarmClock botAlarmClock = new() { ChannelId = interactionContext.Channel.Id, MemberId = interactionContext.Member.Id, NotificationTime = alarm };
       BotAlarmClock.Add(botAlarmClock);
 
       //Let the User know that the Alarm was set Successfully.
@@ -75,12 +70,7 @@ internal class Alarm : ApplicationCommandsModule
       List<BotAlarmClock> botAlarmClockList = DB_BotAlarmClocks.ReadAll();
 
       //Create an Embed.
-      DiscordEmbedBuilder discordEmbedBuilder = new()
-      {
-         Title = "Your alarms",
-         Color = DiscordColor.Purple,
-         Description = $"<@{interactionContext.Member.Id}>"
-      };
+      DiscordEmbedBuilder discordEmbedBuilder = new() { Title = "Your alarms", Color = DiscordColor.Purple, Description = $"<@{interactionContext.Member.Id}>" };
 
       //Switch to check if there are any Timers at all.
       bool noTimers = true;

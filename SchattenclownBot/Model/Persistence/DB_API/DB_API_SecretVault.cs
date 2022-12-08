@@ -17,10 +17,7 @@ internal class DB_API_SecretVault
       if (mySqlDataReader != null)
          while (mySqlDataReader.Read())
          {
-            secretVault = new SecretVault
-            {
-               DiscordUserId = mySqlDataReader.GetUInt64("DiscordUserId")
-            };
+            secretVault = new SecretVault { DiscordUserId = mySqlDataReader.GetUInt64("DiscordUserId") };
          }
 
       DB_API_Connection.API_CloseDB(mySqlConnection);

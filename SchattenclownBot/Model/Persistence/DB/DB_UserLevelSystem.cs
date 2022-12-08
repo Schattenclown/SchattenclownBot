@@ -17,11 +17,7 @@ public static class DB_UserLevelSystem
 
       while (mySqlDataReader.Read())
       {
-         UserLevelSystem userLevelSystemObj = new()
-         {
-            MemberId = mySqlDataReader.GetUInt64("MemberId"),
-            OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")
-         };
+         UserLevelSystem userLevelSystemObj = new() { MemberId = mySqlDataReader.GetUInt64("MemberId"), OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks") };
 
          userLevelSystemList.Add(userLevelSystemObj);
       }

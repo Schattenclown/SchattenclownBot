@@ -132,10 +132,7 @@ internal class Poke : ApplicationCommandsModule
    /// <returns></returns>
    public static async Task PokeTask(DiscordInteraction discordInteraction, DiscordMember discordMember, DiscordMember discordTargetMember, bool deleteResponseAsync, int pokeAmount, bool force)
    {
-      DiscordEmbedBuilder discordEmbedBuilder = new()
-      {
-         Title = $"Poke {discordTargetMember.DisplayName}"
-      };
+      DiscordEmbedBuilder discordEmbedBuilder = new() { Title = $"Poke {discordTargetMember.DisplayName}" };
 
       discordEmbedBuilder.WithFooter($"Requested by {discordMember.DisplayName}", discordMember.AvatarUrl);
 

@@ -22,11 +22,7 @@ internal class RegisterForControlPanel : ApplicationCommandsModule
    [SlashCommand("Register" + Bot.isDevBot, "RegisterForControlPanel for the SchattenclownBot control panel!")]
    public static async Task Register(InteractionContext interactionContext)
    {
-      DiscordInteractionModalBuilder interactionModalBuilder = new()
-      {
-         Title = "Register for control panel form",
-         CustomId = "RegisterForm"
-      };
+      DiscordInteractionModalBuilder interactionModalBuilder = new() { Title = "Register for control panel form", CustomId = "RegisterForm" };
 
       interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Small, "Username", "Username", "your username", 3, 16, true, ""));
       interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Small, "Password", "Password", "your password", 8, 16, true, ""));
@@ -47,13 +43,7 @@ internal class RegisterForControlPanel : ApplicationCommandsModule
 
          if (secretVaultRead.DiscordUserId == 0)
          {
-            SecretVault secretVault = new()
-            {
-               DiscordGuildId = eventArgs.Guild.Id,
-               DiscordUserId = eventArgs.User.Id,
-               Username = eventArgs.Interaction.Data.Components[0].Value,
-               SecretKey = SHA256FromString.ComputeSha256Hash(eventArgs.Interaction.Data.Components[1].Value)
-            };
+            SecretVault secretVault = new() { DiscordGuildId = eventArgs.Guild.Id, DiscordUserId = eventArgs.User.Id, Username = eventArgs.Interaction.Data.Components[0].Value, SecretKey = SHA256FromString.ComputeSha256Hash(eventArgs.Interaction.Data.Components[1].Value) };
 
 
             SecretVault.Register(secretVault);

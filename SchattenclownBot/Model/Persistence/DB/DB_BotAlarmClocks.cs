@@ -19,13 +19,7 @@ public class DB_BotAlarmClocks
       if (mySqlDataReader != null)
          while (mySqlDataReader.Read())
          {
-            BotAlarmClock botAlarmClock = new()
-            {
-               DbEntryId = mySqlDataReader.GetInt32("DBEntryID"),
-               NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"),
-               ChannelId = mySqlDataReader.GetUInt64("ChannelId"),
-               MemberId = mySqlDataReader.GetUInt64("MemberId")
-            };
+            BotAlarmClock botAlarmClock = new() { DbEntryId = mySqlDataReader.GetInt32("DBEntryID"), NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"), ChannelId = mySqlDataReader.GetUInt64("ChannelId"), MemberId = mySqlDataReader.GetUInt64("MemberId") };
             botAlarmClockList.Add(botAlarmClock);
          }
 
