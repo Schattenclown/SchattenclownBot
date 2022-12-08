@@ -93,7 +93,7 @@ internal class WhereIs
                               username = discordMemberInChannelItem.Discriminator;
 
                            description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
-                           descriptionForConsole += ""+ username.PadRight(16).Remove(16) + "   |   ";
+                           descriptionForConsole += "" + username.PadRight(16).Remove(16) + "   |   ";
 
                            if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                            {

@@ -74,15 +74,7 @@ public class CSV_Connections
             directory.Create();
 
          StreamWriter streamWriter = new(Filepath.LocalPath);
-         streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" + 
-                                "DiscordBotKeyDebug;<API Key here>\n" + 
-                                "MySqlConStr;<DBConnectionString here>\n" + 
-                                "MySqlConStrDebug;<DBConnectionString here>\n" + 
-                                "MySqlAPIConStr;<DBConnectionString here>\n" + 
-                                "MySqlAPIConStrDebug;<DBConnectionString here>\n" + 
-                                "AcoustIdApiKey;<API Key here>\n" + 
-                                "SpotifyOAuth2;<ClientId-ClientSecret here>\n" +
-                                "TwitchOAuth2;<ClientId-ClientSecret here>");
+         streamWriter.WriteLine("DiscordBotKey;<API Key here>\n" + "DiscordBotKeyDebug;<API Key here>\n" + "MySqlConStr;<DBConnectionString here>\n" + "MySqlConStrDebug;<DBConnectionString here>\n" + "MySqlAPIConStr;<DBConnectionString here>\n" + "MySqlAPIConStrDebug;<DBConnectionString here>\n" + "AcoustIdApiKey;<API Key here>\n" + "SpotifyOAuth2;<ClientId-ClientSecret here>\n" + "TwitchOAuth2;<ClientId-ClientSecret here>");
 
          streamWriter.Close();
          throw new Exception($"{Path.LocalPath}\n" + "API key´s and database strings not configured!");

@@ -1,7 +1,7 @@
-﻿using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Persistence.Connection;
-using System;
+﻿using System;
 using System.Reflection;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Persistence.Connection;
 
 namespace SchattenclownBot.Model.Objects;
 

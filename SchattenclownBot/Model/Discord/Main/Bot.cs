@@ -16,10 +16,10 @@ using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using TwitchLib.Api;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
 
 namespace SchattenclownBot.Model.Discord.Main;
@@ -35,6 +35,7 @@ public class Bot : IDisposable
    public static readonly Connections Connections = Connections.GetConnections();
    public static CancellationTokenSource ShutdownRequest;
    public static DiscordClient DiscordClient;
+   public static DiscordGuild EmojiDiscordGuild;
    public static DiscordChannel DebugDiscordChannel;
    public static ApplicationCommandsExtension AppCommands;
    public InteractivityExtension Extension { get; private set; }
@@ -139,6 +140,19 @@ public class Bot : IDisposable
    public async Task RunAsync()
    {
       await DiscordClient.ConnectAsync();
+
+      bool levelSystemVirgin = true;
+      do
+      {
+         if (Bot.DiscordClient.Guilds.ToList().Count != 0)
+         {
+            EmojiDiscordGuild = DiscordClient.Guilds.Values.FirstOrDefault(x => x.Id == 881868642600505354);
+            levelSystemVirgin = false;
+         }
+
+         await Task.Delay(1000);
+      } while (levelSystemVirgin);
+
 
       await TwitchNotifier.CreateTable_TwitchNotifier();
       _ = TwitchNotifier.Run();

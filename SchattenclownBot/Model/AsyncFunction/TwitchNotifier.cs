@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TwitchLib.Api;
+using TwitchLib.Api.Helix.Models.Games;
+using TwitchLib.Api.Helix.Models.Users.GetUsers;
 using TwitchLib.Api.Services;
 using TwitchLib.Api.Services.Events;
 using TwitchLib.Api.Services.Events.LiveStreamMonitor;
@@ -20,6 +22,7 @@ namespace SchattenclownBot.Model.AsyncFunction
       public ulong DiscordRoleId { get; set; }
       public ulong TwitchUserId { get; set; }
       public string TwitchChannelUrl { get; set; }
+      public DiscordMessage DiscordMessage { get; set; }
       public override string ToString()
       {
          return $"DiscordGuildId:{DiscordGuildId}" +
@@ -140,31 +143,45 @@ namespace SchattenclownBot.Model.AsyncFunction
          {
             if (twitchNotifierItem.TwitchChannelUrl.ToLower() == e.Channel.ToLower())
             {
-               var discordGuild = Bot.DiscordClient.GetGuildAsync(twitchNotifierItem.DiscordGuildId).Result;
-               var discordChannel = Bot.DiscordClient.GetChannelAsync(twitchNotifierItem.DiscordChannelId).Result;
-               var discordRole = discordGuild.GetRole(twitchNotifierItem.DiscordRoleId);
+               DiscordGuild discordGuild = Bot.DiscordClient.GetGuildAsync(twitchNotifierItem.DiscordGuildId).Result;
+               DiscordChannel discordChannel = Bot.DiscordClient.GetChannelAsync(twitchNotifierItem.DiscordChannelId).Result;
+               DiscordRole discordRole = discordGuild.GetRole(twitchNotifierItem.DiscordRoleId);
 
-               TimeSpan upTimeSpan = DateTime.Now - e.Stream.StartedAt;
-
+               TimeSpan upTimeSpan = DateTime.Now.AddHours(-1) - e.Stream.StartedAt;
 
                DiscordEmbedBuilder discordEmbedBuilder = new();
                discordEmbedBuilder.Color = DiscordColor.Purple;
-               discordEmbedBuilder.Title = $"{e.Channel} went Live";
-               discordEmbedBuilder.WithDescription($"{discordRole.Mention}" +
-                                                   $"\n Stream title: {e.Stream.Title}" +
-                                                   $"\n Streamer: {e.Channel}" +
-                                                   $"\n Link: https://www.twitch.tv/{e.Channel}" +
-                                                   $"\n Viewer: {e.Stream.ViewerCount}" +
-                                                   $"\n Game: {e.Stream.GameName}" +
-                                                   $"\n 18+: {e.Stream.IsMature}" +
-                                                   $"\n UpTime: {upTimeSpan}");
+               discordEmbedBuilder.WithDescription($"{discordRole.Mention}");
 
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Game", e.Stream.GameName, true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Stream title", e.Stream.Title, true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Stream", e.Stream.UserName, true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("ViewerCount", e.Stream.ViewerCount.ToString(), true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("18+", e.Stream.IsMature.ToString(), true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("UpTime:", $"{upTimeSpan:hh\\:mm\\:ss}", true));
 
+               discordEmbedBuilder.WithImageUrl(e.Stream.ThumbnailUrl.Replace("{width}", "1920").Replace("{height}", "1080"));
                discordEmbedBuilder.WithUrl($"https://www.twitch.tv/{e.Channel}");
 
-               DiscordLinkButtonComponent discordLinkButtonComponent = new($"https://www.twitch.tv/{e.Channel}", "Open stream");
 
-               _ = discordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordLinkButtonComponent)).Result;
+               if (e.Stream.GameId != null)
+               {
+                  GetGamesResponse getGamesResponse = API.Helix.Games.GetGamesAsync(new List<string> { e.Stream.GameId }).Result;
+                  string gameIconUrl = getGamesResponse.Games[0].BoxArtUrl.Replace("{width}", "285").Replace("{height}", "380");
+                  discordEmbedBuilder.WithThumbnail(gameIconUrl);
+               }
+
+               GetUsersResponse getUsersResponse = API.Helix.Users.GetUsersAsync(new List<string> { e.Stream.UserId }).Result;
+               string userIconUrl = getUsersResponse.Users[0].ProfileImageUrl.Replace("{width}", "400").Replace("{height}", "400");
+               discordEmbedBuilder.WithAuthor($"{e.Stream.UserName} is Live", $"https://www.twitch.tv/{e.Channel}", userIconUrl);
+               discordEmbedBuilder.WithFooter(e.Stream.Title, userIconUrl);
+               discordEmbedBuilder.WithTimestamp(DateTime.Now);
+
+
+               DiscordComponentEmoji discordComponentEmoji = new(Bot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560));
+               DiscordLinkButtonComponent discordLinkButtonComponent = new($"https://www.twitch.tv/{e.Channel}", "Open stream", false, discordComponentEmoji);
+
+               twitchNotifierItem.DiscordMessage = discordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordLinkButtonComponent).WithContent($"https://www.twitch.tv/{e.Channel}")).Result;
             }
          }
 
@@ -173,7 +190,46 @@ namespace SchattenclownBot.Model.AsyncFunction
 
       internal static void Monitor_OnStreamOffline(object sender, OnStreamOfflineArgs e)
       {
-         Console.WriteLine("Monitor_OnStreamOffline");
+         foreach (TwitchNotifier twitchNotifierItem in twitchNotifiers)
+         {
+            if (twitchNotifierItem.DiscordMessage == null)
+               continue;
+
+            TimeSpan upTimeSpan = DateTime.Now.AddHours(-1) - e.Stream.StartedAt;
+
+            DiscordEmbedBuilder discordEmbedBuilder = new();
+            discordEmbedBuilder.Color = DiscordColor.Gray;
+
+
+            GetUsersResponse getUsersResponse = API.Helix.Users.GetUsersAsync(new List<string> { e.Stream.UserId }).Result;
+            string userIconUrl = getUsersResponse.Users[0].ProfileImageUrl.Replace("{width}", "400").Replace("{height}", "400");
+
+            discordEmbedBuilder.WithAuthor($"{e.Stream.UserName} is Offline", $"https://www.twitch.tv/{e.Channel}", userIconUrl);
+            discordEmbedBuilder.WithFooter(e.Stream.Title, userIconUrl);
+
+            string userOfflineImageUrl = getUsersResponse.Users[0].OfflineImageUrl.Replace("{width}", "1920").Replace("{height}", "1080");
+            discordEmbedBuilder.WithImageUrl(userOfflineImageUrl);
+
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Stream", e.Stream.UserName, true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("18+", e.Stream.IsMature.ToString(), true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("UpTime:", $"{upTimeSpan:hh\\:mm\\:ss}", true));
+
+            discordEmbedBuilder.WithUrl($"https://www.twitch.tv/{e.Channel}");
+
+            discordEmbedBuilder.WithTimestamp(DateTime.Now);
+
+            DiscordComponentEmoji discordComponentEmoji = new(Bot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560));
+            DiscordLinkButtonComponent discordLinkButtonComponent = new($"https://www.twitch.tv/{e.Channel}", "Open Twitch", false, discordComponentEmoji);
+
+            try
+            {
+               _ = twitchNotifierItem.DiscordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordLinkButtonComponent));
+            }
+            catch
+            {
+               //ignore
+            }
+         }
       }
 
       internal static void MonitorOnOnServiceTick(object sender, OnServiceTickArgs e)
@@ -183,7 +239,57 @@ namespace SchattenclownBot.Model.AsyncFunction
 
       internal static void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
       {
-         //Console.WriteLine("Monitor_OnStreamUpdate");
+         foreach (TwitchNotifier twitchNotifierItem in twitchNotifiers)
+         {
+            if (twitchNotifierItem.DiscordMessage == null)
+               continue;
+
+            DiscordGuild discordGuild = Bot.DiscordClient.GetGuildAsync(twitchNotifierItem.DiscordGuildId).Result;
+            DiscordRole discordRole = discordGuild.GetRole(twitchNotifierItem.DiscordRoleId);
+
+            TimeSpan upTimeSpan = DateTime.Now.AddHours(-1) - e.Stream.StartedAt;
+
+            DiscordEmbedBuilder discordEmbedBuilder = new();
+            discordEmbedBuilder.Color = DiscordColor.Purple;
+            discordEmbedBuilder.WithDescription($"{discordRole.Mention}");
+
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Game", e.Stream.GameName, true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Stream title", e.Stream.Title, true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("Stream", e.Stream.UserName, true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("ViewerCount", e.Stream.ViewerCount.ToString(), true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("18+", e.Stream.IsMature.ToString(), true));
+            discordEmbedBuilder.AddField(new DiscordEmbedField("UpTime:", $"{upTimeSpan:hh\\:mm\\:ss}", true));
+
+            discordEmbedBuilder.WithImageUrl(e.Stream.ThumbnailUrl.Replace("{width}", "1920").Replace("{height}", "1080"));
+            discordEmbedBuilder.WithUrl($"https://www.twitch.tv/{e.Channel}");
+
+
+            if (e.Stream.GameId != null)
+            {
+               GetGamesResponse getGamesResponse = API.Helix.Games.GetGamesAsync(new List<string> { e.Stream.GameId }).Result;
+               string gameIconUrl = getGamesResponse.Games[0].BoxArtUrl.Replace("{width}", "285").Replace("{height}", "380");
+               discordEmbedBuilder.WithThumbnail(gameIconUrl);
+            }
+
+            GetUsersResponse getUsersResponse = API.Helix.Users.GetUsersAsync(new List<string> { e.Stream.UserId }).Result;
+            string userIconUrl = getUsersResponse.Users[0].ProfileImageUrl.Replace("{width}", "400").Replace("{height}", "400");
+            discordEmbedBuilder.WithAuthor($"{e.Stream.UserName} is Live", $"https://www.twitch.tv/{e.Channel}", userIconUrl);
+            discordEmbedBuilder.WithFooter(e.Stream.Title, userIconUrl);
+            discordEmbedBuilder.WithTimestamp(DateTime.Now);
+
+
+            DiscordComponentEmoji discordComponentEmoji = new(Bot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560));
+            DiscordLinkButtonComponent discordLinkButtonComponent = new($"https://www.twitch.tv/{e.Channel}", "Open stream", false, discordComponentEmoji);
+
+            try
+            {
+               _ = twitchNotifierItem.DiscordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordLinkButtonComponent));
+            }
+            catch
+            {
+               //ignore
+            }
+         }
       }
 
       internal static void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
