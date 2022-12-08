@@ -62,7 +62,7 @@ internal class Poke : ApplicationCommandsModule
    /// <param name="interactionContext">The interactionContext</param>
    /// <param name="discordUser">the discordUser</param>
    /// <returns></returns>
-   [SlashCommand("Poke" + Bot.isDevBot, "Poke discordUser!")]
+   [SlashCommand("Poke" + Bot.isDevBot, "Poke user!")]
    public static async Task Ww(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
    {
       InteractivityExtension interactivityExtension = interactionContext.Client.GetInteractivity();
@@ -94,7 +94,7 @@ internal class Poke : ApplicationCommandsModule
    /// </summary>
    /// <param name="contextMenuContext">The contextMenuContext</param>
    /// <returns></returns>
-   [ContextMenu(ApplicationCommandType.User, "Poke discordUser!")]
+   [ContextMenu(ApplicationCommandType.User, "Poke user!")]
    public static async Task PokeAsync(ContextMenuContext contextMenuContext)
    {
       InteractivityExtension interactivityExtension = contextMenuContext.Client.GetInteractivity();

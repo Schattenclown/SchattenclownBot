@@ -21,7 +21,7 @@ internal class Main : ApplicationCommandsModule
    /// </summary>
    /// <param name="contextMenuContext">The contextMenuContext.</param>
    /// <returns></returns>
-   [ContextMenu(ApplicationCommandType.User, "HandlerReader avatar & banner!")]
+   [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
    public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
    {
       DiscordUser user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);

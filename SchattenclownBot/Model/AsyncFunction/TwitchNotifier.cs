@@ -29,12 +29,12 @@ namespace SchattenclownBot.Model.AsyncFunction
          DiscordChannel discordChannel = Bot.DiscordClient.GetChannelAsync(DiscordChannelId).Result;
          DiscordRole discordRole = discordGuild.GetRole(DiscordRoleId);
 
-         return $"DiscordGuild: {discordGuild.Name}" +
-                $"\nDiscordMember: <@{DiscordMemberId}>" +
-                $"\nDiscordChannel: {discordChannel.Mention}" +
-                $"\nDiscordRole: {discordRole.Mention}" +
-                $"\nTwitchUserId: {TwitchUserId}" +
-                $"\nTwitchChannelUrl: {TwitchChannelUrl}";
+         return $"``{"DiscordGuild:",-18}``{discordGuild.Name}" +
+                $"\n``{"DiscordMember:",-18}``<@{DiscordMemberId}>" +
+                $"\n``{"DiscordChannel:",-18}``{discordChannel.Mention}" +
+                $"\n``{"DiscordRole:",-18}``{discordRole.Mention}" +
+                $"\n``{"TwitchUserId:",-18}``{TwitchUserId}" +
+                $"\n``{"TwitchChannelUrl:",-18}``{TwitchChannelUrl}";
       }
 
       public static List<TwitchNotifier> Read(ulong guildId)
@@ -128,7 +128,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             }
          }
 
-         Monitor = new LiveStreamMonitorService(API, 1);
+         Monitor = new LiveStreamMonitorService(API, 5);
 
          Monitor.SetChannelsByName(list);
          Monitor.OnStreamOnline += Monitor_OnStreamOnline;
@@ -145,7 +145,7 @@ namespace SchattenclownBot.Model.AsyncFunction
       {
          foreach (var twitchNotifierItem in twitchNotifiers)
          {
-            if (twitchNotifierItem.TwitchChannelUrl.ToLower() == e.Channel.ToLower())
+            if (twitchNotifierItem.TwitchChannelUrl.ToLower() == e.Channel.ToLower() && twitchNotifierItem.DiscordMessage == null)
             {
                DiscordGuild discordGuild = Bot.DiscordClient.GetGuildAsync(twitchNotifierItem.DiscordGuildId).Result;
                DiscordChannel discordChannel = Bot.DiscordClient.GetChannelAsync(twitchNotifierItem.DiscordChannelId).Result;
@@ -233,6 +233,8 @@ namespace SchattenclownBot.Model.AsyncFunction
             {
                //ignore
             }
+
+            twitchNotifierItem.DiscordMessage = null;
          }
       }
 

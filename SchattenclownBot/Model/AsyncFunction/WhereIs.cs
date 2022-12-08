@@ -35,6 +35,7 @@ internal class WhereIs
          DiscordChannel discordChannelOtherPlaces = mainGuild.GetChannel(928937150546853919);
          guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result);
          guildList.Remove(Bot.DiscordClient.GetGuildAsync(918232272732319744).Result);
+         guildList.Remove(Bot.DiscordClient.GetGuildAsync(631177569021984811).Result);
 
          while (true)
          {
