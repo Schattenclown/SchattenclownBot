@@ -25,12 +25,12 @@ namespace SchattenclownBot.Model.AsyncFunction
       public DiscordMessage DiscordMessage { get; set; }
       public override string ToString()
       {
-         return $"DiscordGuildId:{DiscordGuildId}" +
-                $"\nDiscordMemberId:{DiscordMemberId}" +
-                $"\nDiscordChannelId:{DiscordChannelId}" +
-                $"\nDiscordRoleId:{DiscordRoleId}" +
-                $"\nTwitchUserId:{TwitchUserId}" +
-                $"\nTwitchChannelUrl:{TwitchChannelUrl}";
+         return $"DiscordGuildId: {DiscordGuildId}" +
+                $"\nDiscordMemberId: <@{DiscordMemberId}>" +
+                $"\nDiscordChannelId: <#{DiscordChannelId}>" +
+                $"\nDiscordRoleId: <@{DiscordRoleId}>" +
+                $"\nTwitchUserId: {TwitchUserId}" +
+                $"\nTwitchChannelUrl: {TwitchChannelUrl}";
       }
 
       public static List<TwitchNotifier> Read(ulong guildId)
