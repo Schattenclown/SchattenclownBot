@@ -33,6 +33,7 @@ internal class RegisterTwitch : ApplicationCommandsModule
 
       List<TwitchNotifier> something = TwitchNotifier.Read(interactionContext.Guild.Id);
 
+<<<<<<< Updated upstream
       /*if (something.Count == 0)
       {*/
       TwitchNotifier twitchNotifierObj = new TwitchNotifier
@@ -58,6 +59,40 @@ internal class RegisterTwitch : ApplicationCommandsModule
             twitchThing = StringCutter.RmUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
 
          twitchNotifierObj.TwitchChannelUrl = twitchThing;
+=======
+         if (something.Count == 0)
+         {
+            var twitchNotifierObj = new TwitchNotifier
+            {
+               DiscordGuildId = interactionContext.Guild.Id,
+               DiscordMemberId = interactionContext.Member.Id,
+               DiscordChannelId = discordTargetChannel.Id,
+               DiscordRoleId = discordTargetRole.Id
+            };
+
+            try
+            {
+               if (Convert.ToUInt64(twitchThing) > 0)
+               {
+                  twitchNotifierObj.TwitchUserId = Convert.ToUInt64(twitchThing);
+               }
+            }
+            catch
+            {
+               //ignore
+            }
+            finally
+            {
+               if (twitchThing.Contains("https://"))
+                  twitchThing = StringCutter.RmUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
+
+               twitchNotifierObj.TwitchChannelUrl = twitchThing;
+            }
+            TwitchNotifier.Add(twitchNotifierObj);
+            TwitchNotifier.SetMonitoring();
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Maybe" + twitchNotifierObj));
+         }
+>>>>>>> Stashed changes
       }
 
       TwitchNotifier.Add(twitchNotifierObj);
