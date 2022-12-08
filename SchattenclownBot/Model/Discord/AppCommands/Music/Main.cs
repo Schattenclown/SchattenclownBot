@@ -1,14 +1,4 @@
-﻿using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.VoiceNext;
-using MetaBrainz.MusicBrainz;
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
-using SpotifyAPI.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -18,6 +8,16 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.VoiceNext;
+using MetaBrainz.MusicBrainz;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Objects;
+using SpotifyAPI.Web;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -211,7 +211,6 @@ internal class Main
 
             if (queueTracksTemp.All(x => x.HasBeenPlayed))
             {
-
                await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue is empty!")));
                QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == gMC.DiscordGuild);
 
@@ -746,7 +745,7 @@ internal class Main
       bool artistInChannel = false;
       foreach (VideoResultFromYTSearch result in results)
       {
-         string[] blacklist = new[] { "instrumental", "bass boosted", "mix", "live", "reagiert" };
+         string[] blacklist = { "instrumental", "bass boosted", "mix", "live", "reagiert" };
 
          foreach (string item in blacklist)
          {
@@ -767,7 +766,9 @@ internal class Main
                artistInChannel = true;
             }
          }
-         if (!artistInChannel && result.VideoSearchResult.Title.ToLower().Contains(artist.ToLower()))
+
+         if (!artistInChannel &&
+             result.VideoSearchResult.Title.ToLower().Contains(artist.ToLower()))
             result.Hits++;
 
 
@@ -794,9 +795,7 @@ internal class Main
 
 
       if (positive.Any())
-      {
          topResults.Add(positive[0]);
-      }
 
       if (negative.Any())
       {
@@ -859,7 +858,7 @@ internal class Main
       {
          Uri Path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
          Uri Filepath = new($"{Path}/MusicDebug.log");
-         StreamWriter streamWriter = new StreamWriter(Filepath.AbsolutePath, true);
+         StreamWriter streamWriter = new(Filepath.AbsolutePath, true);
          streamWriter.Write(something);
          streamWriter.Close();
       }
@@ -1126,7 +1125,6 @@ internal class Main
                Bitmap bitmapAlbumCover = new(new HttpClient().GetStreamAsync(audioDownloadMetaData.Thumbnails[18].Url).Result);
                Color dominantColor = ColorMath.GetDominantColor(bitmapAlbumCover);
                discordEmbedBuilder.Color = new DiscordColor(dominantColor.R, dominantColor.G, dominantColor.B);
-
             }
             catch (Exception e)
             {
