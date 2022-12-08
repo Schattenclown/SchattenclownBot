@@ -120,7 +120,7 @@ internal class WhereIs
                            if (discordMemberInChannelItem.VoiceState.IsSelfStream)
                            {
                               descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
-                              descriptionLineBuilderForConsole += "_-.L";
+                              descriptionLineBuilderForConsole += " L";
                               counter--;
                               counter--;
                            }
@@ -132,7 +132,7 @@ internal class WhereIs
                            }
 
                            description += descriptionLineBuilder + "\n";
-                           descriptionForConsole += descriptionLineBuilderForConsole.Replace("_-.L", "L") + "\n";
+                           descriptionForConsole += descriptionLineBuilderForConsole + "\n";
                         }
 
                         discordThreads = mainGuild.Threads.Values.ToList();
