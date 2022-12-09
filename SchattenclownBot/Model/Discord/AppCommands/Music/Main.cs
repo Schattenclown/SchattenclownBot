@@ -798,7 +798,7 @@ internal class Main
       if (topResults.Any())
       {
          topResults.Sort((ps1, ps2) => TimeSpan.Compare(ps1.OffsetTimeSpan, ps2.OffsetTimeSpan));
-         topResults[0].Hits++;
+         topResults[0].Hits += 2;
       }
 
       results.Clear();
