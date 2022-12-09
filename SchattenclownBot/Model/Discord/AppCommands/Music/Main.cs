@@ -153,7 +153,7 @@ internal class Main
                while (!ffmpegCopyTask.IsCompleted)
                {
                   await Task.Delay(1000);
-
+                  
                   try
                   {
                      if (timeSpanAdvanceInt % 1 == 0)
