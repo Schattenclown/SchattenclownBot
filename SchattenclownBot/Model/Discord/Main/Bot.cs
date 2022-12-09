@@ -143,7 +143,7 @@ public class Bot : IDisposable
 
 
       await TwitchNotifier.CreateTable_TwitchNotifier();
-      //_ = TwitchNotifier.Run();
+      _ = TwitchNotifier.Run();
 
       BotTimer.BotTimerRunAsync();
       BotAlarmClock.BotAlarmClockRunAsync();

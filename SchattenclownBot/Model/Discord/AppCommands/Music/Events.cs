@@ -8,7 +8,6 @@ using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music;
 
@@ -66,14 +65,14 @@ internal class Events
                   DiscordEmbedBuilder discordEmbedBuilder = new();
 
                   List<QueueTrack> queueTracks = Main.QueueTracks.FindAll(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.HasBeenPlayed);
-                     
 
-                     //<a:twitch:1050340762459586560>
-                     //<:spotify:1050436741393297470>
-                     //<:youtube:1050436748578136184>
-                     //<:MusicBrainz:1050439464452894720>
 
-                     for (int i = 0; i < 15; i++)
+                  //<a:twitch:1050340762459586560>
+                  //<:spotify:1050436741393297470>
+                  //<:youtube:1050436748578136184>
+                  //<:MusicBrainz:1050439464452894720>
+
+                  for (int i = 0; i < 15; i++)
                   {
                      if (queueTracks.Count == i)
                         break;

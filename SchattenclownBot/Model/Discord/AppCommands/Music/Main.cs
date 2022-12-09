@@ -153,7 +153,7 @@ internal class Main
                while (!ffmpegCopyTask.IsCompleted)
                {
                   await Task.Delay(1000);
-                  
+
                   try
                   {
                      if (timeSpanAdvanceInt % 1 == 0)
@@ -1117,7 +1117,7 @@ internal class Main
                Console.WriteLine(e);
             }
          }
-         
+
          if (recordingMbId != "")
             discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[<:MusicBrainz:1050439464452894720> Open](https://musicbrainz.org/recording/{recordingMbId})]", true));
 
