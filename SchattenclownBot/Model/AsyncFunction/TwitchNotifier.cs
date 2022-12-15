@@ -314,7 +314,7 @@ internal class TwitchNotifier
          //ignore
       }
 
-      Console.WriteLine("Checked");
+      CwLogger.Write("MonitorOnOnServiceTickChecked", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkMagenta);
    }
 
    internal static void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)

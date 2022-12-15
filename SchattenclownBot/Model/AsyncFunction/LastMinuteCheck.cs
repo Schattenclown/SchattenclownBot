@@ -15,6 +15,7 @@ internal class LastMinuteCheck
    public static bool LevelSystemRoleDistributionRunAsync;
    public static bool CheckBirthdayGz;
    public static bool SympathySystemRunAsync;
+   public static bool TwitchNotifier;
 
    public static void Check(int executeSecond)
    {
@@ -38,6 +39,7 @@ internal class LastMinuteCheck
                LevelSystemRoleDistributionRunAsync = false;
                CheckBirthdayGz = false;
                SympathySystemRunAsync = false;
+               TwitchNotifier = false;
 
                await Task.Delay(60 * 1000);
 
@@ -84,7 +86,7 @@ internal class LastMinuteCheck
                if (CheckBirthdayGz)
                   CwLogger.Write("Last Minute Check, Success", "CheckBirthdayGz", ConsoleColor.Green);
                else
-                  CwLogger.Write("Last Minute Check, Failed", "CheckBirthdayGz", ConsoleColor.Yellow);
+                  CwLogger.Write("Last Minute Check, Waiting", "CheckBirthdayGz", ConsoleColor.Yellow);
             }
          }
       });
