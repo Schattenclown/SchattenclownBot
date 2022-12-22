@@ -125,7 +125,7 @@ internal class TwitchNotifier
             list.Add(twitchNotifierItem.TwitchChannelUrl);
       }
 
-      Monitor = new LiveStreamMonitorService(API, 20);
+      Monitor = new LiveStreamMonitorService(API, 60);
 
       Monitor.SetChannelsByName(list);
       Monitor.OnStreamOnline += Monitor_OnStreamOnline;
