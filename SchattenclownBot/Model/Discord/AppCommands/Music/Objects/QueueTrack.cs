@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SpotifyAPI.Web;
+using System;
 using System.Linq;
-using SpotifyAPI.Web;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 
@@ -9,7 +9,8 @@ public class QueueTrack
    public QueueTrack(GMC gMC, FullTrack fullTrack)
    {
       GMC = gMC;
-      SpotifyUri = new Uri(fullTrack.ExternalUrls.Values.FirstOrDefault());
+      if (fullTrack.ExternalUrls.Values.FirstOrDefault() != null)
+         SpotifyUri = new Uri(fullTrack.ExternalUrls.Values.FirstOrDefault());
       FullTrack = fullTrack;
       Title = fullTrack.Name;
 

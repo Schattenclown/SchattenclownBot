@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using DisCatSharp.Entities;
+﻿using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.VoiceNext;
 using MetaBrainz.MusicBrainz;
@@ -18,6 +8,16 @@ using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using SpotifyAPI.Web;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -624,8 +624,11 @@ internal class Main
          foreach (FullTrack item in fullTracks)
          {
             QueueTrack queueTrack = new(gMC, item);
-            queueTracks.Add(queueTrack);
-            QueueTracks.Add(queueTrack);
+            if (queueTrack.SpotifyUri != null)
+            {
+               queueTracks.Add(queueTrack);
+               QueueTracks.Add(queueTrack);
+            }
          }
 
          _ = Task.Run(async () =>
