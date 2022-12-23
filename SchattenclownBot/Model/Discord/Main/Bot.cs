@@ -66,7 +66,7 @@ public class Bot : IDisposable
 #if DEBUG
       const LogLevel logLevel = LogLevel.Debug;
 #else
-      const LogLevel logLevel = LogLevel.Information;
+      const LogLevel logLevel = LogLevel.Debug;
 #endif
       DiscordConfiguration discordConfiguration = new()
       {

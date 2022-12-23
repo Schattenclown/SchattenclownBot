@@ -150,6 +150,7 @@ internal class Main
                CwLogger.Write($"Playing {queueTrack.Title} - YT:{queueTrack.YouTubeUri} | SY:{queueTrack.SpotifyUri} ON {gMC.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__3", "").Replace("<", ""), ConsoleColor.Yellow);
 
                int timeSpanAdvanceInt = 0;
+               int runAsyncInt = 0;
                while (!ffmpegCopyTask.IsCompleted)
                {
                   await Task.Delay(1000);
@@ -173,6 +174,12 @@ internal class Main
                      break;
                   }
 
+                  if (runAsyncInt % 10 == 0)
+                  {
+                     CwLogger.Write($"Playing Artist: {queueTrack.Artist} Title: {queueTrack.Title} on Guild: {queueTrack.GMC.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
+                  }
+
+                  runAsyncInt++;
                   timeSpanAdvanceInt++;
                }
 
