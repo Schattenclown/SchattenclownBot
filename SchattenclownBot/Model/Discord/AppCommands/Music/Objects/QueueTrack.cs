@@ -8,6 +8,9 @@ public class QueueTrack
 {
    public QueueTrack(GMC gMC, FullTrack fullTrack)
    {
+      if(fullTrack == null)
+         return;
+
       GMC = gMC;
       if (fullTrack.ExternalUrls.Values.FirstOrDefault() != null)
          SpotifyUri = new Uri(fullTrack.ExternalUrls.Values.FirstOrDefault());

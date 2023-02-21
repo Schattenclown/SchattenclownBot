@@ -20,6 +20,7 @@ using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
+using SchattenclownBot.Model.Persistence.DB;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
 
 namespace SchattenclownBot.Model.Discord.Main;
@@ -66,7 +67,7 @@ public class Bot : IDisposable
 #if DEBUG
       const LogLevel logLevel = LogLevel.Debug;
 #else
-      const LogLevel logLevel = LogLevel.Debug;
+      const LogLevel logLevel = LogLevel.Information;
 #endif
       DiscordConfiguration discordConfiguration = new()
       {
@@ -141,7 +142,7 @@ public class Bot : IDisposable
          await Task.Delay(1000);
       } while (levelSystemVirgin);
 
-
+      SpotifyTasks.CreateTable_SpotifyTasks();
       await TwitchNotifier.CreateTable_TwitchNotifier();
       _ = TwitchNotifier.Run();
 
@@ -163,6 +164,10 @@ public class Bot : IDisposable
 #elif DEBUG
       DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
 #endif
+
+
+      /*DiscordMember dcm = Bot.DiscordClient.GetUserAsync(797971024175824936).Result.ConvertToMember(Bot.DiscordClient.GetGuildAsync(985978911840141372).Result).Result;
+      await dcm.DisconnectFromVoiceAsync();*/
 
       while (!ShutdownRequest.IsCancellationRequested)
       {
@@ -212,6 +217,7 @@ public class Bot : IDisposable
       DiscordClient.VoiceStateUpdated += Events.PanicLeaveEvent;
       DiscordClient.VoiceStateUpdated += Events.GotKickedEvent;
       DiscordClient.ComponentInteractionCreated += Events.ButtonPressEvent;
+      DiscordClient.ComponentInteractionCreated += RegisterKey.ButtonPressEvent;
       DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
       DiscordClient.ComponentInteractionCreated += RegisterForControlPanel.RegisterEvent;
    }
@@ -234,6 +240,7 @@ public class Bot : IDisposable
       applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
       applicationCommandsExtension.RegisterGlobalCommands<RegisterForControlPanel>();
       applicationCommandsExtension.RegisterGlobalCommands<RegisterTwitch>();
+      applicationCommandsExtension.RegisterGlobalCommands<RegisterKey>();
    }
 
    private static Task Client_Ready(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
