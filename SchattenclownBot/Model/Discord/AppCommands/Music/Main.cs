@@ -1,14 +1,4 @@
-﻿using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.VoiceNext;
-using MetaBrainz.MusicBrainz;
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Objects;
-using SpotifyAPI.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -18,6 +8,16 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DisCatSharp.Entities;
+using DisCatSharp.Enums;
+using DisCatSharp.VoiceNext;
+using MetaBrainz.MusicBrainz;
+using MetaBrainz.MusicBrainz.Interfaces.Entities;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Objects;
+using SpotifyAPI.Web;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Metadata;
 using YoutubeDLSharp.Options;
@@ -93,7 +93,6 @@ internal class Main
          DiscordEmbedBuilder discordEmbedBuilder = new();
          RunResult<string> audioDownload = default;
          TimeSpan audioDownloadTimeSpan = default;
-         VideoData audioDownloadMetaData = default;
          bool fileExists = false;
 
          if (queueTrack.LocalPath == null)
@@ -108,17 +107,13 @@ internal class Main
                OverwriteFiles = false,
                IgnoreDownloadErrors = false
             };
-
             OptionSet optionSet = new() { AddMetadata = true, AudioQuality = 0 };
-
             optionSet.AddCustomOption("--output", networkDriveUri.AbsolutePath + "%(title)s-%(id)s-%(release_date)s.%(ext)s");
 
             try
             {
                if (queueTrack.SpotifyUri != null)
-               {
                   fileExists = System.IO.File.Exists(@$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
-               }
             }
             catch
             {
@@ -130,7 +125,7 @@ internal class Main
                audioDownload = await youtubeDl.RunAudioDownload(queueTrack.YouTubeUri.AbsoluteUri, AudioConversionFormat.Mp3, new CancellationToken(), null, null, optionSet);
                //var some = await youtubeDl.RunVideoDataFetch(queueTrack.YouTubeUri.AbsoluteUri, cancellationToken);
                //audioDownloadMetaData = youtubeDl.RunVideoDataFetch(queueTrack.YouTubeUri.AbsoluteUri).Result.Data;
-               
+
                // Create a TagLib File object from the MP3 file
                File tagFile = File.Create(audioDownload.Data);
 
@@ -175,41 +170,36 @@ internal class Main
          }
 
 
-
-
-         if (queueTrack.LocalPath == null && audioDownload?.Success == false)
+         if (queueTrack.LocalPath == null &&
+             audioDownload?.Success == false)
          {
             await Bot.DebugDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(audioDownload.ErrorOutput.Aggregate("", (current, Errors) => current + Errors + "\n\n" + queueTrack.YouTubeUri.AbsoluteUri))));
             await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Something went wrong!\n")));
          }
          else
          {
-            DiscordMessage discordMessage;
-            ProcessStartInfo ffmpegProcessStartInfo;
+            string tempPath = "";
 
-            if (queueTrack.LocalPath == null && !fileExists)
+            if (queueTrack.LocalPath == null &&
+                !fileExists)
             {
-               discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(audioDownload.Data), audioDownloadMetaData, null);
-               discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
-
-               ffmpegProcessStartInfo = new ProcessStartInfo { FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{audioDownload.Data}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false };
+               if (audioDownload != null)
+                  tempPath = audioDownload.Data;
             }
             else if (queueTrack.LocalPath == null)
             {
-               await Bot.DebugDiscordChannel.SendMessageAsync(@$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
-               discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(@$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3"), null, null);
-               discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
-
-               ffmpegProcessStartInfo = new ProcessStartInfo { FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{@$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3"}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false };
+               tempPath = @$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
             }
             else
             {
-               await Bot.DebugDiscordChannel.SendMessageAsync(@$"{queueTrack.LocalPath}");
-               discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(@$"{queueTrack.LocalPath}"), null, null);
-               discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
-
-               ffmpegProcessStartInfo = new ProcessStartInfo { FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{@$"{queueTrack.LocalPath}"}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false };
+               tempPath = queueTrack.LocalPath;
             }
+
+            await Bot.DebugDiscordChannel.SendMessageAsync(@$"{tempPath}");
+            discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(@$"{tempPath}"), null, null);
+            DiscordMessage discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
+
+            ProcessStartInfo ffmpegProcessStartInfo = new() { FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{@$"{tempPath}"}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false };
 
 
             Process ffmpegProcess = Process.Start(ffmpegProcessStartInfo);
@@ -368,8 +358,8 @@ internal class Main
 
       QueueTrack item = QueueTracks.First(x => x.GMC.DiscordGuild == gMC.DiscordGuild && !x.HasBeenPlayed);
 
-      int indexOfPlaying = QueueTracks.FindIndex(x => x.GMC.DiscordGuild == item.GMC.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null) || (x.LocalPath == item.LocalPath))) - 1;
-      int indexOfLast = QueueTracks.FindIndex(x => x.GMC.DiscordGuild == item.GMC.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null) || (x.LocalPath == item.LocalPath))) - 2;
+      int indexOfPlaying = QueueTracks.FindIndex(x => x.GMC.DiscordGuild == item.GMC.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null) || x.LocalPath == item.LocalPath)) - 1;
+      int indexOfLast = QueueTracks.FindIndex(x => x.GMC.DiscordGuild == item.GMC.DiscordGuild && ((x.SpotifyUri == item.SpotifyUri && x.SpotifyUri != null && item.SpotifyUri != null) || (x.YouTubeUri == item.YouTubeUri && x.YouTubeUri != null && item.YouTubeUri != null) || x.LocalPath == item.LocalPath)) - 2;
       if (indexOfLast == -1)
       {
          gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Wrong universe!")));
@@ -692,25 +682,28 @@ internal class Main
                            spotifyTasks.DiscordUserId = gMC.DiscordMember.Id;
                            spotifyTasks.DiscordGuildId = gMC.DiscordGuild.Id;
                            spotifyTasks.DiscordChannelId = gMC.DiscordChannel.Id;
-                           spotifyTasks.TrackId = fullTrack.Id;
-                           spotifyTasks.ExternalId = fullTrack.ExternalIds.First().Value;
-                           spotifyTasks.Title = fullTrack.Name;
-                           spotifyTasks.Album = fullTrack.Album.Name;
-                           spotifyTasks.AlbumArtist = fullTrack.Artists.FirstOrDefault().Name;
+                           if (fullTrack != null)
+                           {
+                              spotifyTasks.TrackId = fullTrack.Id;
+                              spotifyTasks.ExternalId = fullTrack.ExternalIds.First().Value;
+                              spotifyTasks.Title = fullTrack.Name;
+                              spotifyTasks.Album = fullTrack.Album.Name;
+                              spotifyTasks.AlbumArtist = fullTrack.Artists.FirstOrDefault().Name;
 
-                           TimeSpan fullTrackDuration = TimeSpan.FromMilliseconds(fullTrack.DurationMs);
-                           string fullTrackDurationString = "";
-                           if (fullTrackDuration.Hours == 0)
-                              fullTrackDurationString = $"{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
-                           else
-                              fullTrackDurationString = $"{fullTrackDuration.Hours:00}:{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
+                              TimeSpan fullTrackDuration = TimeSpan.FromMilliseconds(fullTrack.DurationMs);
+                              string fullTrackDurationString;
+                              if (fullTrackDuration.Hours == 0)
+                                 fullTrackDurationString = $"{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
+                              else
+                                 fullTrackDurationString = $"{fullTrackDuration.Hours:00}:{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
 
-                           spotifyTasks.Comment = fullTrackDurationString;
-                           spotifyTasks.Genre = "";
-                           spotifyTasks.TrackNumber = fullTrack.TrackNumber;
-                           spotifyTasks.Subtitle = "";
+                              spotifyTasks.Comment = fullTrackDurationString;
+                              spotifyTasks.Genre = "";
+                              spotifyTasks.TrackNumber = fullTrack.TrackNumber;
+                              spotifyTasks.Subtitle = "";
 
-                           spotifyTasks.ReleaseYear = fullTrack.Album.ReleaseDate.Length > 4 ? Convert.ToDateTime(fullTrack.Album.ReleaseDate).Year.ToString() : fullTrack.Album.ReleaseDate;
+                              spotifyTasks.ReleaseYear = fullTrack.Album.ReleaseDate.Length > 4 ? Convert.ToDateTime(fullTrack.Album.ReleaseDate).Year.ToString() : fullTrack.Album.ReleaseDate;
+                           }
 
                            SpotifyTasks.INSERT(spotifyTasks);
                            CwLogger.Write($"{counter:00000} Added {spotifyTasks.TrackId}, {spotifyTasks.Title} to the database...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
@@ -728,21 +721,23 @@ internal class Main
                   }
             });
 
-            foreach (PlaylistTrack<IPlayableItem> iPlayableItem in iPlayableItems)
-            {
-               fullTracks.Add(iPlayableItem.Track as FullTrack);
-            }
+            if (iPlayableItems != null)
+               foreach (PlaylistTrack<IPlayableItem> iPlayableItem in iPlayableItems)
+               {
+                  fullTracks.Add(iPlayableItem.Track as FullTrack);
+               }
          }
          else if (determinedStreamingService.IsSpotifyAlbum)
          {
             string albumId = StringCutter.RmAfter(StringCutter.RmUntil(StringCutter.RmUntil(webLink, "/album/", "/album/".Length), ":album:", ":album:".Length), "?si", 0);
             Paging<SimpleTrack> simpleTracks = await spotifyClient.Albums.GetTracks(albumId);
 
-            foreach (SimpleTrack simpleTrack in simpleTracks.Items)
-            {
-               FullTrack fullTrack = await spotifyClient.Tracks.Get(simpleTrack.Id);
-               fullTracks.Add(fullTrack);
-            }
+            if (simpleTracks.Items != null)
+               foreach (SimpleTrack simpleTrack in simpleTracks.Items)
+               {
+                  FullTrack fullTrack = await spotifyClient.Tracks.Get(simpleTrack.Id);
+                  fullTracks.Add(fullTrack);
+               }
          }
          else
          {
@@ -808,7 +803,7 @@ internal class Main
       {
          Uri networkDriveUri = new(@"M:\");
          List<string> allFiles = Directory.GetFiles(networkDriveUri.AbsolutePath).ToList();
-         foreach (var file in allFiles)
+         foreach (string file in allFiles)
          {
             try
             {
@@ -923,8 +918,11 @@ internal class Main
             result.Hits++;
 
 
-         TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
-         result.OffsetTimeSpan = t2 - t1;
+         if (result.VideoSearchResult.Duration != null)
+         {
+            TimeSpan t2 = TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds);
+            result.OffsetTimeSpan = t2 - t1;
+         }
       }
 
       List<VideoResultFromYTSearch> exact = results.FindAll(x => x.OffsetTimeSpan == TimeSpan.FromMilliseconds(0));
@@ -1000,7 +998,8 @@ internal class Main
          something += $"Result number {i}\n";
          something += $"{result.Hits} hints   |   {result.OffsetTimeSpan:mm\\:ss} TimeSpanOffset\n";
 
-         something += $"{TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds):mm\\:ss}   |   " + $"{result.VideoSearchResult.Author.ChannelTitle}   -   " + $"{result.VideoSearchResult.Title}\n";
+         if (result.VideoSearchResult.Duration != null)
+            something += $"{TimeSpan.FromMilliseconds(result.VideoSearchResult.Duration.Value.TotalMilliseconds):mm\\:ss}   |   " + $"{result.VideoSearchResult.Author.ChannelTitle}   -   " + $"{result.VideoSearchResult.Title}\n";
          something += result.VideoSearchResult.Url + "\n";
          i++;
       }
@@ -1040,7 +1039,7 @@ internal class Main
          }
       }
 
-      return new Uri(results.FirstOrDefault().VideoSearchResult.Url);
+      return new Uri(results.FirstOrDefault()?.VideoSearchResult.Url ?? string.Empty);
    }
 
    internal static Task StopMusicTask(GMC gMC, bool sendStopped)
@@ -1184,11 +1183,7 @@ internal class Main
          bool needAlbum = true;
          string albumTitle = "";
          string recordingMbId = "";
-         if (audioDownloadMetaData != null)
-         {
-            discordEmbedBuilder.Title = audioDownloadMetaData.Title;
-            discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
-         }
+
          if (queueTrack.YouTubeUri != null)
             discordEmbedBuilder.WithUrl(queueTrack.YouTubeUri.AbsoluteUri);
 
@@ -1218,52 +1213,52 @@ internal class Main
                discordEmbedBuilder.Title = fullTrack.Name;
                discordEmbedBuilder.WithAuthor(fullTrack.Artists.First().Name);
                discordEmbedBuilder.WithUrl(queueTrack.SpotifyUri.AbsoluteUri);
+            }
 
-               try
-               {
-                  // Create a TagLib File object from the MP3 file
-                  File tagFile = File.Create(@$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
-
-                  // Get the length property of the file
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Title", tagFile.Tag.Title, true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("FirstAlbumArtist", tagFile.Tag.FirstAlbumArtist, true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagFile.Tag.Album, true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Hours:#00}:{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", "NULL", true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Year", tagFile.Tag.Year.ToString(), true));
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("AudioBitrate", tagFile.Properties.AudioBitrate.ToString(), true));
-               }
-               catch
-               {
-                  //ignore
-               }
+            if (audioDownloadMetaData != null)
+            {
+               discordEmbedBuilder.Title = audioDownloadMetaData.Title;
+               discordEmbedBuilder.WithAuthor(audioDownloadMetaData.Creator);
             }
          }
 
-         if (queueTrack.LocalPath != null)
-         {
+         string tempPath = "";
+
+         if (queueTrack.SpotifyUri != null)
+            tempPath = @$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
+         else if (queueTrack.LocalPath != null)
+            tempPath = queueTrack.LocalPath;
+         else if (filePathUri.LocalPath != "")
+            tempPath = filePathUri.LocalPath;
+
+         if (tempPath != "")
             try
             {
-               // Create a TagLib File object from the MP3 file
-               File tagFile = File.Create(@$"{queueTrack.LocalPath}");
+               File tagFile = File.Create(@$"{tempPath}");
 
-               // Get the length property of the file
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Title", tagFile.Tag.Title, true));
-               discordEmbedBuilder.AddField(new DiscordEmbedField("FirstAlbumArtist", tagFile.Tag.FirstAlbumArtist, true));
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagFile.Tag.Album, true));
+               if (tagFile.Tag.Title != null)
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Title", tagFile.Tag.Title, true));
+               if (tagFile.Tag.FirstAlbumArtist != null)
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("FirstAlbumArtist", tagFile.Tag.FirstAlbumArtist, true));
+               if (tagFile.Tag.Album != null)
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagFile.Tag.Album, true));
                if (tagFile.Properties.Duration.Hours == 0)
                   discordEmbedBuilder.AddField(new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true));
                else
                   discordEmbedBuilder.AddField(new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Hours:#00}:{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true));
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Year", tagFile.Tag.Year.ToString(), true));
+
+
                discordEmbedBuilder.AddField(new DiscordEmbedField("AudioBitrate", tagFile.Properties.AudioBitrate.ToString(), true));
-               filePathUri = new Uri(queueTrack.LocalPath);
+
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Year", tagFile.Tag.Year.ToString(), true));
+
+               if (queueTrack.LocalPath != null)
+                  filePathUri = new Uri(tempPath);
             }
             catch
             {
                //ignore
             }
-         }
 
          AcoustId.Root acoustIdRoot = AcoustIdFromFingerPrint(filePathUri);
          if (acoustIdRoot.Results?.Count > 0 &&
