@@ -199,7 +199,7 @@ internal class Main
             discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(@$"{tempPath}"), null, null);
             DiscordMessage discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
 
-            ProcessStartInfo ffmpegProcessStartInfo = new() { FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{@$"{tempPath}"}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false };
+            ProcessStartInfo ffmpegProcessStartInfo = new() { FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{tempPath}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false };
 
 
             Process ffmpegProcess = Process.Start(ffmpegProcessStartInfo);
@@ -208,7 +208,8 @@ internal class Main
                voiceTransmitSink = voiceNextConnection.GetTransmitSink();
                voiceTransmitSink.VolumeModifier = 0.2;
                Stream ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
-               Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink);
+               //maybe problem
+               Task ffmpegCopyTask = ffmpegStream.CopyToAsync(voiceTransmitSink, cancellationToken: cancellationToken);
 
                CwLogger.Write($"Playing {queueTrack.Title} - YT:{queueTrack.YouTubeUri} | SY:{queueTrack.SpotifyUri} ON {gMC.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__3", "").Replace("<", ""), ConsoleColor.Yellow);
 
@@ -216,7 +217,8 @@ internal class Main
                int runAsyncInt = 0;
                while (!ffmpegCopyTask.IsCompleted)
                {
-                  await Task.Delay(500);
+                  //maybe problem
+                  await Task.Delay(500, cancellationToken);
 
                   try
                   {
@@ -241,7 +243,8 @@ internal class Main
                      CwLogger.Write($"Playing Artist: {queueTrack.Artist} Title: {queueTrack.Title} on Guild: {queueTrack.GMC.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
 
                   runAsyncInt++;
-                  await Task.Delay(500);
+                  //maybe problem
+                  await Task.Delay(500, cancellationToken);
                   timeSpanAdvanceInt++;
                }
 
@@ -267,7 +270,7 @@ internal class Main
       finally
       {
          if (voiceTransmitSink != null)
-            await voiceTransmitSink.FlushAsync();
+            await voiceTransmitSink.FlushAsync(cancellationToken); //maybe problem
 
          if (!cancellationToken.IsCancellationRequested)
          {
@@ -595,11 +598,7 @@ internal class Main
             }
             else
             {
-               string selectedVideoId;
-               if (webLink.Contains("youtu.be"))
-                  selectedVideoId = StringCutter.RmAfter(StringCutter.RmUntil(webLink, "youtu.be/", "youtu.be/".Length), "&list=", 0);
-               else
-                  selectedVideoId = StringCutter.RmAfter(StringCutter.RmUntil(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
+               string selectedVideoId = StringCutter.RmAfter(webLink.Contains("youtu.be") ? StringCutter.RmUntil(webLink, "youtu.be/", "youtu.be/".Length) : StringCutter.RmUntil(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
 
                Video videoData = await youtubeClient.Videos.GetAsync("https://www.youtube.com/watch?v=" + selectedVideoId);
 
@@ -677,25 +676,18 @@ internal class Main
 
                         if (some.All(x => fullTrack != null && x.TrackId != fullTrack.Id))
                         {
-                           SpotifyTasks spotifyTasks = new();
+                           SpotifyTasks spotifyTasks = new() { DiscordUserId = gMC.DiscordMember.Id, DiscordGuildId = gMC.DiscordGuild.Id, DiscordChannelId = gMC.DiscordChannel.Id };
 
-                           spotifyTasks.DiscordUserId = gMC.DiscordMember.Id;
-                           spotifyTasks.DiscordGuildId = gMC.DiscordGuild.Id;
-                           spotifyTasks.DiscordChannelId = gMC.DiscordChannel.Id;
                            if (fullTrack != null)
                            {
                               spotifyTasks.TrackId = fullTrack.Id;
                               spotifyTasks.ExternalId = fullTrack.ExternalIds.First().Value;
                               spotifyTasks.Title = fullTrack.Name;
                               spotifyTasks.Album = fullTrack.Album.Name;
-                              spotifyTasks.AlbumArtist = fullTrack.Artists.FirstOrDefault().Name;
+                              spotifyTasks.AlbumArtist = fullTrack.Artists.FirstOrDefault()?.Name;
 
                               TimeSpan fullTrackDuration = TimeSpan.FromMilliseconds(fullTrack.DurationMs);
-                              string fullTrackDurationString;
-                              if (fullTrackDuration.Hours == 0)
-                                 fullTrackDurationString = $"{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
-                              else
-                                 fullTrackDurationString = $"{fullTrackDuration.Hours:00}:{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
+                              string fullTrackDurationString = fullTrackDuration.Hours == 0 ? $"{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}" : $"{fullTrackDuration.Hours:00}:{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
 
                               spotifyTasks.Comment = fullTrackDurationString;
                               spotifyTasks.Genre = "";
@@ -711,7 +703,8 @@ internal class Main
                         }
                         else
                         {
-                           CwLogger.Write($"{counter:00000} {fullTrack.Id}, {fullTrack.Name} is already in database...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
+                           if (fullTrack != null)
+                              CwLogger.Write($"{counter:00000} {fullTrack.Id}, {fullTrack.Name} is already in database...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
                         }
                      }
                      catch (Exception e)
@@ -1242,10 +1235,7 @@ internal class Main
                   discordEmbedBuilder.AddField(new DiscordEmbedField("FirstAlbumArtist", tagFile.Tag.FirstAlbumArtist, true));
                if (tagFile.Tag.Album != null)
                   discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagFile.Tag.Album, true));
-               if (tagFile.Properties.Duration.Hours == 0)
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true));
-               else
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Hours:#00}:{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true));
+               discordEmbedBuilder.AddField(tagFile.Properties.Duration.Hours == 0 ? new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true) : new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Hours:#00}:{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true));
 
 
                discordEmbedBuilder.AddField(new DiscordEmbedField("AudioBitrate", tagFile.Properties.AudioBitrate.ToString(), true));
