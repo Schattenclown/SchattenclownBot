@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DisCatSharp.ApplicationCommands;
+﻿using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -11,6 +7,10 @@ using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Extensions;
 using SchattenclownBot.Model.Discord.Main;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
@@ -118,6 +118,19 @@ internal class Poke : ApplicationCommandsModule
       {
          await contextMenuContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Timed out!"));
       }
+   }
+
+   /// <summary>
+   ///    Poke an User per contextmenu.
+   /// </summary>
+   /// <param name="contextMenuContext">The contextMenuContext</param>
+   /// <returns></returns>
+   [ContextMenu(ApplicationCommandType.User, "Poke user Instant!")]
+   public static async Task InstantPokeAsync(ContextMenuContext contextMenuContext)
+   {
+      await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().WithContent($"Poke discordUser <@{contextMenuContext.TargetMember.Id}>!"));
+
+      await PokeTask(contextMenuContext.Interaction, contextMenuContext.Member, contextMenuContext.TargetMember, false, 4, true);
    }
 
    /// <summary>

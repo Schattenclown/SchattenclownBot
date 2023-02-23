@@ -8,6 +8,7 @@ internal class DeterminedStreamingService
    public bool IsSpotify { get; set; }
    public bool IsSpotifyPlaylist { get; set; }
    public bool IsSpotifyAlbum { get; set; }
+   public bool IsLocal { get; set; }
    public bool Nothing { get; set; }
 
    public DeterminedStreamingService IdentifyStreamingService(string webLink)
@@ -42,6 +43,10 @@ internal class DeterminedStreamingService
          else if (webLink.Contains("/album/") ||
                   webLink.Contains(":album:"))
             result.IsSpotifyAlbum = true;
+      }
+      else if (webLink.Contains("127.0.0.1"))
+      {
+         result.IsLocal = true;
       }
       else
       {

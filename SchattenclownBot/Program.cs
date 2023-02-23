@@ -23,7 +23,7 @@ internal class Program
       try
       {
 #pragma warning disable CA1416
-         Console.SetWindowSize(300, 30);
+         Console.SetWindowSize(250, 30);
       }
       catch (Exception)
       {

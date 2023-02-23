@@ -35,11 +35,21 @@ public class QueueTrack
       IsAdded = true;
    }
 
+   public QueueTrack(GMC gMC, string localPath, string title, string artist)
+   {
+      GMC = gMC;
+      LocalPath = localPath;
+      Title = title;
+      Artist = artist;
+      IsAdded = true;
+   }
+
    public GMC GMC { get; set; }
    public string Title { get; set; }
    public string Artist { get; set; }
    public Uri YouTubeUri { get; set; }
    public Uri SpotifyUri { get; set; }
+   public string LocalPath { get; set; }
    public FullTrack FullTrack { get; set; }
    public bool IsAdded { get; set; }
    public bool HasBeenPlayed { get; set; }
