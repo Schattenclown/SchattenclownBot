@@ -43,8 +43,8 @@ internal class DB_Connection
       MySqlConnection connection = OpenDB();
       MySqlCommand sqlCommand = new(sql, connection);
       int ret = sqlCommand.ExecuteNonQuery();
-      /*if (ret != -1)
-         CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);*/
+      if (ret != -1)
+         CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
 
       CloseDB(connection);
    }

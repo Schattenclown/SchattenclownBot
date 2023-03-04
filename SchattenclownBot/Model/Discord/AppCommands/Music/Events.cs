@@ -1,13 +1,13 @@
-﻿using DisCatSharp;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using DisCatSharp;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.VoiceNext;
 using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music;
 
@@ -31,71 +31,71 @@ internal class Events
          switch (eventArgs.Id)
          {
             case "PreviousTrackStream":
-               {
-                  Main.PlayPreviousTrackFromQueue(gMC);
-                  break;
-               }
+            {
+               Main.PlayPreviousTrackFromQueue(gMC);
+               break;
+            }
             case "NextTrackStream":
-               {
-                  Main.PlayNextTrackFromQueue(gMC);
-                  break;
-               }
+            {
+               Main.PlayNextTrackFromQueue(gMC);
+               break;
+            }
             case "StopTrackStream":
-               {
-                  _ = Main.StopMusicTask(new GMC(eventArgs.Guild, discordMember, eventArgs.Channel), false);
-                  break;
-               }
+            {
+               _ = Main.StopMusicTask(new GMC(eventArgs.Guild, discordMember, eventArgs.Channel), false);
+               break;
+            }
             case "ShuffleStream":
-               {
-                  DiscordMessage discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested!")));
-                  _ = Main.ShuffleQueueTracksAsyncTask(gMC, discordMessage);
-                  break;
-               }
+            {
+               DiscordMessage discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested!")));
+               _ = Main.ShuffleQueueTracksAsyncTask(gMC, discordMessage);
+               break;
+            }
             case "ShowQueueStream":
+            {
+               DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Loading!"))).Result;
+
+               if (Main.QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild && x.HasBeenPlayed))
                {
-                  DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Loading!"))).Result;
-
-                  if (Main.QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild && x.HasBeenPlayed))
-                  {
-                     await discordMessage.ModifyAsync("Queue is empty!");
-                  }
-                  else
-                  {
-                     string descriptionString = "";
-                     DiscordEmbedBuilder discordEmbedBuilder = new();
-
-                     List<QueueTrack> queueTracks = Main.QueueTracks.FindAll(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.HasBeenPlayed);
-
-
-                     //<a:twitch:1050340762459586560>
-                     //<:spotify:1050436741393297470>
-                     //<:youtube:1050436748578136184>
-                     //<:MusicBrainz:1050439464452894720>
-
-                     for (int i = 0; i < 15; i++)
-                     {
-                        if (queueTracks.Count == i)
-                           break;
-                        if (queueTracks[i].LocalPath == null)
-                        {
-                           if (queueTracks[i].FullTrack != null)
-                              descriptionString += "[<:youtube:1050436748578136184> [YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + "[<:spotify:1050436741393297470> [Spotify]" + $"({queueTracks[i].SpotifyUri.AbsoluteUri})]  " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
-                           else
-                              descriptionString += "[<:youtube:1050436748578136184> [YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
-                        }
-                        else
-                        {
-                           descriptionString += "[<:drive:1078293568151625729>] [Local] " + $"{queueTracks[i].LocalPath}) " + "\n";
-                        }
-                     }
-
-                     discordEmbedBuilder.Title = $"{queueTracks.Count} Track/s in queue!";
-                     discordEmbedBuilder.WithDescription(descriptionString);
-                     await discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder));
-                  }
-
-                  break;
+                  await discordMessage.ModifyAsync("Queue is empty!");
                }
+               else
+               {
+                  string descriptionString = "";
+                  DiscordEmbedBuilder discordEmbedBuilder = new();
+
+                  List<QueueTrack> queueTracks = Main.QueueTracks.FindAll(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.HasBeenPlayed);
+
+
+                  //<a:twitch:1050340762459586560>
+                  //<:spotify:1050436741393297470>
+                  //<:youtube:1050436748578136184>
+                  //<:MusicBrainz:1050439464452894720>
+
+                  for (int i = 0; i < 15; i++)
+                  {
+                     if (queueTracks.Count == i)
+                        break;
+                     if (queueTracks[i].LocalPath == null)
+                     {
+                        if (queueTracks[i].FullTrack != null)
+                           descriptionString += "[<:youtube:1050436748578136184> [YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + "[<:spotify:1050436741393297470> [Spotify]" + $"({queueTracks[i].SpotifyUri.AbsoluteUri})]  " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
+                        else
+                           descriptionString += "[<:youtube:1050436748578136184> [YouTube]" + $"({queueTracks[i].YouTubeUri.AbsoluteUri})] " + queueTracks[i].Title + " - " + queueTracks[i].Artist + "\n";
+                     }
+                     else
+                     {
+                        descriptionString += "[<:drive:1078293568151625729>] [Local] " + $"{queueTracks[i].LocalPath}) " + "\n";
+                     }
+                  }
+
+                  discordEmbedBuilder.Title = $"{queueTracks.Count} Track/s in queue!";
+                  discordEmbedBuilder.WithDescription(descriptionString);
+                  await discordMessage.ModifyAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder));
+               }
+
+               break;
+            }
          }
       }
    }

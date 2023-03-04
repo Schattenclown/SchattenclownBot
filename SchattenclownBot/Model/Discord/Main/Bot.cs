@@ -20,7 +20,6 @@ using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-using SchattenclownBot.Model.Persistence.DB;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
 
 namespace SchattenclownBot.Model.Discord.Main;
@@ -216,6 +215,7 @@ public class Bot : IDisposable
       //DiscordClient.VoiceStateUpdated += NewChannelCheck.CheckTask;
       DiscordClient.VoiceStateUpdated += Events.PanicLeaveEvent;
       DiscordClient.VoiceStateUpdated += Events.GotKickedEvent;
+      DiscordClient.VoiceStateUpdated += AutoKickEvent.ConnectedEvent;
       DiscordClient.ComponentInteractionCreated += Events.ButtonPressEvent;
       DiscordClient.ComponentInteractionCreated += RegisterKey.ButtonPressEvent;
       DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;

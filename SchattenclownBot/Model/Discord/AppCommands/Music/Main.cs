@@ -598,7 +598,7 @@ internal class Main
             }
             else
             {
-               string selectedVideoId = StringCutter.RmAfter(webLink.Contains("youtu.be") ? StringCutter.RmUntil(webLink, "youtu.be/", "youtu.be/".Length) : StringCutter.RmUntil(webLink, "watch?v=", "watch?v=".Length), "&list=", 0);
+               string selectedVideoId = StringCutter.RmAfter(StringCutter.RmAfter(webLink.Contains("youtu.be") ? StringCutter.RmUntil(webLink, "youtu.be/", "youtu.be/".Length) : StringCutter.RmUntil(webLink, "watch?v=", "watch?v=".Length), "&list=", 0), "&t=", 0);
 
                Video videoData = await youtubeClient.Videos.GetAsync("https://www.youtube.com/watch?v=" + selectedVideoId);
 

@@ -1,12 +1,12 @@
-﻿using DisCatSharp.Entities;
-using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.HelpClasses;
-using SchattenclownBot.Model.Persistence.DB;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DisCatSharp.Entities;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.HelpClasses;
+using SchattenclownBot.Model.Persistence.DB;
 using TwitchLib.Api;
 using TwitchLib.Api.Helix.Models.Games;
 using TwitchLib.Api.Helix.Models.Streams.GetStreams;
@@ -125,7 +125,7 @@ internal class TwitchNotifier
             list.Add(twitchNotifierItem.TwitchChannelUrl);
       }
 
-      Monitor = new LiveStreamMonitorService(API, 60);
+      Monitor = new LiveStreamMonitorService(API);
 
       Monitor.SetChannelsByName(list);
       Monitor.OnStreamOnline += Monitor_OnStreamOnline;
@@ -201,7 +201,7 @@ internal class TwitchNotifier
 
          if (twitchNotifierItem.DiscordMessage == null)
             continue;
-         
+
          TimeSpan upTimeSpan = DateTime.Now.AddHours(-1) - e.Stream.StartedAt;
 
          DiscordEmbedBuilder discordEmbedBuilder = new();

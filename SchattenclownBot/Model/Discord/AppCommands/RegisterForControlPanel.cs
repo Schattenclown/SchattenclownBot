@@ -1,4 +1,5 @@
-﻿using DisCatSharp;
+﻿using System.Threading.Tasks;
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -8,7 +9,6 @@ using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -52,7 +52,6 @@ internal class RegisterForControlPanel : ApplicationCommandsModule
       }
 
       await interactionContext.DeleteResponseAsync();
-
    }
 
    public static async Task RegisterEvent(DiscordClient sender, ComponentInteractionCreateEventArgs eventArgs)

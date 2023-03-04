@@ -31,7 +31,7 @@ internal class WhereIs
             await Task.Delay(1000);
          } while (guildList.Count == 0);
 
-         foreach (var guild in guildList)
+         foreach (DiscordGuild guild in guildList)
          {
             CwLogger.Write($"Guild: {guild.Id} {guild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
          }

@@ -1,6 +1,6 @@
-﻿using SpotifyAPI.Web;
-using System;
+﻿using System;
 using System.Linq;
+using SpotifyAPI.Web;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 
@@ -8,7 +8,7 @@ public class QueueTrack
 {
    public QueueTrack(GMC gMC, FullTrack fullTrack)
    {
-      if(fullTrack == null)
+      if (fullTrack == null)
          return;
 
       GMC = gMC;

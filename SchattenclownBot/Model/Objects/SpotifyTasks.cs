@@ -1,5 +1,5 @@
-﻿using SchattenclownBot.Model.Persistence.DB;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using SchattenclownBot.Model.Persistence.DB;
 
 namespace SchattenclownBot.Model.Objects;
 

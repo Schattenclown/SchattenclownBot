@@ -1,4 +1,10 @@
-﻿using DisCatSharp;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -6,12 +12,6 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
-using System;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchattenclownBot.Model.Discord.AppCommands;
 
@@ -23,6 +23,7 @@ internal class RegisterKey : ApplicationCommandsModule
    /// <param name="interactionContext">The interactionContext</param>
    /// <returns></returns>
    [SlashCommand("RegisterKey" + Bot.isDevBot, "Add Twitch notifier!")]
+   [Obsolete("Obsolete")]
    public static async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Key", "Key.")] string key)
    {
       await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -43,7 +44,8 @@ internal class RegisterKey : ApplicationCommandsModule
       await interactionContext.Channel.SendMessageAsync(new DiscordMessageBuilder().WithContent(encrypted).AddComponents(discordComponent));
    }
 
-   static string Encrypt(string textToEncrypt)
+   [Obsolete("Obsolete")]
+   private static string Encrypt(string textToEncrypt)
    {
       try
       {
@@ -51,13 +53,13 @@ internal class RegisterKey : ApplicationCommandsModule
          string publickey = "12345678";
          string secretkey = "87654321";
          byte[] secretkeyByte = { };
-         secretkeyByte = System.Text.Encoding.UTF8.GetBytes(secretkey);
+         secretkeyByte = Encoding.UTF8.GetBytes(secretkey);
          byte[] publickeybyte = { };
-         publickeybyte = System.Text.Encoding.UTF8.GetBytes(publickey);
+         publickeybyte = Encoding.UTF8.GetBytes(publickey);
          MemoryStream ms = null;
          CryptoStream cs = null;
-         byte[] inputbyteArray = System.Text.Encoding.UTF8.GetBytes(textToEncrypt);
-         using (DESCryptoServiceProvider des = new DESCryptoServiceProvider())
+         byte[] inputbyteArray = Encoding.UTF8.GetBytes(textToEncrypt);
+         using (DESCryptoServiceProvider des = new())
          {
             ms = new MemoryStream();
             cs = new CryptoStream(ms, des.CreateEncryptor(publickeybyte, secretkeyByte), CryptoStreamMode.Write);
@@ -74,28 +76,30 @@ internal class RegisterKey : ApplicationCommandsModule
       }
    }
 
+   [Obsolete("Obsolete")]
    internal static async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
    {
       switch (eventArgs.Id)
       {
          case "ClaimKey":
-            {
-               string decrypted = Decrypt(eventArgs.Message.Content);
+         {
+            string decrypted = Decrypt(eventArgs.Message.Content);
 
-               DiscordComponentEmoji discordComponentEmojisPrevious = new("🔑");
-               DiscordComponent[] discordComponent = new DiscordComponent[1];
-               discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "ClaimKey", "Claim Key!", true, discordComponentEmojisPrevious);
-               
-               await eventArgs.Message.ModifyAsync(x => x.WithContent("Claimed").AddComponents(discordComponent));
+            DiscordComponentEmoji discordComponentEmojisPrevious = new("🔑");
+            DiscordComponent[] discordComponent = new DiscordComponent[1];
+            discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "ClaimKey", "Claim Key!", true, discordComponentEmojisPrevious);
 
-               await eventArgs.User.SendMessageAsync(new DiscordMessageBuilder().WithContent(decrypted));
+            await eventArgs.Message.ModifyAsync(x => x.WithContent("Claimed").AddComponents(discordComponent));
 
-               break;
-            }
+            await eventArgs.User.SendMessageAsync(new DiscordMessageBuilder().WithContent(decrypted));
+
+            break;
+         }
       }
    }
 
-   static string Decrypt(string textToDecrypt)
+   [Obsolete("Obsolete")]
+   private static string Decrypt(string textToDecrypt)
    {
       try
       {
@@ -103,14 +107,14 @@ internal class RegisterKey : ApplicationCommandsModule
          string publickey = "12345678";
          string secretkey = "87654321";
          byte[] privatekeyByte = { };
-         privatekeyByte = System.Text.Encoding.UTF8.GetBytes(secretkey);
+         privatekeyByte = Encoding.UTF8.GetBytes(secretkey);
          byte[] publickeybyte = { };
-         publickeybyte = System.Text.Encoding.UTF8.GetBytes(publickey);
+         publickeybyte = Encoding.UTF8.GetBytes(publickey);
          MemoryStream ms = null;
          CryptoStream cs = null;
          byte[] inputbyteArray = new byte[textToDecrypt.Replace(" ", "+").Length];
          inputbyteArray = Convert.FromBase64String(textToDecrypt.Replace(" ", "+"));
-         using (DESCryptoServiceProvider des = new DESCryptoServiceProvider())
+         using (DESCryptoServiceProvider des = new())
          {
             ms = new MemoryStream();
             cs = new CryptoStream(ms, des.CreateDecryptor(publickeybyte, privatekeyByte), CryptoStreamMode.Write);
@@ -119,6 +123,7 @@ internal class RegisterKey : ApplicationCommandsModule
             Encoding encoding = Encoding.UTF8;
             ToReturn = encoding.GetString(ms.ToArray());
          }
+
          return ToReturn;
       }
       catch (Exception ae)
