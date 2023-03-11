@@ -1083,7 +1083,7 @@ internal class Main
       if (cancellationToken.IsCancellationRequested)
          descriptionString = "▶️";
 
-      if (playerAdvanceTimeSpan.Hours != 0)
+      if (totalTimeSpan.Hours != 0)
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
       else
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
@@ -1106,7 +1106,7 @@ internal class Main
 
       string playerAdvanceString = PlayerAdvance(timeSpanAdvanceInt, totalTimeSpan);
 
-      if (playerAdvanceTimeSpan.Hours != 0)
+      if (totalTimeSpan.Hours != 0)
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
       else
          descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
