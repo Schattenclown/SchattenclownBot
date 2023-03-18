@@ -9,6 +9,7 @@ public class SpotifyTasks
    public ulong DiscordUserId { get; set; }
    public ulong DiscordGuildId { get; set; }
    public ulong DiscordChannelId { get; set; }
+   public int DurationInMs { get; set; }
    public string TrackId { get; set; }
    public string ExternalId { get; set; }
    public string Title { get; set; }

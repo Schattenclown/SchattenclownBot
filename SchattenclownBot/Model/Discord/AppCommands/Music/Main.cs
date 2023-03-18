@@ -682,6 +682,7 @@ internal class Main
 
                            if (fullTrack != null)
                            {
+                              spotifyTasks.DurationInMs = fullTrack.DurationMs;
                               spotifyTasks.TrackId = fullTrack.Id;
                               spotifyTasks.ExternalId = fullTrack.ExternalIds.First().Value;
                               spotifyTasks.Title = fullTrack.Name;
@@ -776,6 +777,7 @@ internal class Main
 
                   if (fullTrack != null)
                   {
+                     spotifyTasks.DurationInMs = fullTrack.DurationMs;
                      spotifyTasks.TrackId = fullTrack.Id;
                      spotifyTasks.ExternalId = fullTrack.ExternalIds.First().Value;
                      spotifyTasks.Title = fullTrack.Name;
