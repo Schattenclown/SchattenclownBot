@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -629,6 +630,7 @@ internal class Main
       else if (determinedStreamingService.IsSpotify)
       {
          SpotifyClient spotifyClient = GetSpotifyClientConfig();
+         List<SpotifyTasks> SpotifyDBList = SpotifyTasks.ReadAll();
 
          if (determinedStreamingService.IsSpotifyPlaylist)
          {
@@ -663,7 +665,7 @@ internal class Main
 
             _ = Task.Run(async () =>
             {
-               List<SpotifyTasks> some = SpotifyTasks.ReadAll();
+               
                int counter = 0;
 
                if (iPlayableItems != null)
@@ -674,7 +676,7 @@ internal class Main
                      {
                         FullTrack fullTrack = playlistTrack.Track as FullTrack;
 
-                        if (some.All(x => fullTrack != null && x.TrackId != fullTrack.Id))
+                        if (SpotifyDBList.All(x => fullTrack != null && x.TrackId != fullTrack.Id))
                         {
                            SpotifyTasks spotifyTasks = new() { DiscordUserId = gMC.DiscordMember.Id, DiscordGuildId = gMC.DiscordGuild.Id, DiscordChannelId = gMC.DiscordChannel.Id };
 
@@ -761,9 +763,47 @@ internal class Main
                discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} track!")));
             else
                discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription($"Generating queue for {fullTracks.Count} tracks!")));
+            int counter = 0;
 
             foreach (QueueTrack item in queueTracks)
             {
+               FullTrack fullTrack = item.FullTrack;
+               counter++;
+
+               if (SpotifyDBList.All(x => fullTrack != null && x.TrackId != fullTrack.Id))
+               {
+                  SpotifyTasks spotifyTasks = new() { DiscordUserId = gMC.DiscordMember.Id, DiscordGuildId = gMC.DiscordGuild.Id, DiscordChannelId = gMC.DiscordChannel.Id };
+
+                  if (fullTrack != null)
+                  {
+                     spotifyTasks.TrackId = fullTrack.Id;
+                     spotifyTasks.ExternalId = fullTrack.ExternalIds.First().Value;
+                     spotifyTasks.Title = fullTrack.Name;
+                     spotifyTasks.Album = fullTrack.Album.Name;
+                     spotifyTasks.AlbumArtist = fullTrack.Artists.FirstOrDefault()?.Name;
+
+                     TimeSpan fullTrackDuration = TimeSpan.FromMilliseconds(fullTrack.DurationMs);
+                     string fullTrackDurationString = fullTrackDuration.Hours == 0 ? $"{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}" : $"{fullTrackDuration.Hours:00}:{fullTrackDuration.Minutes:00}:{fullTrackDuration.Seconds:00}";
+
+                     spotifyTasks.Comment = fullTrackDurationString;
+                     spotifyTasks.Genre = "";
+                     spotifyTasks.TrackNumber = fullTrack.TrackNumber;
+                     spotifyTasks.Subtitle = "";
+
+                     spotifyTasks.ReleaseYear = fullTrack.Album.ReleaseDate.Length > 4 ? Convert.ToDateTime(fullTrack.Album.ReleaseDate).Year.ToString() : fullTrack.Album.ReleaseDate;
+                  }
+
+                  SpotifyTasks.INSERT(spotifyTasks);
+                  CwLogger.Write($"{counter:00000} Added {spotifyTasks.TrackId}, {spotifyTasks.Title} to the database...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
+                  await Task.Delay(50);
+               }
+               else
+               {
+                  if (fullTrack != null)
+                     CwLogger.Write($"{counter:00000} {fullTrack.Id}, {fullTrack.Name} is already in database...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
+               }
+
+
                if (QueueTracks.All(x => x.GMC.DiscordChannel != gMC.DiscordChannel))
                {
                   await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Queue generation stopped!")));

@@ -215,7 +215,7 @@ public class Bot : IDisposable
       //DiscordClient.VoiceStateUpdated += NewChannelCheck.CheckTask;
       DiscordClient.VoiceStateUpdated += Events.PanicLeaveEvent;
       DiscordClient.VoiceStateUpdated += Events.GotKickedEvent;
-      DiscordClient.VoiceStateUpdated += AutoKickEvent.ConnectedEvent;
+      //DiscordClient.VoiceStateUpdated += AutoKickEvent.ConnectedEvent;
       DiscordClient.ComponentInteractionCreated += Events.ButtonPressEvent;
       DiscordClient.ComponentInteractionCreated += RegisterKey.ButtonPressEvent;
       DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
