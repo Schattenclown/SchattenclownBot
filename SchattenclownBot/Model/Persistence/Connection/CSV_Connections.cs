@@ -30,6 +30,9 @@ public class CSV_Connections
                   case "DiscordBotKeyDebug":
                      connections.DiscordBotDebug = infos[1];
                      break;
+                  case "MSSQLConnectionString":
+                     connections.MSSQLConnectionString = infos[1].Replace(',', ';');
+                     break;
                   case "MySqlConStr":
                      connections.MySqlConStr = infos[1].Replace(',', ';');
                      break;

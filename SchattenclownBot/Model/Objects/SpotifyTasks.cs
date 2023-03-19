@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SchattenclownBot.Model.Persistence.DB;
+﻿using SchattenclownBot.Model.Persistence.DB;
 
 namespace SchattenclownBot.Model.Objects;
 
@@ -24,18 +23,13 @@ public class SpotifyTasks
    public bool Success { get; set; }
    public string TaskCreationTimestamp { get; set; }
 
-   public static List<SpotifyTasks> ReadAll()
+   public static void CreateDatabaseAndTable()
    {
-      return DB_SpotifyTasks.ReadAll();
+      NewDB_SpotifyTasks.CreateDatabaseAndTable();
    }
 
-   public static void CreateTable_SpotifyTasks()
+   public static void Insert(SpotifyTasks spotifyTasks)
    {
-      DB_SpotifyTasks.CreateTable_SpotifyTasks();
-   }
-
-   public static void INSERT(SpotifyTasks spotifyTasks)
-   {
-      DB_SpotifyTasks.INSERT(spotifyTasks);
+      NewDB_SpotifyTasks.Insert(spotifyTasks);
    }
 }

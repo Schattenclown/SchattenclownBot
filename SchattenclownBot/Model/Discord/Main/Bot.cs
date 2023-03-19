@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.CommandsNext;
@@ -20,6 +14,12 @@ using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
 
 namespace SchattenclownBot.Model.Discord.Main;
@@ -141,7 +141,7 @@ public class Bot : IDisposable
          await Task.Delay(1000);
       } while (levelSystemVirgin);
 
-      SpotifyTasks.CreateTable_SpotifyTasks();
+      SpotifyTasks.CreateDatabaseAndTable();
       await TwitchNotifier.CreateTable_TwitchNotifier();
       _ = TwitchNotifier.Run();
 

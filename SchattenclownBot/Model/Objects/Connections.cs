@@ -9,6 +9,7 @@ public class Connections
 {
    public string DiscordBotKey { get; set; }
    public string DiscordBotDebug { get; set; }
+   public string MSSQLConnectionString { get; set; }
    public string MySqlConStr { get; set; }
    public string MySqlConStrDebug { get; set; }
    public string MySqlAPIConStr { get; set; }
