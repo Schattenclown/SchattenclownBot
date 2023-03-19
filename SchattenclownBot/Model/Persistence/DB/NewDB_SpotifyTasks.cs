@@ -59,6 +59,7 @@ namespace SchattenclownBot.Model.Persistence.DB
             SqlCommand command = new(batch, connection);
             command.ExecuteNonQuery();
          }
+         connection.Close();
       }
 
       public static void Insert(SpotifyTasks spotifyTasks)
@@ -96,6 +97,7 @@ namespace SchattenclownBot.Model.Persistence.DB
          command.Parameters.AddWithValue("@Success", false);
 
          command.ExecuteNonQuery();
+         connection.Close();
       }
    }
 }

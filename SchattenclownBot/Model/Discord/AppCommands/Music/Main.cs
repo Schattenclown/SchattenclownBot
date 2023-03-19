@@ -719,6 +719,8 @@ internal class Main
 
                SpotifyQueueAddSearchAsync(item);
                tracksAdded++;
+               //to much requests will result in timeout
+               await Task.Delay(150);
             }
 
             await discordMessage.DeleteAsync();
@@ -738,7 +740,7 @@ internal class Main
             }
          });
 
-         _ = Task.Run(async () =>
+         _ = Task.Run(() =>
          {
             int counter = 0;
 
@@ -771,9 +773,9 @@ internal class Main
 
                SpotifyTasks.Insert(spotifyTasks);
                CwLogger.Write($"{counter:00000} Added {spotifyTasks.TrackId}, {spotifyTasks.Title} to the database...", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
-               await Task.Delay(50);
             }
          });
+
       }
       else if (determinedStreamingService.IsLocal)
       {
