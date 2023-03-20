@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DisCatSharp.Enums;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
 
 namespace SchattenclownBot.Model.Discord.Main;

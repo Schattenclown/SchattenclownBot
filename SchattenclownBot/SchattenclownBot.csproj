@@ -17,27 +17,27 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DisCatSharp" Version="10.3.3-nightly-009" />
-		<PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.3.3-nightly-009" />
-		<PackageReference Include="DisCatSharp.CommandsNext" Version="10.3.3-nightly-009" />
-		<PackageReference Include="DisCatSharp.Interactivity" Version="10.3.3-nightly-009" />
-		<PackageReference Include="DisCatSharp.Lavalink" Version="10.3.3-nightly-009" />
-		<PackageReference Include="DisCatSharp.VoiceNext" Version="10.3.3-nightly-009" />
-		<PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.3.3-nightly-009" />
+		<PackageReference Include="DisCatSharp" Version="10.3.3-nightly-029" />
+		<PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.3.3-nightly-029" />
+		<PackageReference Include="DisCatSharp.CommandsNext" Version="10.3.3-nightly-029" />
+		<PackageReference Include="DisCatSharp.Interactivity" Version="10.3.3-nightly-029" />
+		<PackageReference Include="DisCatSharp.Lavalink" Version="10.3.3-nightly-029" />
+		<PackageReference Include="DisCatSharp.VoiceNext" Version="10.3.3-nightly-029" />
+		<PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.3.3-nightly-029" />
 		<PackageReference Include="FubarCoder.RestSharp.Portable.Core" Version="4.0.8" />
 		<PackageReference Include="MetaBrainz.MusicBrainz" Version="5.0.0" />
-		<PackageReference Include="MySql.Data" Version="8.0.31" />
+		<PackageReference Include="MySql.Data" Version="8.0.32.1" />
 		<PackageReference Include="NAudio.Lame" Version="2.0.1" />
-		<PackageReference Include="RestSharp" Version="109.0.0-preview.1" />
+		<PackageReference Include="RestSharp" Version="109.0.1" />
 		<PackageReference Include="SpotifyAPI.Web" Version="7.0.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.0-preview.2.23128.3" />
 		<PackageReference Include="TagLibSharp" Version="2.3.0" />
 		<PackageReference Include="TwitchLib.Api" Version="3.9.0-preview-c7b42f3" />
-		<PackageReference Include="TwitchLib.Client" Version="3.3.1" />
+		<PackageReference Include="TwitchLib.Client" Version="3.4.0-preview-d6687358268723051c755034b155a703c97c353a" />
 		<PackageReference Include="TwitchLib.PubSub" Version="3.2.6" />
 		<PackageReference Include="YoutubeDLSharp" Version="0.4.3" />
-		<PackageReference Include="YoutubeExplode" Version="6.2.5" />
+		<PackageReference Include="YoutubeExplode" Version="6.2.10" />
 	</ItemGroup>
 
 	<ItemGroup>
