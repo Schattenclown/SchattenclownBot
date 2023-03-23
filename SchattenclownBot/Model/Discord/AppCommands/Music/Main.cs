@@ -97,7 +97,7 @@ internal class Main
 
          if (queueTrack.LocalPath == null)
          {
-            Uri networkDriveUri = new(@"N:\");
+            Uri networkDriveUri = new(@"M:\Music\");
             YoutubeDL youtubeDl = new()
             {
                YoutubeDLPath = "..\\..\\..\\Model\\Executables\\youtube-dl\\yt-dlp.exe",
@@ -113,7 +113,7 @@ internal class Main
             try
             {
                if (queueTrack.SpotifyUri != null)
-                  fileExists = System.IO.File.Exists(@$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
+                  fileExists = System.IO.File.Exists(@$"M:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
             }
             catch
             {
@@ -153,7 +153,7 @@ internal class Main
                else
                {
                   // Create a TagLib File object from the MP3 file
-                  File tagFile = File.Create(@$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
+                  File tagFile = File.Create(@$"M:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
 
                   // Get the length property of the file
                   audioDownloadTimeSpan = tagFile.Properties.Duration;
@@ -188,7 +188,7 @@ internal class Main
             }
             else if (queueTrack.LocalPath == null)
             {
-               tempPath = @$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
+               tempPath = @$"M:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
             }
             else
             {
@@ -779,7 +779,7 @@ internal class Main
       }
       else if (determinedStreamingService.IsLocal)
       {
-         Uri networkDriveUri = new(@"M:\");
+         Uri networkDriveUri = new(@"M:\FLAC\");
          List<string> allFiles = Directory.GetFiles(networkDriveUri.AbsolutePath).ToList();
          foreach (string file in allFiles)
          {
@@ -1203,7 +1203,7 @@ internal class Main
          string tempPath = "";
 
          if (queueTrack.SpotifyUri != null)
-            tempPath = @$"U:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
+            tempPath = @$"M:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
          else if (queueTrack.LocalPath != null)
             tempPath = queueTrack.LocalPath;
          else if (filePathUri.LocalPath != "")
