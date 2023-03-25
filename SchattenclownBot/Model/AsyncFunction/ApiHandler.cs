@@ -29,8 +29,8 @@ namespace SchattenclownBot.Model.AsyncFunction
 
          while (true)
          {
-            List<API> aPiObjects = API.ReadAll();
-            foreach (API aPiItem in aPiObjects)
+            List<Api> aPiObjects = Api.ReadAll();
+            foreach (Api aPiItem in aPiObjects)
             {
                switch (aPiItem.Command)
                {
@@ -64,18 +64,18 @@ namespace SchattenclownBot.Model.AsyncFunction
          }
       }
 
-      public static async void RequestUserNameAnswer(API aPi)
+      public static async void RequestUserNameAnswer(Api aPi)
       {
-         API.DELETE(aPi.CommandRequestId);
+         Api.DELETE(aPi.CommandRequestId);
          DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(aPi.RequestDiscordUserId);
          aPi.Data = discordUser.Username;
          aPi.Command = "RequestUserNameAnswer";
-         API.Response(aPi);
+         Api.Response(aPi);
       }
 
-      public static void RequestDiscordGuildname(API aPi)
+      public static void RequestDiscordGuildname(Api aPi)
       {
-         API.DELETE(aPi.CommandRequestId);
+         Api.DELETE(aPi.CommandRequestId);
 
          foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
          {
@@ -87,35 +87,35 @@ namespace SchattenclownBot.Model.AsyncFunction
          }
 
          aPi.Command = "RequestDiscordGuildnameAnswer";
-         API.Response(aPi);
+         Api.Response(aPi);
       }
 
-      public static void NextTrackRequestApi(API aPi)
+      public static void NextTrackRequestApi(Api aPi)
       {
-         APIRequests.API_NextTrackRequest(aPi);
+         ApiRequests.API_NextTrackRequest(aPi);
       }
 
-      public static void PreviousTrackRequestApi(API aPi)
+      public static void PreviousTrackRequestApi(Api aPi)
       {
-         APIRequests.API_PreviousTrackRequest(aPi);
+         ApiRequests.API_PreviousTrackRequest(aPi);
       }
 
-      public static void API_PlayRequest(API aPi)
+      public static void API_PlayRequest(Api aPi)
       {
-         API.DELETE(aPi.CommandRequestId);
-         APIRequests.API_PlayRequest(aPi);
+         Api.DELETE(aPi.CommandRequestId);
+         ApiRequests.API_PlayRequest(aPi);
       }
 
-      public static void API_ShufflePlayRequest(API aPi)
+      public static void API_ShufflePlayRequest(Api aPi)
       {
-         API.DELETE(aPi.CommandRequestId);
-         APIRequests.API_ShufflePlayRequest(aPi);
+         Api.DELETE(aPi.CommandRequestId);
+         ApiRequests.API_ShufflePlayRequest(aPi);
       }
 
-      public static void API_ShuffleRequest(API aPi)
+      public static void API_ShuffleRequest(Api aPi)
       {
-         API.DELETE(aPi.CommandRequestId);
-         Task aPiShuffleTask = APIRequests.API_ShuffleRequest(aPi);
+         Api.DELETE(aPi.CommandRequestId);
+         Task aPiShuffleTask = ApiRequests.API_ShuffleRequest(aPi);
          if (aPiShuffleTask.IsCompleted)
          {
             //maybe POST Success

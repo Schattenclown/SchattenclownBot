@@ -21,22 +21,22 @@ namespace SchattenclownBot.Model.Objects
 
       public static List<UserLevelSystem> Read(ulong guildId)
       {
-         return DB_UserLevelSystem.Read(guildId);
+         return DbUserLevelSystem.Read(guildId);
       }
 
       public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
       {
-         DB_UserLevelSystem.Add(guildId, userLevelSystem);
+         DbUserLevelSystem.Add(guildId, userLevelSystem);
       }
 
       public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
       {
-         DB_UserLevelSystem.Change(guildId, userLevelSystem);
+         DbUserLevelSystem.Change(guildId, userLevelSystem);
       }
 
       public static void CreateTable_UserLevelSystem(ulong guildId)
       {
-         DB_UserLevelSystem.CreateTable_UserLevelSystem(guildId);
+         DbUserLevelSystem.CreateTable_UserLevelSystem(guildId);
       }
 
       public static int CalculateLevel(int onlineTicks)
@@ -107,17 +107,20 @@ namespace SchattenclownBot.Model.Objects
                List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
                foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                {
-                  List<UserLevelSystem> userLevelSystemList;
-                  userLevelSystemList = Read(guildItem.Value.Id);
+                  List<UserLevelSystem> userLevelSystemList = Read(guildItem.Value.Id);
 
                   IReadOnlyDictionary<ulong, DiscordMember> guildMembers = guildItem.Value.Members;
                   foreach (KeyValuePair<ulong, DiscordMember> memberItem in guildMembers)
                   {
-                     if (memberItem.Value.VoiceState != null && !memberItem.Value.VoiceState.IsSelfDeafened && !memberItem.Value.VoiceState.IsSuppressed && !memberItem.Value.IsBot)
+                     if (memberItem.Value.VoiceState is
+                         {
+                            IsSelfDeafened: false, IsSuppressed: false
+                         } && !memberItem.Value.IsBot)
                      {
-                        UserLevelSystem userLevelSystemObj = new();
-                        userLevelSystemObj.MemberId = memberItem.Value.Id;
-                        userLevelSystemObj.OnlineTicks = 0;
+                        UserLevelSystem userLevelSystemObj = new()
+                        {
+                           MemberId = memberItem.Value.Id, OnlineTicks = 0
+                        };
                         bool found = false;
 
                         foreach (UserLevelSystem userLevelSystemItem in userLevelSystemList)
@@ -180,16 +183,13 @@ namespace SchattenclownBot.Model.Objects
             {
                if (Bot.DiscordClient.Guilds.ToList().Count != 0)
                {
-                  if (levelSystemRoleDistributionVirgin)
+                  List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
+                  foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
                   {
-                     List<KeyValuePair<ulong, DiscordGuild>> guildsList = Bot.DiscordClient.Guilds.ToList();
-                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList.Where(guiltItem => guiltItem.Value.Id == 928930967140331590))
-                     {
-                        guildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
-                     }
-
-                     levelSystemRoleDistributionVirgin = false;
+                     guildObj = Bot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
                   }
+
+                  levelSystemRoleDistributionVirgin = false;
                }
 
                await Task.Delay(1000);

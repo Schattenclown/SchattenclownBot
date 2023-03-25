@@ -23,52 +23,52 @@ namespace SchattenclownBot.Model.Objects
 
       public static List<SympathySystem> ReadAll(ulong guildId)
       {
-         return DB_SympathySystem.ReadAll(guildId);
+         return DbSympathySystem.ReadAll(guildId);
       }
 
       public static void Add(SympathySystem sympathySystem)
       {
-         DB_SympathySystem.Add(sympathySystem);
+         DbSympathySystem.Add(sympathySystem);
       }
 
       public static void Change(SympathySystem sympathySystem)
       {
-         DB_SympathySystem.Change(sympathySystem);
+         DbSympathySystem.Change(sympathySystem);
       }
 
       public static void CreateTable_SympathySystem(ulong guildId)
       {
-         DB_SympathySystem.CreateTable_SympathySystem(guildId);
+         DbSympathySystem.CreateTable_SympathySystem(guildId);
       }
 
       public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
       {
-         return DB_SympathySystem.ReadAllRoleInfo(guildId);
+         return DbSympathySystem.ReadAllRoleInfo(guildId);
       }
 
       public static void AddRoleInfo(SympathySystem sympathySystem)
       {
-         DB_SympathySystem.AddRoleInfo(sympathySystem);
+         DbSympathySystem.AddRoleInfo(sympathySystem);
       }
 
       public static void ChangeRoleInfo(SympathySystem sympathySystem)
       {
-         DB_SympathySystem.ChangeRoleInfo(sympathySystem);
+         DbSympathySystem.ChangeRoleInfo(sympathySystem);
       }
 
       public static bool CheckRoleInfoExists(ulong guildId, int ratingValue)
       {
-         return DB_SympathySystem.CheckRoleInfoExists(guildId, ratingValue);
+         return DbSympathySystem.CheckRoleInfoExists(guildId, ratingValue);
       }
 
       public static void CreateTable_RoleInfoSympathySystem(ulong guildId)
       {
-         DB_SympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
+         DbSympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
       }
 
       public static int GetUserRatings(ulong guildId, ulong votedUserId, int voteRating)
       {
-         return DB_SympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
+         return DbSympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
       }
 
       public static void SympathySystemRunAsync(int executeSecond)
@@ -151,7 +151,6 @@ namespace SchattenclownBot.Model.Objects
                      {
                         int counts = 1;
                         int ratingsadded = 0;
-                        double rating;
                         SympathySystem sympathySystemObj = new();
 
                         foreach (SympathySystem sympathySystemItem in sympathySystemsList)
@@ -161,7 +160,7 @@ namespace SchattenclownBot.Model.Objects
                               sympathySystemObj = sympathySystemItem;
 
                               ratingsadded += sympathySystemItem.VoteRating;
-                              rating = Convert.ToDouble(ratingsadded) / Convert.ToDouble(counts);
+                              double rating = Convert.ToDouble(ratingsadded) / Convert.ToDouble(counts);
 
                               sympathySystemObj.VotedRating = Convert.ToInt32(Math.Round(rating));
 

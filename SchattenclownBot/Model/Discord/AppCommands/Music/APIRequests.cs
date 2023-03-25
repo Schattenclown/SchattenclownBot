@@ -8,61 +8,61 @@ using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music
 {
-   internal class APIRequests
+   internal class ApiRequests
    {
-      internal static void API_PlayRequest(API api)
+      internal static void API_PlayRequest(Api api)
       {
          _ = Main.AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, false);
       }
 
-      internal static void API_ShufflePlayRequest(API api)
+      internal static void API_ShufflePlayRequest(Api api)
       {
          _ = Main.AddTracksToQueueAsyncTask(api.RequestDiscordUserId, api.Data, true);
       }
 
-      internal static async void API_NextTrackRequest(API aPI)
+      internal static async void API_NextTrackRequest(Api aPi)
       {
-         CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
-         API.DELETE(aPI.CommandRequestId);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__5", "").Replace("<", ""), ConsoleColor.DarkYellow);
+         Api.DELETE(aPi.CommandRequestId);
 
-         GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
-         if (gMC == null)
+         Gmc gMc = Gmc.FromDiscordUserId(aPi.RequestDiscordUserId);
+         if (gMc == null)
          {
-            gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
-            await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
+            gMc = Gmc.MemberFromId(aPi.RequestDiscordUserId);
+            await gMc.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
             return;
          }
 
-         Main.PlayNextTrackFromQueue(gMC);
+         Main.PlayNextTrackFromQueue(gMc);
       }
 
-      internal static async void API_PreviousTrackRequest(API aPI)
+      internal static async void API_PreviousTrackRequest(Api aPi)
       {
-         CwLogger.Write(aPI.RequestTimeStamp + " " + aPI.RequesterIp + " " + aPI.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__6", "").Replace("<", ""), ConsoleColor.DarkYellow);
-         API.DELETE(aPI.CommandRequestId);
+         CwLogger.Write(aPi.RequestTimeStamp + " " + aPi.RequesterIp + " " + aPi.RequestDiscordUserId, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__6", "").Replace("<", ""), ConsoleColor.DarkYellow);
+         Api.DELETE(aPi.CommandRequestId);
 
-         GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
-         if (gMC == null)
+         Gmc gMc = Gmc.FromDiscordUserId(aPi.RequestDiscordUserId);
+         if (gMc == null)
          {
-            gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
-            await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
+            gMc = Gmc.MemberFromId(aPi.RequestDiscordUserId);
+            await gMc.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
             return;
          }
 
-         Main.PlayPreviousTrackFromQueue(gMC);
+         Main.PlayPreviousTrackFromQueue(gMc);
       }
 
-      internal static async Task API_ShuffleRequest(API aPI)
+      internal static async Task API_ShuffleRequest(Api aPi)
       {
-         GMC gMC = GMC.FromDiscordUserID(aPI.RequestDiscordUserId);
-         if (gMC == null)
+         Gmc gMc = Gmc.FromDiscordUserId(aPi.RequestDiscordUserId);
+         if (gMc == null)
          {
-            gMC = GMC.MemberFromID(aPI.RequestDiscordUserId);
-            await gMC.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
+            gMc = Gmc.MemberFromId(aPi.RequestDiscordUserId);
+            await gMc.DiscordMember.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
             return;
          }
 
-         _ = Main.ShuffleQueueTracksAsyncTask(gMC, null);
+         _ = Main.ShuffleQueueTracksAsyncTask(gMc, null);
       }
    }
 }

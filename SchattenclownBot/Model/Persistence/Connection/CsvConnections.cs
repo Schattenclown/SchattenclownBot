@@ -4,7 +4,7 @@ using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
-   public class CSV_Connections
+   public class CsvConnections
    {
       private static readonly Uri Path = new($"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/SchattenclownBot");
       private static readonly Uri Filepath = new($"{Path}/Connections.csv");
@@ -31,7 +31,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
                         connections.DiscordBotDebug = infos[1];
                         break;
                      case "MSSQLConnectionString":
-                        connections.MSSQLConnectionString = infos[1].Replace(',', ';');
+                        connections.MssqlConnectionString = infos[1].Replace(',', ';');
                         break;
                      case "MySqlConStr":
                         connections.MySqlConStr = infos[1].Replace(',', ';');
@@ -40,10 +40,10 @@ namespace SchattenclownBot.Model.Persistence.Connection
                         connections.MySqlConStrDebug = infos[1].Replace(',', ';');
                         break;
                      case "MySqlAPIConStr":
-                        connections.MySqlAPIConStr = infos[1].Replace(',', ';');
+                        connections.MySqlApiConStr = infos[1].Replace(',', ';');
                         break;
                      case "MySqlAPIConStrDebug":
-                        connections.MySqlAPIConStrDebug = infos[1].Replace(',', ';');
+                        connections.MySqlApiConStrDebug = infos[1].Replace(',', ';');
                         break;
                      case "AcoustIdApiKey":
                         connections.AcoustIdApiKey = infos[1];

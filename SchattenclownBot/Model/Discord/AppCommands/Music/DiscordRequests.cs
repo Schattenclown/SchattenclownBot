@@ -38,7 +38,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             return;
          }
 
-         await Main.StopMusicTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel), true);
+         await Main.StopMusicTask(new Gmc(interactionContext.Guild, interactionContext.Member, interactionContext.Channel), true);
       }
 
       [SlashCommand("Shuffle" + Bot.isDevBot, "Randomize the queue!")]
@@ -47,7 +47,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
          DiscordMessage discordMessage = await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested.")));
 
-         await Main.ShuffleQueueTracksAsyncTask(new GMC(interactionContext.Guild, interactionContext.Member, interactionContext.Channel), discordMessage);
+         await Main.ShuffleQueueTracksAsyncTask(new Gmc(interactionContext.Guild, interactionContext.Member, interactionContext.Channel), discordMessage);
       }
    }
 }

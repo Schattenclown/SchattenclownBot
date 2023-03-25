@@ -48,7 +48,7 @@ namespace SchattenclownBot.Model.Persistence.DB
                 END
                 GO";
 
-         SqlConnection connection = new(Bot.Connections.MSSQLConnectionString);
+         SqlConnection connection = new(Bot.Connections.MssqlConnectionString);
          connection.Open();
 
          // Split the script into separate batches using the 'GO' keyword as a separator
@@ -79,7 +79,7 @@ namespace SchattenclownBot.Model.Persistence.DB
                  @Album, @AlbumArtist, @Comment, @Genre, @TrackNumber, @Subtitle, @ReleaseYear, @NotAvailable, @Success);
         END";
 
-         SqlConnection connection = new(Bot.Connections.MSSQLConnectionString);
+         SqlConnection connection = new(Bot.Connections.MssqlConnectionString);
          connection.Open();
 
          SqlCommand command = new(sqlCommand, connection);

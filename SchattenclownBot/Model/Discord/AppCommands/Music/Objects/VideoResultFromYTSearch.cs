@@ -3,9 +3,9 @@ using YoutubeExplode.Search;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
 {
-   public class VideoResultFromYTSearch
+   public class VideoResultFromYtSearch
    {
-      public VideoResultFromYTSearch(VideoSearchResult videoSearchResult, TimeSpan offsetTimeSpan, int hits)
+      public VideoResultFromYtSearch(VideoSearchResult videoSearchResult, TimeSpan offsetTimeSpan, int hits)
       {
          VideoSearchResult = videoSearchResult;
          OffsetTimeSpan = offsetTimeSpan;

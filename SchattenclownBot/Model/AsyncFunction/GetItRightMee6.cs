@@ -19,7 +19,7 @@ namespace SchattenclownBot.Model.AsyncFunction
          if (e.Channel.Name.Contains("🥇AFK-Farm#"))
          {
             e.Channel.ModifyAsync(x => x.Bitrate = 256000);
-            CwLogger.Write("Bitrate to 256k on" + e.Channel.Name, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+            CwLogger.Write("BitRate to 256k on" + e.Channel.Name, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
          }
 
          return Task.CompletedTask;

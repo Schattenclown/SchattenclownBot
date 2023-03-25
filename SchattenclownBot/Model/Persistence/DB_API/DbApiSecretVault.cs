@@ -4,15 +4,15 @@ using SchattenclownBot.Model.Persistence.Connection;
 
 namespace SchattenclownBot.Model.Persistence.DB_API
 {
-   internal class DB_API_SecretVault
+   internal class DbApiSecretVault
    {
       internal static SecretVault Read(ulong discordUserId)
       {
          string sql = $"SELECT * FROM SecretsVault WHERE DiscordUserId = {discordUserId}";
 
          SecretVault secretVault = new();
-         MySqlConnection mySqlConnection = DB_API_Connection.API_OpenDB();
-         MySqlDataReader mySqlDataReader = DB_API_Connection.API_ExecuteReader(sql, mySqlConnection);
+         MySqlConnection mySqlConnection = DbApiConnection.API_OpenDB();
+         MySqlDataReader mySqlDataReader = DbApiConnection.API_ExecuteReader(sql, mySqlConnection);
 
          if (mySqlDataReader != null)
          {
@@ -25,7 +25,7 @@ namespace SchattenclownBot.Model.Persistence.DB_API
             }
          }
 
-         DB_API_Connection.API_CloseDB(mySqlConnection);
+         DbApiConnection.API_CloseDB(mySqlConnection);
          return secretVault;
       }
 
@@ -33,7 +33,7 @@ namespace SchattenclownBot.Model.Persistence.DB_API
       {
          string sql = "INSERT INTO SecretsVault (`DiscordGuildId`, `DiscordUserId`, `Username`, `SecretKey`) " + $"VALUES ({secretVault.DiscordGuildId}, {secretVault.DiscordUserId}, '{secretVault.Username}', '{secretVault.SecretKey}')";
 
-         DB_API_Connection.API_ExecuteNonQuery(sql);
+         DbApiConnection.API_ExecuteNonQuery(sql);
       }
    }
 }

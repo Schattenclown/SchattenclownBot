@@ -59,10 +59,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                   List<DiscordMember> discordMemberConnectedList = new();
                   DiscordMember lastDiscordMember = default;
 
-                  foreach (DiscordGuild guildItem in guildList)
+                  foreach (List<DiscordMember> discordMemberList in guildList.Select(guildItem => guildItem.Members.Values.ToList()))
                   {
-                     List<DiscordMember> discordMemberList = guildItem.Members.Values.ToList();
-
                      discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
 
                      List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();

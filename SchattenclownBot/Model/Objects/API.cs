@@ -4,7 +4,7 @@ using SchattenclownBot.Model.Persistence.DB_API;
 
 namespace SchattenclownBot.Model.Objects
 {
-   internal class API
+   internal class Api
    {
       public int CommandRequestId { get; set; }
       public ulong RequestDiscordGuildId { get; set; }
@@ -16,19 +16,19 @@ namespace SchattenclownBot.Model.Objects
       public string Command { get; set; }
       public string Data { get; set; }
 
-      internal static List<API> ReadAll()
+      internal static List<Api> ReadAll()
       {
-         return DB_API_Requests.ReadAll();
+         return DbApiRequests.ReadAll();
       }
 
       internal static void DELETE(int commandRequestId)
       {
-         DB_API_Requests.DELETE(commandRequestId);
+         DbApiRequests.Delete(commandRequestId);
       }
 
-      public static void Response(API aPi)
+      public static void Response(Api aPi)
       {
-         DB_API_Requests.Response(aPi);
+         DbApiRequests.Response(aPi);
       }
    }
 }

@@ -5,21 +5,21 @@ using SchattenclownBot.Model.Persistence.Connection;
 
 namespace SchattenclownBot.Model.Persistence.DB_API
 {
-   internal class DB_API_Requests
+   internal class DbApiRequests
    {
-      internal static List<API> ReadAll()
+      internal static List<Api> ReadAll()
       {
          const string sql = "SELECT * FROM CommandRequests";
 
-         List<API> aPI_Objects = new();
-         MySqlConnection mySqlConnection = DB_API_Connection.API_OpenDB();
-         MySqlDataReader mySqlDataReader = DB_API_Connection.API_ExecuteReader(sql, mySqlConnection);
+         List<Api> aPiObjects = new();
+         MySqlConnection mySqlConnection = DbApiConnection.API_OpenDB();
+         MySqlDataReader mySqlDataReader = DbApiConnection.API_ExecuteReader(sql, mySqlConnection);
 
          if (mySqlDataReader != null)
          {
             while (mySqlDataReader.Read())
             {
-               API aPI = new()
+               Api aPi = new()
                {
                   CommandRequestId = mySqlDataReader.GetInt32("CommandRequestID"),
                   RequestDiscordUserId = mySqlDataReader.GetUInt64("RequestDiscordUserId"),
@@ -30,25 +30,25 @@ namespace SchattenclownBot.Model.Persistence.DB_API
                   Data = mySqlDataReader.GetString("Data")
                };
 
-               aPI_Objects.Add(aPI);
+               aPiObjects.Add(aPi);
             }
          }
 
-         DB_API_Connection.API_CloseDB(mySqlConnection);
-         return aPI_Objects;
+         DbApiConnection.API_CloseDB(mySqlConnection);
+         return aPiObjects;
       }
 
-      internal static void DELETE(int commandRequestId)
+      internal static void Delete(int commandRequestId)
       {
          string sql = $"DELETE FROM CommandRequests WHERE `CommandRequests`.`CommandRequestID` = '{commandRequestId}'";
-         DB_API_Connection.API_ExecuteNonQuery(sql);
+         DbApiConnection.API_ExecuteNonQuery(sql);
       }
 
-      public static void Response(API aPI)
+      public static void Response(Api aPi)
       {
-         string sql = "INSERT INTO CommandRequests (`RequestDiscordUserId`, `RequestSecretKey`, `requesterIP`, `Command`, `Data`) " + $"VALUES ({aPI.RequestDiscordUserId}, '{aPI.RequestSecretKey}', '{aPI.RequesterIp}', '{aPI.Command}', '{aPI.Data}')";
+         string sql = "INSERT INTO CommandRequests (`RequestDiscordUserId`, `RequestSecretKey`, `requesterIP`, `Command`, `Data`) " + $"VALUES ({aPi.RequestDiscordUserId}, '{aPi.RequestSecretKey}', '{aPi.RequesterIp}', '{aPi.Command}', '{aPi.Data}')";
 
-         DB_API_Connection.API_ExecuteNonQuery(sql);
+         DbApiConnection.API_ExecuteNonQuery(sql);
       }
    }
 }

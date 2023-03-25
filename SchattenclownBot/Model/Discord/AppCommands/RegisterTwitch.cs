@@ -19,6 +19,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       ///    Poke an User per command.
       /// </summary>
       /// <param name="interactionContext">The interactionContext</param>
+      /// <param name="discordTargetChannel"></param>
+      /// <param name="discordTargetRole"></param>
+      /// <param name="twitchThing"></param>
       /// <returns></returns>
       [SlashCommand("TwitchRegister" + Bot.isDevBot, "Add Twitch notifier!")]
       public static async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Text)] DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
@@ -27,7 +30,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          if (interactionContext.Member.Roles.All(x => (x.Permissions & Permissions.Administrator) == 0))
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("unprvlegiert"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("unprivileged"));
             return;
          }
 

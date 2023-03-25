@@ -43,7 +43,6 @@ namespace SchattenclownBot.Model.Discord.Main
       public VoiceNextExtension NextExtension { get; }
       private CommandsNextExtension _commandsNextExtension;
       private const ulong DevGuild = 881868642600505354;
-      private static string _token = "";
       public static UserStatus CustomStatus = UserStatus.Online;
       public static bool Custom = false;
       public static string CustomState = "/help";
@@ -58,7 +57,7 @@ namespace SchattenclownBot.Model.Discord.Main
       /// </summary>
       public Bot()
       {
-         _token = Connections.DiscordBotKey;
+         string token = Connections.DiscordBotKey;
 #if DEBUG
          _token = Connections.DiscordBotDebug;
 #endif
@@ -71,7 +70,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #endif
          DiscordConfiguration discordConfiguration = new()
          {
-            Token = _token,
+            Token = token,
             TokenType = TokenType.Bot,
             AutoReconnect = true,
             MessageCacheSize = 4096,

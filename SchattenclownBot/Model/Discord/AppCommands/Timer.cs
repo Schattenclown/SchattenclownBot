@@ -62,7 +62,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          //Create an List with all Timers that where found in the Database.
-         List<BotTimer> botTimerList = DB_BotTimer.ReadAll();
+         List<BotTimer> botTimerList = DbBotTimer.ReadAll();
 
          //Create an Embed.
          DiscordEmbedBuilder discordEmbedBuilder = new()

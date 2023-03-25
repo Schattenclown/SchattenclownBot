@@ -17,12 +17,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
       {
          await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
-         if (Main.QueueTracks.Any(x => x.GMC.DiscordGuild == eventArgs.Guild))
+         if (Main.QueueTracks.Any(x => x.Gmc.DiscordGuild == eventArgs.Guild))
          {
             DiscordMember discordMember = eventArgs.User.ConvertToMember(eventArgs.Guild).Result;
-            GMC gMC = new(eventArgs.Guild, discordMember, eventArgs.Channel);
+            Gmc gMc = new(eventArgs.Guild, discordMember, eventArgs.Channel);
 
-            if (gMC.DiscordMember.VoiceState == null)
+            if (gMc.DiscordMember.VoiceState == null)
             {
                await eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("You must be connected!")));
                return;
@@ -32,30 +32,30 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             {
                case "PreviousTrackStream":
                {
-                  Main.PlayPreviousTrackFromQueue(gMC);
+                  Main.PlayPreviousTrackFromQueue(gMc);
                   break;
                }
                case "NextTrackStream":
                {
-                  Main.PlayNextTrackFromQueue(gMC);
+                  Main.PlayNextTrackFromQueue(gMc);
                   break;
                }
                case "StopTrackStream":
                {
-                  _ = Main.StopMusicTask(new GMC(eventArgs.Guild, discordMember, eventArgs.Channel), false);
+                  _ = Main.StopMusicTask(new Gmc(eventArgs.Guild, discordMember, eventArgs.Channel), false);
                   break;
                }
                case "ShuffleStream":
                {
-                  DiscordMessage discordMessage = await gMC.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested!")));
-                  _ = Main.ShuffleQueueTracksAsyncTask(gMC, discordMessage);
+                  DiscordMessage discordMessage = await gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Shuffle requested!")));
+                  _ = Main.ShuffleQueueTracksAsyncTask(gMc, discordMessage);
                   break;
                }
                case "ShowQueueStream":
                {
                   DiscordMessage discordMessage = eventArgs.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("Loading!"))).Result;
 
-                  if (Main.QueueTracks.All(x => x.GMC.DiscordGuild != gMC.DiscordGuild && x.HasBeenPlayed))
+                  if (Main.QueueTracks.All(x => x.Gmc.DiscordGuild != gMc.DiscordGuild && x.HasBeenPlayed))
                   {
                      await discordMessage.ModifyAsync("Queue is empty!");
                   }
@@ -64,7 +64,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      string descriptionString = "";
                      DiscordEmbedBuilder discordEmbedBuilder = new();
 
-                     List<QueueTrack> queueTracks = Main.QueueTracks.FindAll(x => x.GMC.DiscordChannel == gMC.DiscordChannel && !x.HasBeenPlayed);
+                     List<QueueTrack> queueTracks = Main.QueueTracks.FindAll(x => x.Gmc.DiscordChannel == gMc.DiscordChannel && !x.HasBeenPlayed);
 
 
                      //<a:twitch:1050340762459586560>
@@ -118,7 +118,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                {
                   bool nothingToStop = true;
                   List<CancellationTokenSource> cancellationTokenSourceList = new();
-                  foreach (DC_CancellationTokenItem cancellationTokenItem in Main.CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
+                  foreach (DcCancellationTokenItem cancellationTokenItem in Main.CancellationTokenItemList.Where(x => x.DiscordGuild == eventArgs.Guild))
                   {
                      nothingToStop = false;
                      {
@@ -134,15 +134,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      cancellationToken.Dispose();
                   }
 
-                  Main.QueueTracks.RemoveAll(x => x.GMC.DiscordGuild == eventArgs.Guild);
+                  Main.QueueTracks.RemoveAll(x => x.Gmc.DiscordGuild == eventArgs.Guild);
 
                   await eventArgs.Channel.SendMessageAsync(nothingToStop ? "Queue void and Left!" : "Stopped the music!");
                   VoiceNextExtension voiceNext = client.GetVoiceNext();
                   VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
-                  if (voiceNextConnection != null)
-                  {
-                     voiceNextConnection.Disconnect();
-                  }
+                  voiceNextConnection?.Disconnect();
                }
             }
          }
@@ -161,7 +158,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             {
                if (eventArgs.User == client.CurrentUser)
                {
-                  await Main.StopMusicTask(new GMC(eventArgs.Guild, eventArgs.User.ConvertToMember(eventArgs.Guild).Result, eventArgs.Channel), false);
+                  await Main.StopMusicTask(new Gmc(eventArgs.Guild, eventArgs.User.ConvertToMember(eventArgs.Guild).Result, eventArgs.Channel), false);
                }
             }
          }

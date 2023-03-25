@@ -72,7 +72,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
          //Create a List where all Alarms will be Listed if there are any set.
-         List<BotAlarmClock> botAlarmClockList = DB_BotAlarmClocks.ReadAll();
+         List<BotAlarmClock> botAlarmClockList = DbBotAlarmClocks.ReadAll();
 
          //Create an Embed.
          DiscordEmbedBuilder discordEmbedBuilder = new()

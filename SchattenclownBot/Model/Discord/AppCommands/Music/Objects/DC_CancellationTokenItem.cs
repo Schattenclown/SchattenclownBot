@@ -3,16 +3,12 @@ using DisCatSharp.Entities;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
 {
-   internal class DC_CancellationTokenItem
+   internal class DcCancellationTokenItem
    {
-      internal DC_CancellationTokenItem(DiscordGuild discordGuild, CancellationTokenSource cancellationTokenSource)
+      internal DcCancellationTokenItem(DiscordGuild discordGuild, CancellationTokenSource cancellationTokenSource)
       {
          DiscordGuild = discordGuild;
          CancellationTokenSource = cancellationTokenSource;
-      }
-
-      internal DC_CancellationTokenItem()
-      {
       }
 
       internal DiscordGuild DiscordGuild { get; set; }

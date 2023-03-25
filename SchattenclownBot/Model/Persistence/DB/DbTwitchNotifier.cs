@@ -8,14 +8,14 @@ using SchattenclownBot.Model.Persistence.Connection;
 
 namespace SchattenclownBot.Model.Persistence.DB
 {
-   internal class DB_TwitchNotifier
+   internal class DbTwitchNotifier
    {
       public static List<TwitchNotifier> Read(ulong guildId)
       {
          string sqlCommand = $"SELECT * FROM `{guildId}_TwitchNotifier`";
          List<TwitchNotifier> twitchNotifierList = new();
-         MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-         MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sqlCommand, mySqlConnection);
+         MySqlConnection mySqlConnection = DbConnection.OpenDb();
+         MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sqlCommand, mySqlConnection);
 
          while (mySqlDataReader.Read())
          {
@@ -32,14 +32,14 @@ namespace SchattenclownBot.Model.Persistence.DB
             twitchNotifierList.Add(twitchNotifierObj);
          }
 
-         DB_Connection.CloseDB(mySqlConnection);
+         DbConnection.CloseDb(mySqlConnection);
          return twitchNotifierList;
       }
 
       public static void Add(TwitchNotifier twitchNotifier)
       {
          string sqlCommand = $"INSERT INTO `{twitchNotifier.DiscordGuildId}_TwitchNotifier` (`DiscordGuildId`, `DiscordMemberId`, `DiscordChannelId`, `DiscordRoleId`, `TwitchUserId`, `TwitchChannelUrl`) " + $"VALUES ({twitchNotifier.DiscordGuildId}, {twitchNotifier.DiscordMemberId}, {twitchNotifier.DiscordChannelId}, {twitchNotifier.DiscordRoleId}, {twitchNotifier.TwitchUserId}, '{twitchNotifier.TwitchChannelUrl}')";
-         DB_Connection.ExecuteNonQuery(sqlCommand);
+         DbConnection.ExecuteNonQuery(sqlCommand);
       }
 
       /*
@@ -51,7 +51,7 @@ namespace SchattenclownBot.Model.Persistence.DB
 
       public static Task CreateTable_TwitchNotifier(ulong guildId)
       {
-         Connections connections = CSV_Connections.ReadAll();
+         Connections connections = CsvConnections.ReadAll();
 
 #if DEBUG
       string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
@@ -62,7 +62,7 @@ namespace SchattenclownBot.Model.Persistence.DB
 
          string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + $"CREATE TABLE IF NOT EXISTS `{guildId}_TwitchNotifier` (" + "`DiscordGuildId` BIGINT NOT NULL," + "`DiscordMemberId` BIGINT NOT NULL," + "`DiscordChannelId` BIGINT NOT NULL," + "`DiscordRoleId` BIGINT NOT NULL," + "`TwitchUserId` BIGINT," + "`TwitchChannelUrl` VARCHAR(64))" + " ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
-         DB_Connection.ExecuteNonQuery(sqlCommand);
+         DbConnection.ExecuteNonQuery(sqlCommand);
 
          return Task.CompletedTask;
       }

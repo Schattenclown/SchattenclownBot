@@ -18,20 +18,20 @@ namespace SchattenclownBot.Model.Objects
 
       public static void Add(BotAlarmClock botAlarmClock)
       {
-         DB_BotAlarmClocks.Add(botAlarmClock);
+         DbBotAlarmClocks.Add(botAlarmClock);
          BotAlarmClocksDbRefresh();
       }
 
       public static void Delete(BotAlarmClock botAlarmClock)
       {
-         DB_BotAlarmClocks.Delete(botAlarmClock);
+         DbBotAlarmClocks.Delete(botAlarmClock);
          BotAlarmClocksDbRefresh();
       }
 
       public static void BotAlarmClockRunAsync()
       {
-         DB_BotAlarmClocks.CreateTable_BotAlarmClock();
-         BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+         DbBotAlarmClocks.CreateTable_BotAlarmClock();
+         BotAlarmClockList = DbBotAlarmClocks.ReadAll();
 
          Task.Run(async () =>
          {
@@ -57,7 +57,7 @@ namespace SchattenclownBot.Model.Objects
 
                if (DateTime.Now.Second == 30)
                {
-                  BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+                  BotAlarmClockList = DbBotAlarmClocks.ReadAll();
                }
 
                await Task.Delay(1000 * 1);
@@ -71,7 +71,7 @@ namespace SchattenclownBot.Model.Objects
 
       public static void BotAlarmClocksDbRefresh()
       {
-         BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+         BotAlarmClockList = DbBotAlarmClocks.ReadAll();
       }
    }
 }

@@ -6,15 +6,15 @@ using SchattenclownBot.Model.Persistence.Connection;
 
 namespace SchattenclownBot.Model.Persistence.DB
 {
-   public class DB_BotAlarmClocks
+   public class DbBotAlarmClocks
    {
       public static List<BotAlarmClock> ReadAll()
       {
          string sql = "SELECT * FROM ScAlarmClocks";
 
          List<BotAlarmClock> botAlarmClockList = new();
-         MySqlConnection mySqlConnection = DB_Connection.OpenDB();
-         MySqlDataReader mySqlDataReader = DB_Connection.ExecuteReader(sql, mySqlConnection);
+         MySqlConnection mySqlConnection = DbConnection.OpenDb();
+         MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sql, mySqlConnection);
 
          if (mySqlDataReader != null)
          {
@@ -28,25 +28,25 @@ namespace SchattenclownBot.Model.Persistence.DB
             }
          }
 
-         DB_Connection.CloseDB(mySqlConnection);
+         DbConnection.CloseDb(mySqlConnection);
          return botAlarmClockList;
       }
 
       public static void Add(BotAlarmClock botAlarmClock)
       {
          string sql = "INSERT INTO ScAlarmClocks (NotificationTime, ChannelId, MemberId) " + $"VALUES ('{botAlarmClock.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botAlarmClock.ChannelId}, {botAlarmClock.MemberId})";
-         DB_Connection.ExecuteNonQuery(sql);
+         DbConnection.ExecuteNonQuery(sql);
       }
 
       public static void Delete(BotAlarmClock botAlarmClock)
       {
          string sql = $"DELETE FROM ScAlarmClocks WHERE `DBEntryID` = '{botAlarmClock.DbEntryId}'";
-         DB_Connection.ExecuteNonQuery(sql);
+         DbConnection.ExecuteNonQuery(sql);
       }
 
       public static void CreateTable_BotAlarmClock()
       {
-         Connections connections = CSV_Connections.ReadAll();
+         Connections connections = CsvConnections.ReadAll();
 
 #if DEBUG
       string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
@@ -58,7 +58,7 @@ namespace SchattenclownBot.Model.Persistence.DB
 
          string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + "CREATE TABLE IF NOT EXISTS `ScAlarmClocks` (" + "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," + "`NotificationTime` DATETIME NOT NULL," + "`ChannelId` bigint(20) NOT NULL," + "`MemberId` bigint(20) NOT NULL," + "PRIMARY KEY (`DBEntryID`)) " + "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
 
-         DB_Connection.ExecuteNonQuery(sql);
+         DbConnection.ExecuteNonQuery(sql);
       }
    }
 }

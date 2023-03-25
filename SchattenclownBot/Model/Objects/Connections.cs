@@ -9,11 +9,11 @@ namespace SchattenclownBot.Model.Objects
    {
       public string DiscordBotKey { get; set; }
       public string DiscordBotDebug { get; set; }
-      public string MSSQLConnectionString { get; set; }
+      public string MssqlConnectionString { get; set; }
       public string MySqlConStr { get; set; }
       public string MySqlConStrDebug { get; set; }
-      public string MySqlAPIConStr { get; set; }
-      public string MySqlAPIConStrDebug { get; set; }
+      public string MySqlApiConStr { get; set; }
+      public string MySqlApiConStrDebug { get; set; }
       public string AcoustIdApiKey { get; set; }
       public SpotifyOAuth2 SpotifyToken { get; set; }
       public TwitchOAuth2 TwitchToken { get; set; }
@@ -23,7 +23,7 @@ namespace SchattenclownBot.Model.Objects
       {
          try
          {
-            return CSV_Connections.ReadAll();
+            return CsvConnections.ReadAll();
          }
          catch (Exception ex)
          {

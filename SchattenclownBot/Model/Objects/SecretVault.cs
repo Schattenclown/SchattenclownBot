@@ -4,7 +4,7 @@ namespace SchattenclownBot.Model.Objects
 {
    internal class SecretVault
    {
-      public int SecretsID { get; set; }
+      public int SecretsId { get; set; }
       public ulong DiscordGuildId { get; set; }
       public ulong DiscordUserId { get; set; }
       public string Username { get; set; }
@@ -12,12 +12,12 @@ namespace SchattenclownBot.Model.Objects
 
       public static void Register(SecretVault secretVault)
       {
-         DB_API_SecretVault.Register(secretVault);
+         DbApiSecretVault.Register(secretVault);
       }
 
       public static SecretVault Read(ulong discordGuildId)
       {
-         return DB_API_SecretVault.Read(discordGuildId);
+         return DbApiSecretVault.Read(discordGuildId);
       }
    }
 }

@@ -50,18 +50,18 @@ namespace SchattenclownBot.Model.AsyncFunction
                      guild.GetRole(949045286808981565), //⁣Sympathie Rating 3
                      guild.GetRole(949045289728233552), //⁣Sympathie Rating 4
                      guild.GetRole(949045292282544148), //⁣Sympathie Rating 5
-                     guild.GetRole(928946804400193558), //⁣     ⁣  ⁣   ⁣Über mich              ⁣   ⁣               ⁣
-                     guild.GetRole(945300974623391754), //⁣     ⁣  ⁣   Geburtstag             ⁣   ⁣               ⁣      ⁣
-                     guild.GetRole(945300961679794226), //⁣     ⁣  ⁣   Sternzeichen             ⁣   ⁣               ⁣      ⁣
-                     guild.GetRole(928947169719910421), //⁣     ⁣  ⁣   Kanäle⁣               ⁣   ⁣               ⁣    ⁣
-                     guild.GetRole(928947030590644274), //⁣     ⁣  ⁣   Benutzerdefiniert⁣⁣⁣              ⁣   ⁣
-                     guild.GetRole(928947119425982615), //⁣     ⁣  ⁣   Spiele             ⁣   ⁣               ⁣      ⁣
-                     guild.GetRole(931950722256371752), //⁣     ⁣  ⁣   Shooter             ⁣   ⁣               ⁣      ⁣
-                     guild.GetRole(931950729663492207), //⁣     ⁣  ⁣   Survival             ⁣   ⁣               ⁣      ⁣
-                     guild.GetRole(931950732658237501), //⁣     ⁣  ⁣   Andere Spiele              ⁣   ⁣               ⁣      ⁣
-                     guild.GetRole(939236265587515462), //⁣     ⁣  ⁣   16P             ⁣   ⁣               ⁣      ⁣
+                     guild.GetRole(928946804400193558), //⁣     ⁣  ⁣   ⁣Über mich           
+                     guild.GetRole(945300974623391754), //⁣     ⁣  ⁣   Geburtstag          
+                     guild.GetRole(945300961679794226), //⁣     ⁣  ⁣   Sternzeichen       
+                     guild.GetRole(928947169719910421), //⁣     ⁣  ⁣   Kanäle⁣               
+                     guild.GetRole(928947030590644274), //⁣     ⁣  ⁣   Benutzerdefiniert⁣⁣⁣  
+                     guild.GetRole(928947119425982615), //⁣     ⁣  ⁣   Spiele             ⁣  
+                     guild.GetRole(931950722256371752), //⁣     ⁣  ⁣   Shooter             ⁣
+                     guild.GetRole(931950729663492207), //⁣     ⁣  ⁣   Survival            
+                     guild.GetRole(931950732658237501), //⁣     ⁣  ⁣   Andere Spiele      
+                     guild.GetRole(939236265587515462), //⁣     ⁣  ⁣   16P             ⁣   ⁣  
                      guild.GetRole(939216240512208956), //⁣     ⁣  ⁣   BDSM             ⁣
-                     guild.GetRole(945007672577642537), //⁣     ⁣  ⁣   Energy⁣   ⁣               ⁣      ⁣
+                     guild.GetRole(945007672577642537), //⁣     ⁣  ⁣   Energy⁣   ⁣            
                      guild.GetRole(11023549473768611861), //zehner 0
                      guild.GetRole(1010251754270642218), //zehner 1
                      guild.GetRole(1001177749207126106), //zehner 2
@@ -91,34 +91,29 @@ namespace SchattenclownBot.Model.AsyncFunction
                   {
                      IEnumerable<DiscordRole> discordMemberRoles = discordMember.Roles;
 
-                     List<DiscordRole> discordRoles = new();
+                     List<DiscordRole> discordRoles = discordMemberRoles.Where(role => !roleCheckList.Contains(role)).ToList();
 
-                     foreach (DiscordRole role in discordMemberRoles)
+                     if (!discordRoles.Contains(grey))
                      {
-                        if (!roleCheckList.Contains(role))
-                        {
-                           discordRoles.Add(role);
-                        }
+                        continue;
                      }
 
-                     if (discordRoles.Contains(grey))
                      {
                         bool lever = true;
 
-                        foreach (DiscordRole role in discordRoles)
+                        foreach (DiscordRole role in discordRoles.Where(role => roleCheckListNegative.Contains(role)))
                         {
-                           if (roleCheckListNegative.Contains(role))
-                           {
-                              lever = false;
-                           }
+                           lever = false;
                         }
 
-                        if (discordRoles.Count > 2 && lever)
+                        if (discordRoles.Count <= 2 || !lever)
                         {
-                           await discordMember.GrantRoleAsync(green);
-                           await discordMember.RevokeRoleAsync(grey);
-                           CwLogger.Write(discordMember.DisplayName + " Granted Green", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+                           continue;
                         }
+
+                        await discordMember.GrantRoleAsync(green);
+                        await discordMember.RevokeRoleAsync(grey);
+                        CwLogger.Write(discordMember.DisplayName + " Granted Green", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
                      }
                   }
 

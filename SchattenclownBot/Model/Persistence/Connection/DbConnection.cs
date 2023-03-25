@@ -6,17 +6,18 @@ using SchattenclownBot.Model.HelpClasses;
 
 namespace SchattenclownBot.Model.Persistence.Connection
 {
-   internal class DB_API_Connection
+   internal class DbConnection
    {
-      private static string _apiToken = "";
+      private static string _token = "";
 
-      public static MySqlConnection API_OpenDB()
+      public static MySqlConnection OpenDb()
       {
-         _apiToken = Bot.Connections.MySqlAPIConStr;
+         _token = Bot.Connections.MySqlConStr;
 #if DEBUG
-      _apiToken = Bot.Connections.MySqlAPIConStrDebug;
+      _token = Bot.Connections.MySqlConStrDebug;
 #endif
-         MySqlConnection connection = new(_apiToken);
+
+         MySqlConnection connection = new(_token);
 
          try
          {
@@ -32,31 +33,47 @@ namespace SchattenclownBot.Model.Persistence.Connection
          return connection;
       }
 
-      public static void API_CloseDB(MySqlConnection connection)
+      public static void CloseDb(MySqlConnection connection)
       {
          connection.Close();
       }
 
-      public static void API_ExecuteNonQuery(string sql)
+      public static void ExecuteNonQuery(string sql)
       {
-         MySqlConnection connection = API_OpenDB();
+         MySqlConnection connection = OpenDb();
          MySqlCommand sqlCommand = new(sql, connection);
          int ret = sqlCommand.ExecuteNonQuery();
          if (ret != -1)
          {
-            CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+            CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
          }
 
-         API_CloseDB(connection);
+         CloseDb(connection);
       }
 
-      public static MySqlDataReader API_ExecuteReader(string sql, MySqlConnection connection)
+      public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
       {
          MySqlCommand sqlCommand = new(sql, connection);
          try
          {
             MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
             return sqlDataReader;
+         }
+         catch (Exception ex)
+         {
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            Reset.RestartProgram();
+            throw;
+         }
+      }
+
+      public static int ExecuteScalarCount(string sql, MySqlConnection connection)
+      {
+         MySqlCommand sqlCommand = new(sql, connection);
+         try
+         {
+            int count = Convert.ToInt32(sqlCommand.ExecuteScalar());
+            return count;
          }
          catch (Exception ex)
          {

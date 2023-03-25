@@ -4,16 +4,16 @@ using SchattenclownBot.Model.Discord.Main;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
 {
-   public class GMC
+   public class Gmc
    {
-      public GMC(DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel discordChannel)
+      public Gmc(DiscordGuild discordGuild, DiscordMember discordMember, DiscordChannel discordChannel)
       {
          DiscordGuild = discordGuild;
          DiscordMember = discordMember;
          DiscordChannel = discordChannel;
       }
 
-      public GMC()
+      public Gmc()
       {
       }
 
@@ -21,34 +21,34 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
       public DiscordMember DiscordMember { get; set; }
       public DiscordChannel DiscordChannel { get; set; }
 
-      public static GMC FromDiscordUserID(ulong discordUserID)
+      public static Gmc FromDiscordUserId(ulong discordUserId)
       {
          foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
          {
-            foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == discordUserID))
+            foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == discordUserId))
             {
-               GMC gMC = new()
+               Gmc gMc = new()
                {
                   DiscordGuild = guildItem, DiscordMember = memberItem, DiscordChannel = memberItem.VoiceState.Channel
                };
-               return gMC;
+               return gMc;
             }
          }
 
          return null;
       }
 
-      public static GMC MemberFromID(ulong discordUserID)
+      public static Gmc MemberFromId(ulong discordUserId)
       {
          foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
          {
-            foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == discordUserID))
+            foreach (DiscordMember memberItem in guildItem.Members.Values.Where(x => x.Id == discordUserId))
             {
-               GMC gMC = new()
+               Gmc gMc = new()
                {
                   DiscordGuild = guildItem, DiscordMember = memberItem
                };
-               return gMC;
+               return gMc;
             }
          }
 

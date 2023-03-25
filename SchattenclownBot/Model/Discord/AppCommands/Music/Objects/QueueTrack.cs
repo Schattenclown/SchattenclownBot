@@ -6,17 +6,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
 {
    public class QueueTrack
    {
-      public QueueTrack(GMC gMC, FullTrack fullTrack)
+      public QueueTrack(Gmc gMc, FullTrack fullTrack)
       {
          if (fullTrack == null)
          {
             return;
          }
 
-         GMC = gMC;
+         Gmc = gMc;
          if (fullTrack.ExternalUrls.Values.FirstOrDefault() != null)
          {
-            SpotifyUri = new Uri(fullTrack.ExternalUrls.Values.FirstOrDefault());
+            SpotifyUri = new Uri(fullTrack.ExternalUrls.Values.FirstOrDefault() ?? string.Empty);
          }
 
          FullTrack = fullTrack;
@@ -35,25 +35,25 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
          }
       }
 
-      public QueueTrack(GMC gMC, Uri youTubeUri, string title, string artist)
+      public QueueTrack(Gmc gMc, Uri youTubeUri, string title, string artist)
       {
-         GMC = gMC;
+         Gmc = gMc;
          YouTubeUri = youTubeUri;
          Title = title;
          Artist = artist;
          IsAdded = true;
       }
 
-      public QueueTrack(GMC gMC, string localPath, string title, string artist)
+      public QueueTrack(Gmc gMc, string localPath, string title, string artist)
       {
-         GMC = gMC;
+         Gmc = gMc;
          LocalPath = localPath;
          Title = title;
          Artist = artist;
          IsAdded = true;
       }
 
-      public GMC GMC { get; set; }
+      public Gmc Gmc { get; set; }
       public string Title { get; set; }
       public string Artist { get; set; }
       public Uri YouTubeUri { get; set; }
