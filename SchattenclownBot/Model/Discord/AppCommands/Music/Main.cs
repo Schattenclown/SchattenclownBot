@@ -673,7 +673,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                List<PlaylistTrack<IPlayableItem>> iPlayableItems = spotifyClient.Playlists.GetItems(playlistId, playlistGetItemsRequest).Result.Items;
 
-               if (iPlayableItems is { Count: >= 100 })
+               if (iPlayableItems is
+                   {
+                      Count: >= 100
+                   })
                {
                   try
                   {

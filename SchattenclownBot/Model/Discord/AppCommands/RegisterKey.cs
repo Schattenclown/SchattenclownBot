@@ -13,6 +13,8 @@ using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
 
+#pragma warning disable SYSLIB0021
+
 namespace SchattenclownBot.Model.Discord.AppCommands
 {
    internal class RegisterKey : ApplicationCommandsModule
@@ -21,6 +23,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       ///    Poke an User per command.
       /// </summary>
       /// <param name="interactionContext">The interactionContext</param>
+      /// <param name="key"></param>
       /// <returns></returns>
       [SlashCommand("RegisterKey" + Bot.isDevBot, "Add Twitch notifier!"), Obsolete("Obsolete")]
       public static async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Key", "Key.")] string key)
@@ -29,7 +32,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
          if (interactionContext.Member.Roles.All(x => (x.Permissions & Permissions.Administrator) == 0))
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("unprvlegiert"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("unprivileged"));
             return;
          }
 
@@ -43,35 +46,23 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          await interactionContext.Channel.SendMessageAsync(new DiscordMessageBuilder().WithContent(encrypted).AddComponents(discordComponent));
       }
 
-      [Obsolete("Obsolete")]
       private static string Encrypt(string textToEncrypt)
       {
          try
          {
-            string ToReturn = "";
-            string publickey = "12345678";
-            string secretkey = "87654321";
-            byte[] secretkeyByte =
-            {
-            };
-            secretkeyByte = Encoding.UTF8.GetBytes(secretkey);
-            byte[] publickeybyte =
-            {
-            };
-            publickeybyte = Encoding.UTF8.GetBytes(publickey);
-            MemoryStream ms = null;
-            CryptoStream cs = null;
-            byte[] inputbyteArray = Encoding.UTF8.GetBytes(textToEncrypt);
-            using (DESCryptoServiceProvider des = new())
-            {
-               ms = new MemoryStream();
-               cs = new CryptoStream(ms, des.CreateEncryptor(publickeybyte, secretkeyByte), CryptoStreamMode.Write);
-               cs.Write(inputbyteArray, 0, inputbyteArray.Length);
-               cs.FlushFinalBlock();
-               ToReturn = Convert.ToBase64String(ms.ToArray());
-            }
+            const string publicKey = "12345678";
+            const string secretKey = "87654321";
+            byte[] secretKeyByte = Encoding.UTF8.GetBytes(secretKey);
+            byte[] publicKeyByte = Encoding.UTF8.GetBytes(publicKey);
+            byte[] inputByteArray = Encoding.UTF8.GetBytes(textToEncrypt);
+            using DESCryptoServiceProvider des = new();
+            MemoryStream ms = new();
+            CryptoStream cs = new(ms, des.CreateEncryptor(publicKeyByte, secretKeyByte), CryptoStreamMode.Write);
+            cs.Write(inputByteArray, 0, inputByteArray.Length);
+            cs.FlushFinalBlock();
+            string toReturn = Convert.ToBase64String(ms.ToArray());
 
-            return ToReturn;
+            return toReturn;
          }
          catch (Exception ex)
          {
@@ -79,7 +70,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
       }
 
-      [Obsolete("Obsolete")]
       internal static async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
       {
          switch (eventArgs.Id)
@@ -101,37 +91,24 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          }
       }
 
-      [Obsolete("Obsolete")]
       private static string Decrypt(string textToDecrypt)
       {
          try
          {
-            string ToReturn = "";
-            string publickey = "12345678";
-            string secretkey = "87654321";
-            byte[] privatekeyByte =
-            {
-            };
-            privatekeyByte = Encoding.UTF8.GetBytes(secretkey);
-            byte[] publickeybyte =
-            {
-            };
-            publickeybyte = Encoding.UTF8.GetBytes(publickey);
-            MemoryStream ms = null;
-            CryptoStream cs = null;
-            byte[] inputbyteArray = new byte[textToDecrypt.Replace(" ", "+").Length];
-            inputbyteArray = Convert.FromBase64String(textToDecrypt.Replace(" ", "+"));
-            using (DESCryptoServiceProvider des = new())
-            {
-               ms = new MemoryStream();
-               cs = new CryptoStream(ms, des.CreateDecryptor(publickeybyte, privatekeyByte), CryptoStreamMode.Write);
-               cs.Write(inputbyteArray, 0, inputbyteArray.Length);
-               cs.FlushFinalBlock();
-               Encoding encoding = Encoding.UTF8;
-               ToReturn = encoding.GetString(ms.ToArray());
-            }
+            const string publicKey = "12345678";
+            const string secretKey = "87654321";
+            byte[] privateKeyByte = Encoding.UTF8.GetBytes(secretKey);
+            byte[] publicKeyByte = Encoding.UTF8.GetBytes(publicKey);
+            byte[] inputByteArray = Convert.FromBase64String(textToDecrypt.Replace(" ", "+"));
+            using DESCryptoServiceProvider des = new();
+            MemoryStream ms = new();
+            CryptoStream cs = new(ms, des.CreateDecryptor(publicKeyByte, privateKeyByte), CryptoStreamMode.Write);
+            cs.Write(inputByteArray, 0, inputByteArray.Length);
+            cs.FlushFinalBlock();
+            Encoding encoding = Encoding.UTF8;
+            string toReturn = encoding.GetString(ms.ToArray());
 
-            return ToReturn;
+            return toReturn;
          }
          catch (Exception ae)
          {

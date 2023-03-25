@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DisCatSharp;
 using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
@@ -19,8 +18,9 @@ namespace SchattenclownBot.Model.Discord
                await discordMember.SendMessageAsync("BB");
             }
          }
-         catch (Exception e)
+         catch
          {
+            //ignore
          }
       }
    }

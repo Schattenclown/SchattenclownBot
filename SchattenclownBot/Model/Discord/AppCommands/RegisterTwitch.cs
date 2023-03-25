@@ -21,7 +21,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       /// <param name="interactionContext">The interactionContext</param>
       /// <returns></returns>
       [SlashCommand("TwitchRegister" + Bot.isDevBot, "Add Twitch notifier!")]
-      public static async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Text)]  DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
+      public static async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Text)] DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 

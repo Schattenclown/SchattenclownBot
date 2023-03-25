@@ -28,7 +28,7 @@ namespace SchattenclownBot.Model.Discord.Main
    public class Bot : IDisposable
    {
 #if DEBUG
-   public const string Prefix = "%";
+      public const string Prefix = "%";
 #else
       public const string Prefix = "%";
 #endif
@@ -48,7 +48,7 @@ namespace SchattenclownBot.Model.Discord.Main
       public static bool Custom = false;
       public static string CustomState = "/help";
 #if DEBUG
-   public const string isDevBot = "";
+      public const string isDevBot = "";
 #else
       public const string isDevBot = "";
 #endif
@@ -60,12 +60,12 @@ namespace SchattenclownBot.Model.Discord.Main
       {
          _token = Connections.DiscordBotKey;
 #if DEBUG
-      _token = Connections.DiscordBotDebug;
+         _token = Connections.DiscordBotDebug;
 #endif
          ShutdownRequest = new CancellationTokenSource();
 
 #if DEBUG
-      const LogLevel logLevel = LogLevel.Debug;
+         const LogLevel logLevel = LogLevel.Debug;
 #else
          const LogLevel logLevel = LogLevel.Information;
 #endif
@@ -157,7 +157,7 @@ namespace SchattenclownBot.Model.Discord.Main
 
          BotTimer.BotTimerRunAsync();
          BotAlarmClock.BotAlarmClockRunAsync();
-         API_Handler.RunInnerHandlerAsync();
+         ApiHandler.RunInnerHandlerAsync();
          GreenCheck.CheckGreenTask(5);
          GetItRightMee6.CheckHighQualityAvailable(9);
          WhereIs.WhereIsClownRunAsync(19);
@@ -171,7 +171,7 @@ namespace SchattenclownBot.Model.Discord.Main
 #if RELEASE
          DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
 #elif DEBUG
-      DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
+         DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
 #endif
 
 

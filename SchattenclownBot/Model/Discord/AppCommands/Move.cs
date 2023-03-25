@@ -15,7 +15,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
    internal class Move : ApplicationCommandsModule
    {
       [SlashCommand("Move" + Bot.isDevBot, "MassMove the whole channel your in to a different one!")]
-      public static async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)]  DiscordChannel discordTargetChannel)
+      public static async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)] DiscordChannel discordTargetChannel)
       {
          List<DiscordRole> discordPermissions = interactionContext.Member.Roles.ToList();
          bool rightToMove = false;

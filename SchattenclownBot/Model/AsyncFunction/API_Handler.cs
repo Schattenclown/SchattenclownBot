@@ -11,110 +11,112 @@ using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.AsyncFunction
 {
-   internal class API_Handler
+   internal class ApiHandler
    {
       public static void RunInnerHandlerAsync()
       {
-         Task.Run(async () =>
+         Task.Run(Function);
+      }
+
+      private static async Task Function()
+      {
+         List<DiscordGuild> guildList;
+         do
          {
-            List<DiscordGuild> guildList;
-            do
-            {
-               guildList = Bot.DiscordClient.Guilds.Values.ToList();
-               await Task.Delay(1000);
-            } while (guildList.Count == 0);
+            guildList = Bot.DiscordClient.Guilds.Values.ToList();
+            await Task.Delay(1000);
+         } while (guildList.Count == 0);
 
-            while (true)
+         while (true)
+         {
+            List<API> aPiObjects = API.ReadAll();
+            foreach (API aPiItem in aPiObjects)
             {
-               List<API> aPI_Objects = API.ReadAll();
-               foreach (API aPI_Item in aPI_Objects)
+               switch (aPiItem.Command)
                {
-                  switch (aPI_Item.Command)
-                  {
-                     case "NextTrack":
-                        NextTrackRequestApi(aPI_Item);
-                        break;
-                     case "PreviousTrack":
-                        PreviousTrackRequestApi(aPI_Item);
-                        break;
-                     case "RequestUserName":
-                        RequestUserNameAnswer(aPI_Item);
-                        CwLogger.Write($"Request for username from {aPI_Item.Data} with Id: {aPI_Item.RequestDiscordUserId} at {aPI_Item.RequestTimeStamp} with Ip: {aPI_Item.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
-                        break;
-                     case "RequestDiscordGuildname":
-                        RequestDiscordGuildname(aPI_Item);
-                        CwLogger.Write($"Request for guildname from {aPI_Item.Data} with Id: {aPI_Item.RequestDiscordUserId} at {aPI_Item.RequestTimeStamp} with Ip: {aPI_Item.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
-                        break;
-                     case "API_PlayRequest":
-                        API_PlayRequest(aPI_Item);
-                        break;
-                     case "ShufflePlayRequest":
-                        API_ShufflePlayRequest(aPI_Item);
-                        break;
-                     case "ShuffleRequest":
-                        API_ShuffleRequest(aPI_Item);
-                        break;
-                  }
+                  case "NextTrack":
+                     NextTrackRequestApi(aPiItem);
+                     break;
+                  case "PreviousTrack":
+                     PreviousTrackRequestApi(aPiItem);
+                     break;
+                  case "RequestUserName":
+                     RequestUserNameAnswer(aPiItem);
+                     CwLogger.Write($"Request for username from {aPiItem.Data} with Id: {aPiItem.RequestDiscordUserId} at {aPiItem.RequestTimeStamp} with Ip: {aPiItem.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
+                     break;
+                  case "RequestDiscordGuildname":
+                     RequestDiscordGuildname(aPiItem);
+                     CwLogger.Write($"Request for guildname from {aPiItem.Data} with Id: {aPiItem.RequestDiscordUserId} at {aPiItem.RequestTimeStamp} with Ip: {aPiItem.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
+                     break;
+                  case "API_PlayRequest":
+                     API_PlayRequest(aPiItem);
+                     break;
+                  case "ShufflePlayRequest":
+                     API_ShufflePlayRequest(aPiItem);
+                     break;
+                  case "ShuffleRequest":
+                     API_ShuffleRequest(aPiItem);
+                     break;
                }
-
-               await Task.Delay(100);
             }
-         });
+
+            await Task.Delay(100);
+         }
       }
 
-      public static async void RequestUserNameAnswer(API aPI)
+      public static async void RequestUserNameAnswer(API aPi)
       {
-         API.DELETE(aPI.CommandRequestId);
-         DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(aPI.RequestDiscordUserId);
-         aPI.Data = discordUser.Username;
-         aPI.Command = "RequestUserNameAnswer";
-         API.Response(aPI);
+         API.DELETE(aPi.CommandRequestId);
+         DiscordUser discordUser = await Bot.DiscordClient.GetUserAsync(aPi.RequestDiscordUserId);
+         aPi.Data = discordUser.Username;
+         aPi.Command = "RequestUserNameAnswer";
+         API.Response(aPi);
       }
 
-      public static void RequestDiscordGuildname(API aPI)
+      public static void RequestDiscordGuildname(API aPi)
       {
-         API.DELETE(aPI.CommandRequestId);
+         API.DELETE(aPi.CommandRequestId);
 
          foreach (DiscordGuild guildItem in Bot.DiscordClient.Guilds.Values)
          {
-            foreach (DiscordMember member in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == aPI.RequestDiscordUserId))
+            foreach (DiscordMember dummy in guildItem.Members.Values.Where(x => x.VoiceState != null && x.Id == aPi.RequestDiscordUserId))
             {
-               aPI.Data = guildItem.Name;
+               aPi.Data = guildItem.Name;
                break;
             }
          }
 
-         aPI.Command = "RequestDiscordGuildnameAnswer";
-         API.Response(aPI);
+         aPi.Command = "RequestDiscordGuildnameAnswer";
+         API.Response(aPi);
       }
 
-      public static void NextTrackRequestApi(API aPI)
+      public static void NextTrackRequestApi(API aPi)
       {
-         APIRequests.API_NextTrackRequest(aPI);
+         APIRequests.API_NextTrackRequest(aPi);
       }
 
-      public static void PreviousTrackRequestApi(API aPI)
+      public static void PreviousTrackRequestApi(API aPi)
       {
-         APIRequests.API_PreviousTrackRequest(aPI);
+         APIRequests.API_PreviousTrackRequest(aPi);
       }
 
-      public static void API_PlayRequest(API aPI)
+      public static void API_PlayRequest(API aPi)
       {
-         API.DELETE(aPI.CommandRequestId);
-         APIRequests.API_PlayRequest(aPI);
+         API.DELETE(aPi.CommandRequestId);
+         APIRequests.API_PlayRequest(aPi);
       }
 
-      public static void API_ShufflePlayRequest(API aPI)
+      public static void API_ShufflePlayRequest(API aPi)
       {
-         API.DELETE(aPI.CommandRequestId);
-         APIRequests.API_ShufflePlayRequest(aPI);
+         API.DELETE(aPi.CommandRequestId);
+         APIRequests.API_ShufflePlayRequest(aPi);
       }
 
-      public static void API_ShuffleRequest(API aPI)
+      public static void API_ShuffleRequest(API aPi)
       {
-         API.DELETE(aPI.CommandRequestId);
-         Task aPI_ShuffleTask = APIRequests.API_ShuffleRequest(aPI);
-         if (aPI_ShuffleTask.IsCompleted)
+         API.DELETE(aPi.CommandRequestId);
+         Task aPiShuffleTask = APIRequests.API_ShuffleRequest(aPi);
+         if (aPiShuffleTask.IsCompleted)
          {
             //maybe POST Success
          }
