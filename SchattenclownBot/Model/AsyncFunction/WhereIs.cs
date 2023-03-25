@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
-using DisCatSharp.Enums;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 
@@ -37,8 +36,10 @@ internal class WhereIs
          }
 
          DiscordGuild mainGuild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
-         DiscordChannel discordChannelOtherPlaces = mainGuild.GetChannel(928937150546853919);
+         DiscordChannel discordChannelWhereIs = mainGuild.GetChannel(1088859872029843746);
          //guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result); 
+         //1088454540329746442
+         guildList.Remove(Bot.DiscordClient.GetGuildAsync(1088454540329746442).Result);
          guildList.Remove(Bot.DiscordClient.GetGuildAsync(918232272732319744).Result);
          guildList.Remove(Bot.DiscordClient.GetGuildAsync(631177569021984811).Result);
 
@@ -51,8 +52,6 @@ internal class WhereIs
                   await Task.Delay(1000);
                }
 
-               bool voiceStateAny = false;
-               List<DiscordThreadChannel> discordThreads;
                bool getMessagesOncePerGuild = false;
                List<DiscordMessage> discordMessagesList = new();
                List<DiscordMember> discordMemberConnectedList = new();
@@ -70,9 +69,7 @@ internal class WhereIs
                   {
                      try
                      {
-                        voiceStateAny = true;
                         lastDiscordMember ??= discordMemberItem;
-                        DiscordVoiceState discordVoiceState;
                         if (lastDiscordMember.VoiceState == null ||
                             discordMemberItem.VoiceState == null ||
                             (lastDiscordMember.VoiceState.Channel.Id == discordMemberItem.VoiceState.Channel.Id && lastDiscordMember != discordMemberItem))
@@ -81,7 +78,7 @@ internal class WhereIs
                            continue;
                         }
 
-                        discordVoiceState = discordMemberItem.VoiceState;
+                        DiscordVoiceState discordVoiceState = discordMemberItem.VoiceState;
 
                         List<DiscordMember> discordMembersInChannel = discordVoiceState.Channel.Users.ToList();
                         List<DiscordMember> discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
@@ -140,18 +137,13 @@ internal class WhereIs
                            descriptionForConsole += descriptionLineBuilderForConsole + "\n";
                         }
 
-                        discordThreads = mainGuild.Threads.Values.ToList();
-
-                        DiscordThreadChannel discordThreadsChannel = discordThreads.FirstOrDefault(x => x.Name == "wh3r315");
-                        discordThreadsChannel ??= await discordChannelOtherPlaces.CreateThreadAsync("wh3r315", ThreadAutoArchiveDuration.OneDay);
-
                         DiscordEmbedBuilder discordEmbedBuilder = new() { Color = new DiscordColor(17, 17, 17) };
                         discordEmbedBuilder.WithFooter(discordVoiceState.Guild.Name + " | " + discordVoiceState.Channel.Name, discordVoiceState.Guild.IconUrl);
                         discordEmbedBuilder.WithTimestamp(DateTime.Now);
 
                         if (!getMessagesOncePerGuild)
                         {
-                           IReadOnlyList<DiscordMessage> messages = await discordThreadsChannel.GetMessagesAsync();
+                           IReadOnlyList<DiscordMessage> messages = await discordChannelWhereIs.GetMessagesAsync();
                            discordMessagesList.AddRange(messages);
                            getMessagesOncePerGuild = true;
                         }
@@ -183,7 +175,7 @@ internal class WhereIs
                            discordEmbedBuilder.WithDescription(description);
                            discordComponents[0] = new DiscordLinkButtonComponent(discordChannelInvite.Url, "Join channel!", false, discordComponentEmojisJoinChannel);
 
-                           discordMessagesList.Add(await discordThreadsChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(content).AddEmbed(discordEmbedBuilder.Build())));
+                           discordMessagesList.Add(await discordChannelWhereIs.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(content).AddEmbed(discordEmbedBuilder.Build())));
                         }
                         else
                         {
@@ -213,58 +205,36 @@ internal class WhereIs
                   discordMemberConnectedListSorted.Clear();
                }
 
-               discordThreads = mainGuild.Threads.Values.ToList();
-               foreach (DiscordThreadChannel discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
+               IReadOnlyList<DiscordMessage> discordMessages = await discordChannelWhereIs.GetMessagesAsync();
+
+               foreach (DiscordMessage discordMessage in discordMessages)
                {
-                  IReadOnlyList<DiscordMessage> messages = discordThreadItem.GetMessagesAsync().Result;
-
-                  foreach (DiscordMessage messageItem in messages)
+                  string mentionedChannel = "";
+                  try
                   {
-                     string mentionedChannel = "";
-                     try
-                     {
-                        mentionedChannel = StringCutter.RmUntil(messageItem.Content, "<#", 2);
-                        mentionedChannel = StringCutter.RmAfter(mentionedChannel, ">", 0);
-                     }
-                     catch
-                     {
-                        // ignored
-                     }
-
-                     DiscordChannel discordChannel = null;
-                     try
-                     {
-                        if (mentionedChannel != null)
-                           discordChannel = Bot.DiscordClient.GetChannelAsync(Convert.ToUInt64(mentionedChannel)).Result;
-                     }
-                     catch
-                     {
-                        // ignored
-                     }
-
-                     if (discordChannel == null ||
-                         !discordChannel.Users.Any())
-                        await messageItem.DeleteAsync();
-
-                     await Task.Delay(1000);
+                     mentionedChannel = StringCutter.RmUntil(discordMessage.Content, "<#", 2);
+                     mentionedChannel = StringCutter.RmAfter(mentionedChannel, ">", 0);
                   }
+                  catch
+                  {
+                     // ignored
+                  }
+
+                  DiscordChannel discordChannel = null;
+                  try
+                  {
+                     if (mentionedChannel != null)
+                        discordChannel = Bot.DiscordClient.GetChannelAsync(Convert.ToUInt64(mentionedChannel)).Result;
+                  }
+                  catch
+                  {
+                     // ignored
+                  }
+
+                  if (discordChannel == null ||
+                      !discordChannel.Users.Any())
+                     await discordMessage.DeleteAsync();
                }
-
-               if (!voiceStateAny)
-               {
-                  foreach (DiscordThreadChannel discordThreadItem in discordThreads.Where(x => x.Name == "wh3r315"))
-                  {
-                     await discordThreadItem.DeleteAsync();
-                  }
-
-                  IReadOnlyList<DiscordMessage> messages = await discordChannelOtherPlaces.GetMessagesAsync();
-
-                  foreach (DiscordMessage messageItem in messages.Where(x => x.Content == "wh3r315"))
-                  {
-                     await messageItem.DeleteAsync();
-                  }
-               }
-
 
                await Task.Delay(1000);
 
