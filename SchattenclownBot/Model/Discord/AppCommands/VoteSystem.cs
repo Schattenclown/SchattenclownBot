@@ -112,7 +112,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             SympathySystem sympathySystemObj = new()
             {
-               VotingUserId = discordMember.Id, VotedUserId = discordTargetMemberUlong, GuildId = componentInteractionCreateEventArgs.Guild.Id, VoteRating = rating
+               VotingUserId = discordMember.Id,
+               VotedUserId = discordTargetMemberUlong,
+               GuildId = componentInteractionCreateEventArgs.Guild.Id,
+               VoteRating = rating
             };
 
             foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
@@ -153,36 +156,42 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             discordEmbedBuilder.Description = "U are Flagged +91 u cant vote!";
          }
-         else if (discordMember != null && discordMember.Id == discordTargetMember.Id)
-         {
-            discordEmbedBuilder.Description = "NoNoNo we don´t do this around here! CHEATER!";
-         }
          else
          {
-            if (discordMember != null)
+            if (discordMember != null && discordMember.Id == discordTargetMember.Id)
             {
-               SympathySystem sympathySystemObj = new()
-               {
-                  VotingUserId = discordMember.Id, VotedUserId = discordTargetMember.Id, GuildId = componentInteractionCreateEventArgs.Guild.Id, VoteRating = rating
-               };
-
-               foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
-               {
-                  foundTargetMemberInDb = true;
-               }
-
-               switch (foundTargetMemberInDb)
-               {
-                  case false:
-                     SympathySystem.Add(sympathySystemObj);
-                     break;
-                  case true:
-                     SympathySystem.Change(sympathySystemObj);
-                     break;
-               }
+               discordEmbedBuilder.Description = "NoNoNo we don´t do this around here! CHEATER!";
             }
+            else
+            {
+               if (discordMember != null)
+               {
+                  SympathySystem sympathySystemObj = new()
+                  {
+                     VotingUserId = discordMember.Id,
+                     VotedUserId = discordTargetMember.Id,
+                     GuildId = componentInteractionCreateEventArgs.Guild.Id,
+                     VoteRating = rating
+                  };
 
-            await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave {discordTargetMember.Mention} the Rating {rating}"));
+                  foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
+                  {
+                     foundTargetMemberInDb = true;
+                  }
+
+                  switch (foundTargetMemberInDb)
+                  {
+                     case false:
+                        SympathySystem.Add(sympathySystemObj);
+                        break;
+                     case true:
+                        SympathySystem.Change(sympathySystemObj);
+                        break;
+                  }
+               }
+
+               await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave {discordTargetMember.Mention} the Rating {rating}"));
+            }
          }
       }
 
@@ -206,7 +215,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          description += "```";
          DiscordEmbedBuilder discordEmbedBuilder = new()
          {
-            Title = $"Votes for {discordUser.Username}", Color = DiscordColor.Purple, Description = description
+            Title = $"Votes for {discordUser.Username}",
+            Color = DiscordColor.Purple,
+            Description = description
          };
 
          await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
