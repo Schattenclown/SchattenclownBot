@@ -5,27 +5,28 @@ using DisCatSharp.Entities;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Model.Discord.ChoiceProvider;
-
-/// <summary>
-///    sThe rating value setup choice provider.
-/// </summary>
-public class RatingSetupChoiceProvider : IChoiceProvider
+namespace SchattenclownBot.Model.Discord.ChoiceProvider
 {
    /// <summary>
-   ///    Providers the choices.
+   ///    sThe rating value setup choice provider.
    /// </summary>
-   /// <returns>choices</returns>
-   public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
+   public class RatingSetupChoiceProvider : IChoiceProvider
    {
-      DiscordApplicationCommandOptionChoice[] choices = new DiscordApplicationCommandOptionChoice[5];
-
-      for (int i = 0; i < 5; i++)
+      /// <summary>
+      ///    Providers the choices.
+      /// </summary>
+      /// <returns>choices</returns>
+      public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
       {
-         choices[i] = new DiscordApplicationCommandOptionChoice($"{i + 1}", $"{i + 1}");
-      }
+         DiscordApplicationCommandOptionChoice[] choices = new DiscordApplicationCommandOptionChoice[5];
 
-      await Task.Delay(1000);
-      return choices;
+         for (int i = 0; i < 5; i++)
+         {
+            choices[i] = new DiscordApplicationCommandOptionChoice($"{i + 1}", $"{i + 1}");
+         }
+
+         await Task.Delay(1000);
+         return choices;
+      }
    }
 }

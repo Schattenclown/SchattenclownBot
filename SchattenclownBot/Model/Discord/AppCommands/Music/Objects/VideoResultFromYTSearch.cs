@@ -1,18 +1,19 @@
 ﻿using System;
 using YoutubeExplode.Search;
 
-namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-
-public class VideoResultFromYTSearch
+namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
 {
-   public VideoResultFromYTSearch(VideoSearchResult videoSearchResult, TimeSpan offsetTimeSpan, int hits)
+   public class VideoResultFromYTSearch
    {
-      VideoSearchResult = videoSearchResult;
-      OffsetTimeSpan = offsetTimeSpan;
-      Hits = hits;
-   }
+      public VideoResultFromYTSearch(VideoSearchResult videoSearchResult, TimeSpan offsetTimeSpan, int hits)
+      {
+         VideoSearchResult = videoSearchResult;
+         OffsetTimeSpan = offsetTimeSpan;
+         Hits = hits;
+      }
 
-   public VideoSearchResult VideoSearchResult { get; set; }
-   public TimeSpan OffsetTimeSpan { get; set; }
-   public int Hits { get; set; }
+      public VideoSearchResult VideoSearchResult { get; set; }
+      public TimeSpan OffsetTimeSpan { get; set; }
+      public int Hits { get; set; }
+   }
 }

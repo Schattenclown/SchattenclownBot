@@ -1,7 +1,7 @@
-﻿using SchattenclownBot.Model.Discord.Main;
-using SchattenclownBot.Model.Objects;
-using System;
+﻿using System;
 using System.Data.SqlClient;
+using SchattenclownBot.Model.Discord.Main;
+using SchattenclownBot.Model.Objects;
 
 namespace SchattenclownBot.Model.Persistence.DB
 {
@@ -9,7 +9,7 @@ namespace SchattenclownBot.Model.Persistence.DB
    {
       public static void CreateDatabaseAndTable()
       {
-         string createDatabaseAndTableScript = $@"
+         string createDatabaseAndTableScript = @"
                 -- Create database
                 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'db_schattenclownbot')
                 BEGIN
@@ -52,13 +52,17 @@ namespace SchattenclownBot.Model.Persistence.DB
          connection.Open();
 
          // Split the script into separate batches using the 'GO' keyword as a separator
-         string[] batches = createDatabaseAndTableScript.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries);
+         string[] batches = createDatabaseAndTableScript.Split(new[]
+         {
+            "GO"
+         }, StringSplitOptions.RemoveEmptyEntries);
 
          foreach (string batch in batches)
          {
             SqlCommand command = new(batch, connection);
             command.ExecuteNonQuery();
          }
+
          connection.Close();
       }
 

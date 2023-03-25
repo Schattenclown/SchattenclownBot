@@ -1,18 +1,19 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace SchattenclownBot.Model.HelpClasses;
-
-internal class SpecialChars
+namespace SchattenclownBot.Model.HelpClasses
 {
-   public static string RemoveSpecialCharacters(string inputString)
+   internal class SpecialChars
    {
-      StringBuilder stringBuilder = new();
-      foreach (char c in inputString.Where(c => c < 255))
+      public static string RemoveSpecialCharacters(string inputString)
       {
-         stringBuilder.Append(c);
-      }
+         StringBuilder stringBuilder = new();
+         foreach (char c in inputString.Where(c => c < 255))
+         {
+            stringBuilder.Append(c);
+         }
 
-      return stringBuilder.ToString();
+         return stringBuilder.ToString();
+      }
    }
 }

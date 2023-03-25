@@ -10,44 +10,45 @@ using SchattenclownBot.Model.Discord.Main;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Model.Discord.AppCommands;
-
-internal class Move : ApplicationCommandsModule
+namespace SchattenclownBot.Model.Discord.AppCommands
 {
-   [SlashCommand("Move" + Bot.isDevBot, "MassMove the whole channel your in to a different one!")]
-   public static async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#...")] [ChannelTypes(ChannelType.Voice)] DiscordChannel discordTargetChannel)
+   internal class Move : ApplicationCommandsModule
    {
-      List<DiscordRole> discordPermissions = interactionContext.Member.Roles.ToList();
-      bool rightToMove = false;
-
-      foreach (DiscordRole dummy in discordPermissions.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
+      [SlashCommand("Move" + Bot.isDevBot, "MassMove the whole channel your in to a different one!")]
+      public static async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)]  DiscordChannel discordTargetChannel)
       {
-         rightToMove = true;
-      }
+         List<DiscordRole> discordPermissions = interactionContext.Member.Roles.ToList();
+         bool rightToMove = false;
 
-      await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-      if (!rightToMove)
-      {
-         await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You don´t have Permission!"));
-      }
-      else
-      {
-         if (interactionContext.Member.VoiceState.Channel != null)
+         foreach (DiscordRole dummy in discordPermissions.Where(discordRoleItem => discordRoleItem.Permissions.HasPermission(Permissions.MoveMembers)))
          {
-            DiscordChannel source = interactionContext.Member.VoiceState.Channel;
+            rightToMove = true;
+         }
 
-            IReadOnlyList<DiscordMember> members = source.Users;
-            foreach (DiscordMember member in members)
-            {
-               await member.PlaceInAsync(discordTargetChannel);
-            }
+         await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Done!"));
+         if (!rightToMove)
+         {
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You don´t have Permission!"));
          }
          else
          {
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("U are not connected!"));
+            if (interactionContext.Member.VoiceState.Channel != null)
+            {
+               DiscordChannel source = interactionContext.Member.VoiceState.Channel;
+
+               IReadOnlyList<DiscordMember> members = source.Users;
+               foreach (DiscordMember member in members)
+               {
+                  await member.PlaceInAsync(discordTargetChannel);
+               }
+
+               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Done!"));
+            }
+            else
+            {
+               await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("U are not connected!"));
+            }
          }
       }
    }

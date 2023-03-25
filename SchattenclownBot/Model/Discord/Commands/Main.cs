@@ -4,59 +4,59 @@ using DisCatSharp.CommandsNext.Attributes;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Model.Discord.Commands;
-
-/// <summary>
-///    Old commands.
-/// </summary>
-internal class Main : BaseCommandModule
+namespace SchattenclownBot.Model.Discord.Commands
 {
    /// <summary>
-   ///    Main class for old commands.
+   ///    Old commands.
    /// </summary>
-   /// <param name="commandContext">The commandContext.</param>
-   /// <returns>A Task.</returns>
-   [Command("ping")]
-   [Description("Ping")]
-   public async Task PingAsync(CommandContext commandContext)
+   internal class Main : BaseCommandModule
    {
-      await commandContext.RespondAsync($"{commandContext.Client.Ping}ms");
+      /// <summary>
+      ///    Main class for old commands.
+      /// </summary>
+      /// <param name="commandContext">The commandContext.</param>
+      /// <returns>A Task.</returns>
+      [Command("ping"), Description("Ping")]
+      public async Task PingAsync(CommandContext commandContext)
+      {
+         await commandContext.RespondAsync($"{commandContext.Client.Ping}ms");
+      }
+
+      /*/// <summary>
+      ///     Set a new appearance for the bot per command.
+      /// </summary>
+      /// <param name="commandContext"></param>
+      /// <param name="sts"></param>
+      /// <param name="msg"></param>
+      /// <returns></returns>
+      [Command("mode"), Description("Change the appearance of the bots status")]
+      public async Task SetModeAsync(CommandContext commandContext, [Description("Status mode to set. [ 1=offline | 2=online | 3=dnd] ")] int sts = 2, [Description("Status message to set."), RemainingText] string msg = null)
+      {
+          msg ??= $"{TwitchAPI.Prefix}help";
+   
+          UserStatus status = sts switch
+          {
+              1 => UserStatus.Invisible,
+              2 => UserStatus.Online,
+              3 => UserStatus.DoNotDisturb,
+              4 => UserStatus.Idle,
+              5 => UserStatus.Streaming,
+              _ => UserStatus.Online,
+          };
+   
+          DiscordActivity activity = new()
+          {
+              Name = msg,
+              ActivityType = status == UserStatus.Streaming ? ActivityType.Streaming : ActivityType.Watching,
+              Platform = status == UserStatus.Streaming ? "twitch" : null,
+              StreamUrl = status == UserStatus.Streaming ? "https://twitch.tv/lulalaby" : null
+          };
+          await TwitchAPI.DiscordClient.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
+          TwitchAPI.Custom = true;
+          TwitchAPI.CustomState = msg;
+          TwitchAPI.CustomStatus = status;
+   
+          await commandContext.Message.DeleteAsync("Command Hide");
+      }*/
    }
-
-   /*/// <summary>
-   ///     Set a new appearance for the bot per command.
-   /// </summary>
-   /// <param name="commandContext"></param>
-   /// <param name="sts"></param>
-   /// <param name="msg"></param>
-   /// <returns></returns>
-   [Command("mode"), Description("Change the appearance of the bots status")]
-   public async Task SetModeAsync(CommandContext commandContext, [Description("Status mode to set. [ 1=offline | 2=online | 3=dnd] ")] int sts = 2, [Description("Status message to set."), RemainingText] string msg = null)
-   {
-       msg ??= $"{TwitchAPI.Prefix}help";
-
-       UserStatus status = sts switch
-       {
-           1 => UserStatus.Invisible,
-           2 => UserStatus.Online,
-           3 => UserStatus.DoNotDisturb,
-           4 => UserStatus.Idle,
-           5 => UserStatus.Streaming,
-           _ => UserStatus.Online,
-       };
-
-       DiscordActivity activity = new()
-       {
-           Name = msg,
-           ActivityType = status == UserStatus.Streaming ? ActivityType.Streaming : ActivityType.Watching,
-           Platform = status == UserStatus.Streaming ? "twitch" : null,
-           StreamUrl = status == UserStatus.Streaming ? "https://twitch.tv/lulalaby" : null
-       };
-       await TwitchAPI.DiscordClient.UpdateStatusAsync(activity: activity, userStatus: status, idleSince: null);
-       TwitchAPI.Custom = true;
-       TwitchAPI.CustomState = msg;
-       TwitchAPI.CustomStatus = status;
-
-       await commandContext.Message.DeleteAsync("Command Hide");
-   }*/
 }

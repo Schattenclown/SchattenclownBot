@@ -4,63 +4,66 @@ using MySql.Data.MySqlClient;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 
-namespace SchattenclownBot.Model.Persistence.Connection;
-
-internal class DB_API_Connection
+namespace SchattenclownBot.Model.Persistence.Connection
 {
-   private static string _apiToken = "";
-
-   public static MySqlConnection API_OpenDB()
+   internal class DB_API_Connection
    {
-      _apiToken = Bot.Connections.MySqlAPIConStr;
+      private static string _apiToken = "";
+
+      public static MySqlConnection API_OpenDB()
+      {
+         _apiToken = Bot.Connections.MySqlAPIConStr;
 #if DEBUG
       _apiToken = Bot.Connections.MySqlAPIConStrDebug;
 #endif
-      MySqlConnection connection = new(_apiToken);
+         MySqlConnection connection = new(_apiToken);
 
-      try
-      {
-         connection.Open();
+         try
+         {
+            connection.Open();
+         }
+         catch (Exception ex)
+         {
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            Reset.RestartProgram();
+            throw;
+         }
+
+         return connection;
       }
-      catch (Exception ex)
+
+      public static void API_CloseDB(MySqlConnection connection)
       {
-         CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
-         Reset.RestartProgram();
-         throw;
+         connection.Close();
       }
 
-      return connection;
-   }
-
-   public static void API_CloseDB(MySqlConnection connection)
-   {
-      connection.Close();
-   }
-
-   public static void API_ExecuteNonQuery(string sql)
-   {
-      MySqlConnection connection = API_OpenDB();
-      MySqlCommand sqlCommand = new(sql, connection);
-      int ret = sqlCommand.ExecuteNonQuery();
-      if (ret != -1)
-         CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
-
-      API_CloseDB(connection);
-   }
-
-   public static MySqlDataReader API_ExecuteReader(string sql, MySqlConnection connection)
-   {
-      MySqlCommand sqlCommand = new(sql, connection);
-      try
+      public static void API_ExecuteNonQuery(string sql)
       {
-         MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-         return sqlDataReader;
+         MySqlConnection connection = API_OpenDB();
+         MySqlCommand sqlCommand = new(sql, connection);
+         int ret = sqlCommand.ExecuteNonQuery();
+         if (ret != -1)
+         {
+            CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Magenta);
+         }
+
+         API_CloseDB(connection);
       }
-      catch (Exception ex)
+
+      public static MySqlDataReader API_ExecuteReader(string sql, MySqlConnection connection)
       {
-         CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
-         Reset.RestartProgram();
-         throw;
+         MySqlCommand sqlCommand = new(sql, connection);
+         try
+         {
+            MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+            return sqlDataReader;
+         }
+         catch (Exception ex)
+         {
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            Reset.RestartProgram();
+            throw;
+         }
       }
    }
 }

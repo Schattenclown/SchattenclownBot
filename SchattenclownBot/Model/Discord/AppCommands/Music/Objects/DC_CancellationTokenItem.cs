@@ -1,20 +1,21 @@
 ﻿using System.Threading;
 using DisCatSharp.Entities;
 
-namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
-
-internal class DC_CancellationTokenItem
+namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
 {
-   internal DC_CancellationTokenItem(DiscordGuild discordGuild, CancellationTokenSource cancellationTokenSource)
+   internal class DC_CancellationTokenItem
    {
-      DiscordGuild = discordGuild;
-      CancellationTokenSource = cancellationTokenSource;
-   }
+      internal DC_CancellationTokenItem(DiscordGuild discordGuild, CancellationTokenSource cancellationTokenSource)
+      {
+         DiscordGuild = discordGuild;
+         CancellationTokenSource = cancellationTokenSource;
+      }
 
-   internal DC_CancellationTokenItem()
-   {
-   }
+      internal DC_CancellationTokenItem()
+      {
+      }
 
-   internal DiscordGuild DiscordGuild { get; set; }
-   internal CancellationTokenSource CancellationTokenSource { get; set; }
+      internal DiscordGuild DiscordGuild { get; set; }
+      internal CancellationTokenSource CancellationTokenSource { get; set; }
+   }
 }

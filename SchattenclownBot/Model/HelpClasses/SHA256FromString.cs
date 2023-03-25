@@ -1,26 +1,27 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace SchattenclownBot.Model.HelpClasses;
-
-public class SHA256FromString
+namespace SchattenclownBot.Model.HelpClasses
 {
-   public static string ComputeSha256Hash(string rawData)
+   public class SHA256FromString
    {
-      // Create a SHA256   
-      using (SHA256 sha256Hash = SHA256.Create())
+      public static string ComputeSha256Hash(string rawData)
       {
-         // ComputeHash - returns byte array
-         byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-
-         // Convert byte array to a string
-         StringBuilder builder = new();
-         for (int i = 0; i < bytes.Length; i++)
+         // Create a SHA256   
+         using (SHA256 sha256Hash = SHA256.Create())
          {
-            builder.Append(bytes[i].ToString("x2"));
-         }
+            // ComputeHash - returns byte array
+            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
 
-         return builder.ToString();
+            // Convert byte array to a string
+            StringBuilder builder = new();
+            for (int i = 0; i < bytes.Length; i++)
+            {
+               builder.Append(bytes[i].ToString("x2"));
+            }
+
+            return builder.ToString();
+         }
       }
    }
 }

@@ -27,23 +27,27 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       [SlashCommand("trigger_help" + Bot.isDevBot, "Sends the help menu for the bot.")]
       public static async Task Command(InteractionContext context,
          // ChoiceProvider calls the Provider() method, which gives a list of slash commands. This is called once, when commands are being registered to Discord.
-         [ChoiceProvider(typeof(TriggerHelpChoiceProvider)), Option("command", "The name of the command to get help on.")]
-         string commandName)
+         [ChoiceProvider(typeof(TriggerHelpChoiceProvider)), Option("command", "The name of the command to get help on.")] string commandName)
       {
          // Using the TriggerHelpChoiceProvider class, we know that whatever the user gives us *should* be in the Commands dictionary, provided that they use tab completion. If they don't, say we couldn't find the command. 
          if (!TriggerHelpChoiceProvider.Commands.TryGetValue(commandName, out MethodInfo command))
          {
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new() { Content = $"Error: Command {Formatter.InlineCode(Formatter.Sanitize(commandName))} not found!", IsEphemeral = true });
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new()
+            {
+               Content = $"Error: Command {Formatter.InlineCode(Formatter.Sanitize(commandName))} not found!", IsEphemeral = true
+            });
             return;
          }
 
          // HandlerReader the command's description from the SlashCommand attribute we used to register the command.
          SlashCommandAttribute slashCommandAttribute = command.GetCustomAttribute<SlashCommandAttribute>();
-         DiscordEmbedBuilder discordEmbedBuilder = new() { Title = '/' + commandName, Description = slashCommandAttribute.Description, Color = new DiscordColor("#7b84d1") };
+         DiscordEmbedBuilder discordEmbedBuilder = new()
+         {
+            Title = '/' + commandName, Description = slashCommandAttribute.Description, Color = new DiscordColor("#7b84d1")
+         };
 
          // If the guild has a custom guild icon, set the embed's thumbnail to that icon.
-         if (context.Guild != null &&
-             context.Guild.IconUrl != null)
+         if (context.Guild != null && context.Guild.IconUrl != null)
          {
             // CHALLENGE: Replace the jpg to the highest resolution png file using the Discord RunInnerHandlerAsync.
             discordEmbedBuilder.WithThumbnail(context.Guild.IconUrl);

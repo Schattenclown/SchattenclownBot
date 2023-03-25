@@ -6,67 +6,72 @@ using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.Persistence.DB;
 
-namespace SchattenclownBot.Model.Objects;
-
-public class BotAlarmClock
+namespace SchattenclownBot.Model.Objects
 {
-   public static List<BotAlarmClock> BotAlarmClockList;
-   public int DbEntryId { get; set; }
-   public DateTime NotificationTime { get; set; }
-   public ulong ChannelId { get; set; }
-   public ulong MemberId { get; set; }
-
-   public static void Add(BotAlarmClock botAlarmClock)
+   public class BotAlarmClock
    {
-      DB_BotAlarmClocks.Add(botAlarmClock);
-      BotAlarmClocksDbRefresh();
-   }
+      public static List<BotAlarmClock> BotAlarmClockList;
+      public int DbEntryId { get; set; }
+      public DateTime NotificationTime { get; set; }
+      public ulong ChannelId { get; set; }
+      public ulong MemberId { get; set; }
 
-   public static void Delete(BotAlarmClock botAlarmClock)
-   {
-      DB_BotAlarmClocks.Delete(botAlarmClock);
-      BotAlarmClocksDbRefresh();
-   }
-
-   public static void BotAlarmClockRunAsync()
-   {
-      DB_BotAlarmClocks.CreateTable_BotAlarmClock();
-      BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
-
-      Task.Run(async () =>
+      public static void Add(BotAlarmClock botAlarmClock)
       {
-         while (true)
-         {
-            foreach (BotAlarmClock botAlarmClockItem in BotAlarmClockList)
-            {
-               if (botAlarmClockItem.NotificationTime < DateTime.Now)
-               {
-                  DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(botAlarmClockItem.ChannelId);
-                  DiscordEmbedBuilder eb = new();
-                  eb.Color = DiscordColor.Red;
-                  eb.WithDescription($"<@{botAlarmClockItem.MemberId}> Alarm for {botAlarmClockItem.NotificationTime} rings!");
+         DB_BotAlarmClocks.Add(botAlarmClock);
+         BotAlarmClocksDbRefresh();
+      }
 
-                  Delete(botAlarmClockItem);
-                  for (int i = 0; i < 3; i++)
+      public static void Delete(BotAlarmClock botAlarmClock)
+      {
+         DB_BotAlarmClocks.Delete(botAlarmClock);
+         BotAlarmClocksDbRefresh();
+      }
+
+      public static void BotAlarmClockRunAsync()
+      {
+         DB_BotAlarmClocks.CreateTable_BotAlarmClock();
+         BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+
+         Task.Run(async () =>
+         {
+            while (true)
+            {
+               foreach (BotAlarmClock botAlarmClockItem in BotAlarmClockList)
+               {
+                  if (botAlarmClockItem.NotificationTime < DateTime.Now)
                   {
-                     await chn.SendMessageAsync(eb.Build());
-                     await Task.Delay(50);
+                     DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(botAlarmClockItem.ChannelId);
+                     DiscordEmbedBuilder eb = new();
+                     eb.Color = DiscordColor.Red;
+                     eb.WithDescription($"<@{botAlarmClockItem.MemberId}> Alarm for {botAlarmClockItem.NotificationTime} rings!");
+
+                     Delete(botAlarmClockItem);
+                     for (int i = 0; i < 3; i++)
+                     {
+                        await chn.SendMessageAsync(eb.Build());
+                        await Task.Delay(50);
+                     }
                   }
                }
+
+               if (DateTime.Now.Second == 30)
+               {
+                  BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+               }
+
+               await Task.Delay(1000 * 1);
+               if (!LastMinuteCheck.BotAlarmClockRunAsync)
+               {
+                  LastMinuteCheck.BotAlarmClockRunAsync = true;
+               }
             }
+         });
+      }
 
-            if (DateTime.Now.Second == 30)
-               BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
-
-            await Task.Delay(1000 * 1);
-            if (!LastMinuteCheck.BotAlarmClockRunAsync)
-               LastMinuteCheck.BotAlarmClockRunAsync = true;
-         }
-      });
-   }
-
-   public static void BotAlarmClocksDbRefresh()
-   {
-      BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+      public static void BotAlarmClocksDbRefresh()
+      {
+         BotAlarmClockList = DB_BotAlarmClocks.ReadAll();
+      }
    }
 }

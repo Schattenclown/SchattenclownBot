@@ -4,80 +4,83 @@ using MySql.Data.MySqlClient;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 
-namespace SchattenclownBot.Model.Persistence.Connection;
-
-internal class DB_Connection
+namespace SchattenclownBot.Model.Persistence.Connection
 {
-   private static string _token = "";
-
-   public static MySqlConnection OpenDB()
+   internal class DB_Connection
    {
-      _token = Bot.Connections.MySqlConStr;
+      private static string _token = "";
+
+      public static MySqlConnection OpenDB()
+      {
+         _token = Bot.Connections.MySqlConStr;
 #if DEBUG
       _token = Bot.Connections.MySqlConStrDebug;
 #endif
 
-      MySqlConnection connection = new(_token);
+         MySqlConnection connection = new(_token);
 
-      try
-      {
-         connection.Open();
+         try
+         {
+            connection.Open();
+         }
+         catch (Exception ex)
+         {
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            Reset.RestartProgram();
+            throw;
+         }
+
+         return connection;
       }
-      catch (Exception ex)
+
+      public static void CloseDB(MySqlConnection connection)
       {
-         CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
-         Reset.RestartProgram();
-         throw;
+         connection.Close();
       }
 
-      return connection;
-   }
-
-   public static void CloseDB(MySqlConnection connection)
-   {
-      connection.Close();
-   }
-
-   public static void ExecuteNonQuery(string sql)
-   {
-      MySqlConnection connection = OpenDB();
-      MySqlCommand sqlCommand = new(sql, connection);
-      int ret = sqlCommand.ExecuteNonQuery();
-      if (ret != -1)
-         CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
-
-      CloseDB(connection);
-   }
-
-   public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
-   {
-      MySqlCommand sqlCommand = new(sql, connection);
-      try
+      public static void ExecuteNonQuery(string sql)
       {
-         MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-         return sqlDataReader;
+         MySqlConnection connection = OpenDB();
+         MySqlCommand sqlCommand = new(sql, connection);
+         int ret = sqlCommand.ExecuteNonQuery();
+         if (ret != -1)
+         {
+            CwLogger.Write($"{sqlCommand.CommandText}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkCyan);
+         }
+
+         CloseDB(connection);
       }
-      catch (Exception ex)
-      {
-         CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
-         Reset.RestartProgram();
-         throw;
-      }
-   }
 
-   public static int ExecuteScalarCount(string sql, MySqlConnection connection)
-   {
-      MySqlCommand sqlCommand = new(sql, connection);
-      try
+      public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
       {
-         int count = Convert.ToInt32(sqlCommand.ExecuteScalar());
-         return count;
+         MySqlCommand sqlCommand = new(sql, connection);
+         try
+         {
+            MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+            return sqlDataReader;
+         }
+         catch (Exception ex)
+         {
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            Reset.RestartProgram();
+            throw;
+         }
       }
-      catch (Exception ex)
+
+      public static int ExecuteScalarCount(string sql, MySqlConnection connection)
       {
-         CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
-         Reset.RestartProgram();
-         throw;
+         MySqlCommand sqlCommand = new(sql, connection);
+         try
+         {
+            int count = Convert.ToInt32(sqlCommand.ExecuteScalar());
+            return count;
+         }
+         catch (Exception ex)
+         {
+            CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+            Reset.RestartProgram();
+            throw;
+         }
       }
    }
 }

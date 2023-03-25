@@ -6,53 +6,58 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 
-namespace SchattenclownBot.Model.AsyncFunction;
-
-internal class NewChannelCheck
+namespace SchattenclownBot.Model.AsyncFunction
 {
-   internal static async Task CheckTask(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
+   internal class NewChannelCheck
    {
-      if (eventArgs.Guild.Id == 928930967140331590)
+      internal static async Task CheckTask(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
       {
-         DiscordGuild guild = client.GetGuildAsync(928930967140331590).Result;
-         IReadOnlyList<DiscordChannel> channels = guild.GetChannelsAsync().Result;
-         List<DiscordChannel> rightChannels = new();
-
-         DiscordChannel parentChannel = client.GetChannelAsync(928937353593118731).Result;
-         DiscordChannel mainChannel = client.GetChannelAsync(1022234777539051590).Result;
-
-
-         foreach (DiscordChannel channel in channels.Where(x => x.ParentId == 928937353593118731))
+         if (eventArgs.Guild.Id == 928930967140331590)
          {
-            rightChannels.Add(channel);
-         }
+            DiscordGuild guild = client.GetGuildAsync(928930967140331590).Result;
+            IReadOnlyList<DiscordChannel> channels = guild.GetChannelsAsync().Result;
+            List<DiscordChannel> rightChannels = new();
 
-         int compareInt = 1;
-         foreach (DiscordChannel channel in rightChannels)
-         {
-            if (client.GetChannelAsync(channel.Id).Result.Users.Any())
-               compareInt++;
-         }
+            DiscordChannel parentChannel = client.GetChannelAsync(928937353593118731).Result;
+            DiscordChannel mainChannel = client.GetChannelAsync(1022234777539051590).Result;
 
-         if (compareInt >= rightChannels.Count)
-         {
-            DiscordChannel newChannel = guild.CreateChannelAsync("Other", ChannelType.Voice, parentChannel, Optional<string>.None, 384000).Result;
-            rightChannels.Add(newChannel);
-         }
 
-         compareInt = 0;
-         bool oneFree = false;
-         foreach (DiscordChannel channel in rightChannels)
-         {
-            if (channel != mainChannel)
+            foreach (DiscordChannel channel in channels.Where(x => x.ParentId == 928937353593118731))
             {
-               if (!client.GetChannelAsync(channel.Id).Result.Users.Any())
-                  compareInt++;
+               rightChannels.Add(channel);
+            }
 
-               if (compareInt == 3 || oneFree)
+            int compareInt = 1;
+            foreach (DiscordChannel channel in rightChannels)
+            {
+               if (client.GetChannelAsync(channel.Id).Result.Users.Any())
                {
-                  await channel.DeleteAsync();
-                  oneFree = true;
+                  compareInt++;
+               }
+            }
+
+            if (compareInt >= rightChannels.Count)
+            {
+               DiscordChannel newChannel = guild.CreateChannelAsync("Other", ChannelType.Voice, parentChannel, Optional<string>.None, 384000).Result;
+               rightChannels.Add(newChannel);
+            }
+
+            compareInt = 0;
+            bool oneFree = false;
+            foreach (DiscordChannel channel in rightChannels)
+            {
+               if (channel != mainChannel)
+               {
+                  if (!client.GetChannelAsync(channel.Id).Result.Users.Any())
+                  {
+                     compareInt++;
+                  }
+
+                  if (compareInt == 3 || oneFree)
+                  {
+                     await channel.DeleteAsync();
+                     oneFree = true;
+                  }
                }
             }
          }
