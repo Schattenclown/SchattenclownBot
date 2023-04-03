@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -23,10 +24,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       ///    Poke an User per command.
       /// </summary>
       /// <param name="interactionContext">The interactionContext</param>
+      /// <param name="info"></param>
+      /// <param name="platform"></param>
       /// <param name="key"></param>
       /// <returns></returns>
-      [SlashCommand("RegisterKey" + Bot.isDevBot, "Add Twitch notifier!"), Obsolete("Obsolete")]
-      public static async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Key", "Key.")] string key)
+      [SlashCommand("RegisterKey" + Bot.isDevBot, "Add Twitch notifier!")]
+      public static async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Info", "Information about the Key.")] string info, [Option("Platform", "Platform the Key.")] string platform, [Option("Key", "Key.")] string key)
       {
          await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -43,13 +46,48 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "ClaimKey", "Claim Key!", false, discordComponentEmojisPrevious);
 
          string encrypted = Encrypt(key);
-         await interactionContext.Channel.SendMessageAsync(new DiscordMessageBuilder().WithContent(encrypted).AddComponents(discordComponent));
+
+         DiscordEmbedBuilder discordEmbedBuilder = new();
+
+         discordEmbedBuilder.WithTitle($"Key for : '{info}'");
+         discordEmbedBuilder.WithDescription("Click on the button to Claim a Key");
+         discordEmbedBuilder.WithColor(DiscordColor.HotPink);
+         discordEmbedBuilder.AddField(new DiscordEmbedField("encrypted key", encrypted));
+         discordEmbedBuilder.AddField(new DiscordEmbedField("Platform", platform ?? "hmm"));
+
+         await interactionContext.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordComponent));
+      }
+
+      internal static async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
+      {
+         switch (eventArgs.Id)
+         {
+            case "ClaimKey":
+            {
+               IReadOnlyList<DiscordEmbedField> discordEmbedFields = eventArgs.Message.Embeds.FirstOrDefault()?.Fields;
+               if (discordEmbedFields != null)
+               {
+                  string decrypted = Decrypt(discordEmbedFields?.FirstOrDefault()?.Value);
+
+                  DiscordComponentEmoji discordComponentEmojisPrevious = new("🔑");
+                  DiscordComponent[] discordComponent = new DiscordComponent[1];
+                  discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "ClaimKey", "Claim Key!", true, discordComponentEmojisPrevious);
+
+                  await eventArgs.Message.ModifyAsync(x => x.WithContent("Claimed").AddComponents(discordComponent));
+
+                  await eventArgs.User.SendMessageAsync(new DiscordMessageBuilder().WithContent(decrypted));
+               }
+
+               break;
+            }
+         }
       }
 
       private static string Encrypt(string textToEncrypt)
       {
          try
          {
+            //this is not save but no one will look at this so no one will decode the keys
             const string publicKey = "12345678";
             const string secretKey = "87654321";
             byte[] secretKeyByte = Encoding.UTF8.GetBytes(secretKey);
@@ -67,27 +105,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          catch (Exception ex)
          {
             throw new Exception(ex.Message, ex.InnerException);
-         }
-      }
-
-      internal static async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
-      {
-         switch (eventArgs.Id)
-         {
-            case "ClaimKey":
-            {
-               string decrypted = Decrypt(eventArgs.Message.Content);
-
-               DiscordComponentEmoji discordComponentEmojisPrevious = new("🔑");
-               DiscordComponent[] discordComponent = new DiscordComponent[1];
-               discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "ClaimKey", "Claim Key!", true, discordComponentEmojisPrevious);
-
-               await eventArgs.Message.ModifyAsync(x => x.WithContent("Claimed").AddComponents(discordComponent));
-
-               await eventArgs.User.SendMessageAsync(new DiscordMessageBuilder().WithContent(decrypted));
-
-               break;
-            }
          }
       }
 
