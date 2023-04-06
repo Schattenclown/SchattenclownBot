@@ -112,7 +112,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          try
          {
             DiscordMember discordMember = await client.CurrentUser.ConvertToMember(eventArgs.Guild);
-            if (eventArgs.Before != null && eventArgs.After != null && discordMember.VoiceState != null)
+            /*if (eventArgs.Before != null && eventArgs.After != null && discordMember.VoiceState != null)
             {
                if (eventArgs.User == client.CurrentUser && eventArgs.After != null && eventArgs.Before.Channel != eventArgs.After.Channel)
                {
@@ -140,6 +140,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   VoiceNextExtension voiceNext = client.GetVoiceNext();
                   VoiceNextConnection voiceNextConnection = voiceNext.GetConnection(eventArgs.Guild);
                   voiceNextConnection?.Disconnect();
+               }
+            }*/
+            
+            if (discordMember.VoiceState == null || (eventArgs.Before != null && eventArgs.After != null && discordMember.VoiceState != null))
+            {
+               if (eventArgs.User == client.CurrentUser)
+               {
+                  await Main.StopMusicTask(new Gmc(eventArgs.Guild, eventArgs.User.ConvertToMember(eventArgs.Guild).Result, eventArgs.Channel), false);
                }
             }
          }

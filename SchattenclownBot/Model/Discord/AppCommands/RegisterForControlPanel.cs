@@ -25,9 +25,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          DiscordInteractionModalBuilder interactionModalBuilder = new();
          interactionModalBuilder.WithTitle("Register for control panel form");
          interactionModalBuilder.WithCustomId("RegisterForm");
-         interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Paragraph, "Username", "Username", "your username", 3, 16, true, ""));
-         interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Paragraph, "Password", "Password", "your password", 8, 16, true, ""));
-
+         interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Small, "Username", "Username", "your username", null, 16, true, ""));
+         interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Small, "Password", "Password", "your password", null, 16, true, ""));
+         
          await interactionContext.CreateModalResponseAsync(interactionModalBuilder);
 
          await Task.Delay(1000);

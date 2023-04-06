@@ -59,7 +59,7 @@ namespace SchattenclownBot.Model.Discord.Main
       {
          string token = Connections.DiscordBotKey;
 #if DEBUG
-         _token = Connections.DiscordBotDebug;
+         token = Connections.DiscordBotDebug;
 #endif
          ShutdownRequest = new CancellationTokenSource();
 
@@ -77,7 +77,7 @@ namespace SchattenclownBot.Model.Discord.Main
             MinimumLogLevel = logLevel,
             ShardCount = 1,
             ShardId = 0,
-            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences,
+            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences | DiscordIntents.GuildVoiceStates,
             MobileStatus = false,
             UseCanary = true,
             UsePtb = false,
@@ -212,23 +212,23 @@ namespace SchattenclownBot.Model.Discord.Main
          /* CommandsNext Error */
          commandsNextExtension.CommandErrored += CNext_CommandError;
 
+         //Custom Events
+         DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
+         //DiscordClient.VoiceStateUpdated += NewChannelCheck.CheckTask;
+         //DiscordClient.VoiceStateUpdated += Events.PanicLeaveEvent;
+         //DiscordClient.VoiceStateUpdated += Events.GotKickedEvent;
+         //DiscordClient.VoiceStateUpdated += AutoKickEvent.ConnectedEvent;
+         DiscordClient.ComponentInteractionCreated += Events.ButtonPressEvent;
+         DiscordClient.ComponentInteractionCreated += RegisterKey.ButtonPressEvent;
+         DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
+         DiscordClient.ComponentInteractionCreated += RegisterForControlPanel.RegisterEvent;
+
          /* Slash Infos */
          discordClient.ApplicationCommandCreated += Discord_ApplicationCommandCreated;
          discordClient.ApplicationCommandDeleted += Discord_ApplicationCommandDeleted;
          discordClient.ApplicationCommandUpdated += Discord_ApplicationCommandUpdated;
          applicationCommandsExtension.SlashCommandErrored += Slash_SlashCommandError;
          applicationCommandsExtension.SlashCommandExecuted += Slash_SlashCommandExecuted;
-
-         //Custom Events
-         DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
-         //DiscordClient.VoiceStateUpdated += NewChannelCheck.CheckTask;
-         DiscordClient.VoiceStateUpdated += Events.PanicLeaveEvent;
-         DiscordClient.VoiceStateUpdated += Events.GotKickedEvent;
-         //DiscordClient.VoiceStateUpdated += AutoKickEvent.ConnectedEvent;
-         DiscordClient.ComponentInteractionCreated += Events.ButtonPressEvent;
-         DiscordClient.ComponentInteractionCreated += RegisterKey.ButtonPressEvent;
-         DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
-         DiscordClient.ComponentInteractionCreated += RegisterForControlPanel.RegisterEvent;
       }
 
       /// <summary>

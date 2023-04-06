@@ -14,7 +14,7 @@ namespace SchattenclownBot.Model.Persistence.Connection
       {
          _apiToken = Bot.Connections.MySqlApiConStr;
 #if DEBUG
-      _apiToken = Bot.Connections.MySqlAPIConStrDebug;
+         _apiToken = Bot.Connections.MySqlApiConStrDebug;
 #endif
          MySqlConnection connection = new(_apiToken);
 

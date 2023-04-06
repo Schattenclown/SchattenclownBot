@@ -109,7 +109,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                };
                OptionSet optionSet = new()
                {
-                  AddMetadata = true, AudioQuality = 0
+                  AddMetadata = true,
+                  AudioQuality = 0
                };
                optionSet.AddCustomOption("--output", networkDriveUri.AbsolutePath + "%(title)s-%(id)s-%(release_date)s.%(ext)s");
 
@@ -206,7 +207,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                ProcessStartInfo ffmpegProcessStartInfo = new()
                {
-                  FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe", Arguments = $@"-i ""{tempPath}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet", RedirectStandardOutput = true, UseShellExecute = false
+                  FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
+                  Arguments = $@"-i ""{tempPath}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
+                  RedirectStandardOutput = true,
+                  UseShellExecute = false
                };
 
 
@@ -227,6 +231,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   {
                      //maybe problem
                      await Task.Delay(500, cancellationToken);
+
+                     if (voiceState.Channel.Users.All(x => x.Id != Bot.DiscordClient.CurrentUser.Id))
+                     {
+                        await StopMusicTask(gMc, true);
+                        break;
+                     }
 
                      try
                      {
@@ -283,7 +293,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          {
             if (voiceTransmitSink != null)
             {
-               await voiceTransmitSink.FlushAsync(cancellationToken); //maybe problem
+               await voiceTransmitSink.FlushAsync(); //maybe problem
             }
 
             if (!cancellationToken.IsCancellationRequested)
@@ -811,7 +821,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                   SpotifyTasks spotifyTasks = new()
                   {
-                     DiscordUserId = gMc.DiscordMember.Id, DiscordGuildId = gMc.DiscordGuild.Id, DiscordChannelId = gMc.DiscordChannel.Id
+                     DiscordUserId = gMc.DiscordMember.Id,
+                     DiscordGuildId = gMc.DiscordGuild.Id,
+                     DiscordChannelId = gMc.DiscordChannel.Id
                   };
 
                   if (fullTrack != null)
@@ -937,7 +949,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          {
             string[] blacklist =
             {
-               "instrumental", "bass boosted", "mix", "live", "reagiert"
+               "instrumental",
+               "bass boosted",
+               "mix",
+               "live",
+               "reagiert"
             };
 
             foreach (string item in blacklist)
@@ -1229,7 +1245,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          string[] fingerPrintFingerprint = default;
          ProcessStartInfo fingerPrintCalculationProcessStartInfo = new()
          {
-            FileName = "..\\..\\..\\Model\\Executables\\fpcalc\\fpcalc.exe", Arguments = filePathUri.LocalPath, RedirectStandardOutput = true, UseShellExecute = false
+            FileName = "..\\..\\..\\Model\\Executables\\fpcalc\\fpcalc.exe",
+            Arguments = filePathUri.LocalPath,
+            RedirectStandardOutput = true,
+            UseShellExecute = false
          };
          Process fingerPrintCalculationProcess = Process.Start(fingerPrintCalculationProcessStartInfo);
          if (fingerPrintCalculationProcess != null)
