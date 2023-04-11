@@ -44,6 +44,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             guildList.Remove(Bot.DiscordClient.GetGuildAsync(1088454540329746442).Result);
             guildList.Remove(Bot.DiscordClient.GetGuildAsync(918232272732319744).Result);
             guildList.Remove(Bot.DiscordClient.GetGuildAsync(631177569021984811).Result);
+            guildList.Remove(Bot.DiscordClient.GetGuildAsync(180745071656697856).Result);
 
             while (true)
             {
