@@ -88,6 +88,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
             DiscordComponentEmoji discordComponentEmojisShuffle = new("🔀");
             DiscordComponentEmoji discordComponentEmojisQueue = new("⏬");
+            DiscordComponentEmoji discordComponentEmojisNotRepeat = new("↪");
             DiscordComponentEmoji discordComponentEmojisRepeat = new("🔂");
             DiscordComponent[] discordComponent = new DiscordComponent[5];
             discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", false, discordComponentEmojisPrevious);
@@ -102,7 +103,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             }
             else
             {
-               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisRepeat);
+               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisNotRepeat);
             }
 
             DiscordEmbedBuilder discordEmbedBuilder = new();
@@ -257,7 +258,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                            }
                            else
                            {
-                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisRepeat);
+                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisNotRepeat);
                            }
 
                            await discordMessage.ModifyAsync(x => x.AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
@@ -304,7 +305,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   }
                   else
                   {
-                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", true, discordComponentEmojisRepeat);
+                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", true, discordComponentEmojisNotRepeat);
                   }
 
                   discordEmbedBuilder.Description = TimeLineStringBuilderAfterTrack(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);

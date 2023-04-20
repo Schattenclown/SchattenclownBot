@@ -30,14 +30,33 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             {
                case "IsRepeat":
                {
+                  DiscordComponentEmoji discordComponentEmojisPrevious = new("⏮️");
+                  DiscordComponentEmoji discordComponentEmojisNext = new("⏭️");
+                  DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
+                  DiscordComponentEmoji discordComponentEmojisShuffle = new("🔀");
+                  DiscordComponentEmoji discordComponentEmojisQueue = new("⏬");
+                  DiscordComponentEmoji discordComponentEmojisNotRepeat = new("↪");
+                  DiscordComponentEmoji discordComponentEmojisRepeat = new("🔂");
+                  DiscordComponent[] discordComponent = new DiscordComponent[5];
+                  discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", false, discordComponentEmojisPrevious);
+                  discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next!", false, discordComponentEmojisNext);
+                  //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", false, discordComponentEmojisStop);
+                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
+                  discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", false, discordComponentEmojisQueue);
+
                   if (Main.CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
                   {
+                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisNotRepeat);
                      Main.CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat = false;
                   }
                   else
                   {
+                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Turn repeat off!", false, discordComponentEmojisRepeat);
                      Main.CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat = true;
                   }
+
+                  await eventArgs.Message.ModifyAsync(x => x.AddComponents(discordComponent));
+
                   break;
                }
                case "PreviousTrackStream":
