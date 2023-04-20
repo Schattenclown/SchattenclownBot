@@ -241,16 +241,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                   int timeSpanAdvanceInt = 0;
                   int runAsyncInt = 0;
+                  
+                  DateTime dateTimeOfPlayBack = DateTime.Now;
                   while (!ffmpegCopyTask.IsCompleted)
                   {
-                     //maybe problem
-                     await Task.Delay(500, cancellationToken);
-
                      try
                      {
+                        TimeSpan temp = DateTime.Now - dateTimeOfPlayBack;
+                        
                         if (timeSpanAdvanceInt % 1 == 0)
                         {
-                           discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
+                           discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(Convert.ToInt32(temp.TotalSeconds), audioDownloadTimeSpan, cancellationToken);
 
                            if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
                            {
@@ -271,8 +272,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                      if (voiceState.Channel.Users.All(x => x.Id != Bot.DiscordClient.CurrentUser.Id))
                      {
-                        ffmpegStream.Close();
                         await StopMusicTask(gMc, true);
+                        ffmpegStream.Close();
                         break;
                      }
 
@@ -288,9 +289,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      }
 
                      runAsyncInt++;
-                     //maybe problem
-                     await Task.Delay(500, cancellationToken);
                      timeSpanAdvanceInt++;
+
+                     //maybe problem
+                     await Task.Delay(1000, cancellationToken);
                   }
 
                   discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", true, discordComponentEmojisPrevious);
