@@ -59,6 +59,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
       internal static async Task PlayFromQueueAsyncTask(Gmc gMc, QueueTrack queueTrack, CancellationToken cancellationToken)
       {
+         bool isRepeat = false;
          VoiceNextExtension voiceNext = Bot.DiscordClient.GetVoiceNext();
          if (voiceNext == null)
          {
@@ -312,6 +313,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
                {
+                  isRepeat = true;
                   QueueTracks.Find(x => x == queueTrack)!.HasBeenPlayed = false;
                }
 
@@ -367,7 +369,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   {
                      CancellationTokenSource cancellationTokenSource = new();
                      CancellationToken token = cancellationTokenSource.Token;
-                     CancellationTokenItemList.Add(new DcCancellationTokenItem(gMc.DiscordGuild, cancellationTokenSource, CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat));
+                     CancellationTokenItemList.Add(new DcCancellationTokenItem(gMc.DiscordGuild, cancellationTokenSource, isRepeat));
                      gMc.DiscordMember = Bot.DiscordClient.CurrentUser.ConvertToMember(gMc.DiscordGuild).Result;
                      _ = Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrackItem, token));
                      break;
