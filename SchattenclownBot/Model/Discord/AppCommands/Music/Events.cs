@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using DisCatSharp;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
-using DisCatSharp.VoiceNext;
 using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music
@@ -30,6 +28,18 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
             switch (eventArgs.Id)
             {
+               case "IsRepeat":
+               {
+                  if (Main.CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
+                  {
+                     Main.CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat = false;
+                  }
+                  else
+                  {
+                     Main.CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat = true;
+                  }
+                  break;
+               }
                case "PreviousTrackStream":
                {
                   Main.PlayPreviousTrackFromQueue(gMc);
@@ -142,7 +152,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   voiceNextConnection?.Disconnect();
                }
             }*/
-            
+
             if (discordMember.VoiceState == null || (eventArgs.Before != null && eventArgs.After != null && discordMember.VoiceState != null))
             {
                if (eventArgs.User == client.CurrentUser)

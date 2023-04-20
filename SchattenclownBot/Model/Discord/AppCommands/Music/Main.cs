@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,7 @@ using File = TagLib.File;
 
 namespace SchattenclownBot.Model.Discord.AppCommands.Music
 {
+   [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
    internal class Main
    {
       internal static readonly List<DcCancellationTokenItem> CancellationTokenItemList = new();
@@ -39,16 +41,17 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
       {
          CancellationTokenSource tokenSource = new();
          CancellationToken cancellationToken = tokenSource.Token;
-         DcCancellationTokenItem dcCancellationTokenKeyPair = new(gMc.DiscordGuild, tokenSource);
+         DcCancellationTokenItem dcCancellationTokenKeyPair = new(gMc.DiscordGuild, tokenSource, false);
          CancellationTokenItemList.Add(dcCancellationTokenKeyPair);
 
          try
          {
-            Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrack, cancellationToken), cancellationToken);
+            Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrack, cancellationToken));
          }
          catch
          {
             CancellationTokenItemList.Remove(dcCancellationTokenKeyPair);
+            QueueTracks.Remove(queueTrack);
          }
 
          return Task.CompletedTask;
@@ -84,12 +87,23 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             DiscordComponentEmoji discordComponentEmojisStop = new("⏹️");
             DiscordComponentEmoji discordComponentEmojisShuffle = new("🔀");
             DiscordComponentEmoji discordComponentEmojisQueue = new("⏬");
+            DiscordComponentEmoji discordComponentEmojisRepeat = new("🔂");
             DiscordComponent[] discordComponent = new DiscordComponent[5];
             discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", false, discordComponentEmojisPrevious);
             discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next!", false, discordComponentEmojisNext);
-            discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", false, discordComponentEmojisStop);
-            discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
-            discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", false, discordComponentEmojisQueue);
+            //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", false, discordComponentEmojisStop);
+            discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
+            discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", false, discordComponentEmojisQueue);
+
+            if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
+            {
+               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Turn repeat off!", false, discordComponentEmojisRepeat);
+            }
+            else
+            {
+               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisRepeat);
+            }
+
             DiscordEmbedBuilder discordEmbedBuilder = new();
             RunResult<string> audioDownload = default;
             TimeSpan audioDownloadTimeSpan = default;
@@ -175,7 +189,6 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                audioDownloadTimeSpan = tagFile.Properties.Duration;
             }
 
-
             if (queueTrack.LocalPath == null && audioDownload?.Success == false)
             {
                await Bot.DebugDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(audioDownload.ErrorOutput.Aggregate("", (current, errors) => current + errors + "\n\n" + queueTrack.YouTubeUri.AbsoluteUri))));
@@ -183,36 +196,35 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             }
             else
             {
-               string tempPath = "";
+               string spotifyFilePath = "";
 
                if (queueTrack.LocalPath == null && !fileExists)
                {
                   if (audioDownload != null)
                   {
-                     tempPath = audioDownload.Data;
+                     spotifyFilePath = audioDownload.Data;
                   }
                }
                else if (queueTrack.LocalPath == null)
                {
-                  tempPath = @$"M:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
+                  spotifyFilePath = @$"M:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3";
                }
                else
                {
-                  tempPath = queueTrack.LocalPath;
+                  spotifyFilePath = queueTrack.LocalPath;
                }
 
-               await Bot.DebugDiscordChannel.SendMessageAsync(@$"{tempPath}");
-               discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(@$"{tempPath}"), null, null);
+               await Bot.DebugDiscordChannel.SendMessageAsync(@$"{spotifyFilePath}");
+               discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(@$"{spotifyFilePath}"), null, null);
                DiscordMessage discordMessage = await gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
 
                ProcessStartInfo ffmpegProcessStartInfo = new()
                {
                   FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
-                  Arguments = $@"-i ""{tempPath}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
+                  Arguments = $@"-i ""{spotifyFilePath}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
                   RedirectStandardOutput = true,
                   UseShellExecute = false
                };
-
 
                Process ffmpegProcess = Process.Start(ffmpegProcessStartInfo);
                if (ffmpegProcess != null)
@@ -232,23 +244,34 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      //maybe problem
                      await Task.Delay(500, cancellationToken);
 
-                     if (voiceState.Channel.Users.All(x => x.Id != Bot.DiscordClient.CurrentUser.Id))
-                     {
-                        await StopMusicTask(gMc, true);
-                        break;
-                     }
-
                      try
                      {
                         if (timeSpanAdvanceInt % 1 == 0)
                         {
                            discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
-                           await discordMessage.ModifyAsync(x => x.AddComponents(discordMessage.Components).AddEmbed(discordEmbedBuilder.Build()));
+
+                           if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
+                           {
+                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Turn repeat off!", false, discordComponentEmojisRepeat);
+                           }
+                           else
+                           {
+                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisRepeat);
+                           }
+
+                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
                         }
                      }
                      catch (Exception ex)
                      {
                         CwLogger.Write(ex, MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">d__12", "").Replace("<", ""), ConsoleColor.Red);
+                     }
+
+                     if (voiceState.Channel.Users.All(x => x.Id != Bot.DiscordClient.CurrentUser.Id))
+                     {
+                        ffmpegStream.Close();
+                        await StopMusicTask(gMc, true);
+                        break;
                      }
 
                      if (cancellationToken.IsCancellationRequested)
@@ -259,7 +282,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                      if (runAsyncInt % 10 == 0)
                      {
-                        CwLogger.Write($"Playing Artist: {queueTrack.Artist} Title: {queueTrack.Title} on Guild: {queueTrack.Gmc.DiscordGuild.Name}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
+                        CwLogger.Write($"Playing Artist: '{queueTrack.Artist}' Title: '{queueTrack.Title}' on Guild: '{queueTrack.Gmc.DiscordGuild.Name}'", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.DarkYellow);
                      }
 
                      runAsyncInt++;
@@ -270,12 +293,26 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                   discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", true, discordComponentEmojisPrevious);
                   discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next!", true, discordComponentEmojisNext);
-                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", true, discordComponentEmojisStop);
-                  discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", true, discordComponentEmojisShuffle);
-                  discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", true, discordComponentEmojisQueue);
+                  //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", true, discordComponentEmojisStop);
+                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", true, discordComponentEmojisShuffle);
+                  discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", true, discordComponentEmojisQueue);
+
+                  if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
+                  {
+                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Turn repeat off!", true, discordComponentEmojisRepeat);
+                  }
+                  else
+                  {
+                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", true, discordComponentEmojisRepeat);
+                  }
 
                   discordEmbedBuilder.Description = TimeLineStringBuilderAfterTrack(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
                   await discordMessage.ModifyAsync(x => x.AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
+               }
+
+               if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
+               {
+                  QueueTracks.Find(x => x == queueTrack)!.HasBeenPlayed = false;
                }
 
                if (!cancellationToken.IsCancellationRequested)
@@ -293,7 +330,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          {
             if (voiceTransmitSink != null)
             {
-               await voiceTransmitSink.FlushAsync(); //maybe problem
+               //maybe problem
+               await voiceTransmitSink.FlushAsync();
             }
 
             if (!cancellationToken.IsCancellationRequested)
@@ -329,9 +367,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                   {
                      CancellationTokenSource cancellationTokenSource = new();
                      CancellationToken token = cancellationTokenSource.Token;
-                     CancellationTokenItemList.Add(new DcCancellationTokenItem(gMc.DiscordGuild, cancellationTokenSource));
+                     CancellationTokenItemList.Add(new DcCancellationTokenItem(gMc.DiscordGuild, cancellationTokenSource, CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat));
                      gMc.DiscordMember = Bot.DiscordClient.CurrentUser.ConvertToMember(gMc.DiscordGuild).Result;
-                     _ = Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrackItem, token), token);
+                     _ = Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrackItem, token));
                      break;
                   }
                }
@@ -341,7 +379,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
       internal static void PlayNextTrackFromQueue(Gmc gMc)
       {
-         if (QueueTracks.All(x => x.Gmc.DiscordGuild != gMc.DiscordGuild && x.HasBeenPlayed))
+         if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
+         {
+            gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Repeat is on, turn it off to skip Songs!")));
+            return;
+         }
+
+         IEnumerable<QueueTrack> queueTracksTemp = QueueTracks.Where(x => x.Gmc.DiscordGuild == gMc.DiscordGuild);
+
+         if (queueTracksTemp.All(x => x.HasBeenPlayed))
          {
             gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Nothing to skip!")));
             return;
@@ -366,10 +412,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
          foreach (QueueTrack queueTrack in QueueTracks.Where(x => x.Gmc.DiscordGuild == gMc.DiscordGuild && !x.HasBeenPlayed))
          {
-            DcCancellationTokenItem newDcCancellationTokenItem = new(gMc.DiscordGuild, newCancellationTokenSource);
+            DcCancellationTokenItem newDcCancellationTokenItem = new(gMc.DiscordGuild, newCancellationTokenSource, false);
             CancellationTokenItemList.Add(newDcCancellationTokenItem);
 
-            Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrack, newCancellationToken), newCancellationToken);
+            Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrack, newCancellationToken));
             break;
          }
       }
@@ -416,10 +462,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
          foreach (QueueTrack queueTrack in QueueTracks.Where(x => x.Gmc.DiscordGuild == gMc.DiscordGuild && !x.HasBeenPlayed))
          {
-            DcCancellationTokenItem newDcCancellationTokenItem = new(gMc.DiscordGuild, newCancellationTokenSource);
+            DcCancellationTokenItem newDcCancellationTokenItem = new(gMc.DiscordGuild, newCancellationTokenSource, false);
             CancellationTokenItemList.Add(newDcCancellationTokenItem);
 
-            Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrack, newCancellationToken), newCancellationToken);
+            Task.Run(() => PlayFromQueueAsyncTask(gMc, queueTrack, newCancellationToken));
             break;
          }
       }
@@ -894,9 +940,26 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             {
                if (editQueueTrack != null)
                {
-                  editQueueTrack.YouTubeUri = SearchYoutubeFromSpotify(queueTrack.FullTrack);
-                  editQueueTrack.IsAdded = true;
+                  bool fileExists = false;
+                  try
+                  {
+                     if (queueTrack.SpotifyUri != null)
+                     {
+                        fileExists = System.IO.File.Exists(@$"M:\Spotify2mp3\{queueTrack.FullTrack.ExternalIds.First().Value}-{queueTrack.FullTrack.Id}.mp3");
+                     }
+                  }
+                  catch
+                  {
+                     //ignore
+                  }
+
+                  if (!fileExists)
+                  {
+                     editQueueTrack.YouTubeUri = SearchYoutubeFromSpotify(queueTrack.FullTrack);
+                  }
+
                   CwLogger.Write($"{queueTrack.Gmc.DiscordGuild.Name}   |   {queueTrack.Title} - {queueTrack.Artist}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace("<>c__DisplayClass11_0", "Queue Add"), ConsoleColor.DarkCyan);
+                  editQueueTrack.IsAdded = true;
                }
                else
                {
