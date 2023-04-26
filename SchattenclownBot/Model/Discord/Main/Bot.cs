@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Discord.AppCommands.Music;
+using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
@@ -166,14 +167,13 @@ namespace SchattenclownBot.Model.Discord.Main
          SympathySystem.SympathySystemRunAsync(59);
          LastMinuteCheck.Check(0);
          await BirthdayList.GenerateBirthdayList();
-
+         
 #if RELEASE
          DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
 #elif DEBUG
          DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
 #endif
-
-
+         
          /*DiscordMember dcm = Bot.DiscordClient.GetUserAsync(797971024175824936).Result.ConvertToMember(Bot.DiscordClient.GetGuildAsync(985978911840141372).Result).Result;
          await dcm.DisconnectFromVoiceAsync();*/
 

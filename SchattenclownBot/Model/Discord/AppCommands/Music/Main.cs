@@ -93,8 +93,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             DiscordComponent[] discordComponent = new DiscordComponent[5];
             discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", false, discordComponentEmojisPrevious);
             discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next!", false, discordComponentEmojisNext);
-            //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", false, discordComponentEmojisStop);
-            discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
+            discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", false, discordComponentEmojisStop);
+            //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
             discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", false, discordComponentEmojisQueue);
 
             if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
@@ -241,14 +241,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                   int timeSpanAdvanceInt = 0;
                   int runAsyncInt = 0;
-                  
+
                   DateTime dateTimeOfPlayBack = DateTime.Now;
                   while (!ffmpegCopyTask.IsCompleted)
                   {
                      try
                      {
                         TimeSpan temp = DateTime.Now - dateTimeOfPlayBack;
-                        
+
                         if (timeSpanAdvanceInt % 1 == 0)
                         {
                            discordEmbedBuilder.Description = TimeLineStringBuilderWhilePlaying(Convert.ToInt32(temp.TotalSeconds), audioDownloadTimeSpan, cancellationToken);
@@ -297,8 +297,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                   discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", true, discordComponentEmojisPrevious);
                   discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next!", true, discordComponentEmojisNext);
-                  //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", true, discordComponentEmojisStop);
-                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", true, discordComponentEmojisShuffle);
+                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", true, discordComponentEmojisStop);
+                  //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", true, discordComponentEmojisShuffle);
                   discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", true, discordComponentEmojisQueue);
 
                   if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
@@ -329,7 +329,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
          catch (Exception ex)
          {
             await Bot.DebugDiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(ex.ToString())));
-            await gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Something went wrong!\n")));
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+               await gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription("Something went wrong!\n")));
+            }
          }
          finally
          {
