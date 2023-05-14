@@ -147,7 +147,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       {
          DiscordEmbedBuilder discordEmbedBuilder = new()
          {
-            Title = $"Poke {discordTargetMember.DisplayName}"
+                  Title = $"Poke {discordTargetMember.DisplayName}"
          };
 
          discordEmbedBuilder.WithFooter($"Requested by {discordMember.DisplayName}", discordMember.AvatarUrl);

@@ -49,7 +49,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             TwitchNotifier twitchNotifierObj = new()
             {
-               DiscordGuildId = interactionContext.Guild.Id, DiscordMemberId = interactionContext.Member.Id, DiscordChannelId = discordTargetChannel.Id, DiscordRoleId = discordTargetRole.Id
+                     DiscordGuildId = interactionContext.Guild.Id,
+                     DiscordMemberId = interactionContext.Member.Id,
+                     DiscordChannelId = discordTargetChannel.Id,
+                     DiscordRoleId = discordTargetRole.Id
             };
 
             try

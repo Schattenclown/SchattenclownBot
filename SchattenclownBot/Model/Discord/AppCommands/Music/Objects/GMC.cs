@@ -29,9 +29,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
             {
                Gmc gMc = new()
                {
-                  DiscordGuild = guildItem,
-                  DiscordMember = memberItem,
-                  DiscordChannel = memberItem.VoiceState.Channel
+                        DiscordGuild = guildItem,
+                        DiscordMember = memberItem,
+                        DiscordChannel = memberItem.VoiceState.Channel
                };
                return gMc;
             }
@@ -48,8 +48,8 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
             {
                Gmc gMc = new()
                {
-                  DiscordGuild = guildItem,
-                  DiscordMember = memberItem
+                        DiscordGuild = guildItem,
+                        DiscordMember = memberItem
                };
                return gMc;
             }

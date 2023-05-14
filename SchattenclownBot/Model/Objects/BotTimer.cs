@@ -49,7 +49,7 @@ namespace SchattenclownBot.Model.Objects
                      DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(botTimerItem.ChannelId);
                      DiscordEmbedBuilder eb = new()
                      {
-                        Color = DiscordColor.Red
+                              Color = DiscordColor.Red
                      };
                      eb.WithDescription($"<@{botTimerItem.MemberId}> Timer for {botTimerItem.NotificationTime} is up!");
 

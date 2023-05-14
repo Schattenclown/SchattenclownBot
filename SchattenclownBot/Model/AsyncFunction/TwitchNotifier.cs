@@ -74,10 +74,11 @@ namespace SchattenclownBot.Model.AsyncFunction
          //https://twitchtokengenerator.com/
          Api = new TwitchAPI
          {
-            Settings =
-            {
-               ClientId = Bot.Connections.TwitchToken.ClientId, AccessToken = Bot.Connections.TwitchToken.ClientSecret
-            }
+                  Settings =
+                  {
+                           ClientId = Bot.Connections.TwitchToken.ClientId,
+                           AccessToken = Bot.Connections.TwitchToken.ClientSecret
+                  }
          };
 
          bool levelSystemVirgin = true;
@@ -151,7 +152,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
-               Color = DiscordColor.Purple
+                     Color = DiscordColor.Purple
             };
             discordEmbedBuilder.WithDescription($"{discordRole.Mention}");
 
@@ -169,17 +170,19 @@ namespace SchattenclownBot.Model.AsyncFunction
             if (e.Stream.GameId != null)
             {
                GetGamesResponse getGamesResponse = Api.Helix.Games.GetGamesAsync(new List<string>
-               {
-                  e.Stream.GameId
-               }).Result;
+                        {
+                                 e.Stream.GameId
+                        })
+                        .Result;
                string gameIconUrl = getGamesResponse.Games[0].BoxArtUrl.Replace("{width}", "285").Replace("{height}", "380");
                discordEmbedBuilder.WithThumbnail(gameIconUrl);
             }
 
             GetUsersResponse getUsersResponse = Api.Helix.Users.GetUsersAsync(new List<string>
-            {
-               e.Stream.UserId
-            }).Result;
+                     {
+                              e.Stream.UserId
+                     })
+                     .Result;
             string userIconUrl = getUsersResponse.Users[0].ProfileImageUrl.Replace("{width}", "400").Replace("{height}", "400");
             discordEmbedBuilder.WithAuthor($"{e.Stream.UserName} is Live", $"https://www.twitch.tv/{e.Channel}", userIconUrl);
             discordEmbedBuilder.WithFooter(e.Stream.Title, userIconUrl);
@@ -213,13 +216,14 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
-               Color = DiscordColor.Gray
+                     Color = DiscordColor.Gray
             };
 
             GetUsersResponse getUsersResponse = Api.Helix.Users.GetUsersAsync(new List<string>
-            {
-               e.Stream.UserId
-            }).Result;
+                     {
+                              e.Stream.UserId
+                     })
+                     .Result;
             string userIconUrl = getUsersResponse.Users[0].ProfileImageUrl.Replace("{width}", "400").Replace("{height}", "400");
 
             discordEmbedBuilder.WithAuthor($"{e.Stream.UserName} is Offline", $"https://www.twitch.tv/{e.Channel}", userIconUrl);
@@ -281,7 +285,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                   DiscordEmbedBuilder discordEmbedBuilder = new()
                   {
-                     Color = DiscordColor.Purple
+                           Color = DiscordColor.Purple
                   };
                   discordEmbedBuilder.WithDescription($"{discordRole.Mention}");
 
@@ -299,17 +303,19 @@ namespace SchattenclownBot.Model.AsyncFunction
                   if (stream.GameId != null)
                   {
                      GetGamesResponse getGamesResponse = Api.Helix.Games.GetGamesAsync(new List<string>
-                     {
-                        stream.GameId
-                     }).Result;
+                              {
+                                       stream.GameId
+                              })
+                              .Result;
                      string gameIconUrl = getGamesResponse.Games[0].BoxArtUrl.Replace("{width}", "285").Replace("{height}", "380");
                      discordEmbedBuilder.WithThumbnail(gameIconUrl);
                   }
 
                   GetUsersResponse getUsersResponse = Api.Helix.Users.GetUsersAsync(new List<string>
-                  {
-                     stream.UserId
-                  }).Result;
+                           {
+                                    stream.UserId
+                           })
+                           .Result;
                   string userIconUrl = getUsersResponse.Users[0].ProfileImageUrl.Replace("{width}", "400").Replace("{height}", "400");
                   discordEmbedBuilder.WithAuthor($"{stream.UserName} is Live", $"https://www.twitch.tv/{stream.UserLogin}", userIconUrl);
                   discordEmbedBuilder.WithFooter(stream.Title, userIconUrl);

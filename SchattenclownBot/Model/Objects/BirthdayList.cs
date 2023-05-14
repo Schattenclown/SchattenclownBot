@@ -67,7 +67,7 @@ namespace SchattenclownBot.Model.Objects
                DiscordChannel chn = await Bot.DiscordClient.GetChannelAsync(928938948221366334);
                DiscordEmbedBuilder eb = new()
                {
-                  Color = DiscordColor.Red
+                        Color = DiscordColor.Red
                };
                eb.WithDescription(listString);
                await chn.SendMessageAsync(eb.Build());

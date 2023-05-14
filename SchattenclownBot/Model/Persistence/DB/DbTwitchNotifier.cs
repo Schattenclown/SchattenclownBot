@@ -21,12 +21,12 @@ namespace SchattenclownBot.Model.Persistence.DB
          {
             TwitchNotifier twitchNotifierObj = new()
             {
-               DiscordGuildId = mySqlDataReader.GetUInt64("DiscordGuildId"),
-               DiscordMemberId = mySqlDataReader.GetUInt64("DiscordMemberId"),
-               DiscordChannelId = mySqlDataReader.GetUInt64("DiscordChannelId"),
-               DiscordRoleId = mySqlDataReader.GetUInt64("DiscordRoleId"),
-               TwitchUserId = mySqlDataReader.GetUInt64("TwitchUserId"),
-               TwitchChannelUrl = mySqlDataReader.GetString("TwitchChannelUrl")
+                     DiscordGuildId = mySqlDataReader.GetUInt64("DiscordGuildId"),
+                     DiscordMemberId = mySqlDataReader.GetUInt64("DiscordMemberId"),
+                     DiscordChannelId = mySqlDataReader.GetUInt64("DiscordChannelId"),
+                     DiscordRoleId = mySqlDataReader.GetUInt64("DiscordRoleId"),
+                     TwitchUserId = mySqlDataReader.GetUInt64("TwitchUserId"),
+                     TwitchChannelUrl = mySqlDataReader.GetString("TwitchChannelUrl")
             };
 
             twitchNotifierList.Add(twitchNotifierObj);

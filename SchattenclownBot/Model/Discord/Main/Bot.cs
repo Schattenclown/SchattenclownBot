@@ -19,7 +19,6 @@ using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.AppCommands;
 using SchattenclownBot.Model.Discord.AppCommands.Music;
-using SchattenclownBot.Model.Discord.AppCommands.Music.Objects;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
@@ -71,46 +70,52 @@ namespace SchattenclownBot.Model.Discord.Main
 #endif
          DiscordConfiguration discordConfiguration = new()
          {
-            Token = token,
-            TokenType = TokenType.Bot,
-            AutoReconnect = true,
-            MessageCacheSize = 4096,
-            MinimumLogLevel = logLevel,
-            ShardCount = 1,
-            ShardId = 0,
-            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences | DiscordIntents.GuildVoiceStates,
-            MobileStatus = false,
-            UseCanary = true,
-            UsePtb = false,
-            AutoRefreshChannelCache = false,
-            HttpTimeout = TimeSpan.FromSeconds(60),
-            ReconnectIndefinitely = true
+                  Token = token,
+                  TokenType = TokenType.Bot,
+                  AutoReconnect = true,
+                  MessageCacheSize = 4096,
+                  MinimumLogLevel = logLevel,
+                  ShardCount = 1,
+                  ShardId = 0,
+                  Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences | DiscordIntents.GuildVoiceStates,
+                  MobileStatus = false,
+                  UseCanary = true,
+                  UsePtb = false,
+                  AutoRefreshChannelCache = false,
+                  HttpTimeout = TimeSpan.FromSeconds(60),
+                  ReconnectIndefinitely = true
          };
 
          DiscordClient = new DiscordClient(discordConfiguration);
 
          AppCommands = DiscordClient.UseApplicationCommands(new ApplicationCommandsConfiguration
          {
-            EnableDefaultHelp = true, DebugStartup = true, ManualOverride = true, CheckAllGuilds = true
+                  EnableDefaultHelp = true,
+                  DebugStartup = true,
+                  ManualOverride = true,
+                  CheckAllGuilds = true
          });
 
          _commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
          {
-            StringPrefixes = new List<string>
-            {
-               Prefix
-            },
-            CaseSensitive = true,
-            EnableMentionPrefix = true,
-            IgnoreExtraArguments = true,
-            DefaultHelpChecks = null,
-            EnableDefaultHelp = true,
-            EnableDms = true
+                  StringPrefixes = new List<string>
+                  {
+                           Prefix
+                  },
+                  CaseSensitive = true,
+                  EnableMentionPrefix = true,
+                  IgnoreExtraArguments = true,
+                  DefaultHelpChecks = null,
+                  EnableDefaultHelp = true,
+                  EnableDms = true
          });
 
          Extension = DiscordClient.UseInteractivity(new InteractivityConfiguration
          {
-            PaginationBehaviour = PaginationBehaviour.WrapAround, PaginationDeletion = PaginationDeletion.DeleteMessage, PollBehaviour = PollBehaviour.DeleteEmojis, ButtonBehavior = ButtonPaginationBehavior.Disable
+                  PaginationBehaviour = PaginationBehaviour.WrapAround,
+                  PaginationDeletion = PaginationDeletion.DeleteMessage,
+                  PollBehaviour = PollBehaviour.DeleteEmojis,
+                  ButtonBehavior = ButtonPaginationBehavior.Disable
          });
 
          NextExtension = DiscordClient.UseVoiceNext(new VoiceNextConfiguration());
@@ -167,13 +172,13 @@ namespace SchattenclownBot.Model.Discord.Main
          SympathySystem.SympathySystemRunAsync(59);
          LastMinuteCheck.Check(0);
          await BirthdayList.GenerateBirthdayList();
-         
+
 #if RELEASE
          DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
 #elif DEBUG
          DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
 #endif
-         
+
          /*DiscordMember dcm = Bot.DiscordClient.GetUserAsync(797971024175824936).Result.ConvertToMember(Bot.DiscordClient.GetGuildAsync(985978911840141372).Result).Result;
          await dcm.DisconnectFromVoiceAsync();*/
 
@@ -268,7 +273,8 @@ namespace SchattenclownBot.Model.Discord.Main
 
          DiscordActivity discordActivity = new()
          {
-            Name = Custom ? CustomState : "/help", ActivityType = ActivityType.Competing
+                  Name = Custom ? CustomState : "/help",
+                  ActivityType = ActivityType.Competing
          };
          discordClient.UpdateStatusAsync(discordActivity, Custom ? CustomStatus : UserStatus.Online);
          CwLogger.Write("Bot ready!", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Green);

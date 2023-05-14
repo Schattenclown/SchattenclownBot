@@ -22,7 +22,10 @@ namespace SchattenclownBot.Model.Persistence.DB
             {
                BotAlarmClock botAlarmClock = new()
                {
-                  DbEntryId = mySqlDataReader.GetInt32("DBEntryID"), NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"), ChannelId = mySqlDataReader.GetUInt64("ChannelId"), MemberId = mySqlDataReader.GetUInt64("MemberId")
+                        DbEntryId = mySqlDataReader.GetInt32("DBEntryID"),
+                        NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"),
+                        ChannelId = mySqlDataReader.GetUInt64("ChannelId"),
+                        MemberId = mySqlDataReader.GetUInt64("MemberId")
                };
                botAlarmClockList.Add(botAlarmClock);
             }

@@ -140,7 +140,7 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                            DiscordEmbedBuilder discordEmbedBuilder = new()
                            {
-                              Color = new DiscordColor(17, 17, 17)
+                                    Color = new DiscordColor(17, 17, 17)
                            };
                            discordEmbedBuilder.WithFooter(discordVoiceState.Guild.Name + " | " + discordVoiceState.Channel.Name, discordVoiceState.Guild.IconUrl);
                            discordEmbedBuilder.WithTimestamp(DateTime.Now);

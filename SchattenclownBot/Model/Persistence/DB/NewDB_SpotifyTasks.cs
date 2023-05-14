@@ -53,9 +53,10 @@ namespace SchattenclownBot.Model.Persistence.DB
 
          // Split the script into separate batches using the 'GO' keyword as a separator
          string[] batches = createDatabaseAndTableScript.Split(new[]
-         {
-            "GO"
-         }, StringSplitOptions.RemoveEmptyEntries);
+                  {
+                           "GO"
+                  },
+                  StringSplitOptions.RemoveEmptyEntries);
 
          foreach (string batch in batches)
          {

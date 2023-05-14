@@ -42,7 +42,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          DateTime dateTimeNow = DateTime.Now;
          BotTimer botTimer = new()
          {
-            ChannelId = interactionContext.Channel.Id, MemberId = interactionContext.Member.Id, NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
+                  ChannelId = interactionContext.Channel.Id,
+                  MemberId = interactionContext.Member.Id,
+                  NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
          };
          BotTimer.Add(botTimer);
 
@@ -67,7 +69,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          //Create an Embed.
          DiscordEmbedBuilder discordEmbedBuilder = new()
          {
-            Title = "Your timers", Color = DiscordColor.Purple, Description = $"<@{interactionContext.Member.Id}>"
+                  Title = "Your timers",
+                  Color = DiscordColor.Purple,
+                  Description = $"<@{interactionContext.Member.Id}>"
          };
 
          //Switch to check if any Timers where set at all.

@@ -16,7 +16,8 @@ namespace SchattenclownBot.Model.Objects
 
          Root obj = new()
          {
-            Images = lst.Images, Release = lst.Release
+                  Images = lst.Images,
+                  Release = lst.Release
          };
 
          return obj;

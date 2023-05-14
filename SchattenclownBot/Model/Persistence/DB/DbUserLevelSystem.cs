@@ -19,7 +19,8 @@ namespace SchattenclownBot.Model.Persistence.DB
          {
             UserLevelSystem userLevelSystemObj = new()
             {
-               MemberId = mySqlDataReader.GetUInt64("MemberId"), OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")
+                     MemberId = mySqlDataReader.GetUInt64("MemberId"),
+                     OnlineTicks = mySqlDataReader.GetInt32("OnlineTicks")
             };
 
             userLevelSystemList.Add(userLevelSystemObj);

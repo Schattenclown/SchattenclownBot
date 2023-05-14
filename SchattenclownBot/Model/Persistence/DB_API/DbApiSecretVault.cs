@@ -20,7 +20,7 @@ namespace SchattenclownBot.Model.Persistence.DB_API
             {
                secretVault = new SecretVault
                {
-                  DiscordUserId = mySqlDataReader.GetUInt64("DiscordUserId")
+                        DiscordUserId = mySqlDataReader.GetUInt64("DiscordUserId")
                };
             }
          }

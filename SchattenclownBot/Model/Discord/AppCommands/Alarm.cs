@@ -52,7 +52,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          //Create an AlarmObject and add it to the Database.
          BotAlarmClock botAlarmClock = new()
          {
-            ChannelId = interactionContext.Channel.Id, MemberId = interactionContext.Member.Id, NotificationTime = alarm
+                  ChannelId = interactionContext.Channel.Id,
+                  MemberId = interactionContext.Member.Id,
+                  NotificationTime = alarm
          };
          BotAlarmClock.Add(botAlarmClock);
 
@@ -77,7 +79,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          //Create an Embed.
          DiscordEmbedBuilder discordEmbedBuilder = new()
          {
-            Title = "Your alarms", Color = DiscordColor.Purple, Description = $"<@{interactionContext.Member.Id}>"
+                  Title = "Your alarms",
+                  Color = DiscordColor.Purple,
+                  Description = $"<@{interactionContext.Member.Id}>"
          };
 
          //Switch to check if there are any Timers at all.

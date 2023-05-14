@@ -1,4 +1,8 @@
-﻿using DisCatSharp;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -8,10 +12,6 @@ using DisCatSharp.EventArgs;
 using SchattenclownBot.Model.Discord.Main;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
@@ -112,10 +112,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
 
             SympathySystem sympathySystemObj = new()
             {
-               VotingUserId = discordMember.Id,
-               VotedUserId = discordTargetMemberUlong,
-               GuildId = componentInteractionCreateEventArgs.Guild.Id,
-               VoteRating = rating
+                     VotingUserId = discordMember.Id,
+                     VotedUserId = discordTargetMemberUlong,
+                     GuildId = componentInteractionCreateEventArgs.Guild.Id,
+                     VoteRating = rating
             };
 
             foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
@@ -168,10 +168,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                {
                   SympathySystem sympathySystemObj = new()
                   {
-                     VotingUserId = discordMember.Id,
-                     VotedUserId = discordTargetMember.Id,
-                     GuildId = componentInteractionCreateEventArgs.Guild.Id,
-                     VoteRating = rating
+                           VotingUserId = discordMember.Id,
+                           VotedUserId = discordTargetMember.Id,
+                           GuildId = componentInteractionCreateEventArgs.Guild.Id,
+                           VoteRating = rating
                   };
 
                   foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
@@ -188,11 +188,13 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                         SympathySystem.Change(sympathySystemObj);
                         break;
                   }
+
                   await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave {discordTargetMember.Mention} the Rating {rating}"));
                   return;
                }
             }
          }
+
          await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
       }
 
@@ -216,9 +218,9 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          description += "```";
          DiscordEmbedBuilder discordEmbedBuilder = new()
          {
-            Title = $"Votes for {discordUser.Username}",
-            Color = DiscordColor.Purple,
-            Description = description
+                  Title = $"Votes for {discordUser.Username}",
+                  Color = DiscordColor.Purple,
+                  Description = description
          };
 
          await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));

@@ -114,12 +114,13 @@ namespace SchattenclownBot.Model.Objects
                   {
                      if (memberItem.Value.VoiceState is
                          {
-                            IsSelfDeafened: false, IsSuppressed: false
+                                  IsSelfDeafened: false, IsSuppressed: false
                          } && !memberItem.Value.IsBot)
                      {
                         UserLevelSystem userLevelSystemObj = new()
                         {
-                           MemberId = memberItem.Value.Id, OnlineTicks = 0
+                                 MemberId = memberItem.Value.Id,
+                                 OnlineTicks = 0
                         };
                         bool found = false;
 
@@ -238,29 +239,29 @@ namespace SchattenclownBot.Model.Objects
                   einerRoles.Add(guildObj.GetRole(1023523464017096716)); //zehner  0*/
                   List<DiscordRole> zehnerRolesOrg = new()
                   {
-                     guildObj.GetRole(1010251754270642218), //zehner 1
-                     guildObj.GetRole(1001177749207126106), //zehner 2
-                     guildObj.GetRole(995805285383938098), //zehner 3
-                     guildObj.GetRole(993902906417889432), //zehner 4
-                     guildObj.GetRole(986332993528426546), //zehner 5
-                     guildObj.GetRole(983134660169195600), //zehner 6
-                     guildObj.GetRole(981715147263467622), //zehner 7
-                     guildObj.GetRole(1015272139051507805), //zehner 8
-                     guildObj.GetRole(1009772791563825183) //zehner 9
+                           guildObj.GetRole(1010251754270642218), //zehner 1
+                           guildObj.GetRole(1001177749207126106), //zehner 2
+                           guildObj.GetRole(995805285383938098), //zehner 3
+                           guildObj.GetRole(993902906417889432), //zehner 4
+                           guildObj.GetRole(986332993528426546), //zehner 5
+                           guildObj.GetRole(983134660169195600), //zehner 6
+                           guildObj.GetRole(981715147263467622), //zehner 7
+                           guildObj.GetRole(1015272139051507805), //zehner 8
+                           guildObj.GetRole(1009772791563825183) //zehner 9
                   };
 
                   List<DiscordRole> einerRolesOrg = new()
                   {
-                     guildObj.GetRole(981695815053631558), //zehner  1
-                     guildObj.GetRole(981715121866960917), //zehner  2
-                     guildObj.GetRole(1020780813282975816), //zehner  3
-                     guildObj.GetRole(1016418457597784196), //zehner  4
-                     guildObj.GetRole(1012411021262073949), //zehner  5
-                     guildObj.GetRole(1004817444604498020), //zehner  6
-                     guildObj.GetRole(1001555701308604536), //zehner  7
-                     guildObj.GetRole(981630890876764291), //zehner  8
-                     guildObj.GetRole(993902853959712769), //zehner  9
-                     guildObj.GetRole(981626330007347220) //zehner  0
+                           guildObj.GetRole(981695815053631558), //zehner  1
+                           guildObj.GetRole(981715121866960917), //zehner  2
+                           guildObj.GetRole(1020780813282975816), //zehner  3
+                           guildObj.GetRole(1016418457597784196), //zehner  4
+                           guildObj.GetRole(1012411021262073949), //zehner  5
+                           guildObj.GetRole(1004817444604498020), //zehner  6
+                           guildObj.GetRole(1001555701308604536), //zehner  7
+                           guildObj.GetRole(981630890876764291), //zehner  8
+                           guildObj.GetRole(993902853959712769), //zehner  9
+                           guildObj.GetRole(981626330007347220) //zehner  0
                   };
 
                   foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSortedOut)
@@ -282,17 +283,17 @@ namespace SchattenclownBot.Model.Objects
 
                         einerString = (totalLevel % 10) switch
                         {
-                           0 => "0",
-                           1 => "1",
-                           2 => "2",
-                           3 => "3",
-                           4 => "4",
-                           5 => "5",
-                           6 => "6",
-                           7 => "7",
-                           8 => "8",
-                           9 => "9",
-                           _ => einerString
+                                 0 => "0",
+                                 1 => "1",
+                                 2 => "2",
+                                 3 => "3",
+                                 4 => "4",
+                                 5 => "5",
+                                 6 => "6",
+                                 7 => "7",
+                                 8 => "8",
+                                 9 => "9",
+                                 _ => einerString
                         };
 
                         if (zehnerString != "")

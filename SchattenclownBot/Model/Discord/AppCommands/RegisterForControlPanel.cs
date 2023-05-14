@@ -27,7 +27,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          interactionModalBuilder.WithCustomId("RegisterForm");
          interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Small, "Username", "Username", "your username", null, 16, true, ""));
          interactionModalBuilder.AddTextComponent(new DiscordTextComponent(TextComponentStyle.Small, "Password", "Password", "your password", null, 16, true, ""));
-         
+
          await interactionContext.CreateModalResponseAsync(interactionModalBuilder);
 
          await Task.Delay(1000);
@@ -44,7 +44,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
          {
             SecretVault secretVault = new()
             {
-               DiscordGuildId = interactionContext.Guild.Id, DiscordUserId = interactionContext.User.Id, Username = username, SecretKey = Sha256FromString.ComputeSha256Hash(password)
+                     DiscordGuildId = interactionContext.Guild.Id,
+                     DiscordUserId = interactionContext.User.Id,
+                     Username = username,
+                     SecretKey = Sha256FromString.ComputeSha256Hash(password)
             };
             SecretVault.Register(secretVault);
             await interactionContext.User.ConvertToMember(interactionContext.Guild).Result.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Green).WithDescription("You can now authenticate yourself in the SchattenclownBot control panel with your username and password.")));
@@ -70,7 +73,10 @@ namespace SchattenclownBot.Model.Discord.AppCommands
             {
                SecretVault secretVault = new()
                {
-                  DiscordGuildId = eventArgs.Guild.Id, DiscordUserId = eventArgs.User.Id, Username = eventArgs.Interaction.Data.Components[0].Value, SecretKey = Sha256FromString.ComputeSha256Hash(eventArgs.Interaction.Data.Components[1].Value)
+                        DiscordGuildId = eventArgs.Guild.Id,
+                        DiscordUserId = eventArgs.User.Id,
+                        Username = eventArgs.Interaction.Data.Components[0].Value,
+                        SecretKey = Sha256FromString.ComputeSha256Hash(eventArgs.Interaction.Data.Components[1].Value)
                };
 
 

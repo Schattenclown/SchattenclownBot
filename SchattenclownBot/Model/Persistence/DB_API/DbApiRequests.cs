@@ -21,13 +21,13 @@ namespace SchattenclownBot.Model.Persistence.DB_API
             {
                Api aPi = new()
                {
-                  CommandRequestId = mySqlDataReader.GetInt32("CommandRequestID"),
-                  RequestDiscordUserId = mySqlDataReader.GetUInt64("RequestDiscordUserId"),
-                  RequestSecretKey = mySqlDataReader.GetString("RequestSecretKey"),
-                  RequestTimeStamp = mySqlDataReader.GetDateTime("RequestTimeStamp"),
-                  RequesterIp = mySqlDataReader.GetString("RequesterIP"),
-                  Command = mySqlDataReader.GetString("Command"),
-                  Data = mySqlDataReader.GetString("Data")
+                        CommandRequestId = mySqlDataReader.GetInt32("CommandRequestID"),
+                        RequestDiscordUserId = mySqlDataReader.GetUInt64("RequestDiscordUserId"),
+                        RequestSecretKey = mySqlDataReader.GetString("RequestSecretKey"),
+                        RequestTimeStamp = mySqlDataReader.GetDateTime("RequestTimeStamp"),
+                        RequesterIp = mySqlDataReader.GetString("RequesterIP"),
+                        Command = mySqlDataReader.GetString("Command"),
+                        Data = mySqlDataReader.GetString("Data")
                };
 
                aPiObjects.Add(aPi);
