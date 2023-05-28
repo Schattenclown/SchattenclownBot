@@ -26,17 +26,19 @@ namespace SchattenclownBot.Model.HelpClasses
             writeLineString = StringCutter.RmUntil(writeLineString, "CREATE TABLE IF NOT EXISTS `", "CREATE TABLE IF NOT EXISTS `".Length);
          }
 
-         if (callerFunction.Contains("<<") || callerFunction.Contains(">b__0>d"))
+         if (callerFunction.Contains("<") || callerFunction.Contains(">"))
          {
-            callerFunction = StringCutter.RmUntil(callerFunction, "<<", "<<".Length);
-            callerFunction = StringCutter.RmAfter(callerFunction, ">b__0>d", 0);
+            callerFunction = StringCutter.RmUntil(callerFunction, "<", "<".Length);
+            callerFunction = StringCutter.RmUntil(callerFunction, "<", "<".Length);
+            callerFunction = StringCutter.RmAfter(callerFunction, ">", 0);
+            callerFunction = StringCutter.RmAfter(callerFunction, ">", 0);
             color = ConsoleColor.Cyan;
          }
 
          Console.ForegroundColor = ConsoleColor.Gray;
-         Console.Write($"[{DateTime.Now} +02:00] [69  /{"Info".PadRight(12)}]");
+         Console.Write($"[{DateTime.Now} +02:00] [69  /{"Info",-12}]");
          Console.ForegroundColor = color;
-         Console.Write($" [{callerFunction}] ");
+         Console.Write($" [{callerFunction,-40}] ");
          Console.ForegroundColor = consoleColor;
          Console.WriteLine($"{writeLineString}");
          Console.ForegroundColor = ConsoleColor.Gray;
@@ -44,17 +46,17 @@ namespace SchattenclownBot.Model.HelpClasses
 
       public static void Write(Exception ex, string callerFunction, ConsoleColor color)
       {
-         if (callerFunction.Contains("<<") || callerFunction.Contains(">b__0>d"))
+         if (callerFunction.Contains("<") || callerFunction.Contains(">"))
          {
-            callerFunction = StringCutter.RmUntil(callerFunction, "<<", "<<".Length);
-            callerFunction = StringCutter.RmAfter(callerFunction, ">b__0>d", 0);
+            callerFunction = StringCutter.RmUntil(callerFunction, "<", "<".Length);
+            callerFunction = StringCutter.RmAfter(callerFunction, ">", 0);
             color = ConsoleColor.Cyan;
          }
 
          Console.ForegroundColor = ConsoleColor.Gray;
-         Console.Write($"[{DateTime.Now} +02:00] [420 /{"Exception".PadRight(12)}]");
+         Console.Write($"[{DateTime.Now} +02:00] [420 /{"Exception",-12}]");
          Console.ForegroundColor = color;
-         Console.Write($" [{callerFunction}] ");
+         Console.Write($" [{callerFunction,-40}] ");
          Console.ForegroundColor = ConsoleColor.Gray;
          Console.WriteLine($"{ex.Message}");
       }

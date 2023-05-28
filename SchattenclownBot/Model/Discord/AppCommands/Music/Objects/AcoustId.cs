@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace SchattenclownBot.Model.Objects
+namespace SchattenclownBot.Model.Discord.AppCommands.Music.Objects
 {
    internal class AcoustId
    {

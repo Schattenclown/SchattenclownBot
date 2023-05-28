@@ -39,12 +39,30 @@ namespace SchattenclownBot.Model.AsyncFunction
 
             DiscordGuild mainGuild = Bot.DiscordClient.GetGuildAsync(928930967140331590).Result;
             DiscordChannel discordChannelWhereIs = mainGuild.GetChannel(1088859872029843746);
+            List<ulong> ulongBlacklist = new()
+            {
+                     1088454540329746442,
+                     918232272732319744,
+                     631177569021984811,
+                     180745071656697856
+            };
+
+            foreach (ulong discordGuild in ulongBlacklist)
+            {
+               try
+               {
+                  DiscordGuild guild = await Bot.DiscordClient.GetGuildAsync(discordGuild);
+                  guildList.Remove(guild);
+               }
+               catch (Exception exception)
+               {
+                  CwLogger.Write($"Guild: {exception.Message}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name, ConsoleColor.Red);
+               }
+            }
+
             //guildList.Remove(Bot.DiscordClient.GetGuildAsync(858089281214087179).Result); 
             //1088454540329746442
-            guildList.Remove(Bot.DiscordClient.GetGuildAsync(1088454540329746442).Result);
-            guildList.Remove(Bot.DiscordClient.GetGuildAsync(918232272732319744).Result);
-            guildList.Remove(Bot.DiscordClient.GetGuildAsync(631177569021984811).Result);
-            guildList.Remove(Bot.DiscordClient.GetGuildAsync(180745071656697856).Result);
+            //1106648403900891206 ?
 
             while (true)
             {
@@ -91,10 +109,10 @@ namespace SchattenclownBot.Model.AsyncFunction
                               string descriptionLineBuilderForConsole = "";
                               int counter = 5;
                               string username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
-                              if (username is "" or " ")
+                              /*if (username is "" or " ")
                               {
                                  username = discordMemberInChannelItem.Discriminator;
-                              }
+                              }*/
 
                               description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
                               descriptionForConsole += "" + username.PadRight(16).Remove(16) + "   |   ";

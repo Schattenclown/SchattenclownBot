@@ -29,38 +29,51 @@ namespace SchattenclownBot.Model.AsyncFunction
 
          while (true)
          {
-            List<Api> aPiObjects = Api.ReadAll();
-            foreach (Api aPiItem in aPiObjects)
+            try
             {
-               switch (aPiItem.Command)
+               List<Api> aPiObjects = Api.ReadAll();
+               foreach (Api aPiItem in aPiObjects)
                {
-                  case "NextTrack":
-                     NextTrackRequestApi(aPiItem);
-                     break;
-                  case "PreviousTrack":
-                     PreviousTrackRequestApi(aPiItem);
-                     break;
-                  case "RequestUserName":
-                     RequestUserNameAnswer(aPiItem);
-                     CwLogger.Write($"Request for username from {aPiItem.Data} with Id: {aPiItem.RequestDiscordUserId} at {aPiItem.RequestTimeStamp} with Ip: {aPiItem.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
-                     break;
-                  case "RequestDiscordGuildname":
-                     RequestDiscordGuildname(aPiItem);
-                     CwLogger.Write($"Request for guildname from {aPiItem.Data} with Id: {aPiItem.RequestDiscordUserId} at {aPiItem.RequestTimeStamp} with Ip: {aPiItem.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
-                     break;
-                  case "API_PlayRequest":
-                     API_PlayRequest(aPiItem);
-                     break;
-                  case "ShufflePlayRequest":
-                     API_ShufflePlayRequest(aPiItem);
-                     break;
-                  case "ShuffleRequest":
-                     API_ShuffleRequest(aPiItem);
-                     break;
-               }
-            }
+                  switch (aPiItem.Command)
+                  {
+                     case "NextTrack":
+                        NextTrackRequestApi(aPiItem);
+                        break;
+                     case "PreviousTrack":
+                        PreviousTrackRequestApi(aPiItem);
+                        break;
+                     case "RequestUserName":
+                        RequestUserNameAnswer(aPiItem);
+                        CwLogger.Write($"Request for username from {aPiItem.Data} with Id: {aPiItem.RequestDiscordUserId} at {aPiItem.RequestTimeStamp} with Ip: {aPiItem.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
+                        break;
+                     case "RequestDiscordGuildname":
+                        RequestDiscordGuildname(aPiItem);
+                        CwLogger.Write($"Request for guildname from {aPiItem.Data} with Id: {aPiItem.RequestDiscordUserId} at {aPiItem.RequestTimeStamp} with Ip: {aPiItem.RequesterIp}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.DarkYellow);
+                        break;
+                     case "API_PlayRequest":
+                        API_PlayRequest(aPiItem);
+                        break;
+                     case "ShufflePlayRequest":
+                        API_ShufflePlayRequest(aPiItem);
+                        break;
+                     case "ShuffleRequest":
+                        API_ShuffleRequest(aPiItem);
+                        break;
+                  }
 
-            await Task.Delay(100);
+                  DateTime dateTimeCompare = DateTime.Now.AddMinutes(-1);
+                  if (aPiItem.RequestTimeStamp < dateTimeCompare)
+                  {
+                     Api.DELETE(aPiItem.CommandRequestId);
+                  }
+               }
+
+               await Task.Delay(100);
+            }
+            catch (Exception e)
+            {
+               CwLogger.Write($"{e.Message}", MethodBase.GetCurrentMethod()?.DeclaringType?.Name.Replace(">b__0_0>d", "").Replace("<", ""), ConsoleColor.Red);
+            }
          }
       }
 

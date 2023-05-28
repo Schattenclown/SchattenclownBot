@@ -64,7 +64,7 @@ namespace SchattenclownBot.Model.Discord.Main
          ShutdownRequest = new CancellationTokenSource();
 
 #if DEBUG
-         const LogLevel logLevel = LogLevel.Debug;
+         const LogLevel logLevel = LogLevel.Information;
 #else
          const LogLevel logLevel = LogLevel.Information;
 #endif
@@ -77,13 +77,13 @@ namespace SchattenclownBot.Model.Discord.Main
                   MinimumLogLevel = logLevel,
                   ShardCount = 1,
                   ShardId = 0,
-                  Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.GuildPresences | DiscordIntents.GuildVoiceStates,
+                  Intents = DiscordIntents.All,
                   MobileStatus = false,
                   UseCanary = true,
                   UsePtb = false,
                   AutoRefreshChannelCache = false,
                   HttpTimeout = TimeSpan.FromSeconds(60),
-                  ReconnectIndefinitely = true
+                  ReconnectIndefinitely = true,
          };
 
          DiscordClient = new DiscordClient(discordConfiguration);
