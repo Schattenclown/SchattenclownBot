@@ -91,19 +91,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             DiscordComponentEmoji discordComponentEmojisNotRepeat = new("↪");
             DiscordComponentEmoji discordComponentEmojisRepeat = new("🔂");
             DiscordComponent[] discordComponent = new DiscordComponent[5];
-            discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", false, discordComponentEmojisPrevious);
-            discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next!", false, discordComponentEmojisNext);
-            discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", false, discordComponentEmojisStop);
+            discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back", false, discordComponentEmojisPrevious);
+            discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next", false, discordComponentEmojisNext);
+            discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop", false, discordComponentEmojisStop);
             //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
-            discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", false, discordComponentEmojisQueue);
+            discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Playlist", false, discordComponentEmojisQueue);
 
             if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
             {
-               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Turn repeat off!", false, discordComponentEmojisRepeat);
+               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", false, discordComponentEmojisRepeat);
             }
             else
             {
-               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisNotRepeat);
+               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", false, discordComponentEmojisNotRepeat);
             }
 
             DiscordEmbedBuilder discordEmbedBuilder = new();
@@ -162,15 +162,15 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                if (queueTrack.SpotifyUri == null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[<:youtube:1050436748578136184> Open]({queueTrack.YouTubeUri.AbsoluteUri})]", true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[<:youtube:1050436748578136184> Open]({queueTrack.YouTubeUri.AbsoluteUri})]", false));
                }
                else
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Spotify", $"[[<:spotify:1050436741393297470> Open]({queueTrack.SpotifyUri.AbsoluteUri})]", true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Spotify", $"[[<:spotify:1050436741393297470> Open]({queueTrack.SpotifyUri.AbsoluteUri})]", false));
 
                   if (!fileExists)
                   {
-                     discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[<:youtube:1050436748578136184> Open]({queueTrack.YouTubeUri.AbsoluteUri})]", true));
+                     discordEmbedBuilder.AddField(new DiscordEmbedField("YouTube", $"[[<:youtube:1050436748578136184> Open]({queueTrack.YouTubeUri.AbsoluteUri})]", false));
                   }
                   else
                   {
@@ -223,7 +223,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                ProcessStartInfo ffmpegProcessStartInfo = new()
                {
                         FileName = "..\\..\\..\\Model\\Executables\\ffmpeg\\ffmpeg.exe",
-                        Arguments = $@"-i ""{spotifyFilePath}"" -ac 2 -f s16le -ar 48000 pipe:1 -loglevel quiet",
+                        Arguments = $@"-i ""{spotifyFilePath}"" -ac 2 -f s16le -ar 48000 pipe:1 -filter:a volume=replaygain=track -loglevel quiet",
                         RedirectStandardOutput = true,
                         UseShellExecute = false
                };
@@ -255,11 +255,11 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                            if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
                            {
-                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Turn repeat off!", false, discordComponentEmojisRepeat);
+                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", false, discordComponentEmojisRepeat);
                            }
                            else
                            {
-                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", false, discordComponentEmojisNotRepeat);
+                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", false, discordComponentEmojisNotRepeat);
                            }
 
                            await discordMessage.ModifyAsync(x => x.AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
@@ -295,19 +295,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      await Task.Delay(1000, cancellationToken);
                   }
 
-                  discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back!", true, discordComponentEmojisPrevious);
-                  discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next!", true, discordComponentEmojisNext);
-                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop!", true, discordComponentEmojisStop);
+                  discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back", true, discordComponentEmojisPrevious);
+                  discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next", true, discordComponentEmojisNext);
+                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop", true, discordComponentEmojisStop);
                   //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", true, discordComponentEmojisShuffle);
-                  discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Show queue!", true, discordComponentEmojisQueue);
+                  discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Playlist", true, discordComponentEmojisQueue);
 
                   if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
                   {
-                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Turn repeat off!", true, discordComponentEmojisRepeat);
+                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", true, discordComponentEmojisRepeat);
                   }
                   else
                   {
-                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Turn repeat on!", true, discordComponentEmojisNotRepeat);
+                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", true, discordComponentEmojisNotRepeat);
                   }
 
                   discordEmbedBuilder.Description = TimeLineStringBuilderAfterTrack(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
@@ -1205,7 +1205,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
          if (sendStopped)
          {
-            gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(nothingToStop ? "Nothing to stop!" : "Stopped the music!")));
+            gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Red).WithDescription(nothingToStop ? "Nothing to Stop" : "Stopped the music!")));
          }
 
          QueueTracks.RemoveAll(x => x.Gmc.DiscordGuild == gMc.DiscordGuild);
@@ -1233,19 +1233,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
          string playerAdvanceString = PlayerAdvance(timeSpanAdvanceInt, totalTimeSpan);
 
-         string descriptionString = "⏹️";
+         string descriptionString = "⏹️ ";
          if (cancellationToken.IsCancellationRequested)
          {
-            descriptionString = "▶️";
+            descriptionString = "▶️ ";
          }
 
          if (totalTimeSpan.Hours != 0)
          {
-            descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+            descriptionString += $" {playerAdvanceString} \n🔉 [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}]";
          }
          else
          {
-            descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+            descriptionString += $" {playerAdvanceString} \n🔉 [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}]";
          }
 
          return descriptionString;
@@ -1259,24 +1259,24 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
          if (!cancellationToken.IsCancellationRequested)
          {
-            return $"▶️ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬🔘 [{durationString}/{durationString}] 🔉";
+            return $"▶️ ▬▬▬▬▬▬🔘 \n🔉 [{durationString}/{durationString}]";
          }
 
-         string descriptionString = "⏹️";
+         string descriptionString = "⏹️ ";
          if (cancellationToken.IsCancellationRequested)
          {
-            descriptionString = "▶️";
+            descriptionString = "▶️ ";
          }
 
          string playerAdvanceString = PlayerAdvance(timeSpanAdvanceInt, totalTimeSpan);
 
          if (totalTimeSpan.Hours != 0)
          {
-            descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+            descriptionString += $" {playerAdvanceString} \n🔉 [{playerAdvanceTimeSpan.Hours:#00}:{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Hours:#00}:{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}]";
          }
          else
          {
-            descriptionString += $" {playerAdvanceString} [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}] 🔉";
+            descriptionString += $" {playerAdvanceString} \n🔉 [{playerAdvanceTimeSpan.Minutes:#00}:{playerAdvanceTimeSpan.Seconds:#00}/{totalTimeSpan.Minutes:#00}:{totalTimeSpan.Seconds:#00}]";
          }
 
          return descriptionString;
@@ -1284,12 +1284,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
       internal static string PlayerAdvance(int timeSpanAdvanceInt, TimeSpan totalTimeSpan)
       {
-         string[] strings = new string[15];
+         string[] strings = new string[6];
          string playerAdvanceString = "";
 
          double thisIsOneHundredPercent = totalTimeSpan.TotalSeconds;
          double dotPositionInPercent = 100.0 / thisIsOneHundredPercent * timeSpanAdvanceInt;
-         double dotPositionInInt = 15.0 / 100.0 * dotPositionInPercent;
+         double dotPositionInInt = 6.0 / 100.0 * dotPositionInPercent;
 
          for (int i = 0; i < strings.Length; i++)
          {
@@ -1416,27 +1416,27 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                {
                   File tagFile = File.Create(@$"{tempPath}");
 
-                  if (tagFile.Tag.Title != null)
+                  /*if (tagFile.Tag.Title != null)
                   {
-                     discordEmbedBuilder.AddField(new DiscordEmbedField("Title", tagFile.Tag.Title, true));
+                     discordEmbedBuilder.AddField(new DiscordEmbedField("Title", tagFile.Tag.Title, false));
                   }
 
                   if (tagFile.Tag.FirstAlbumArtist != null)
                   {
-                     discordEmbedBuilder.AddField(new DiscordEmbedField("FirstAlbumArtist", tagFile.Tag.FirstAlbumArtist, true));
-                  }
+                     discordEmbedBuilder.AddField(new DiscordEmbedField("FirstAlbumArtist", tagFile.Tag.FirstAlbumArtist, false));
+                  }*/
 
                   if (tagFile.Tag.Album != null)
                   {
-                     discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagFile.Tag.Album, true));
+                     discordEmbedBuilder.AddField(new DiscordEmbedField("Album", tagFile.Tag.Album, false));
                   }
 
-                  discordEmbedBuilder.AddField(tagFile.Properties.Duration.Hours == 0 ? new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true) : new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Hours:#00}:{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true));
+                  discordEmbedBuilder.AddField(tagFile.Properties.Duration.Hours == 0 ? new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", true) : new DiscordEmbedField("Duration", $"{tagFile.Properties.Duration.Hours:#00}:{tagFile.Properties.Duration.Minutes:#00}:{tagFile.Properties.Duration.Seconds:#00}", false));
 
 
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("AudioBitRate", tagFile.Properties.AudioBitrate.ToString(), true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Audio bit-rate", tagFile.Properties.AudioBitrate.ToString(), false));
 
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Year", tagFile.Tag.Year.ToString(), true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Year", tagFile.Tag.Year.ToString(), false));
 
                   if (queueTrack.LocalPath != null)
                   {
@@ -1518,7 +1518,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                if (genres != "")
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", genres, false));
                }
 
                if (rightAlbum.Id != null && needThumbnail)
@@ -1556,19 +1556,19 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
             if (recordingMbId != "")
             {
-               discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[<:MusicBrainz:1050439464452894720> Open](https://musicbrainz.org/recording/{recordingMbId})]", true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainz", $"[[<:MusicBrainz:1050439464452894720> Open](https://musicbrainz.org/recording/{recordingMbId})]", false));
             }
 
             if (audioDownloadMetaData != null)
             {
                if (albumTitle != "")
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", albumTitle, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Album", albumTitle, false));
                }
 
                if (audioDownloadMetaData != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("Uploader", audioDownloadMetaData.Uploader, false));
                }
             }
          }
@@ -1578,52 +1578,52 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             {
                if (metaTagFileToPlay.Tag.MusicBrainzArtistId != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", metaTagFileToPlay.Tag.MusicBrainzArtistId, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzArtistId", metaTagFileToPlay.Tag.MusicBrainzArtistId, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzDiscId != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", metaTagFileToPlay.Tag.MusicBrainzDiscId, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzDiscId", metaTagFileToPlay.Tag.MusicBrainzDiscId, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzReleaseArtistId != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", metaTagFileToPlay.Tag.MusicBrainzReleaseArtistId, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseArtistId", metaTagFileToPlay.Tag.MusicBrainzReleaseArtistId, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzReleaseCountry != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", metaTagFileToPlay.Tag.MusicBrainzReleaseCountry, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseCountry", metaTagFileToPlay.Tag.MusicBrainzReleaseCountry, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseGroupId", metaTagFileToPlay.Tag.MusicBrainzReleaseGroupId, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzReleaseId != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", metaTagFileToPlay.Tag.MusicBrainzReleaseId, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseId", metaTagFileToPlay.Tag.MusicBrainzReleaseId, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzReleaseStatus != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", metaTagFileToPlay.Tag.MusicBrainzReleaseStatus, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseStatus", metaTagFileToPlay.Tag.MusicBrainzReleaseStatus, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzReleaseType != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", metaTagFileToPlay.Tag.MusicBrainzReleaseType, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzReleaseType", metaTagFileToPlay.Tag.MusicBrainzReleaseType, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicBrainzTrackId != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", metaTagFileToPlay.Tag.MusicBrainzTrackId, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicBrainzTrackId", metaTagFileToPlay.Tag.MusicBrainzTrackId, false));
                }
 
                if (metaTagFileToPlay.Tag.MusicIpId != null)
                {
-                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", metaTagFileToPlay.Tag.MusicIpId, true));
+                  discordEmbedBuilder.AddField(new DiscordEmbedField("MusicIpId", metaTagFileToPlay.Tag.MusicIpId, false));
                }
             }
 
@@ -1631,12 +1631,12 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             discordEmbedBuilder.WithAuthor(metaTagFileToPlay.Tag.JoinedPerformers);
             if (metaTagFileToPlay.Tag.Album != null)
             {
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Album", metaTagFileToPlay.Tag.Album, true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Album", metaTagFileToPlay.Tag.Album, false));
             }
 
             if (metaTagFileToPlay.Tag.JoinedGenres != null)
             {
-               discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", metaTagFileToPlay.Tag.JoinedGenres, true));
+               discordEmbedBuilder.AddField(new DiscordEmbedField("Genre", metaTagFileToPlay.Tag.JoinedGenres, false));
             }
 
             if (metaTagFileToPlay.Tag.MusicBrainzReleaseId != null)

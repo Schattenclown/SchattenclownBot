@@ -108,7 +108,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                               string descriptionLineBuilder = "";
                               string descriptionLineBuilderForConsole = "";
                               int counter = 5;
-                              string username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.DisplayName);
+                              //braucht nicht mehr eigentlich
+                              string username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.Username);
                               /*if (username is "" or " ")
                               {
                                  username = discordMemberInChannelItem.Discriminator;
