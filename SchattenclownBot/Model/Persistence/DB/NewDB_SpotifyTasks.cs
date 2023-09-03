@@ -11,14 +11,14 @@ namespace SchattenclownBot.Model.Persistence.DB
       {
          string createDatabaseAndTableScript = @"
                 -- Create database
-                IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'db_schattenclownbot')
+                IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'SchattenclownBot')
                 BEGIN
-                    CREATE DATABASE db_schattenclownbot;
+                    CREATE DATABASE SchattenclownBot;
                 END
                 GO
 
                 -- Set the new database as the default for the following statements
-                USE db_schattenclownbot;
+                USE SchattenclownBot;
                 GO
 
                 -- Create table
@@ -70,9 +70,9 @@ namespace SchattenclownBot.Model.Persistence.DB
       public static void Insert(SpotifyTasks spotifyTasks)
       {
          string sqlCommand = @"
-        IF NOT EXISTS (SELECT 1 FROM [db_schattenclownbot].[dbo].[SpotifyRecordingTasks] WHERE [TrackId] = @TrackId)
+        IF NOT EXISTS (SELECT 1 FROM [SchattenclownBot].[dbo].[SpotifyRecordingTasks] WHERE [TrackId] = @TrackId)
         BEGIN
-            INSERT INTO [db_schattenclownbot].[dbo].[SpotifyRecordingTasks]
+            INSERT INTO [SchattenclownBot].[dbo].[SpotifyRecordingTasks]
                 ([DiscordUserId], [DiscordChannelId], [DiscordGuildId], [DurationInMs], [TrackId], [ExternalId], [Title],
                  [Album], [AlbumArtist], [Comment], [Genre], [TrackNumber], [Subtitle], [ReleaseYear], [NotAvailable], [Success])
             VALUES

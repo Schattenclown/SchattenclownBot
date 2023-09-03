@@ -35,12 +35,12 @@ namespace SchattenclownBot.Model.HelpClasses
          if (filePath.Contains("Debug"))
          {
             filePath = StringCutter.RmAfter(filePath, "Debug", 0);
-            newFilepath = filePath + "Debug\\net6.0\\SchattenclownBot.exe";
+            newFilepath = filePath + "Debug\\net7.0\\SchattenclownBot.exe";
          }
          else if (filePath.Contains("Release"))
          {
             filePath = StringCutter.RmAfter(filePath, "Release", 0);
-            newFilepath = filePath + "Release\\net6.0\\SchattenclownBot.exe";
+            newFilepath = filePath + "Release\\net7.0\\SchattenclownBot.exe";
          }
 
          Console.WriteLine("Before 120 second sleep");

@@ -90,20 +90,20 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
             DiscordComponentEmoji discordComponentEmojisQueue = new("⏬");
             DiscordComponentEmoji discordComponentEmojisNotRepeat = new("↪");
             DiscordComponentEmoji discordComponentEmojisRepeat = new("🔂");
-            DiscordComponent[] discordComponent = new DiscordComponent[5];
-            discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back", false, discordComponentEmojisPrevious);
-            discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next", false, discordComponentEmojisNext);
-            discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop", false, discordComponentEmojisStop);
+            DiscordComponent[] discordComponents = new DiscordComponent[5];
+            discordComponents[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back", false, discordComponentEmojisPrevious);
+            discordComponents[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next", false, discordComponentEmojisNext);
+            discordComponents[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop", false, discordComponentEmojisStop);
             //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", false, discordComponentEmojisShuffle);
-            discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Playlist", false, discordComponentEmojisQueue);
+            discordComponents[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Playlist", false, discordComponentEmojisQueue);
 
             if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
             {
-               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", false, discordComponentEmojisRepeat);
+               discordComponents[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", false, discordComponentEmojisRepeat);
             }
             else
             {
-               discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", false, discordComponentEmojisNotRepeat);
+               discordComponents[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", false, discordComponentEmojisNotRepeat);
             }
 
             DiscordEmbedBuilder discordEmbedBuilder = new();
@@ -218,7 +218,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                await Bot.DebugDiscordChannel.SendMessageAsync(@$"{spotifyFilePath}");
                discordEmbedBuilder = CustomDiscordEmbedBuilder(discordEmbedBuilder, queueTrack, new Uri(@$"{spotifyFilePath}"), null, null);
-               DiscordMessage discordMessage = await gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
+               DiscordMessage discordMessage = await gMc.DiscordChannel.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
 
                ProcessStartInfo ffmpegProcessStartInfo = new()
                {
@@ -255,14 +255,14 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
 
                            if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
                            {
-                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", false, discordComponentEmojisRepeat);
+                              discordComponents[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", false, discordComponentEmojisRepeat);
                            }
                            else
                            {
-                              discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", false, discordComponentEmojisNotRepeat);
+                              discordComponents[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", false, discordComponentEmojisNotRepeat);
                            }
 
-                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
+                           await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
                         }
                      }
                      catch (Exception ex)
@@ -295,23 +295,23 @@ namespace SchattenclownBot.Model.Discord.AppCommands.Music
                      await Task.Delay(1000, cancellationToken);
                   }
 
-                  discordComponent[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back", true, discordComponentEmojisPrevious);
-                  discordComponent[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next", true, discordComponentEmojisNext);
-                  discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop", true, discordComponentEmojisStop);
+                  discordComponents[0] = new DiscordButtonComponent(ButtonStyle.Primary, "PreviousTrackStream", "Back", true, discordComponentEmojisPrevious);
+                  discordComponents[1] = new DiscordButtonComponent(ButtonStyle.Primary, "NextTrackStream", "Next", true, discordComponentEmojisNext);
+                  discordComponents[2] = new DiscordButtonComponent(ButtonStyle.Danger, "StopTrackStream", "Stop", true, discordComponentEmojisStop);
                   //discordComponent[2] = new DiscordButtonComponent(ButtonStyle.Success, "ShuffleStream", "Shuffle!", true, discordComponentEmojisShuffle);
-                  discordComponent[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Playlist", true, discordComponentEmojisQueue);
+                  discordComponents[3] = new DiscordButtonComponent(ButtonStyle.Secondary, "ShowQueueStream", "Playlist", true, discordComponentEmojisQueue);
 
                   if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)
                   {
-                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", true, discordComponentEmojisRepeat);
+                     discordComponents[4] = new DiscordButtonComponent(ButtonStyle.Success, "IsRepeat", "Repeat", true, discordComponentEmojisRepeat);
                   }
                   else
                   {
-                     discordComponent[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", true, discordComponentEmojisNotRepeat);
+                     discordComponents[4] = new DiscordButtonComponent(ButtonStyle.Danger, "IsRepeat", "Repeat", true, discordComponentEmojisNotRepeat);
                   }
 
                   discordEmbedBuilder.Description = TimeLineStringBuilderAfterTrack(timeSpanAdvanceInt, audioDownloadTimeSpan, cancellationToken);
-                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponent).AddEmbed(discordEmbedBuilder.Build()));
+                  await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).AddEmbed(discordEmbedBuilder.Build()));
                }
 
                if (CancellationTokenItemList.First(x => x.DiscordGuild == gMc.DiscordGuild).IsRepeat)

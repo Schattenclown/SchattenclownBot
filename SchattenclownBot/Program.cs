@@ -23,7 +23,7 @@ namespace SchattenclownBot
          try
          {
 #pragma warning disable CA1416
-            Console.SetWindowSize(250, 30);
+            Console.SetWindowSize(240, 30);
          }
          catch (Exception)
          {
@@ -45,7 +45,7 @@ namespace SchattenclownBot
             {
                Reset.RestartProgram();
             }
-         });
+         });    
       }
    }
 }
