@@ -18,7 +18,6 @@ using DisCatSharp.VoiceNext;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Model.AsyncFunction;
 using SchattenclownBot.Model.Discord.AppCommands;
-using SchattenclownBot.Model.Discord.AppCommands.Music;
 using SchattenclownBot.Model.HelpClasses;
 using SchattenclownBot.Model.Objects;
 using Timer = SchattenclownBot.Model.Discord.AppCommands.Timer;
@@ -156,13 +155,11 @@ namespace SchattenclownBot.Model.Discord.Main
             await Task.Delay(1000);
          } while (levelSystemVirgin);
 
-         SpotifyTasks.CreateDatabaseAndTable();
          await TwitchNotifier.CreateTable_TwitchNotifier();
          _ = TwitchNotifier.Run();
 
          BotTimer.BotTimerRunAsync();
          BotAlarmClock.BotAlarmClockRunAsync();
-         ApiHandler.RunInnerHandlerAsync();
          GreenCheck.CheckGreenTask(5);
          GetItRightMee6.CheckHighQualityAvailable(9);
          WhereIs.WhereIsClownRunAsync(19);
@@ -223,10 +220,8 @@ namespace SchattenclownBot.Model.Discord.Main
          //DiscordClient.VoiceStateUpdated += Events.PanicLeaveEvent;
          //DiscordClient.VoiceStateUpdated += Events.GotKickedEvent;
          //DiscordClient.VoiceStateUpdated += AutoKickEvent.ConnectedEvent;
-         DiscordClient.ComponentInteractionCreated += Events.ButtonPressEvent;
          DiscordClient.ComponentInteractionCreated += RegisterKey.ButtonPressEvent;
          DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
-         DiscordClient.ComponentInteractionCreated += RegisterForControlPanel.RegisterEvent;
 
          /* Slash Infos */
          discordClient.ApplicationCommandCreated += Discord_ApplicationCommandCreated;
@@ -247,12 +242,10 @@ namespace SchattenclownBot.Model.Discord.Main
          applicationCommandsExtension.RegisterGlobalCommands<Alarm>();
          applicationCommandsExtension.RegisterGlobalCommands<AppCommands.Main>();
          applicationCommandsExtension.RegisterGlobalCommands<Move>();
-         applicationCommandsExtension.RegisterGlobalCommands<DiscordRequests>();
          applicationCommandsExtension.RegisterGlobalCommands<Poke>();
          applicationCommandsExtension.RegisterGlobalCommands<Timer>();
          applicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
          applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
-         applicationCommandsExtension.RegisterGlobalCommands<RegisterForControlPanel>();
          applicationCommandsExtension.RegisterGlobalCommands<RegisterTwitch>();
          applicationCommandsExtension.RegisterGlobalCommands<RegisterKey>();
       }
