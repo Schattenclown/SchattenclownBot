@@ -148,7 +148,7 @@ namespace SchattenclownBot.Model.AsyncFunction
             DiscordChannel discordChannel = Bot.DiscordClient.GetChannelAsync(twitchNotifierItem.DiscordChannelId).Result;
             DiscordRole discordRole = discordGuild.GetRole(twitchNotifierItem.DiscordRoleId);
 
-            TimeSpan upTimeSpan = DateTime.Now.AddHours(-1) - e.Stream.StartedAt;
+            TimeSpan upTimeSpan = DateTime.UtcNow - e.Stream.StartedAt;
 
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
@@ -212,7 +212,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                continue;
             }
 
-            TimeSpan upTimeSpan = DateTime.Now.AddHours(-1) - e.Stream.StartedAt;
+            TimeSpan upTimeSpan = DateTime.UtcNow - e.Stream.StartedAt;
 
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
@@ -281,7 +281,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                   DiscordGuild discordGuild = Bot.DiscordClient.GetGuildAsync(twitchNotifierItem.DiscordGuildId).Result;
                   DiscordRole discordRole = discordGuild.GetRole(twitchNotifierItem.DiscordRoleId);
 
-                  TimeSpan upTimeSpan = DateTime.Now.AddHours(-1) - stream.StartedAt;
+                  TimeSpan upTimeSpan = DateTime.UtcNow - stream.StartedAt;
 
                   DiscordEmbedBuilder discordEmbedBuilder = new()
                   {
