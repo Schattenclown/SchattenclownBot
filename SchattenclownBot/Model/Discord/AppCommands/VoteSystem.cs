@@ -93,6 +93,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
       /// <returns></returns>
       public static async Task VoteRatingAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, int rating)
       {
+         await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
          List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
 
          bool foundTargetMemberInDb = false;
@@ -190,6 +191,7 @@ namespace SchattenclownBot.Model.Discord.AppCommands
                   }
 
                   await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave {discordTargetMember.Mention} the Rating {rating}"));
+                  //await componentInteractionCreateEventArgs.User.SendMessageAsync($"You gave {discordTargetMember.Mention} the Rating {rating}");
                   return;
                }
             }
