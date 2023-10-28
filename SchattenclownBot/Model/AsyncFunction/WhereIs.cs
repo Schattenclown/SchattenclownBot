@@ -68,10 +68,10 @@ namespace SchattenclownBot.Model.AsyncFunction
             {
                try
                {
-                  /*while (DateTime.Now.Second != executeSecond)
+                  while (DateTime.Now.Second != executeSecond)
                   {
                      await Task.Delay(1000);
-                  }*/
+                  }
 
                   bool getMessagesOncePerGuild = false;
                   List<DiscordMessage> discordMessagesList = new();
@@ -178,7 +178,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                            //string append = "";
                            //if(discordChannelWhereIsMessageAny.Any())
 
-                           string content = $"``                                                         ``\n|| https://discord.com/channels/{discordVoiceState.Guild.Id}/{discordVoiceState.Channel.Id} ||";
+                           //string content = $"``                                                         ``\n|| https://discord.com/channels/{discordVoiceState.Guild.Id}/{discordVoiceState.Channel.Id} ||";
+                           string content = $"\u2800\n|| https://discord.com/channels/{discordVoiceState.Guild.Id}/{discordVoiceState.Channel.Id} ||";
                            if (discordMessagesList != null)
                            {
                               foreach (DiscordMessage messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
