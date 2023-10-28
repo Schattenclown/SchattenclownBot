@@ -68,16 +68,16 @@ namespace SchattenclownBot.Model.AsyncFunction
             {
                try
                {
-                  while (DateTime.Now.Second != executeSecond)
+                  /*while (DateTime.Now.Second != executeSecond)
                   {
                      await Task.Delay(1000);
-                  }
+                  }*/
 
                   bool getMessagesOncePerGuild = false;
                   List<DiscordMessage> discordMessagesList = new();
                   List<DiscordMember> discordMemberConnectedList = new();
                   DiscordMember lastDiscordMember = default;
-
+                  //IReadOnlyList<DiscordMessage> discordChannelWhereIsMessageAny = await discordChannelWhereIs.GetMessagesAsync(1);
                   foreach (List<DiscordMember> discordMemberList in guildList.Select(guildItem => guildItem.Members.Values.ToList()))
                   {
                      discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
@@ -101,6 +101,7 @@ namespace SchattenclownBot.Model.AsyncFunction
                            List<DiscordMember> discordMembersInChannelSorted = discordMembersInChannel.OrderBy(x => x.VoiceState.IsSelfStream).ToList();
                            discordMembersInChannelSorted.Reverse();
 
+                           //string description = Colored($"\ud83d\udd08 {discordVoiceState.Channel.Name,-69}\n\u001b[2;30min {discordVoiceState.Guild.Name}\u001b[0m", MessageColor.White);
                            string description = "";
                            string descriptionForConsole = "";
                            foreach (DiscordMember discordMemberInChannelItem in discordMembersInChannelSorted)
@@ -115,8 +116,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                                  username = discordMemberInChannelItem.Discriminator;
                               }*/
 
-                              description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(16).Remove(16) + "``";
-                              descriptionForConsole += "" + username.PadRight(16).Remove(16) + "   |   ";
+                              description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(33) + "``";
+                              descriptionForConsole += "" + username.PadRight(33) + "   |   ";
 
                               if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                               {
@@ -153,26 +154,31 @@ namespace SchattenclownBot.Model.AsyncFunction
                                  descriptionForConsole += " ";
                               }
 
-                              description += descriptionLineBuilder + "\n";
+                              description += descriptionLineBuilder + "<:xx_empty:989518542456123442><:xx_empty:989518542456123442><:xx_empty:989518542456123442><:xx_empty:989518542456123442>\n";
                               descriptionForConsole += descriptionLineBuilderForConsole + "\n";
                            }
 
                            DiscordEmbedBuilder discordEmbedBuilder = new()
                            {
-                                    Color = new DiscordColor(17, 17, 17)
+                                    Color = new DiscordColor(43, 45, 49)
                            };
-                           discordEmbedBuilder.WithFooter(discordVoiceState.Guild.Name + " | " + discordVoiceState.Channel.Name, discordVoiceState.Guild.IconUrl);
+                           //discordEmbedBuilder.WithFooter(discordVoiceState.Guild.Name + " | " + discordVoiceState.Channel.Name, discordVoiceState.Guild.IconUrl);
+                           discordEmbedBuilder.WithFooter("\u2800                                                                                                       \u2800");
                            discordEmbedBuilder.WithTimestamp(DateTime.Now);
-
+                           
                            if (!getMessagesOncePerGuild)
-                           {
-                              IReadOnlyList<DiscordMessage> messages = await discordChannelWhereIs.GetMessagesAsync();
-                              discordMessagesList.AddRange(messages);
-                              getMessagesOncePerGuild = true;
+                           { 
+                               IReadOnlyList<DiscordMessage> messages = await discordChannelWhereIs.GetMessagesAsync();
+                               discordMessagesList.AddRange(messages);
+                               getMessagesOncePerGuild = true;
                            }
-
+                           
                            DiscordMessage discordMessage = default;
-                           string content = $"<#{discordVoiceState.Channel.Id}>";
+                           
+                           //string append = "";
+                           //if(discordChannelWhereIsMessageAny.Any())
+
+                           string content = $"``                                                         ``\n|| https://discord.com/channels/{discordVoiceState.Guild.Id}/{discordVoiceState.Channel.Id} ||";
                            if (discordMessagesList != null)
                            {
                               foreach (DiscordMessage messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
@@ -200,7 +206,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                               discordEmbedBuilder.WithDescription(description);
                               discordComponents[0] = new DiscordLinkButtonComponent(discordChannelInvite.Url, "Join channel!", false, discordComponentEmojisJoinChannel);
 
-                              discordMessagesList.Add(await discordChannelWhereIs.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(content).AddEmbed(discordEmbedBuilder.Build())));
+                              discordMessagesList.Add(await discordChannelWhereIs.SendMessageAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(discordEmbedBuilder.Build())));
+                              //discordMessagesList.Add(await discordChannelWhereIs.SendMessageAsync(new DiscordMessageBuilder().AddComponents(discordComponents).WithContent(content).AddEmbed(discordEmbedBuilder.Build())));
                            }
                            else
                            {
@@ -211,7 +218,8 @@ namespace SchattenclownBot.Model.AsyncFunction
 
                               discordEmbedBuilder.WithDescription(description);
                               discordComponents[0] = new DiscordLinkButtonComponent(discordChannelInvite.Url, "Join channel!", false, discordComponentEmojisJoinChannel);
-                              await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(content).WithEmbed(discordEmbedBuilder.Build()));
+                              await discordMessage.ModifyAsync(x => x.WithContent(content).WithEmbed(discordEmbedBuilder.Build()));
+                              //await discordMessage.ModifyAsync(x => x.AddComponents(discordComponents).WithContent(content).WithEmbed(discordEmbedBuilder.Build()));
                            }
 
                            lastDiscordMember = discordMemberItem;
@@ -237,8 +245,9 @@ namespace SchattenclownBot.Model.AsyncFunction
                      string mentionedChannel = "";
                      try
                      {
-                        mentionedChannel = StringCutter.RmUntil(discordMessage.Content, "<#", 2);
-                        mentionedChannel = StringCutter.RmAfter(mentionedChannel, ">", 0);
+                        mentionedChannel = StringCutter.RmUntil(discordMessage.Content, "https://discord.com/channels/", "https://discord.com/channels/".Length);
+                        mentionedChannel = StringCutter.RmUntil(mentionedChannel, "/", 1);
+                        mentionedChannel = StringCutter.RmAfter(mentionedChannel, " ||", 0);
                      }
                      catch
                      {
@@ -279,6 +288,42 @@ namespace SchattenclownBot.Model.AsyncFunction
                }
             }
          });
+      }
+      public static string Colored(string message, MessageColor messageColor)
+      {
+          int padding = 0; //75 - message.Length;
+          switch (messageColor)
+          {
+              case MessageColor.DarkGrey:
+                  return $"```ansi\n\u001b[2;30m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+              case MessageColor.Red:
+                  return $"```ansi\n\u001b[2;31m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+              case MessageColor.Green:
+                  return $"```ansi\n\u001b[2;32m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+              case MessageColor.Yellow:
+                  return $"```ansi\n\u001b[2;33m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+              case MessageColor.Blue:
+                  return $"```ansi\n\u001b[2;34m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+              case MessageColor.Magenta:
+                  return $"```ansi\n\u001b[2;35m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+              case MessageColor.Cyan:
+                  return $"```ansi\n\u001b[2;36m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+              case MessageColor.White:
+                  return $"```ansi\n\u001b[2;37m{message}\u001b[0m{"".PadLeft(padding)}\n```";
+          }
+          return message;
+      }
+
+      public enum MessageColor
+      {
+          DarkGrey,
+          Red,
+          Green,
+          Yellow,
+          Blue,
+          Magenta,
+          Cyan,
+          White
       }
    }
 }
