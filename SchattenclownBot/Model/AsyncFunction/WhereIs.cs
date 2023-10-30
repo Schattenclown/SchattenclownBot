@@ -116,8 +116,8 @@ namespace SchattenclownBot.Model.AsyncFunction
                                  username = discordMemberInChannelItem.Discriminator;
                               }*/
 
-                              description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(33) + "``";
-                              descriptionForConsole += "" + username.PadRight(33) + "   |   ";
+                              description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(17).Remove(17) + "``";
+                              descriptionForConsole += "" + username.PadRight(17).Remove(17) + "   |   ";
 
                               if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
                               {
@@ -154,10 +154,10 @@ namespace SchattenclownBot.Model.AsyncFunction
                                  descriptionForConsole += " ";
                               }
 
-                              description += descriptionLineBuilder + "<:xx_empty:989518542456123442><:xx_empty:989518542456123442><:xx_empty:989518542456123442><:xx_empty:989518542456123442>\n";
+                              description += descriptionLineBuilder + "\n";
                               descriptionForConsole += descriptionLineBuilderForConsole + "\n";
                            }
-
+                           //description += "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀";
                            DiscordEmbedBuilder discordEmbedBuilder = new()
                            {
                                     Color = new DiscordColor(43, 45, 49)
