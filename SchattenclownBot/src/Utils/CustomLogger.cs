@@ -48,14 +48,14 @@ namespace SchattenclownBot.Utils
         {
             string callerNameSpace = new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.UnderlyingSystemType.ReflectedType?.FullName ?? new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.FullName ?? "Unknown";
             callerNameSpace = StringCutter.RemoveAfter(callerNameSpace, "+", 0);
-            Loggers[5].Error($"[{callerNameSpace}.{methodName}]:\n" + "Exception Message:\n{Message}\nException StackTrace:\n{StackTrace}", exception.Message, exception.StackTrace);
+            Loggers[12].Error($"[{callerNameSpace}.{methodName}]:\n" + "Exception Message:\n{Message}\nException StackTrace:\n{StackTrace}", exception.Message, exception.StackTrace);
         }
 
         public static void Red(string objectInfo, Exception exception, [CallerMemberName] string methodName = "")
         {
             string callerNameSpace = new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.UnderlyingSystemType.ReflectedType?.FullName ?? new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.FullName ?? "Unknown";
             callerNameSpace = StringCutter.RemoveAfter(callerNameSpace, "+", 0);
-            Loggers[5].Error($"[{callerNameSpace}.{methodName}]:\n{objectInfo}\n" + "Exception Message:\n{Message}\nException StackTrace:\n{StackTrace}", exception.Message, exception.StackTrace);
+            Loggers[12].Error($"[{callerNameSpace}.{methodName}]:\n" + "{objectInfo}\nException Message:\n{Message}\nException StackTrace:\n{StackTrace}", objectInfo, exception.Message, exception.StackTrace);
         }
     }
 }
