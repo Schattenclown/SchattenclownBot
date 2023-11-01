@@ -51,11 +51,11 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
             Connections connections = CsvConnections.ReadAll();
 
 #if DEBUG
-            string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RmUntil(connections.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStr, "Database=", 9);
 #endif
-            database = StringCutter.RmAfter(database, "; Uid", 0);
+            database = StringCutter.RemoveAfter(database, "; Uid", 0);
 
             string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + $"CREATE TABLE IF NOT EXISTS `{guildId}_votes` (" + "`VoteTableID` INT NOT NULL AUTO_INCREMENT," + "`VotingUserID` BIGINT NOT NULL," + "`VotedUserID` BIGINT NOT NULL," + "`GuildID` BIGINT NOT NULL," + "`VoteRating` INT NOT NULL," + "PRIMARY KEY (VoteTableID)" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
@@ -181,11 +181,11 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
             Connections connections = CsvConnections.ReadAll();
 
 #if DEBUG
-            string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RmUntil(connections.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStr, "Database=", 9);
 #endif
-            database = StringCutter.RmAfter(database, "; Uid", 0);
+            database = StringCutter.RemoveAfter(database, "; Uid", 0);
 
             string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + $"CREATE TABLE IF NOT EXISTS `{guildsId}_roleinfo` (" + "`RoleInfoID` INT NOT NULL AUTO_INCREMENT," + "`GuildRoleID` BIGINT NOT NULL," + "`RatingValue` INT NOT NULL," + "`GuildID` BIGINT NOT NULL," + "PRIMARY KEY (RoleInfoID)" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 

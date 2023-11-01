@@ -15,9 +15,6 @@ using Microsoft.Extensions.Logging;
 using SchattenclownBot.Integrations.Discord.ApplicationCommands;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Models;
-using Serilog;
-using Serilog.Core;
-using Serilog.Sinks.SystemConsole.Themes;
 using Timer = SchattenclownBot.Integrations.Discord.ApplicationCommands.Timer;
 
 namespace SchattenclownBot.Integrations.Discord.Main
@@ -30,7 +27,6 @@ namespace SchattenclownBot.Integrations.Discord.Main
         public const string Prefix = "%";
 #endif
         //public static readonly ulong DevGuild = 881868642600505354;
-        public static Logger ErrorLogger;
         public static readonly Connections Connections = Connections.GetConnections();
         public static CancellationTokenSource ShutdownRequest;
         public static DiscordClient DiscordClient;
@@ -54,44 +50,6 @@ namespace SchattenclownBot.Integrations.Discord.Main
         /// </summary>
         public DiscordBot()
         {
-            Dictionary<ConsoleThemeStyle, SystemConsoleThemeStyle> defaultThemeStyle = new()
-            {
-                        {
-                                    ConsoleThemeStyle.Text, new SystemConsoleThemeStyle
-                                    {
-                                                Foreground = ConsoleColor.Green
-                                    }
-                        },
-                        {
-                                    ConsoleThemeStyle.String, new SystemConsoleThemeStyle
-                                    {
-                                                Foreground = ConsoleColor.Yellow
-                                    }
-                        }
-            };
-
-            Dictionary<ConsoleThemeStyle, SystemConsoleThemeStyle> errorThemeStyle = new()
-            {
-                        {
-                                    ConsoleThemeStyle.Text, new SystemConsoleThemeStyle
-                                    {
-                                                Foreground = ConsoleColor.Red
-                                    }
-                        },
-                        {
-                                    ConsoleThemeStyle.String, new SystemConsoleThemeStyle
-                                    {
-                                                Foreground = ConsoleColor.Yellow
-                                    }
-                        }
-            };
-
-            SystemConsoleTheme defaultTheme = new(defaultThemeStyle);
-            SystemConsoleTheme errorTheme = new(errorThemeStyle);
-
-            Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: defaultTheme).CreateLogger();
-            ErrorLogger = new LoggerConfiguration().WriteTo.Console(theme: errorTheme).CreateLogger();
-
             string token = Connections.DiscordBotKey;
 #if DEBUG
             token = Connections.DiscordBotDebug;

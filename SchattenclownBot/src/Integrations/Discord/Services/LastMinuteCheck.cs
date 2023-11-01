@@ -19,7 +19,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
         public static void Check(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting LastMinuteCheck...");
+            CustomLogger.ToConsole("Starting LastMinuteCheck...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (true)
@@ -46,83 +46,83 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                         if (BotTimerRunAsync)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check BotTimerRunAsync, Success");
+                            CustomLogger.ToConsole("Last Minute Check BotTimerRunAsync, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check BotTimerRunAsync, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check BotTimerRunAsync, Failed", ConsoleColor.Red);
                         }
 
                         if (BotAlarmClockRunAsync)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check BotAlarmClockRunAsync, Success");
+                            CustomLogger.ToConsole("Last Minute Check BotAlarmClockRunAsync, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check BotAlarmClockRunAsync, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check BotAlarmClockRunAsync, Failed", ConsoleColor.Red);
                         }
 
                         if (CheckGreenTask)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check CheckGreenTask, Success");
+                            CustomLogger.ToConsole("Last Minute Check CheckGreenTask, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check CheckGreenTask, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check CheckGreenTask, Failed", ConsoleColor.Red);
                         }
 
                         if (CheckHighQualityAvailable)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check CheckHighQualityAvailable, Success");
+                            CustomLogger.ToConsole("Last Minute Check CheckHighQualityAvailable, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check CheckHighQualityAvailable, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check CheckHighQualityAvailable, Failed", ConsoleColor.Red);
                         }
 
                         if (WhereIsClownRunAsync)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check WhereIsClownRunAsync, Success");
+                            CustomLogger.ToConsole("Last Minute Check WhereIsClownRunAsync, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check WhereIsClownRunAsync, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check WhereIsClownRunAsync, Failed", ConsoleColor.Red);
                         }
 
                         if (LevelSystemRunAsync)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check LevelSystemRunAsync, Success");
+                            CustomLogger.ToConsole("Last Minute Check LevelSystemRunAsync, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check LevelSystemRunAsync, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check LevelSystemRunAsync, Failed", ConsoleColor.Red);
                         }
 
                         if (LevelSystemRoleDistributionRunAsync)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check LevelSystemRoleDistributionRunAsync, Success");
+                            CustomLogger.ToConsole("Last Minute Check LevelSystemRoleDistributionRunAsync, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check LevelSystemRoleDistributionRunAsync, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check LevelSystemRoleDistributionRunAsync, Failed", ConsoleColor.Red);
                         }
 
                         if (SympathySystemRunAsync)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check SympathySystemRunAsync, Success");
+                            CustomLogger.ToConsole("Last Minute Check SympathySystemRunAsync, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check SympathySystemRunAsync, Failed", true);
+                            CustomLogger.ToConsole("Last Minute Check SympathySystemRunAsync, Failed", ConsoleColor.Red);
                         }
 
                         if (CheckBirthdayGz)
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check CheckBirthdayGz, Success");
+                            CustomLogger.ToConsole("Last Minute Check CheckBirthdayGz, Success", ConsoleColor.Green);
                         }
                         else
                         {
-                            ConsoleLogger.WriteLine("Last Minute Check CheckBirthdayGz, Waiting");
+                            CustomLogger.ToConsole("Last Minute Check CheckBirthdayGz, Waiting", ConsoleColor.Green);
                         }
                     }
                 }

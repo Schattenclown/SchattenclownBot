@@ -24,7 +24,7 @@ namespace SchattenclownBot.DataAccess.MySQL
             }
             catch (Exception ex)
             {
-                ConsoleLogger.WriteLine(ex);
+                CustomLogger.Red(ex);
                 Reset.RestartProgram();
                 throw;
             }
@@ -56,7 +56,7 @@ namespace SchattenclownBot.DataAccess.MySQL
             }
             catch (Exception ex)
             {
-                ConsoleLogger.WriteLine(ex);
+                CustomLogger.Red(ex);
                 Reset.RestartProgram();
                 throw;
             }
@@ -72,7 +72,7 @@ namespace SchattenclownBot.DataAccess.MySQL
             }
             catch (Exception ex)
             {
-                ConsoleLogger.WriteLine(ex);
+                CustomLogger.Red(ex);
                 Reset.RestartProgram();
                 throw;
             }

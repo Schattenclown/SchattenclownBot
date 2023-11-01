@@ -24,7 +24,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
         public static void WhereIsClownRunAsync(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting WhereIsClown...");
+            CustomLogger.ToConsole("Starting WhereIsClown...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 if (DiscordBot.DiscordClient.CurrentUser.Id != 890063457246937129)
@@ -46,7 +46,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                 foreach (DiscordGuild guild in guildList)
                 {
-                    ConsoleLogger.WriteLine($"Guild: {guild.Id} {guild.Name}");
+                    CustomLogger.ToConsole($"Guild: {guild.Id} {guild.Name}", ConsoleColor.Green);
                 }
 
                 DiscordGuild mainGuild = DiscordBot.DiscordClient.GetGuildAsync(928930967140331590).Result;
@@ -68,7 +68,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     }
                     catch (Exception exception)
                     {
-                        ConsoleLogger.WriteLine($"Guild: {exception.Message}");
+                        CustomLogger.ToConsole($"Guild: {exception.Message}", ConsoleColor.Red);
                     }
                 }
 
@@ -238,12 +238,12 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                     }
 
                                     lastDiscordMember = discordMemberItem;
-                                    //ConsoleLogger.WriteLine(discordMemberItem.Guild.Id + "   " + discordMemberItem.Guild.Name + "\n\n" + descriptionForConsole);
+                                    //CustomLogger.Green(discordMemberItem.Guild.Id + "   " + discordMemberItem.Guild.Name + "\n\n" + descriptionForConsole);
                                     await Task.Delay(2000);
                                 }
                                 catch (Exception ex)
                                 {
-                                    ConsoleLogger.WriteLine(ex);
+                                    CustomLogger.Red(ex);
                                 }
                             }
 
@@ -260,9 +260,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
                             string mentionedChannel = "";
                             try
                             {
-                                mentionedChannel = StringCutter.RmUntil(discordMessage.Content, "https://discord.com/channels/", "https://discord.com/channels/".Length);
-                                mentionedChannel = StringCutter.RmUntil(mentionedChannel, "/", 1);
-                                mentionedChannel = StringCutter.RmAfter(mentionedChannel, " ||", 0);
+                                mentionedChannel = StringCutter.RemoveUntil(discordMessage.Content, "https://discord.com/channels/", "https://discord.com/channels/".Length);
+                                mentionedChannel = StringCutter.RemoveUntil(mentionedChannel, "/", 1);
+                                mentionedChannel = StringCutter.RemoveAfter(mentionedChannel, " ||", 0);
                             }
                             catch
                             {
@@ -290,7 +290,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                         await Task.Delay(1000);
 
-                        ConsoleLogger.WriteLine("Finished");
+                        CustomLogger.ToConsole("Finished", ConsoleColor.Green);
 
                         if (!LastMinuteCheck.WhereIsClownRunAsync)
                         {
@@ -299,7 +299,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     }
                     catch (Exception ex)
                     {
-                        ConsoleLogger.WriteLine(ex);
+                        CustomLogger.Red(ex);
                     }
                 }
             });

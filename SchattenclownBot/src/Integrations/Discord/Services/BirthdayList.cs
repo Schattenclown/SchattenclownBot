@@ -12,7 +12,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
     {
         public static async Task GenerateBirthdayList()
         {
-            ConsoleLogger.WriteLine("Starting GenerateBirthdayList...");
+            CustomLogger.ToConsole("Starting GenerateBirthdayList...", ConsoleColor.Green);
             List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
             List<KeyValuePair<ulong, DateTime>> birthdays = new();
 
@@ -79,7 +79,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
         public static void CheckBirthdayGz(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting CheckBirthdayGz...");
+            CustomLogger.ToConsole("Starting CheckBirthdayGz...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (DateTime.Now.Second != executeSecond)

@@ -72,7 +72,7 @@ namespace SchattenclownBot.Models
 
         public static void SympathySystemRunAsync(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting SympathySystem...");
+            CustomLogger.ToConsole("Starting SympathySystem...", ConsoleColor.Green);
             bool levelSystemVirgin = true;
 
             Task.Run(async () =>
@@ -233,7 +233,7 @@ namespace SchattenclownBot.Models
                     }
 
                     await Task.Delay(2000);
-                    ConsoleLogger.WriteLine("Checked");
+                    CustomLogger.ToConsole("Checked", ConsoleColor.Green);
                     if (!LastMinuteCheck.SympathySystemRunAsync)
                     {
                         LastMinuteCheck.SympathySystemRunAsync = true;

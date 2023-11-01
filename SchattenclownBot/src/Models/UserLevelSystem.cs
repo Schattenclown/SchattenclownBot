@@ -68,7 +68,7 @@ namespace SchattenclownBot.Models
 
         public static void LevelSystemRunAsync(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting LevelSystem...");
+            CustomLogger.ToConsole("Starting LevelSystem...", ConsoleColor.Green);
             bool levelSystemVirgin = true;
 
             Task.Run(async () =>
@@ -165,7 +165,7 @@ namespace SchattenclownBot.Models
 
         public static void LevelSystemRoleDistributionRunAsync(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting LevelSystemRoleDistribution...");
+            CustomLogger.ToConsole("Starting LevelSystemRoleDistribution...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (DateTime.Now.Second != executeSecond)
@@ -306,7 +306,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(zehnerRole);
 
-                                        ConsoleLogger.WriteLine($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}");
+                                        CustomLogger.ToConsole($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -319,7 +319,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(einerRole);
 
-                                        ConsoleLogger.WriteLine($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}");
+                                        CustomLogger.ToConsole($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -327,7 +327,7 @@ namespace SchattenclownBot.Models
                                 {
                                     await discordMember.RevokeRoleAsync(revokeRoleItem);
 
-                                    ConsoleLogger.WriteLine($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}");
+                                    CustomLogger.ToConsole($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", ConsoleColor.Green);
                                 }
 
                                 DiscordRole discordLevelRole = guildObj.GetRole(1017937277307064340);
@@ -338,11 +338,11 @@ namespace SchattenclownBot.Models
                             }
                         }
 
-                        ConsoleLogger.WriteLine("Finished");
+                        CustomLogger.ToConsole("Finished", ConsoleColor.Green);
                     }
                     catch (Exception ex)
                     {
-                        ConsoleLogger.WriteLine(ex);
+                        CustomLogger.Red(ex);
                     }
 
                     await Task.Delay(2000);

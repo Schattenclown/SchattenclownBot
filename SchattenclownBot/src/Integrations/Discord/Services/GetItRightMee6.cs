@@ -18,7 +18,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             if (e.Channel.Name.Contains("🥇AFK-Farm#"))
             {
                 e.Channel.ModifyAsync(x => x.Bitrate = 256000);
-                ConsoleLogger.WriteLine("BitRate set to 256k on" + e.Channel.Name);
+                CustomLogger.ToConsole("BitRate set to 256k on" + e.Channel.Name, ConsoleColor.Green);
             }
 
             return Task.CompletedTask;
@@ -26,7 +26,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
         public static void CheckHighQualityAvailable(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting CheckHighQualityAvailable...");
+            CustomLogger.ToConsole("Starting CheckHighQualityAvailable...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (DateTime.Now.Second != executeSecond)
@@ -67,14 +67,14 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                 if (discordChannelItem.Bitrate != 384000)
                                 {
                                     await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
-                                    ConsoleLogger.WriteLine($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!");
+                                    CustomLogger.ToConsole($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", ConsoleColor.Green);
                                 }
                             }
                         }
                         catch
                         {
                             bool384KbNotAvailable = true;
-                            ConsoleLogger.WriteLine("Bit-rate 384000 not available for guild");
+                            CustomLogger.ToConsole("Bit-rate 384000 not available for guild", ConsoleColor.Green);
                             break;
                         }
                     }
@@ -90,13 +90,13 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                     if (discordChannelItem.Bitrate != 256000)
                                     {
                                         await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
-                                        ConsoleLogger.WriteLine($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!");
+                                        CustomLogger.ToConsole($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", ConsoleColor.Green);
                                     }
                                 }
                             }
                             catch
                             {
-                                ConsoleLogger.WriteLine("Bit-rate 256000 not available for guild");
+                                CustomLogger.ToConsole("Bit-rate 256000 not available for guild", ConsoleColor.Green);
                                 break;
                             }
                         }

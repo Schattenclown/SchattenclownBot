@@ -54,11 +54,11 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
             Connections connections = CsvConnections.ReadAll();
 
 #if DEBUG
-            string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RmUntil(connections.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStr, "Database=", 9);
 #endif
-            database = StringCutter.RmAfter(database, "; Uid", 0);
+            database = StringCutter.RemoveAfter(database, "; Uid", 0);
 
             string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + $"CREATE TABLE IF NOT EXISTS `{guildId}_TwitchNotifier` (" + "`DiscordGuildId` BIGINT NOT NULL," + "`DiscordMemberId` BIGINT NOT NULL," + "`DiscordChannelId` BIGINT NOT NULL," + "`DiscordRoleId` BIGINT NOT NULL," + "`TwitchUserId` BIGINT," + "`TwitchChannelUrl` VARCHAR(64))" + " ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 

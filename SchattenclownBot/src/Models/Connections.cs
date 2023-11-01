@@ -26,7 +26,7 @@ namespace SchattenclownBot.Models
             }
             catch (Exception ex)
             {
-                ConsoleLogger.WriteLine(ex);
+                CustomLogger.Red(ex);
                 return null;
             }
         }

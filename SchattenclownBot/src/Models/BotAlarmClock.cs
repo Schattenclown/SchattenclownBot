@@ -31,7 +31,7 @@ namespace SchattenclownBot.Models
 
         public static void BotAlarmClockRunAsync()
         {
-            ConsoleLogger.WriteLine("Starting BotAlarmClock...");
+            CustomLogger.ToConsole("Starting BotAlarmClock...", ConsoleColor.Green);
             DbBotAlarmClocks.CreateTable_BotAlarmClock();
             BotAlarmClockList = DbBotAlarmClocks.ReadAll();
 

@@ -36,7 +36,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
             if (twitchThing.Contains("https://"))
             {
-                twitchThing = StringCutter.RmUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
+                twitchThing = StringCutter.RemoveUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
             }
 
             List<TwitchNotifier> twitchNotifiers = TwitchNotifier.Read(interactionContext.Guild.Id);

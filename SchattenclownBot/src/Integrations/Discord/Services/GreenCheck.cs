@@ -12,7 +12,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
     {
         public static void CheckGreenTask(int executeSecond)
         {
-            ConsoleLogger.WriteLine("Starting GreenCheck...");
+            CustomLogger.ToConsole("Starting GreenCheck...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 if (DiscordBot.DiscordClient.CurrentUser.Id == 890063457246937129)
@@ -113,7 +113,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                                 await discordMember.GrantRoleAsync(green);
                                 await discordMember.RevokeRoleAsync(grey);
-                                ConsoleLogger.WriteLine(discordMember.DisplayName + " Granted Green");
+                                CustomLogger.ToConsole(discordMember.DisplayName + " Granted Green", ConsoleColor.Green);
                             }
                         }
 

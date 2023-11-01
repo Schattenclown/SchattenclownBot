@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using SchattenclownBot.DataAccess.CSV;
 using SchattenclownBot.Models;
@@ -49,16 +50,16 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
 
         public static void CreateTable_BotAlarmClock()
         {
-            ConsoleLogger.WriteLine("Creating table ScAlarmClocks...");
+            CustomLogger.ToConsole("Creating table ScAlarmClocks...", ConsoleColor.Green);
             Connections connections = CsvConnections.ReadAll();
 
 #if DEBUG
-            string database = StringCutter.RmUntil(connections.MySqlConStrDebug, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStrDebug, "Database=", 9);
 #else
-            string database = StringCutter.RmUntil(connections.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntil(connections.MySqlConStr, "Database=", 9);
 
 #endif
-            database = StringCutter.RmAfter(database, "; Uid", 0);
+            database = StringCutter.RemoveAfter(database, "; Uid", 0);
 
             string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + "CREATE TABLE IF NOT EXISTS `ScAlarmClocks` (" + "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," + "`NotificationTime` DATETIME NOT NULL," + "`ChannelId` bigint(20) NOT NULL," + "`MemberId` bigint(20) NOT NULL," + "PRIMARY KEY (`DBEntryID`)) " + "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
 
