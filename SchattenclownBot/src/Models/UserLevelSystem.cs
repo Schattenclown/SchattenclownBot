@@ -33,9 +33,9 @@ namespace SchattenclownBot.Models
             DbUserLevelSystem.Change(guildId, userLevelSystem);
         }
 
-        public static void CreateTable_UserLevelSystem(ulong guildId)
+        public static void CreateTable(ulong guildId)
         {
-            DbUserLevelSystem.CreateTable_UserLevelSystem(guildId);
+            DbUserLevelSystem.CreateTable(guildId);
         }
 
         public static int CalculateLevel(int onlineTicks)
@@ -68,7 +68,7 @@ namespace SchattenclownBot.Models
 
         public static void LevelSystemRunAsync(int executeSecond)
         {
-            CustomLogger.ToConsole("Starting LevelSystem...", ConsoleColor.Green);
+            CustomLogger.Information("Starting LevelSystem...", ConsoleColor.Green);
             bool levelSystemVirgin = true;
 
             Task.Run(async () =>
@@ -87,7 +87,7 @@ namespace SchattenclownBot.Models
                             List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
                             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                             {
-                                CreateTable_UserLevelSystem(guildItem.Value.Id);
+                                CreateTable(guildItem.Value.Id);
                             }
 
                             levelSystemVirgin = false;
@@ -165,7 +165,7 @@ namespace SchattenclownBot.Models
 
         public static void LevelSystemRoleDistributionRunAsync(int executeSecond)
         {
-            CustomLogger.ToConsole("Starting LevelSystemRoleDistribution...", ConsoleColor.Green);
+            CustomLogger.Information("Starting LevelSystemRoleDistribution...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (DateTime.Now.Second != executeSecond)
@@ -306,7 +306,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(zehnerRole);
 
-                                        CustomLogger.ToConsole($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", ConsoleColor.Green);
+                                        CustomLogger.Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -319,7 +319,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(einerRole);
 
-                                        CustomLogger.ToConsole($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", ConsoleColor.Green);
+                                        CustomLogger.Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -327,7 +327,7 @@ namespace SchattenclownBot.Models
                                 {
                                     await discordMember.RevokeRoleAsync(revokeRoleItem);
 
-                                    CustomLogger.ToConsole($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", ConsoleColor.Green);
+                                    CustomLogger.Information($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", ConsoleColor.Green);
                                 }
 
                                 DiscordRole discordLevelRole = guildObj.GetRole(1017937277307064340);
@@ -338,11 +338,11 @@ namespace SchattenclownBot.Models
                             }
                         }
 
-                        CustomLogger.ToConsole("Finished", ConsoleColor.Green);
+                        CustomLogger.Information("Finished", ConsoleColor.Green);
                     }
                     catch (Exception ex)
                     {
-                        CustomLogger.Red(ex);
+                        CustomLogger.Error(ex);
                     }
 
                     await Task.Delay(2000);

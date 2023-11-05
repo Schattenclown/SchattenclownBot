@@ -6,7 +6,6 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SchattenclownBot.Integrations.Discord.Main;
 
 // ReSharper disable UnusedMember.Global
 
@@ -14,7 +13,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
     internal class Move : ApplicationCommandsModule
     {
-        [SlashCommand("Move" + DiscordBot.isDevBot, "MassMove the whole channel your in to a different one!")]
+        [SlashCommand("Move", "MassMove the whole channel your in to a different one!")]
         public static async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)] DiscordChannel discordTargetChannel)
         {
             List<DiscordRole> discordPermissions = interactionContext.Member.Roles.ToList();

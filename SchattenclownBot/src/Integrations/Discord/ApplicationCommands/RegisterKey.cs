@@ -12,7 +12,6 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
-using SchattenclownBot.Integrations.Discord.Main;
 
 #pragma warning disable SYSLIB0021
 
@@ -28,7 +27,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="platform"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        [SlashCommand("RegisterKey" + DiscordBot.isDevBot, "Add Twitch notifier!")]
+        [SlashCommand("RegisterKey", "Add Twitch notifier!")]
         public static async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Info", "Information about the Key.")] string info, [Option("Platform", "Platform the Key.")] string platform, [Option("Key", "Key.")] string key)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -67,7 +66,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                     IReadOnlyList<DiscordEmbedField> discordEmbedFields = eventArgs.Message.Embeds.FirstOrDefault()?.Fields;
                     if (discordEmbedFields != null)
                     {
-                        string decrypted = Decrypt(discordEmbedFields?.FirstOrDefault()?.Value);
+                        string decrypted = Decrypt(discordEmbedFields.FirstOrDefault()?.Value);
 
                         DiscordComponentEmoji discordComponentEmojisPrevious = new("🔑");
                         DiscordComponent[] discordComponent = new DiscordComponent[1];

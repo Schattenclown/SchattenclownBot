@@ -37,7 +37,7 @@ namespace SchattenclownBot.Models
 
         public static void CreateTable_SympathySystem(ulong guildId)
         {
-            DbSympathySystem.CreateTable_SympathySystem(guildId);
+            DbSympathySystem.CreateTable(guildId);
         }
 
         public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
@@ -60,7 +60,7 @@ namespace SchattenclownBot.Models
             return DbSympathySystem.CheckRoleInfoExists(guildId, ratingValue);
         }
 
-        public static void CreateTable_RoleInfoSympathySystem(ulong guildId)
+        public static void CreateTable(ulong guildId)
         {
             DbSympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
         }
@@ -70,9 +70,9 @@ namespace SchattenclownBot.Models
             return DbSympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
         }
 
-        public static void SympathySystemRunAsync(int executeSecond)
+        public static void RunAsync(int executeSecond)
         {
-            CustomLogger.ToConsole("Starting SympathySystem...", ConsoleColor.Green);
+            CustomLogger.Information("Starting SympathySystem...", ConsoleColor.Green);
             bool levelSystemVirgin = true;
 
             Task.Run(async () =>
@@ -92,7 +92,7 @@ namespace SchattenclownBot.Models
                             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                             {
                                 CreateTable_SympathySystem(guildItem.Value.Id);
-                                CreateTable_RoleInfoSympathySystem(guildItem.Value.Id);
+                                CreateTable(guildItem.Value.Id);
                             }
 
                             levelSystemVirgin = false;
@@ -233,7 +233,7 @@ namespace SchattenclownBot.Models
                     }
 
                     await Task.Delay(2000);
-                    CustomLogger.ToConsole("Checked", ConsoleColor.Green);
+                    CustomLogger.Information("Checked", ConsoleColor.Green);
                     if (!LastMinuteCheck.SympathySystemRunAsync)
                     {
                         LastMinuteCheck.SympathySystemRunAsync = true;

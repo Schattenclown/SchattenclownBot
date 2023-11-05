@@ -7,24 +7,24 @@ namespace SchattenclownBot.DataAccess.MySQL
 {
     internal class DbConnection
     {
-        private static string _token = "";
+        private static string Token { get; set; } = null!;
 
         public static MySqlConnection OpenDb()
         {
-            _token = DiscordBot.Connections.MySqlConStr;
+            Token = DiscordBot.Config["ConnectionStrings:MySql"];
 #if DEBUG
-            _token = DiscordBot.Connections.MySqlConStrDebug;
+            Token = DiscordBot.Config["ConnectionStrings:MySqlDebug"];
 #endif
 
-            MySqlConnection connection = new(_token);
+            MySqlConnection connection = new(Token);
 
             try
             {
                 connection.Open();
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                CustomLogger.Red(ex);
+                CustomLogger.Error(exception);
                 Reset.RestartProgram();
                 throw;
             }
@@ -41,7 +41,7 @@ namespace SchattenclownBot.DataAccess.MySQL
         {
             MySqlConnection connection = OpenDb();
             MySqlCommand sqlCommand = new(sql, connection);
-            int ret = sqlCommand.ExecuteNonQuery();
+            sqlCommand.ExecuteNonQuery();
 
             CloseDb(connection);
         }
@@ -54,9 +54,9 @@ namespace SchattenclownBot.DataAccess.MySQL
                 MySqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
                 return sqlDataReader;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                CustomLogger.Red(ex);
+                CustomLogger.Error(exception);
                 Reset.RestartProgram();
                 throw;
             }
@@ -72,7 +72,7 @@ namespace SchattenclownBot.DataAccess.MySQL
             }
             catch (Exception ex)
             {
-                CustomLogger.Red(ex);
+                CustomLogger.Error(ex);
                 Reset.RestartProgram();
                 throw;
             }

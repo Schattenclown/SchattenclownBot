@@ -22,9 +22,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
             White
         }
 
-        public static void WhereIsClownRunAsync(int executeSecond)
+        public static void RunAsync(int executeSecond)
         {
-            CustomLogger.ToConsole("Starting WhereIsClown...", ConsoleColor.Green);
+            CustomLogger.Information("Starting WhereIsClown...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 if (DiscordBot.DiscordClient.CurrentUser.Id != 890063457246937129)
@@ -46,7 +46,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                 foreach (DiscordGuild guild in guildList)
                 {
-                    CustomLogger.ToConsole($"Guild: {guild.Id} {guild.Name}", ConsoleColor.Green);
+                    CustomLogger.Information($"Guild: {guild.Id} {guild.Name}", ConsoleColor.Green);
                 }
 
                 DiscordGuild mainGuild = DiscordBot.DiscordClient.GetGuildAsync(928930967140331590).Result;
@@ -68,7 +68,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     }
                     catch (Exception exception)
                     {
-                        CustomLogger.ToConsole($"Guild: {exception.Message}", ConsoleColor.Red);
+                        CustomLogger.Information($"Guild: {exception.Message}", ConsoleColor.Red);
                     }
                 }
 
@@ -131,28 +131,40 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                         description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(17).Remove(17) + "``";
                                         descriptionForConsole += "" + username.PadRight(17).Remove(17) + "   |   ";
 
-                                        if (discordMemberInChannelItem.VoiceState.IsSelfMuted)
+                                        if (discordMemberInChannelItem.VoiceState is
+                                            {
+                                                        IsSelfMuted: true
+                                            })
                                         {
                                             descriptionLineBuilder += "<:xx_mute:989518546541346856>";
                                             descriptionLineBuilderForConsole += "M";
                                             counter--;
                                         }
 
-                                        if (discordMemberInChannelItem.VoiceState.IsSelfDeafened)
+                                        if (discordMemberInChannelItem.VoiceState is
+                                            {
+                                                        IsSelfDeafened: true
+                                            })
                                         {
                                             descriptionLineBuilder += "<:xx_deaf:989518540400906270>";
                                             descriptionLineBuilderForConsole += "D";
                                             counter--;
                                         }
 
-                                        if (discordMemberInChannelItem.VoiceState.IsSelfVideo)
+                                        if (discordMemberInChannelItem.VoiceState is
+                                            {
+                                                        IsSelfVideo: true
+                                            })
                                         {
                                             descriptionLineBuilder += "<:xx_cam:989518538819645460>";
                                             descriptionLineBuilderForConsole += "C";
                                             counter--;
                                         }
 
-                                        if (discordMemberInChannelItem.VoiceState.IsSelfStream)
+                                        if (discordMemberInChannelItem.VoiceState is
+                                            {
+                                                        IsSelfStream: true
+                                            })
                                         {
                                             descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
                                             descriptionLineBuilderForConsole += " L";
@@ -243,7 +255,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                 }
                                 catch (Exception ex)
                                 {
-                                    CustomLogger.Red(ex);
+                                    CustomLogger.Error(ex);
                                 }
                             }
 
@@ -290,7 +302,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                         await Task.Delay(1000);
 
-                        CustomLogger.ToConsole("Finished", ConsoleColor.Green);
+                        CustomLogger.Information("Finished", ConsoleColor.Green);
 
                         if (!LastMinuteCheck.WhereIsClownRunAsync)
                         {
@@ -299,7 +311,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     }
                     catch (Exception ex)
                     {
-                        CustomLogger.Red(ex);
+                        CustomLogger.Error(ex);
                     }
                 }
             });

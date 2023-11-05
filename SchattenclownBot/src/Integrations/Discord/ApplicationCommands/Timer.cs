@@ -8,7 +8,6 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.DataAccess.MySQL.Services;
-using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
@@ -25,13 +24,13 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="hour">The Hour of the Alarm in the Future.</param>
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
-        [SlashCommand("SetTimer" + DiscordBot.isDevBot, "Set a timer!")]
+        [SlashCommand("SetTimer", "Set a timer!")]
         internal static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
 
-            //Check if the Give Time format is Valid.
+            //RunAsync if the Give Time format is Valid.
             //Create an TimerObject and add it to the Database.
             if (!TimeFormatCheck.TimeFormat(hour, minute))
             {
@@ -57,7 +56,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
-        [SlashCommand("MyTimers" + DiscordBot.isDevBot, "Look up your timers!")]
+        [SlashCommand("MyTimers", "Look up your timers!")]
         internal static async Task TimerLookup(InteractionContext interactionContext)
         {
             //Create a Response.

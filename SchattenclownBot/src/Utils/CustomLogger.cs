@@ -32,11 +32,11 @@ namespace SchattenclownBot.Utils
                             }
                 };
 
-                Loggers.Add(new LoggerConfiguration().WriteTo.Console(theme: new SystemConsoleTheme(consoleThemeStyle)).CreateLogger());
+                Loggers.Add(new LoggerConfiguration().WriteTo.Console(theme: new SystemConsoleTheme(consoleThemeStyle)).MinimumLevel.Verbose().CreateLogger());
             }
         }
 
-        public static void ToConsole(string message, ConsoleColor consoleColor, [CallerMemberName] string methodName = "")
+        public static void Information(string message, ConsoleColor consoleColor, [CallerMemberName] string methodName = "")
         {
             string callerNameSpace = new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.UnderlyingSystemType.ReflectedType?.FullName ?? new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.FullName ?? "Unknown";
             callerNameSpace = StringCutter.RemoveAfter(callerNameSpace, "+", 0);
@@ -44,14 +44,22 @@ namespace SchattenclownBot.Utils
             Loggers[Convert.ToInt32(consoleColor)].Information(callerNameSpaceMethodName + "{message}", message);
         }
 
-        public static void Red(Exception exception, [CallerMemberName] string methodName = "")
+        public static void Debug(string message, ConsoleColor consoleColor, [CallerMemberName] string methodName = "")
+        {
+            string callerNameSpace = new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.UnderlyingSystemType.ReflectedType?.FullName ?? new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.FullName ?? "Unknown";
+            callerNameSpace = StringCutter.RemoveAfter(callerNameSpace, "+", 0);
+            string callerNameSpaceMethodName = $"[{callerNameSpace}.{methodName}]: ";
+            Loggers[Convert.ToInt32(consoleColor)].Debug(callerNameSpaceMethodName + "{message}", message);
+        }
+
+        public static void Error(Exception exception, [CallerMemberName] string methodName = "")
         {
             string callerNameSpace = new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.UnderlyingSystemType.ReflectedType?.FullName ?? new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.FullName ?? "Unknown";
             callerNameSpace = StringCutter.RemoveAfter(callerNameSpace, "+", 0);
             Loggers[12].Error($"[{callerNameSpace}.{methodName}]:\n" + "Exception Message:\n{Message}\nException StackTrace:\n{StackTrace}", exception.Message, exception.StackTrace);
         }
 
-        public static void Red(string objectInfo, Exception exception, [CallerMemberName] string methodName = "")
+        public static void Error(string objectInfo, Exception exception, [CallerMemberName] string methodName = "")
         {
             string callerNameSpace = new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.UnderlyingSystemType.ReflectedType?.FullName ?? new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.FullName ?? "Unknown";
             callerNameSpace = StringCutter.RemoveAfter(callerNameSpace, "+", 0);

@@ -8,11 +8,11 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.Services
 {
-    public class BirthdayList
+    public static class BirthdayList
     {
         public static async Task GenerateBirthdayList()
         {
-            CustomLogger.ToConsole("Starting GenerateBirthdayList...", ConsoleColor.Green);
+            CustomLogger.Information("Starting GenerateBirthdayList...", ConsoleColor.Green);
             List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
             List<KeyValuePair<ulong, DateTime>> birthdays = new();
 
@@ -58,7 +58,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
             foreach (KeyValuePair<ulong, DateTime> item in birthdays)
             {
-                listString += $"``{item.Value.Day.ToString("00")}.{item.Value.Month.ToString("00")} -`` <@{item.Key}>\n";
+                listString += $"``{item.Value.Day:00}.{item.Value.Month:00} -`` <@{item.Key}>\n";
             }
 
             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
@@ -77,9 +77,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
             }
         }
 
-        public static void CheckBirthdayGz(int executeSecond)
+        public static void RunAsync(int executeSecond)
         {
-            CustomLogger.ToConsole("Starting CheckBirthdayGz...", ConsoleColor.Green);
+            CustomLogger.Information("Starting RunAsync...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (DateTime.Now.Second != executeSecond)

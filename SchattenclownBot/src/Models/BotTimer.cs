@@ -34,10 +34,10 @@ namespace SchattenclownBot.Models
             return DbBotTimer.ReadAll();
         }
 
-        public static void BotTimerRunAsync()
+        public static void RunAsync()
         {
-            CustomLogger.ToConsole("Starting BotTimer...", ConsoleColor.Green);
-            DbBotTimer.CreateTable_BotTimer();
+            CustomLogger.Information("Starting BotTimer...", ConsoleColor.Green);
+            DbBotTimer.CreateTable();
             BotTimerList = DbBotTimer.ReadAll();
 
             Task.Run(async () =>

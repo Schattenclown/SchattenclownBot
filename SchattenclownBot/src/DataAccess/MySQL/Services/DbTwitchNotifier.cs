@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using SchattenclownBot.DataAccess.CSV;
+using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
-using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.DataAccess.MySQL.Services
@@ -49,14 +48,12 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
            DB_Connection.ExecuteNonQuery(sqlCommand);
         }*/
 
-        public static Task CreateTable_TwitchNotifier(ulong guildId)
+        public static Task CreateTable(ulong guildId)
         {
-            Connections connections = CsvConnections.ReadAll();
-
 #if DEBUG
-            string database = StringCutter.RemoveUntil(connections.MySqlConStrDebug, "Database=", 9);
+            string database = StringCutter.RemoveUntil(DiscordBot.Config["ConnectionStrings:MySqlDebug"], "Database=", "Database=".Length);
 #else
-            string database = StringCutter.RemoveUntil(connections.MySqlConStr, "Database=", 9);
+            string database = StringCutter.RemoveUntil(DiscordBot.Config["ConnectionStrings:MySql"], "Database=", "Database=".Length);
 #endif
             database = StringCutter.RemoveAfter(database, "; Uid", 0);
 

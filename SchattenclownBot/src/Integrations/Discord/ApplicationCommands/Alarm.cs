@@ -8,7 +8,6 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.DataAccess.MySQL.Services;
-using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
@@ -25,13 +24,13 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="hour">The Hour of the Alarm in the Future.</param>
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
-        [SlashCommand("SetAlarm" + DiscordBot.isDevBot, "Set an alarm for a specific time!")]
+        [SlashCommand("SetAlarm", "Set an alarm for a specific time!")]
         public static async Task SetAlarmAsync(InteractionContext interactionContext, [Option("HourOfDay", "0-23")] int hour, [Option("MinuteOfDay", "0-59")] int minute)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
 
-            //Check if the given Time format is Valid.
+            //RunAsync if the given Time format is Valid.
             if (!TimeFormatCheck.TimeFormat(hour, minute))
             {
                 //Tell the User that the Time format is not valid and return.
@@ -43,7 +42,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             DateTime dateTimeNow = DateTime.Now;
             DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
 
-            //Check if the Alarm is a Time for Tomorrow, if it is in the Past already Today.
+            //RunAsync if the Alarm is a Time for Tomorrow, if it is in the Past already Today.
             if (alarm < DateTime.Now)
             {
                 alarm = alarm.AddDays(1);
@@ -67,7 +66,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
-        [SlashCommand("MyAlarms" + DiscordBot.isDevBot, "Look up your alarms!")]
+        [SlashCommand("MyAlarms", "Look up your alarms!")]
         public static async Task AlarmClockLookup(InteractionContext interactionContext)
         {
             //Create an Response.

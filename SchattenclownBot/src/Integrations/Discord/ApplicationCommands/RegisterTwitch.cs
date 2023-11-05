@@ -7,7 +7,6 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Utils;
 
@@ -23,7 +22,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordTargetRole"></param>
         /// <param name="twitchThing"></param>
         /// <returns></returns>
-        [SlashCommand("TwitchRegister" + DiscordBot.isDevBot, "Add Twitch notifier!")]
+        [SlashCommand("TwitchRegister", "Add Twitch notifier!")]
         public static async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Text)] DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

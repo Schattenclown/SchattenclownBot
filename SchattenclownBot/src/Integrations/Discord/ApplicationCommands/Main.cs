@@ -5,14 +5,13 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SchattenclownBot.Integrations.Discord.Main;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
     /// <summary>
-    ///     The AppCommands.
+    ///     The ApplicationCommandsExtension.
     /// </summary>
     internal class Main : ApplicationCommandsModule
     {
@@ -29,7 +28,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder
                         {
                                     Title = $"Avatar & Banner of {user.Username}",
-                                    ImageUrl = user.BannerHash != null ? user.BannerUrl : null
+                                    ImageUrl = user.BannerUrl
                         }.WithThumbnail(user.AvatarUrl)
                         .WithColor(user.BannerColor ?? DiscordColor.Purple)
                         .WithFooter($"Requested by {contextMenuContext.Member.DisplayName}", contextMenuContext.Member.AvatarUrl)
@@ -42,7 +41,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// </summary>
         /// <param name="interactionContext">The interactionContext.</param>
         /// <returns></returns>
-        [SlashCommand(DiscordBot.isDevBot + "Invite", "Invite $chattenclown")]
+        [SlashCommand("Invite", "Invite $chattenclown")]
         public static async Task InviteAsync(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

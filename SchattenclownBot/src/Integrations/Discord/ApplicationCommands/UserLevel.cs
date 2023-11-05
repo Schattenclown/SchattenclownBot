@@ -21,7 +21,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// </summary>
         /// <param name="interactionContext">The interactionContext</param>
         /// <returns></returns>
-        [SlashCommand("MyLevel" + DiscordBot.isDevBot, "Look up your level!")]
+        [SlashCommand("MyLevel", "Look up your level!")]
         public static async Task MyLevelAsync(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -82,7 +82,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="discordUser"></param>
         /// <returns></returns>
-        [SlashCommand("Level" + DiscordBot.isDevBot, "Look up someones level!")]
+        [SlashCommand("Level", "Look up someones level!")]
         public static async Task LevelAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -140,7 +140,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
-        [SlashCommand("Leaderboard" + DiscordBot.isDevBot, "Look up the leaderboard for connection time!")]
+        [SlashCommand("Leaderboard", "Look up the leaderboard for connection time!")]
         public static async Task LeaderboardAsync(InteractionContext interactionContext)
         {
             //Create an Response.

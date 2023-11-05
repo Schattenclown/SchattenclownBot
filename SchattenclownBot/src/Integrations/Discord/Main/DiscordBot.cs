@@ -1,73 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
-using DisCatSharp.CommandsNext;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.Extensions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Integrations.Discord.ApplicationCommands;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Models;
-using Timer = SchattenclownBot.Integrations.Discord.ApplicationCommands.Timer;
 
 namespace SchattenclownBot.Integrations.Discord.Main
 {
-    public class DiscordBot : IDisposable
+    public class DiscordBot
     {
-#if DEBUG
-        public const string Prefix = "%";
-#else
-        public const string Prefix = "%";
-#endif
-        //public static readonly ulong DevGuild = 881868642600505354;
-        public static readonly Connections Connections = Connections.GetConnections();
-        public static CancellationTokenSource ShutdownRequest;
-        public static DiscordClient DiscordClient;
-        public static DiscordGuild EmojiDiscordGuild;
-        public static DiscordChannel DebugDiscordChannel;
-        public static ApplicationCommandsExtension AppCommands;
-        public InteractivityExtension Extension { get; private set; }
-        private CommandsNextExtension _commandsNextExtension;
-        private const ulong DevGuild = 881868642600505354;
-        public static UserStatus CustomStatus = UserStatus.Online;
-        public static bool Custom = false;
-        public static string CustomState = "/help";
-#if DEBUG
-        public const string isDevBot = "";
-#else
-        public const string isDevBot = "";
-#endif
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DiscordBot" /> class.
-        /// </summary>
         public DiscordBot()
         {
-            string token = Connections.DiscordBotKey;
 #if DEBUG
-            token = Connections.DiscordBotDebug;
-#endif
-            ShutdownRequest = new CancellationTokenSource();
-
-#if DEBUG
-            const LogLevel logLevel = LogLevel.Warning;
+            Token = Config["APIKeys:DiscordAPIKeyDebug"];
 #else
-            const LogLevel logLevel = LogLevel.Information;
+            Token = Config["APIKeys:DiscordAPIKey"];
 #endif
+
             DiscordConfiguration discordConfiguration = new()
             {
-                        Token = token,
+                        Token = Token ?? throw new InvalidOperationException(),
                         TokenType = TokenType.Bot,
                         AutoReconnect = true,
                         MessageCacheSize = 4096,
-                        MinimumLogLevel = logLevel,
+                        MinimumLogLevel = LogLevel.Error,
                         ShardCount = 1,
                         ShardId = 0,
                         Intents = DiscordIntents.All,
@@ -81,29 +46,15 @@ namespace SchattenclownBot.Integrations.Discord.Main
 
             DiscordClient = new DiscordClient(discordConfiguration);
 
-            AppCommands = DiscordClient.UseApplicationCommands(new ApplicationCommandsConfiguration
+            ApplicationCommandsExtension = DiscordClient.UseApplicationCommands(new ApplicationCommandsConfiguration
             {
-                        EnableDefaultHelp = true,
-                        DebugStartup = true,
+                        EnableDefaultHelp = false,
+                        DebugStartup = false,
                         ManualOverride = true,
                         CheckAllGuilds = true
             });
 
-            _commandsNextExtension = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
-            {
-                        StringPrefixes = new List<string>
-                        {
-                                    Prefix
-                        },
-                        CaseSensitive = true,
-                        EnableMentionPrefix = true,
-                        IgnoreExtraArguments = true,
-                        DefaultHelpChecks = null,
-                        EnableDefaultHelp = true,
-                        EnableDms = true
-            });
-
-            Extension = DiscordClient.UseInteractivity(new InteractivityConfiguration
+            InteractivityExtension = DiscordClient.UseInteractivity(new InteractivityConfiguration
             {
                         PaginationBehaviour = PaginationBehaviour.WrapAround,
                         PaginationDeletion = PaginationDeletion.DeleteMessage,
@@ -111,120 +62,74 @@ namespace SchattenclownBot.Integrations.Discord.Main
                         ButtonBehavior = ButtonPaginationBehavior.Disable
             });
 
-            RegisterEventListener(DiscordClient, AppCommands, _commandsNextExtension);
-            RegisterCommands(_commandsNextExtension, AppCommands);
+            RegisterEventListener();
+            RegisterCommands();
         }
 
-        /// <summary>
-        ///     Disposes the DiscordBot.
-        /// </summary>
-        public void Dispose()
-        {
-            DiscordClient.Dispose();
-            Extension = null;
-            _commandsNextExtension = null;
-            DiscordClient = null;
-            AppCommands = null;
-            Environment.Exit(0);
-        }
+        public static IConfigurationRoot Config { get; } = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, true).Build();
+        public static DiscordClient DiscordClient { get; set; }
+        public static DiscordGuild EmojiDiscordGuild { get; set; }
+        public static ApplicationCommandsExtension ApplicationCommandsExtension { get; set; }
+        public InteractivityExtension InteractivityExtension { get; set; }
+        private static string Token { get; set; }
 
-        /// <summary>
-        ///     Starts the DiscordBot.
-        /// </summary>
         public async Task RunAsync()
         {
             await DiscordClient.ConnectAsync();
 
-            bool levelSystemVirgin = true;
-            do
+            while (!DiscordClient.Guilds.Values.Any())
             {
-                if (DiscordClient.Guilds.ToList().Count != 0)
-                {
-                    EmojiDiscordGuild = DiscordClient.Guilds.Values.FirstOrDefault(x => x.Id == 881868642600505354);
-                    levelSystemVirgin = false;
-                }
-
                 await Task.Delay(1000);
-            } while (levelSystemVirgin);
-
-            TwitchNotifier.TwitchNotifierRunAsync();
-            BotTimer.BotTimerRunAsync();
-            BotAlarmClock.BotAlarmClockRunAsync();
-            GreenCheck.CheckGreenTask(5);
-            GetItRightMee6.CheckHighQualityAvailable(9);
-            WhereIs.WhereIsClownRunAsync(19);
-            UserLevelSystem.LevelSystemRunAsync(29);
-            UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
-            BirthdayList.CheckBirthdayGz(49);
-            SympathySystem.SympathySystemRunAsync(59);
-            LastMinuteCheck.Check(0);
-            await BirthdayList.GenerateBirthdayList();
-
-#if RELEASE
-            DebugDiscordChannel = await DiscordClient.GetChannelAsync(1042762701329412146);
-#elif DEBUG
-            DebugDiscordChannel = await DiscordClient.GetChannelAsync(881876137297477642);
-#endif
-
-            /*DiscordMember dcm = DiscordBot.DiscordClient.GetUserAsync(797971024175824936).Result.ConvertToMember(DiscordBot.DiscordClient.GetGuildAsync(985978911840141372).Result).Result;
-            await dcm.DisconnectFromVoiceAsync();*/
-
-            while (!ShutdownRequest.IsCancellationRequested)
-            {
-                await Task.Delay(2000);
             }
 
-            await DiscordClient.UpdateStatusAsync(null, UserStatus.Offline);
-            await DiscordClient.DisconnectAsync();
-            await Task.Delay(2500);
-            Dispose();
+            EmojiDiscordGuild = DiscordClient.Guilds.Values.FirstOrDefault(x => x.Id == 881868642600505354);
+
+            LastMinuteCheck.RunAsync(0);
+            GreenCheck.RunAsync(5);
+            GetItRightMee6.RunAsync(9);
+            WhereIs.RunAsync(19);
+            UserLevelSystem.LevelSystemRunAsync(29);
+            UserLevelSystem.LevelSystemRoleDistributionRunAsync(39);
+            BirthdayList.RunAsync(49);
+            SympathySystem.RunAsync(59);
+            TwitchNotifier.RunAsync();
+            BotTimer.RunAsync();
+            BotAlarmClock.RunAsync();
+            await BirthdayList.GenerateBirthdayList();
         }
 
-        /// <summary>
-        ///     Registers the event listener.
-        /// </summary>
-        /// <param name="discordClient">The discordClient.</param>
-        /// <param name="applicationCommandsExtension"></param>
-        /// <param name="commandsNextExtension">The commandsNext extension.</param>
-        private static void RegisterEventListener(DiscordClient discordClient, ApplicationCommandsExtension applicationCommandsExtension, CommandsNextExtension commandsNextExtension)
+        private static void RegisterEventListener()
         {
-            //Custom Events
-            DiscordClient.ChannelCreated += GetItRightMee6.ItRight;
+            DiscordClient.SocketOpened += Logging.Client_SocketOpened;
+            DiscordClient.SocketClosed += Logging.Client_SocketClosed;
+            DiscordClient.SocketErrored += Logging.Client_SocketError;
+            DiscordClient.Heartbeated += Logging.Client_Heartbeat;
+            DiscordClient.Ready += Logging.Client_Ready;
+            DiscordClient.Resumed += Logging.Client_Resumed;
+
+            DiscordClient.ApplicationCommandCreated += Logging.Discord_ApplicationCommandCreated;
+            DiscordClient.ApplicationCommandDeleted += Logging.Discord_ApplicationCommandDeleted;
+            DiscordClient.ApplicationCommandUpdated += Logging.Discord_ApplicationCommandUpdated;
+
+            ApplicationCommandsExtension.SlashCommandExecuted += Logging.Slash_SlashCommandExecuted;
+            ApplicationCommandsExtension.SlashCommandErrored += Logging.Slash_SlashCommandError;
+
+            DiscordClient.ChannelCreated += GetItRightMee6.OnChannelCreated;
             DiscordClient.ComponentInteractionCreated += RegisterKey.ButtonPressEvent;
             DiscordClient.ComponentInteractionCreated += VoteSystem.GaveRating;
-
-            /* DiscordClient Basic Events */
-            discordClient.SocketOpened += Logging.Client_SocketOpened;
-            discordClient.SocketClosed += Logging.Client_SocketClosed;
-            discordClient.SocketErrored += Logging.Client_SocketError;
-            discordClient.Heartbeated += Logging.Client_Heartbeat;
-            discordClient.Ready += Logging.Client_Ready;
-            discordClient.Resumed += Logging.Client_Resumed;
-
-            /* Slash Infos */
-            discordClient.ApplicationCommandCreated += Logging.Discord_ApplicationCommandCreated;
-            discordClient.ApplicationCommandDeleted += Logging.Discord_ApplicationCommandDeleted;
-            discordClient.ApplicationCommandUpdated += Logging.Discord_ApplicationCommandUpdated;
-            applicationCommandsExtension.SlashCommandErrored += Logging.Slash_SlashCommandError;
-            applicationCommandsExtension.SlashCommandExecuted += Logging.Slash_SlashCommandExecuted;
         }
 
-        /// <summary>
-        ///     Registers the commands.
-        /// </summary>
-        /// <param name="commandsNextExtension">The commandsnext extension.</param>
-        /// <param name="applicationCommandsExtension">The appcommands extension.</param>
-        private static void RegisterCommands(CommandsNextExtension commandsNextExtension, ApplicationCommandsExtension applicationCommandsExtension)
+        private static void RegisterCommands()
         {
-            applicationCommandsExtension.RegisterGlobalCommands<Alarm>();
-            applicationCommandsExtension.RegisterGlobalCommands<ApplicationCommands.Main>();
-            applicationCommandsExtension.RegisterGlobalCommands<Move>();
-            applicationCommandsExtension.RegisterGlobalCommands<Poke>();
-            applicationCommandsExtension.RegisterGlobalCommands<Timer>();
-            applicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
-            applicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
-            applicationCommandsExtension.RegisterGlobalCommands<RegisterTwitch>();
-            applicationCommandsExtension.RegisterGlobalCommands<RegisterKey>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<Alarm>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<ApplicationCommands.Main>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<Move>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<Poke>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<Timer>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<RegisterTwitch>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<RegisterKey>();
         }
     }
 }

@@ -9,7 +9,6 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
-using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
@@ -25,7 +24,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="discordUser">The discordUser</param>
         /// <returns></returns>
-        [SlashCommand("GiveRating" + DiscordBot.isDevBot, "Give an User a rating!")]
+        [SlashCommand("GiveRating", "Give an User a rating!")]
         public static async Task GiveRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
@@ -206,7 +205,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext">The interactionContext.</param>
         /// <param name="discordUser">The Discord User.</param>
         /// <returns></returns>
-        [SlashCommand("ShowRating" + DiscordBot.isDevBot, "Shows the rating of an user!")]
+        [SlashCommand("ShowRating", "Shows the rating of an user!")]
         public static async Task ShowRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             string description = "```\n";

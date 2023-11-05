@@ -48,7 +48,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             DbTwitchNotifier.Add(twitchNotifier);
         }
 
-        public static async Task CreateTable_TwitchNotifier()
+        public static async Task CreateTable()
         {
             bool levelSystemVirgin = true;
             do
@@ -58,8 +58,8 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        CustomLogger.ToConsole($"Creating TwitchNotifier table for {guildItem.Value.Name}", ConsoleColor.Green);
-                        await DbTwitchNotifier.CreateTable_TwitchNotifier(guildItem.Value.Id);
+                        CustomLogger.Information($"Creating TwitchNotifier table for {guildItem.Value.Name}", ConsoleColor.Green);
+                        await DbTwitchNotifier.CreateTable(guildItem.Value.Id);
                     }
 
                     levelSystemVirgin = false;
@@ -69,20 +69,20 @@ namespace SchattenclownBot.Integrations.Discord.Services
             } while (levelSystemVirgin);
         }
 
-        internal static void TwitchNotifierRunAsync()
+        internal static void RunAsync()
         {
-            CustomLogger.ToConsole("Starting TwitchNotifier...", ConsoleColor.Green);
+            CustomLogger.Information("Starting TwitchNotifier...", ConsoleColor.Green);
             Task.Run(async () =>
             {
-                await CreateTable_TwitchNotifier();
+                await CreateTable();
 
                 //https://twitchtokengenerator.com/
                 Api = new TwitchAPI
                 {
                             Settings =
                             {
-                                        ClientId = DiscordBot.Connections.TwitchToken.ClientId,
-                                        AccessToken = DiscordBot.Connections.TwitchToken.ClientSecret
+                                        ClientId = DiscordBot.Config["APIKeys:TwitchOAuth2ClientId"],
+                                        AccessToken = DiscordBot.Config["APIKeys:TwitchOAuth2ClientSecret"]
                             }
                 };
 
@@ -201,7 +201,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 twitchNotifierItem.DiscordMessage = discordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordLinkButtonComponent).WithContent($"https://www.twitch.tv/{e.Channel}")).Result;
             }
 
-            CustomLogger.ToConsole("Monitor_OnStreamOnline", ConsoleColor.Green);
+            CustomLogger.Information("Monitor_OnStreamOnline", ConsoleColor.Green);
         }
 
         internal static void Monitor_OnStreamOffline(object sender, OnStreamOfflineArgs e)
@@ -261,7 +261,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 twitchNotifierItem.DiscordMessage = null;
             }
 
-            CustomLogger.ToConsole("Monitor_OnStreamOffline", ConsoleColor.Green);
+            CustomLogger.Information("Monitor_OnStreamOffline", ConsoleColor.Green);
         }
 
         internal static void MonitorOnOnServiceTick(object sender, OnServiceTickArgs e)
@@ -341,7 +341,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                         }
                     }
 
-                    CustomLogger.ToConsole(stream.UserLogin, ConsoleColor.Green);
+                    CustomLogger.Information(stream.UserLogin, ConsoleColor.Green);
                     _ = Task.Delay(1000);
                 }
             }
@@ -350,7 +350,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 //ignore
             }
 
-            CustomLogger.ToConsole("MonitorOnOnServiceTickChecked", ConsoleColor.Green);
+            CustomLogger.Information("MonitorOnOnServiceTickChecked", ConsoleColor.Green);
         }
 
         internal static void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
@@ -421,12 +421,12 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
         internal static void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
         {
-            CustomLogger.ToConsole("Monitor_OnChannelsSet", ConsoleColor.Green);
+            CustomLogger.Information("Monitor_OnChannelsSet", ConsoleColor.Green);
         }
 
         internal static void Monitor_OnServiceStarted(object sender, OnServiceStartedArgs e)
         {
-            CustomLogger.ToConsole("Monitor_OnServiceStarted", ConsoleColor.Green);
+            CustomLogger.Information("Monitor_OnServiceStarted", ConsoleColor.Green);
         }
     }
 }
