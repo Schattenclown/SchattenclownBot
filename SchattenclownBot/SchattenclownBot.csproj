@@ -27,6 +27,7 @@
 		<PackageReference Include="MySql.Data" Version="8.2.0" />
 		<PackageReference Include="Serilog" Version="3.0.1" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
 		<PackageReference Include="System.Drawing.Common" Version="8.0.0-preview.2.23128.3" />
 		<PackageReference Include="TwitchLib.Api" Version="3.10.0-preview-e47ba7f" />
