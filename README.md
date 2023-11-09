@@ -7,10 +7,9 @@
 - Create a Discord thread and list all users the bot sees on external Discord servers.
 - Track how much time Discord users spend connected in a voice channel and generate a level for them.
 ### Functions with user input:
-- Play music from a local network drive, Spotify and YouTube.
 - Poke a full muted user by having the bot move the user to temporarily created voice channels.
 - Ranking for the most connected users.
-- Give external users a likeability rating from 1 to 5.
+- Give users a likeability rating from 1 to 5.
 - Set a timer or alarm.
 - Generating a birthday list.
 - Move all users from your channel to another in bulk.
