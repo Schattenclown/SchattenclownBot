@@ -5,7 +5,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.DataAccess.MySQL
 {
-    internal class DbConnection
+    public class DbConnection
     {
         private static string Token { get; set; } = null!;
 

@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
+using DisCatSharp.Common;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.DataAccess.MySQL.Services;
 using SchattenclownBot.Models;
-using SchattenclownBot.Utils;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class Alarm : ApplicationCommandsModule
+    public class Alarm : ApplicationCommandsModule
     {
         /// <summary>
         ///     Set an Alarm clock per command.
@@ -31,7 +31,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating alarm..."));
 
             //RunAsync if the given Time format is Valid.
-            if (!TimeFormatCheck.TimeFormat(hour, minute))
+            if (!(hour.IsInRange(0, 24) && minute.IsInRange(0, 59)))
             {
                 //Tell the User that the Time format is not valid and return.
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Wrong format for hour or minute!"));

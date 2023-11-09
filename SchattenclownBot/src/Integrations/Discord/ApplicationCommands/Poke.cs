@@ -16,7 +16,7 @@ using SchattenclownBot.Integrations.Discord.Main;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class Poke : ApplicationCommandsModule
+    public class Poke : ApplicationCommandsModule
     {
         [SlashCommand("DaddysPoke", "Harder daddy!")]
         public static async Task DaddysPokeAsync(InteractionContext interactionContext, [Option("discordUser", "@...")] DiscordUser discordUser)

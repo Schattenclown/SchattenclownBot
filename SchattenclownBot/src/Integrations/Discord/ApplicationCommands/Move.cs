@@ -11,7 +11,7 @@ using DisCatSharp.Enums;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class Move : ApplicationCommandsModule
+    public class Move : ApplicationCommandsModule
     {
         [SlashCommand("Move", "MassMove the whole channel your in to a different one!")]
         public static async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)] DiscordChannel discordTargetChannel)

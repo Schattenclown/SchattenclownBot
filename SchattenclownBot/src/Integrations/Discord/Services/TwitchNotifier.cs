@@ -16,11 +16,11 @@ using TwitchLib.Api.Services.Events.LiveStreamMonitor;
 
 namespace SchattenclownBot.Integrations.Discord.Services
 {
-    internal class TwitchNotifier
+    public class TwitchNotifier
     {
-        internal static LiveStreamMonitorService Monitor;
-        internal static TwitchAPI Api;
-        internal static List<TwitchNotifier> TwitchNotifiers = new();
+        public static LiveStreamMonitorService Monitor;
+        public static TwitchAPI Api;
+        public static List<TwitchNotifier> TwitchNotifiers = new();
         public ulong DiscordGuildId { get; set; }
         public ulong DiscordMemberId { get; set; }
         public ulong DiscordChannelId { get; set; }
@@ -69,7 +69,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             } while (levelSystemVirgin);
         }
 
-        internal static void RunAsync()
+        public static void RunAsync()
         {
             CustomLogger.Information("Starting TwitchNotifier...", ConsoleColor.Green);
             Task.Run(async () =>
@@ -107,7 +107,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             });
         }
 
-        internal static void SetMonitoring()
+        public static void SetMonitoring()
         {
             List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
             foreach (TwitchNotifier y in guildsList.SelectMany(guildItem => Read(guildItem.Value.Id)))
@@ -136,7 +136,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             Monitor.Start();
         }
 
-        internal static void Monitor_OnStreamOnline(object sender, OnStreamOnlineArgs e)
+        public static void Monitor_OnStreamOnline(object sender, OnStreamOnlineArgs e)
         {
             foreach (TwitchNotifier twitchNotifierItem in TwitchNotifiers)
             {
@@ -204,7 +204,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             CustomLogger.Information("Monitor_OnStreamOnline", ConsoleColor.Green);
         }
 
-        internal static void Monitor_OnStreamOffline(object sender, OnStreamOfflineArgs e)
+        public static void Monitor_OnStreamOffline(object sender, OnStreamOfflineArgs e)
         {
             foreach (TwitchNotifier twitchNotifierItem in TwitchNotifiers)
             {
@@ -264,7 +264,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             CustomLogger.Information("Monitor_OnStreamOffline", ConsoleColor.Green);
         }
 
-        internal static void MonitorOnOnServiceTick(object sender, OnServiceTickArgs e)
+        public static void MonitorOnOnServiceTick(object sender, OnServiceTickArgs e)
         {
             Dictionary<string, Stream>.ValueCollection liveStreamsValues = Monitor.LiveStreams.Values;
 
@@ -353,7 +353,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             CustomLogger.Information("MonitorOnOnServiceTickChecked", ConsoleColor.Green);
         }
 
-        internal static void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
+        public static void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
         {
             /*try
             {
@@ -419,12 +419,12 @@ namespace SchattenclownBot.Integrations.Discord.Services
             }*/
         }
 
-        internal static void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
+        public static void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
         {
             CustomLogger.Information("Monitor_OnChannelsSet", ConsoleColor.Green);
         }
 
-        internal static void Monitor_OnServiceStarted(object sender, OnServiceStartedArgs e)
+        public static void Monitor_OnServiceStarted(object sender, OnServiceStartedArgs e)
         {
             CustomLogger.Information("Monitor_OnServiceStarted", ConsoleColor.Green);
         }

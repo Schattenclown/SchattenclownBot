@@ -16,7 +16,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class VoteSystem : ApplicationCommandsModule
+    public class VoteSystem : ApplicationCommandsModule
     {
         /// <summary>
         ///     Command to give an User a Rating.
@@ -146,6 +146,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             if (componentInteractionCreateEventArgs.Guild.Id == 928930967140331590)
             {
                 DiscordRole discordRole = componentInteractionCreateEventArgs.Guild.GetRole(980071522427363368);
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (discordMember != null && discordMember.Roles.Contains(discordRole))
                 {
                     memberIsFlagged91 = true;
@@ -158,12 +159,14 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             }
             else
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (discordMember != null && discordMember.Id == discordTargetMember.Id)
                 {
                     discordEmbedBuilder.Description = "NoNoNo we don´t do this around here! CHEATER!";
                 }
                 else
                 {
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                     if (discordMember != null)
                     {
                         SympathySystem sympathySystemObj = new()

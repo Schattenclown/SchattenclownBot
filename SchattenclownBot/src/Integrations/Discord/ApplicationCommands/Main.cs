@@ -13,7 +13,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
     /// <summary>
     ///     The ApplicationCommandsExtension.
     /// </summary>
-    internal class Main : ApplicationCommandsModule
+    public class Main : ApplicationCommandsModule
     {
         /// <summary>
         ///     HandlerReader the Avatar and Banner of an User.

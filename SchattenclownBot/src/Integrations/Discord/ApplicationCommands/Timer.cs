@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
+using DisCatSharp.Common;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.DataAccess.MySQL.Services;
 using SchattenclownBot.Models;
-using SchattenclownBot.Utils;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class Timer : ApplicationCommandsModule
+    public class Timer : ApplicationCommandsModule
     {
         /// <summary>
         ///     Set an Timer per Command.
@@ -25,14 +25,14 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
         [SlashCommand("SetTimer", "Set a timer!")]
-        internal static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
+        public static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
 
             //RunAsync if the Give Time format is Valid.
             //Create an TimerObject and add it to the Database.
-            if (!TimeFormatCheck.TimeFormat(hour, minute))
+            if (!(hour.IsInRange(0, 24) && minute.IsInRange(0, 59)))
             {
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Wrong format for hour or minute!"));
                 return;
@@ -57,7 +57,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext"></param>
         /// <returns></returns>
         [SlashCommand("MyTimers", "Look up your timers!")]
-        internal static async Task TimerLookup(InteractionContext interactionContext)
+        public static async Task TimerLookup(InteractionContext interactionContext)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

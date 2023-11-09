@@ -17,7 +17,7 @@ using DisCatSharp.EventArgs;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class RegisterKey : ApplicationCommandsModule
+    public class RegisterKey : ApplicationCommandsModule
     {
         /// <summary>
         ///     Poke an User per command.
@@ -57,7 +57,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             await interactionContext.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordComponent));
         }
 
-        internal static async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
+        public static async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
         {
             switch (eventArgs.Id)
             {

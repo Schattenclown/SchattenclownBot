@@ -5,9 +5,9 @@ using DisCatSharp.EventArgs;
 
 namespace SchattenclownBot.Integrations.Discord.Events
 {
-    internal class AutoKickEvent
+    public class AutoKickEvent
     {
-        internal static async Task ConnectedEvent(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
+        public static async Task ConnectedEvent(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
         {
             try
             {

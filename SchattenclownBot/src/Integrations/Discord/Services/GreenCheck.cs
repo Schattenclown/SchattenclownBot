@@ -8,7 +8,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.Services
 {
-    internal class GreenCheck
+    public class GreenCheck
     {
         public static void RunAsync(int executeSecond)
         {

@@ -5,7 +5,7 @@ namespace SchattenclownBot.Utils
     /// <summary>
     ///     Cuts a string until the keyWord given with variation given with an integer
     /// </summary>
-    public class StringCutter
+    public static class StringCutter
     {
         /// <summary>
         ///     Removes until keyWord.

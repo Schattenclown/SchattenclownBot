@@ -12,7 +12,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class RegisterTwitch : ApplicationCommandsModule
+    public class RegisterTwitch : ApplicationCommandsModule
     {
         /// <summary>
         ///     Poke an User per command.

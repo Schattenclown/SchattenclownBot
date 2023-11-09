@@ -7,7 +7,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.DataAccess.MySQL.Services
 {
-    internal class DbTwitchNotifier
+    public class DbTwitchNotifier
     {
         public static List<TwitchNotifier> Read(ulong guildId)
         {

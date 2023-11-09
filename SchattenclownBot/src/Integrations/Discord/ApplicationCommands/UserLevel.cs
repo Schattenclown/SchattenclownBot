@@ -14,7 +14,7 @@ using SchattenclownBot.Models;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    internal class UserLevel : ApplicationCommandsModule
+    public class UserLevel : ApplicationCommandsModule
     {
         /// <summary>
         ///     Command to view your connection time Level.

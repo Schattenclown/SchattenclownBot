@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
@@ -8,7 +9,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.Services
 {
-    internal class WhereIs
+    public static class WhereIs
     {
         public enum MessageColor
         {
@@ -121,8 +122,15 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                         string descriptionLineBuilder = "";
                                         string descriptionLineBuilderForConsole = "";
                                         int counter = 5;
-                                        //braucht nicht mehr eigentlich
-                                        string username = SpecialChars.RemoveSpecialCharacters(discordMemberInChannelItem.Username);
+
+                                        //Prob not needed
+                                        StringBuilder stringBuilder = new();
+                                        foreach (char c in discordMemberInChannelItem.Username.Where(c => c < 255))
+                                        {
+                                            stringBuilder.Append(c);
+                                        }
+
+                                        string username = stringBuilder.ToString();
                                         /*if (username is "" or " ")
                                         {
                                            username = discordMemberInChannelItem.Discriminator;
