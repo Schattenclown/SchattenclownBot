@@ -93,6 +93,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                         //IReadOnlyList<DiscordMessage> discordChannelWhereIsMessageAny = await discordChannelWhereIs.GetMessagesAsync(1);
                         foreach (List<DiscordMember> discordMemberList in guildList.Select(guildItem => guildItem.Members.Values.ToList()))
                         {
+                            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                             discordMemberConnectedList.AddRange(discordMemberList.Where(discordMemberItem => discordMemberItem.VoiceState != null));
 
                             List<DiscordMember> discordMemberConnectedListSorted = discordMemberConnectedList.OrderBy(discordMemberItem => discordMemberItem.VoiceState.Channel.Id).ToList();
@@ -116,6 +117,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                                     //string description = Colored($"\ud83d\udd08 {discordVoiceState.Channel.Name,-69}\n\u001b[2;30min {discordVoiceState.Guild.Name}\u001b[0m", MessageColor.White);
                                     string description = "";
+                                    // ReSharper disable once NotAccessedVariable
                                     string descriptionForConsole = "";
                                     foreach (DiscordMember discordMemberInChannelItem in discordMembersInChannelSorted)
                                     {

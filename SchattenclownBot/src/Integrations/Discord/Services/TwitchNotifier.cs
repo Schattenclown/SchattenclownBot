@@ -18,8 +18,8 @@ namespace SchattenclownBot.Integrations.Discord.Services
 {
     public class TwitchNotifier
     {
-        public LiveStreamMonitorService Monitor;
         public TwitchAPI Api;
+        public LiveStreamMonitorService Monitor;
         public List<TwitchNotifier> TwitchNotifiers = new();
         public ulong DiscordGuildId { get; set; }
         public ulong DiscordMemberId { get; set; }
