@@ -19,7 +19,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
     public class Poke : ApplicationCommandsModule
     {
         [SlashCommand("DaddysPoke", "Harder daddy!")]
-        public static async Task DaddysPokeAsync(InteractionContext interactionContext, [Option("discordUser", "@...")] DiscordUser discordUser)
+        public async Task DaddysPokeAsync(InteractionContext interactionContext, [Option("discordUser", "@...")] DiscordUser discordUser)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
             DiscordMember discordMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
@@ -63,7 +63,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordUser">the discordUser</param>
         /// <returns></returns>
         [SlashCommand("Poke", "Poke user!")]
-        public static async Task Ww(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        public async Task Ww(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             InteractivityExtension interactivityExtension = interactionContext.Client.GetInteractivity();
             DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
@@ -95,7 +95,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
         [ContextMenu(ApplicationCommandType.User, "Poke user!")]
-        public static async Task PokeAsync(ContextMenuContext contextMenuContext)
+        public async Task PokeAsync(ContextMenuContext contextMenuContext)
         {
             InteractivityExtension interactivityExtension = contextMenuContext.Client.GetInteractivity();
             DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[2];
@@ -126,7 +126,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
         [ContextMenu(ApplicationCommandType.User, "Poke user Instant!")]
-        public static async Task InstantPokeAsync(ContextMenuContext contextMenuContext)
+        public async Task InstantPokeAsync(ContextMenuContext contextMenuContext)
         {
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().WithContent($"Poke discordUser <@{contextMenuContext.TargetMember.Id}>!"));
 
@@ -143,7 +143,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordInteraction"></param>
         /// <param name="discordMember"></param>
         /// <returns></returns>
-        public static async Task PokeTask(DiscordInteraction discordInteraction, DiscordMember discordMember, DiscordMember discordTargetMember, bool deleteResponseAsync, int pokeAmount, bool force)
+        public async Task PokeTask(DiscordInteraction discordInteraction, DiscordMember discordMember, DiscordMember discordTargetMember, bool deleteResponseAsync, int pokeAmount, bool force)
         {
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {

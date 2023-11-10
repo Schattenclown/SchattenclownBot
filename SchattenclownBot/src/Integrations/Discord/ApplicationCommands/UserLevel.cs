@@ -22,11 +22,11 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext">The interactionContext</param>
         /// <returns></returns>
         [SlashCommand("MyLevel", "Look up your level!")]
-        public static async Task MyLevelAsync(InteractionContext interactionContext)
+        public async Task MyLevelAsync(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().Read(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             userLevelSystemListSorted.Reverse();
             int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
@@ -38,9 +38,9 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == interactionContext.Member.Id))
             {
                 rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
-                calculatedXpOverCurrentLevel = UserLevelSystem.CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
-                calculatedXpSpanToReachNextLevel = UserLevelSystem.CalculateXpSpanToReachNextLevel(userLevelSystemItem.OnlineTicks);
-                level = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
+                calculatedXpOverCurrentLevel = new UserLevelSystem().CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
+                calculatedXpSpanToReachNextLevel = new UserLevelSystem().CalculateXpSpanToReachNextLevel(userLevelSystemItem.OnlineTicks);
+                level = new UserLevelSystem().CalculateLevel(userLevelSystemItem.OnlineTicks);
                 break;
             }
 
@@ -83,11 +83,11 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordUser"></param>
         /// <returns></returns>
         [SlashCommand("Level", "Look up someones level!")]
-        public static async Task LevelAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        public async Task LevelAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().Read(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             userLevelSystemListSorted.Reverse();
             int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
@@ -97,9 +97,9 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == discordUser.Id))
             {
                 rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
-                calculatedXpOverCurrentLevel = UserLevelSystem.CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
-                calculatedXpSpanToReachNextLevel = UserLevelSystem.CalculateXpSpanToReachNextLevel(userLevelSystemItem.OnlineTicks);
-                level = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
+                calculatedXpOverCurrentLevel = new UserLevelSystem().CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
+                calculatedXpSpanToReachNextLevel = new UserLevelSystem().CalculateXpSpanToReachNextLevel(userLevelSystemItem.OnlineTicks);
+                level = new UserLevelSystem().CalculateLevel(userLevelSystemItem.OnlineTicks);
                 break;
             }
 
@@ -141,7 +141,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext"></param>
         /// <returns></returns>
         [SlashCommand("Leaderboard", "Look up the leaderboard for connection time!")]
-        public static async Task LeaderboardAsync(InteractionContext interactionContext)
+        public async Task LeaderboardAsync(InteractionContext interactionContext)
         {
             //Create an Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -149,7 +149,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             DiscordMember discordMember = null;
 
             //Create List where all users are listed.
-            List<UserLevelSystem> userLevelSystemList = UserLevelSystem.Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().Read(interactionContext.Guild.Id);
 
             //Order the list by online ticks.
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
@@ -174,7 +174,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                     DateTime date2 = new DateTime(1969, 4, 20, 4, 20, 0).AddMinutes(userLevelSystemItem.OnlineTicks);
                     TimeSpan timeSpan = date2 - date1;
 
-                    int calculatedLevel = UserLevelSystem.CalculateLevel(userLevelSystemItem.OnlineTicks);
+                    int calculatedLevel = new UserLevelSystem().CalculateLevel(userLevelSystemItem.OnlineTicks);
 
                     string daysString = "Days";
                     if (Convert.ToInt32($"{timeSpan:ddd}") == 1)

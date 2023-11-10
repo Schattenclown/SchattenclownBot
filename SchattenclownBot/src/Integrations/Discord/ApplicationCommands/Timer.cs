@@ -25,7 +25,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="minute">The Minute of the Alarm in the Future.</param>
         /// <returns></returns>
         [SlashCommand("SetTimer", "Set a timer!")]
-        public static async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
+        public async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Creating timer..."));
@@ -45,7 +45,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                         MemberId = interactionContext.Member.Id,
                         NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
             };
-            BotTimer.Add(botTimer);
+            new BotTimer().Add(botTimer);
 
             //Edit the Response and add the Embed.
             await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {botTimer.NotificationTime}!"));
@@ -57,13 +57,13 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext"></param>
         /// <returns></returns>
         [SlashCommand("MyTimers", "Look up your timers!")]
-        public static async Task TimerLookup(InteractionContext interactionContext)
+        public async Task TimerLookup(InteractionContext interactionContext)
         {
             //Create a Response.
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create an List with all Timers that where found in the Database.
-            List<BotTimer> botTimerList = DbBotTimer.ReadAll();
+            List<BotTimer> botTimerList = new DbBotTimer().ReadAll();
 
             //Create an Embed.
             DiscordEmbedBuilder discordEmbedBuilder = new()

@@ -23,7 +23,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="twitchThing"></param>
         /// <returns></returns>
         [SlashCommand("TwitchRegister", "Add Twitch notifier!")]
-        public static async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Text)] DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
+        public async Task TwitchRegister(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Text)] DiscordChannel discordTargetChannel, [Option("Role", "@...")] DiscordRole discordTargetRole, [Option("Twitch", "TwitchChannelUrl or TwitchUserName")] string twitchThing)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -35,10 +35,10 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
             if (twitchThing.Contains("https://"))
             {
-                twitchThing = StringCutter.RemoveUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
+                twitchThing = new StringCutter().RemoveUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
             }
 
-            List<TwitchNotifier> twitchNotifiers = TwitchNotifier.Read(interactionContext.Guild.Id);
+            List<TwitchNotifier> twitchNotifiers = new TwitchNotifier().Read(interactionContext.Guild.Id);
 
             if (twitchNotifiers.Any(x => x.DiscordGuildId == interactionContext.Guild.Id && x.TwitchChannelUrl.ToLower() == twitchThing && x.DiscordRoleId == discordTargetRole.Id && x.DiscordChannelId == discordTargetChannel.Id))
             {
@@ -70,8 +70,8 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                     twitchNotifierObj.TwitchChannelUrl = twitchThing;
                 }
 
-                TwitchNotifier.Add(twitchNotifierObj);
-                TwitchNotifier.SetMonitoring();
+                new TwitchNotifier().Add(twitchNotifierObj);
+                new TwitchNotifier().SetMonitoring();
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Added\n" + twitchNotifierObj));
             }
         }

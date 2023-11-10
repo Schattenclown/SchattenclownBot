@@ -7,7 +7,7 @@ namespace SchattenclownBot.Integrations.Discord.Events
 {
     public class AutoKickEvent
     {
-        public static async Task ConnectedEvent(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
+        public async Task ConnectedEvent(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
         {
             try
             {

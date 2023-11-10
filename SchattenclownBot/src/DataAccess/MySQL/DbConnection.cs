@@ -7,9 +7,9 @@ namespace SchattenclownBot.DataAccess.MySQL
 {
     public class DbConnection
     {
-        private static string Token { get; set; } = null!;
+        public string Token { get; set; } = null!;
 
-        public static MySqlConnection OpenDb()
+        public MySqlConnection OpenDb()
         {
             Token = DiscordBot.Config["ConnectionStrings:MySql"];
 #if DEBUG
@@ -24,20 +24,20 @@ namespace SchattenclownBot.DataAccess.MySQL
             }
             catch (Exception exception)
             {
-                CustomLogger.Error(exception);
-                Reset.RestartProgram();
+                new CustomLogger().Error(exception);
+                new Reset().RestartProgram();
                 throw;
             }
 
             return connection;
         }
 
-        public static void CloseDb(MySqlConnection connection)
+        public void CloseDb(MySqlConnection connection)
         {
             connection.Close();
         }
 
-        public static void ExecuteNonQuery(string sql)
+        public void ExecuteNonQuery(string sql)
         {
             MySqlConnection connection = OpenDb();
             MySqlCommand sqlCommand = new(sql, connection);
@@ -46,7 +46,7 @@ namespace SchattenclownBot.DataAccess.MySQL
             CloseDb(connection);
         }
 
-        public static MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
+        public MySqlDataReader ExecuteReader(string sql, MySqlConnection connection)
         {
             MySqlCommand sqlCommand = new(sql, connection);
             try
@@ -56,13 +56,13 @@ namespace SchattenclownBot.DataAccess.MySQL
             }
             catch (Exception exception)
             {
-                CustomLogger.Error(exception);
-                Reset.RestartProgram();
+                new CustomLogger().Error(exception);
+                new Reset().RestartProgram();
                 throw;
             }
         }
 
-        public static int ExecuteScalarCount(string sql, MySqlConnection connection)
+        public int ExecuteScalarCount(string sql, MySqlConnection connection)
         {
             MySqlCommand sqlCommand = new(sql, connection);
             try
@@ -72,8 +72,8 @@ namespace SchattenclownBot.DataAccess.MySQL
             }
             catch (Exception ex)
             {
-                CustomLogger.Error(ex);
-                Reset.RestartProgram();
+                new CustomLogger().Error(ex);
+                new Reset().RestartProgram();
                 throw;
             }
         }

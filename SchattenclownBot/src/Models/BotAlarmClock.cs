@@ -11,29 +11,29 @@ namespace SchattenclownBot.Models
 {
     public class BotAlarmClock
     {
-        public static List<BotAlarmClock> BotAlarmClockList;
+        public List<BotAlarmClock> BotAlarmClockList;
         public int DbEntryId { get; set; }
         public DateTime NotificationTime { get; set; }
         public ulong ChannelId { get; set; }
         public ulong MemberId { get; set; }
 
-        public static void Add(BotAlarmClock botAlarmClock)
+        public void Add(BotAlarmClock botAlarmClock)
         {
-            DbBotAlarmClocks.Add(botAlarmClock);
+            new DbBotAlarmClocks().Add(botAlarmClock);
             BotAlarmClocksDbRefresh();
         }
 
-        public static void Delete(BotAlarmClock botAlarmClock)
+        public void Delete(BotAlarmClock botAlarmClock)
         {
-            DbBotAlarmClocks.Delete(botAlarmClock);
+            new DbBotAlarmClocks().Delete(botAlarmClock);
             BotAlarmClocksDbRefresh();
         }
 
-        public static void RunAsync()
+        public void RunAsync()
         {
-            CustomLogger.Information("Starting BotAlarmClock...", ConsoleColor.Green);
-            DbBotAlarmClocks.CreateTable();
-            BotAlarmClockList = DbBotAlarmClocks.ReadAll();
+            new CustomLogger().Information("Starting BotAlarmClock...", ConsoleColor.Green);
+            new DbBotAlarmClocks().CreateTable();
+            BotAlarmClockList = new DbBotAlarmClocks().ReadAll();
 
             Task.Run(async () =>
             {
@@ -59,7 +59,7 @@ namespace SchattenclownBot.Models
 
                     if (DateTime.Now.Second == 30)
                     {
-                        BotAlarmClockList = DbBotAlarmClocks.ReadAll();
+                        BotAlarmClockList = new DbBotAlarmClocks().ReadAll();
                     }
 
                     await Task.Delay(1000 * 1);
@@ -71,9 +71,9 @@ namespace SchattenclownBot.Models
             });
         }
 
-        public static void BotAlarmClocksDbRefresh()
+        public void BotAlarmClocksDbRefresh()
         {
-            BotAlarmClockList = DbBotAlarmClocks.ReadAll();
+            BotAlarmClockList = new DbBotAlarmClocks().ReadAll();
         }
     }
 }

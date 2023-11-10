@@ -21,7 +21,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="contextMenuContext">The contextMenuContext.</param>
         /// <returns></returns>
         [ContextMenu(ApplicationCommandType.User, "Get avatar & banner!")]
-        public static async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
+        public async Task GetUserBannerAsync(ContextMenuContext contextMenuContext)
         {
             DiscordUser user = await contextMenuContext.Client.GetUserAsync(contextMenuContext.TargetUser.Id);
 
@@ -42,7 +42,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="interactionContext">The interactionContext.</param>
         /// <returns></returns>
         [SlashCommand("Invite", "Invite $chattenclown")]
-        public static async Task InviteAsync(InteractionContext interactionContext)
+        public async Task InviteAsync(InteractionContext interactionContext)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 

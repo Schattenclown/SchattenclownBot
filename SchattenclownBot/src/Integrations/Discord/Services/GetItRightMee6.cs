@@ -11,11 +11,11 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.Services
 {
-    public static class GetItRightMee6
+    public class GetItRightMee6
     {
-        public static void RunAsync(int executeSecond)
+        public void RunAsync(int executeSecond)
         {
-            CustomLogger.Information("Starting RunAsync...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting RunAsync...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (DateTime.Now.Second != executeSecond)
@@ -56,14 +56,14 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                 if (discordChannelItem.Bitrate != 384000)
                                 {
                                     await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
-                                    CustomLogger.Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", ConsoleColor.Green);
+                                    new CustomLogger().Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", ConsoleColor.Green);
                                 }
                             }
                         }
                         catch
                         {
                             bool384KbNotAvailable = true;
-                            CustomLogger.Information("Bit-rate 384000 not available for guild", ConsoleColor.Green);
+                            new CustomLogger().Information("Bit-rate 384000 not available for guild", ConsoleColor.Green);
                             break;
                         }
                     }
@@ -79,13 +79,13 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                     if (discordChannelItem.Bitrate != 256000)
                                     {
                                         await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
-                                        CustomLogger.Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", ConsoleColor.Green);
+                                        new CustomLogger().Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", ConsoleColor.Green);
                                     }
                                 }
                             }
                             catch
                             {
-                                CustomLogger.Information("Bit-rate 256000 not available for guild", ConsoleColor.Green);
+                                new CustomLogger().Information("Bit-rate 256000 not available for guild", ConsoleColor.Green);
                                 break;
                             }
                         }
@@ -100,7 +100,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             });
         }
 
-        public static Task OnChannelCreated(DiscordClient discordClient, ChannelCreateEventArgs channelCreateEventArgs)
+        public Task OnChannelCreated(DiscordClient discordClient, ChannelCreateEventArgs channelCreateEventArgs)
         {
             if (!channelCreateEventArgs.Channel.Name.Contains("🥇AFK-Farm#"))
             {
@@ -108,7 +108,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             }
 
             channelCreateEventArgs.Channel.ModifyAsync(x => x.Bitrate = 256000);
-            CustomLogger.Information("BitRate set to 256k on" + channelCreateEventArgs.Channel.Name, ConsoleColor.Green);
+            new CustomLogger().Information("BitRate set to 256k on" + channelCreateEventArgs.Channel.Name, ConsoleColor.Green);
 
             return Task.CompletedTask;
         }

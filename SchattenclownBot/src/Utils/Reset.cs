@@ -10,20 +10,20 @@ namespace SchattenclownBot.Utils
         /// <summary>
         ///     Restarts the program.
         /// </summary>
-        public static void RestartProgram()
+        public void RestartProgram()
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            ConsoleStringFormatter.Center(" ");
-            ConsoleStringFormatter.Center(@"██████╗ ███████╗███████╗████████╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ ");
-            ConsoleStringFormatter.Center(@"██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ ");
-            ConsoleStringFormatter.Center(@"██████╔╝█████╗  ███████╗   ██║   ███████║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗");
-            ConsoleStringFormatter.Center(@"██╔══██╗██╔══╝  ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║");
-            ConsoleStringFormatter.Center(@"██║  ██║███████╗███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝");
-            ConsoleStringFormatter.Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
-            ConsoleStringFormatter.Center(" ");
+            new ConsoleStringFormatter().Center(" ");
+            new ConsoleStringFormatter().Center(@"██████╗ ███████╗███████╗████████╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ ");
+            new ConsoleStringFormatter().Center(@"██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ ");
+            new ConsoleStringFormatter().Center(@"██████╔╝█████╗  ███████╗   ██║   ███████║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗");
+            new ConsoleStringFormatter().Center(@"██╔══██╗██╔══╝  ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║");
+            new ConsoleStringFormatter().Center(@"██║  ██║███████╗███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝");
+            new ConsoleStringFormatter().Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
+            new ConsoleStringFormatter().Center(" ");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            ConsoleStringFormatter.Center("DB IS DEAD");
+            new ConsoleStringFormatter().Center("DB IS DEAD");
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
             Console.ForegroundColor = ConsoleColor.Gray;
 
@@ -34,12 +34,12 @@ namespace SchattenclownBot.Utils
 
             if (filePath.Contains("Debug"))
             {
-                filePath = StringCutter.RemoveAfter(filePath, "Debug", 0);
+                filePath = new StringCutter().RemoveAfter(filePath, "Debug", 0);
                 newFilepath = filePath + "Debug\\net7.0\\SchattenclownBot.exe";
             }
             else if (filePath.Contains("Release"))
             {
-                filePath = StringCutter.RemoveAfter(filePath, "Release", 0);
+                filePath = new StringCutter().RemoveAfter(filePath, "Release", 0);
                 newFilepath = filePath + "Release\\net7.0\\SchattenclownBot.exe";
             }
 

@@ -18,9 +18,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
 {
     public class TwitchNotifier
     {
-        public static LiveStreamMonitorService Monitor;
-        public static TwitchAPI Api;
-        public static List<TwitchNotifier> TwitchNotifiers = new();
+        public LiveStreamMonitorService Monitor;
+        public TwitchAPI Api;
+        public List<TwitchNotifier> TwitchNotifiers = new();
         public ulong DiscordGuildId { get; set; }
         public ulong DiscordMemberId { get; set; }
         public ulong DiscordChannelId { get; set; }
@@ -38,17 +38,17 @@ namespace SchattenclownBot.Integrations.Discord.Services
             return $"``{"DiscordGuild:",-18}``{discordGuild.Name}" + $"\n``{"DiscordMember:",-18}``<@{DiscordMemberId}>" + $"\n``{"DiscordChannel:",-18}``{discordChannel.Mention}" + $"\n``{"DiscordRole:",-18}``{discordRole.Mention}" + $"\n``{"TwitchUserId:",-18}``{TwitchUserId}" + $"\n``{"TwitchChannelUrl:",-18}``{TwitchChannelUrl}";
         }
 
-        public static List<TwitchNotifier> Read(ulong guildId)
+        public List<TwitchNotifier> Read(ulong guildId)
         {
-            return DbTwitchNotifier.Read(guildId);
+            return new DbTwitchNotifier().Read(guildId);
         }
 
-        public static void Add(TwitchNotifier twitchNotifier)
+        public void Add(TwitchNotifier twitchNotifier)
         {
-            DbTwitchNotifier.Add(twitchNotifier);
+            new DbTwitchNotifier().Add(twitchNotifier);
         }
 
-        public static async Task CreateTable()
+        public async Task CreateTable()
         {
             bool levelSystemVirgin = true;
             do
@@ -58,8 +58,8 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        CustomLogger.Information($"Creating TwitchNotifier table for {guildItem.Value.Name}", ConsoleColor.Green);
-                        await DbTwitchNotifier.CreateTable(guildItem.Value.Id);
+                        new CustomLogger().Information($"Creating TwitchNotifier table for {guildItem.Value.Name}", ConsoleColor.Green);
+                        await new DbTwitchNotifier().CreateTable(guildItem.Value.Id);
                     }
 
                     levelSystemVirgin = false;
@@ -69,9 +69,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
             } while (levelSystemVirgin);
         }
 
-        public static void RunAsync()
+        public void RunAsync()
         {
-            CustomLogger.Information("Starting TwitchNotifier...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting TwitchNotifier...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 await CreateTable();
@@ -107,7 +107,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             });
         }
 
-        public static void SetMonitoring()
+        public void SetMonitoring()
         {
             List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
             foreach (TwitchNotifier y in guildsList.SelectMany(guildItem => Read(guildItem.Value.Id)))
@@ -136,7 +136,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             Monitor.Start();
         }
 
-        public static void Monitor_OnStreamOnline(object sender, OnStreamOnlineArgs e)
+        public void Monitor_OnStreamOnline(object sender, OnStreamOnlineArgs e)
         {
             foreach (TwitchNotifier twitchNotifierItem in TwitchNotifiers)
             {
@@ -201,10 +201,10 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 twitchNotifierItem.DiscordMessage = discordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordLinkButtonComponent).WithContent($"https://www.twitch.tv/{e.Channel}")).Result;
             }
 
-            CustomLogger.Information("Monitor_OnStreamOnline", ConsoleColor.Green);
+            new CustomLogger().Information("Monitor_OnStreamOnline", ConsoleColor.Green);
         }
 
-        public static void Monitor_OnStreamOffline(object sender, OnStreamOfflineArgs e)
+        public void Monitor_OnStreamOffline(object sender, OnStreamOfflineArgs e)
         {
             foreach (TwitchNotifier twitchNotifierItem in TwitchNotifiers)
             {
@@ -261,10 +261,10 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 twitchNotifierItem.DiscordMessage = null;
             }
 
-            CustomLogger.Information("Monitor_OnStreamOffline", ConsoleColor.Green);
+            new CustomLogger().Information("Monitor_OnStreamOffline", ConsoleColor.Green);
         }
 
-        public static void MonitorOnOnServiceTick(object sender, OnServiceTickArgs e)
+        public void MonitorOnOnServiceTick(object sender, OnServiceTickArgs e)
         {
             Dictionary<string, Stream>.ValueCollection liveStreamsValues = Monitor.LiveStreams.Values;
 
@@ -341,7 +341,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                         }
                     }
 
-                    CustomLogger.Information(stream.UserLogin, ConsoleColor.Green);
+                    new CustomLogger().Information(stream.UserLogin, ConsoleColor.Green);
                     _ = Task.Delay(1000);
                 }
             }
@@ -350,10 +350,10 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 //ignore
             }
 
-            CustomLogger.Information("MonitorOnOnServiceTickChecked", ConsoleColor.Green);
+            new CustomLogger().Information("MonitorOnOnServiceTickChecked", ConsoleColor.Green);
         }
 
-        public static void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
+        public void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
         {
             /*try
             {
@@ -419,14 +419,14 @@ namespace SchattenclownBot.Integrations.Discord.Services
             }*/
         }
 
-        public static void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
+        public void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
         {
-            CustomLogger.Information("Monitor_OnChannelsSet", ConsoleColor.Green);
+            new CustomLogger().Information("Monitor_OnChannelsSet", ConsoleColor.Green);
         }
 
-        public static void Monitor_OnServiceStarted(object sender, OnServiceStartedArgs e)
+        public void Monitor_OnServiceStarted(object sender, OnServiceStartedArgs e)
         {
-            CustomLogger.Information("Monitor_OnServiceStarted", ConsoleColor.Green);
+            new CustomLogger().Information("Monitor_OnServiceStarted", ConsoleColor.Green);
         }
     }
 }

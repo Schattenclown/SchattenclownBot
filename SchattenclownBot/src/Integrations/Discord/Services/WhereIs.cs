@@ -9,7 +9,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.Services
 {
-    public static class WhereIs
+    public class WhereIs
     {
         public enum MessageColor
         {
@@ -23,9 +23,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
             White
         }
 
-        public static void RunAsync(int executeSecond)
+        public void RunAsync(int executeSecond)
         {
-            CustomLogger.Information("Starting WhereIsClown...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting WhereIsClown...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 if (DiscordBot.DiscordClient.CurrentUser.Id != 890063457246937129)
@@ -47,7 +47,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                 foreach (DiscordGuild guild in guildList)
                 {
-                    CustomLogger.Information($"Guild: {guild.Id} {guild.Name}", ConsoleColor.Green);
+                    new CustomLogger().Information($"Guild: {guild.Id} {guild.Name}", ConsoleColor.Green);
                 }
 
                 DiscordGuild mainGuild = DiscordBot.DiscordClient.GetGuildAsync(928930967140331590).Result;
@@ -69,7 +69,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     }
                     catch (Exception exception)
                     {
-                        CustomLogger.Information($"Guild: {exception.Message}", ConsoleColor.Red);
+                        new CustomLogger().Information($"Guild: {exception.Message}", ConsoleColor.Red);
                     }
                 }
 
@@ -263,7 +263,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                 }
                                 catch (Exception ex)
                                 {
-                                    CustomLogger.Error(ex);
+                                    new CustomLogger().Error(ex);
                                 }
                             }
 
@@ -280,9 +280,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
                             string mentionedChannel = "";
                             try
                             {
-                                mentionedChannel = StringCutter.RemoveUntil(discordMessage.Content, "https://discord.com/channels/", "https://discord.com/channels/".Length);
-                                mentionedChannel = StringCutter.RemoveUntil(mentionedChannel, "/", 1);
-                                mentionedChannel = StringCutter.RemoveAfter(mentionedChannel, " ||", 0);
+                                mentionedChannel = new StringCutter().RemoveUntil(discordMessage.Content, "https://discord.com/channels/", "https://discord.com/channels/".Length);
+                                mentionedChannel = new StringCutter().RemoveUntil(mentionedChannel, "/", 1);
+                                mentionedChannel = new StringCutter().RemoveAfter(mentionedChannel, " ||", 0);
                             }
                             catch
                             {
@@ -310,7 +310,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                         await Task.Delay(1000);
 
-                        CustomLogger.Information("Finished", ConsoleColor.Green);
+                        new CustomLogger().Information("Finished", ConsoleColor.Green);
 
                         if (!LastMinuteCheck.WhereIsClownRunAsync)
                         {
@@ -319,13 +319,13 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     }
                     catch (Exception ex)
                     {
-                        CustomLogger.Error(ex);
+                        new CustomLogger().Error(ex);
                     }
                 }
             });
         }
 
-        public static string Colored(string message, MessageColor messageColor)
+        public string Colored(string message, MessageColor messageColor)
         {
             int padding = 0; //75 - message.Length;
             switch (messageColor)

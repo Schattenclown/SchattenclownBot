@@ -10,7 +10,7 @@ namespace SchattenclownBot.Utils
         ///     Centers the console.
         /// </summary>
         /// <param name="centerString">The text.</param>
-        public static void Center(string centerString)
+        public void Center(string centerString)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace SchattenclownBot.Utils
             }
         }
 
-        public static void FillRow()
+        public void FillRow()
         {
             Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
         }

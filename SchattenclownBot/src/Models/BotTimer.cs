@@ -11,34 +11,34 @@ namespace SchattenclownBot.Models
 {
     public class BotTimer
     {
-        public static List<BotTimer> BotTimerList;
+        public List<BotTimer> BotTimerList;
         public int DbEntryId { get; set; }
         public DateTime NotificationTime { get; set; }
         public ulong ChannelId { get; set; }
         public ulong MemberId { get; set; }
 
-        public static void Add(BotTimer botTimer)
+        public void Add(BotTimer botTimer)
         {
-            DbBotTimer.Add(botTimer);
+            new DbBotTimer().Add(botTimer);
             BotTimerDbRefresh();
         }
 
-        public static void Delete(BotTimer botTimer)
+        public void Delete(BotTimer botTimer)
         {
-            DbBotTimer.Delete(botTimer);
+            new DbBotTimer().Delete(botTimer);
             BotTimerDbRefresh();
         }
 
-        public static List<BotTimer> ReadAll()
+        public List<BotTimer> ReadAll()
         {
-            return DbBotTimer.ReadAll();
+            return new DbBotTimer().ReadAll();
         }
 
-        public static void RunAsync()
+        public void RunAsync()
         {
-            CustomLogger.Information("Starting BotTimer...", ConsoleColor.Green);
-            DbBotTimer.CreateTable();
-            BotTimerList = DbBotTimer.ReadAll();
+            new CustomLogger().Information("Starting BotTimer...", ConsoleColor.Green);
+            new DbBotTimer().CreateTable();
+            BotTimerList = new DbBotTimer().ReadAll();
 
             Task.Run(async () =>
             {
@@ -66,7 +66,7 @@ namespace SchattenclownBot.Models
 
                     if (DateTime.Now.Second == 15)
                     {
-                        BotTimerList = DbBotTimer.ReadAll();
+                        BotTimerList = new DbBotTimer().ReadAll();
                     }
 
                     await Task.Delay(1000 * 1);
@@ -78,9 +78,9 @@ namespace SchattenclownBot.Models
             });
         }
 
-        public static void BotTimerDbRefresh()
+        public void BotTimerDbRefresh()
         {
-            BotTimerList = DbBotTimer.ReadAll();
+            BotTimerList = new DbBotTimer().ReadAll();
         }
     }
 }

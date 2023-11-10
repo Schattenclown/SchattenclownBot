@@ -10,9 +10,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
 {
     public class GreenCheck
     {
-        public static void RunAsync(int executeSecond)
+        public void RunAsync(int executeSecond)
         {
-            CustomLogger.Information("Starting GreenCheck...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting GreenCheck...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 if (DiscordBot.DiscordClient.CurrentUser.Id == 890063457246937129)
@@ -113,7 +113,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
 
                                 await discordMember.GrantRoleAsync(green);
                                 await discordMember.RevokeRoleAsync(grey);
-                                CustomLogger.Information(discordMember.DisplayName + " Granted Green", ConsoleColor.Green);
+                                new CustomLogger().Information(discordMember.DisplayName + " Granted Green", ConsoleColor.Green);
                             }
                         }
 

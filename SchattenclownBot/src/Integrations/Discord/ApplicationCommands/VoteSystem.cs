@@ -25,7 +25,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordUser">The discordUser</param>
         /// <returns></returns>
         [SlashCommand("GiveRating", "Give an User a rating!")]
-        public static async Task GiveRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        public async Task GiveRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
             discordSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
@@ -45,7 +45,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
         [ContextMenu(ApplicationCommandType.User, "Give Rating!")]
-        public static async Task GiveRatingAsync(ContextMenuContext contextMenuContext)
+        public async Task GiveRatingAsync(ContextMenuContext contextMenuContext)
         {
             DiscordStringSelectComponentOption[] discordSelectComponentOptionList = new DiscordStringSelectComponentOption[5];
             discordSelectComponentOptionList[0] = new DiscordStringSelectComponentOption("Rate 1", "rating_1", emoji: new DiscordComponentEmoji("😡"));
@@ -59,7 +59,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Give <@{contextMenuContext.TargetMember.Id}> a Rating!"));
         }
 
-        public static async Task GaveRating(DiscordClient sender, ComponentInteractionCreateEventArgs eventArgs)
+        public async Task GaveRating(DiscordClient sender, ComponentInteractionCreateEventArgs eventArgs)
         {
             if (eventArgs.Values.Length > 0)
             {
@@ -90,10 +90,10 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="componentInteractionCreateEventArgs">The eventArgs.</param>
         /// <param name="rating">The rating value.</param>
         /// <returns></returns>
-        public static async Task VoteRatingAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, int rating)
+        public async Task VoteRatingAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, int rating)
         {
             await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-            List<SympathySystem> sympathySystemsList = SympathySystem.ReadAll(componentInteractionCreateEventArgs.Guild.Id);
+            List<SympathySystem> sympathySystemsList = new SympathySystem().ReadAll(componentInteractionCreateEventArgs.Guild.Id);
 
             bool foundTargetMemberInDb = false;
 
@@ -106,7 +106,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             catch
             {
                 string text = componentInteractionCreateEventArgs.Message.Content;
-                string ulongString = StringCutter.RemoveAfter(StringCutter.RemoveUntil(text, "<@", "<@".Length), ">", 0);
+                string ulongString = new StringCutter().RemoveAfter(new StringCutter().RemoveUntil(text, "<@", "<@".Length), ">", 0);
                 ulong discordTargetMemberUlong = Convert.ToUInt64(ulongString);
 
 
@@ -130,7 +130,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                         await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent("User not in Database!"));
                         break;
                     case true:
-                        SympathySystem.Change(sympathySystemObj);
+                        new SympathySystem().Change(sympathySystemObj);
                         await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave <@{discordTargetMemberUlong}> the Rating {rating}!"));
                         break;
                 }
@@ -185,10 +185,10 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                         switch (foundTargetMemberInDb)
                         {
                             case false:
-                                SympathySystem.Add(sympathySystemObj);
+                                new SympathySystem().Add(sympathySystemObj);
                                 break;
                             case true:
-                                SympathySystem.Change(sympathySystemObj);
+                                new SympathySystem().Change(sympathySystemObj);
                                 break;
                         }
 
@@ -209,14 +209,14 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordUser">The Discord User.</param>
         /// <returns></returns>
         [SlashCommand("ShowRating", "Shows the rating of an user!")]
-        public static async Task ShowRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
+        public async Task ShowRatingAsync(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             string description = "```\n";
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             for (int i = 1; i < 6; i++)
             {
-                description += $"Rating with {i}: {SympathySystem.GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
+                description += $"Rating with {i}: {new SympathySystem().GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
             }
 
             description += "```";
@@ -238,7 +238,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordRole">The discordRole.</param>
         /// <returns></returns>
         [SlashCommand("RatingSetup" + TwitchAPI.isDevBot, "Set up the roles for the Rating System!")]
-        public static async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
+        public async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
         {
             bool found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
 

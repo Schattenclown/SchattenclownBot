@@ -9,12 +9,12 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
 {
     public class DbTwitchNotifier
     {
-        public static List<TwitchNotifier> Read(ulong guildId)
+        public List<TwitchNotifier> Read(ulong guildId)
         {
             string sqlCommand = $"SELECT * FROM `{guildId}_TwitchNotifier`";
             List<TwitchNotifier> twitchNotifierList = new();
-            MySqlConnection mySqlConnection = DbConnection.OpenDb();
-            MySqlDataReader mySqlDataReader = DbConnection.ExecuteReader(sqlCommand, mySqlConnection);
+            MySqlConnection mySqlConnection = new DbConnection().OpenDb();
+            MySqlDataReader mySqlDataReader = new DbConnection().ExecuteReader(sqlCommand, mySqlConnection);
 
             while (mySqlDataReader.Read())
             {
@@ -31,35 +31,35 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
                 twitchNotifierList.Add(twitchNotifierObj);
             }
 
-            DbConnection.CloseDb(mySqlConnection);
+            new DbConnection().CloseDb(mySqlConnection);
             return twitchNotifierList;
         }
 
-        public static void Add(TwitchNotifier twitchNotifier)
+        public void Add(TwitchNotifier twitchNotifier)
         {
             string sqlCommand = $"INSERT INTO `{twitchNotifier.DiscordGuildId}_TwitchNotifier` (`DiscordGuildId`, `DiscordMemberId`, `DiscordChannelId`, `DiscordRoleId`, `TwitchUserId`, `TwitchChannelUrl`) " + $"VALUES ({twitchNotifier.DiscordGuildId}, {twitchNotifier.DiscordMemberId}, {twitchNotifier.DiscordChannelId}, {twitchNotifier.DiscordRoleId}, {twitchNotifier.TwitchUserId}, '{twitchNotifier.TwitchChannelUrl}')";
-            DbConnection.ExecuteNonQuery(sqlCommand);
+            new DbConnection().ExecuteNonQuery(sqlCommand);
         }
 
         /*
-        public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
+        public void Change(ulong guildId, UserLevelSystem userLevelSystem)
         {
            string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
            DB_Connection.ExecuteNonQuery(sqlCommand);
         }*/
 
-        public static Task CreateTable(ulong guildId)
+        public Task CreateTable(ulong guildId)
         {
 #if DEBUG
-            string database = StringCutter.RemoveUntil(DiscordBot.Config["ConnectionStrings:MySqlDebug"], "Database=", "Database=".Length);
+            string database = new StringCutter().RemoveUntil(DiscordBot.Config["ConnectionStrings:MySqlDebug"], "Database=", "Database=".Length);
 #else
-            string database = StringCutter.RemoveUntil(DiscordBot.Config["ConnectionStrings:MySql"], "Database=", "Database=".Length);
+            string database = new StringCutter().RemoveUntil(DiscordBot.Config["ConnectionStrings:MySql"], "Database=", "Database=".Length);
 #endif
-            database = StringCutter.RemoveAfter(database, "; Uid", 0);
+            database = new StringCutter().RemoveAfter(database, "; Uid", 0);
 
             string sqlCommand = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + $"CREATE TABLE IF NOT EXISTS `{guildId}_TwitchNotifier` (" + "`DiscordGuildId` BIGINT NOT NULL," + "`DiscordMemberId` BIGINT NOT NULL," + "`DiscordChannelId` BIGINT NOT NULL," + "`DiscordRoleId` BIGINT NOT NULL," + "`TwitchUserId` BIGINT," + "`TwitchChannelUrl` VARCHAR(64))" + " ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
-            DbConnection.ExecuteNonQuery(sqlCommand);
+            new DbConnection().ExecuteNonQuery(sqlCommand);
 
             return Task.CompletedTask;
         }

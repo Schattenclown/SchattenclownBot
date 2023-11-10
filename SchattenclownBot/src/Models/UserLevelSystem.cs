@@ -18,34 +18,34 @@ namespace SchattenclownBot.Models
         public TimeSpan OnlineTime { get; set; }
         public double VoteRatingAvg { get; set; }
 
-        public static List<UserLevelSystem> Read(ulong guildId)
+        public List<UserLevelSystem> Read(ulong guildId)
         {
-            return DbUserLevelSystem.Read(guildId);
+            return new DbUserLevelSystem().Read(guildId);
         }
 
-        public static void Add(ulong guildId, UserLevelSystem userLevelSystem)
+        public void Add(ulong guildId, UserLevelSystem userLevelSystem)
         {
-            DbUserLevelSystem.Add(guildId, userLevelSystem);
+            new DbUserLevelSystem().Add(guildId, userLevelSystem);
         }
 
-        public static void Change(ulong guildId, UserLevelSystem userLevelSystem)
+        public void Change(ulong guildId, UserLevelSystem userLevelSystem)
         {
-            DbUserLevelSystem.Change(guildId, userLevelSystem);
+            new DbUserLevelSystem().Change(guildId, userLevelSystem);
         }
 
-        public static void CreateTable(ulong guildId)
+        public void CreateTable(ulong guildId)
         {
-            DbUserLevelSystem.CreateTable(guildId);
+            new DbUserLevelSystem().CreateTable(guildId);
         }
 
-        public static int CalculateLevel(int onlineTicks)
+        public int CalculateLevel(int onlineTicks)
         {
             double returnInt = 0.69 * Math.Pow(onlineTicks, 0.38);
             double returnIntRounded = Math.Round(returnInt, MidpointRounding.ToNegativeInfinity);
             return Convert.ToInt32(returnIntRounded);
         }
 
-        public static int CalculateXpOverCurrentLevel(int onlineTicks)
+        public int CalculateXpOverCurrentLevel(int onlineTicks)
         {
             int level = CalculateLevel(onlineTicks);
 
@@ -55,7 +55,7 @@ namespace SchattenclownBot.Models
             return calculatedXpOverCurrentLevel;
         }
 
-        public static int CalculateXpSpanToReachNextLevel(int onlineTicks)
+        public int CalculateXpSpanToReachNextLevel(int onlineTicks)
         {
             int level = CalculateLevel(onlineTicks);
 
@@ -66,9 +66,9 @@ namespace SchattenclownBot.Models
             return xpSpanToReachNextLevel;
         }
 
-        public static void LevelSystemRunAsync(int executeSecond)
+        public void LevelSystemRunAsync(int executeSecond)
         {
-            CustomLogger.Information("Starting LevelSystem...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting LevelSystem...", ConsoleColor.Green);
             bool levelSystemVirgin = true;
 
             Task.Run(async () =>
@@ -163,9 +163,9 @@ namespace SchattenclownBot.Models
             });
         }
 
-        public static void LevelSystemRoleDistributionRunAsync(int executeSecond)
+        public void LevelSystemRoleDistributionRunAsync(int executeSecond)
         {
-            CustomLogger.Information("Starting LevelSystemRoleDistribution...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting LevelSystemRoleDistribution...", ConsoleColor.Green);
             Task.Run(async () =>
             {
                 while (DateTime.Now.Second != executeSecond)
@@ -306,7 +306,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(zehnerRole);
 
-                                        CustomLogger.Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", ConsoleColor.Green);
+                                        new CustomLogger().Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -319,7 +319,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(einerRole);
 
-                                        CustomLogger.Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", ConsoleColor.Green);
+                                        new CustomLogger().Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -327,7 +327,7 @@ namespace SchattenclownBot.Models
                                 {
                                     await discordMember.RevokeRoleAsync(revokeRoleItem);
 
-                                    CustomLogger.Information($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", ConsoleColor.Green);
+                                    new CustomLogger().Information($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", ConsoleColor.Green);
                                 }
 
                                 DiscordRole discordLevelRole = guildObj.GetRole(1017937277307064340);
@@ -338,11 +338,11 @@ namespace SchattenclownBot.Models
                             }
                         }
 
-                        CustomLogger.Information("Finished", ConsoleColor.Green);
+                        new CustomLogger().Information("Finished", ConsoleColor.Green);
                     }
                     catch (Exception ex)
                     {
-                        CustomLogger.Error(ex);
+                        new CustomLogger().Error(ex);
                     }
 
                     await Task.Delay(2000);

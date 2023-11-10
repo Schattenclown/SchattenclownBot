@@ -20,59 +20,59 @@ namespace SchattenclownBot.Models
         public int VotedRating { get; set; }
         public RoleInfoSympathySystem RoleInfo { get; set; }
 
-        public static List<SympathySystem> ReadAll(ulong guildId)
+        public List<SympathySystem> ReadAll(ulong guildId)
         {
-            return DbSympathySystem.ReadAll(guildId);
+            return new DbSympathySystem().ReadAll(guildId);
         }
 
-        public static void Add(SympathySystem sympathySystem)
+        public void Add(SympathySystem sympathySystem)
         {
-            DbSympathySystem.Add(sympathySystem);
+            new DbSympathySystem().Add(sympathySystem);
         }
 
-        public static void Change(SympathySystem sympathySystem)
+        public void Change(SympathySystem sympathySystem)
         {
-            DbSympathySystem.Change(sympathySystem);
+            new DbSympathySystem().Change(sympathySystem);
         }
 
-        public static void CreateTable_SympathySystem(ulong guildId)
+        public void CreateTable_SympathySystem(ulong guildId)
         {
-            DbSympathySystem.CreateTable(guildId);
+            new DbSympathySystem().CreateTable(guildId);
         }
 
-        public static List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
+        public List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
         {
-            return DbSympathySystem.ReadAllRoleInfo(guildId);
+            return new DbSympathySystem().ReadAllRoleInfo(guildId);
         }
 
-        public static void AddRoleInfo(SympathySystem sympathySystem)
+        public void AddRoleInfo(SympathySystem sympathySystem)
         {
-            DbSympathySystem.AddRoleInfo(sympathySystem);
+            new DbSympathySystem().AddRoleInfo(sympathySystem);
         }
 
-        public static void ChangeRoleInfo(SympathySystem sympathySystem)
+        public void ChangeRoleInfo(SympathySystem sympathySystem)
         {
-            DbSympathySystem.ChangeRoleInfo(sympathySystem);
+            new DbSympathySystem().ChangeRoleInfo(sympathySystem);
         }
 
-        public static bool CheckRoleInfoExists(ulong guildId, int ratingValue)
+        public bool CheckRoleInfoExists(ulong guildId, int ratingValue)
         {
-            return DbSympathySystem.CheckRoleInfoExists(guildId, ratingValue);
+            return new DbSympathySystem().CheckRoleInfoExists(guildId, ratingValue);
         }
 
-        public static void CreateTable(ulong guildId)
+        public void CreateTable(ulong guildId)
         {
-            DbSympathySystem.CreateTable_RoleInfoSympathySystem(guildId);
+            new DbSympathySystem().CreateTable_RoleInfoSympathySystem(guildId);
         }
 
-        public static int GetUserRatings(ulong guildId, ulong votedUserId, int voteRating)
+        public int GetUserRatings(ulong guildId, ulong votedUserId, int voteRating)
         {
-            return DbSympathySystem.GetUserRatings(guildId, votedUserId, voteRating);
+            return new DbSympathySystem().GetUserRatings(guildId, votedUserId, voteRating);
         }
 
-        public static void RunAsync(int executeSecond)
+        public void RunAsync(int executeSecond)
         {
-            CustomLogger.Information("Starting SympathySystem...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting SympathySystem...", ConsoleColor.Green);
             bool levelSystemVirgin = true;
 
             Task.Run(async () =>
@@ -233,7 +233,7 @@ namespace SchattenclownBot.Models
                     }
 
                     await Task.Delay(2000);
-                    CustomLogger.Information("Checked", ConsoleColor.Green);
+                    new CustomLogger().Information("Checked", ConsoleColor.Green);
                     if (!LastMinuteCheck.SympathySystemRunAsync)
                     {
                         LastMinuteCheck.SympathySystemRunAsync = true;

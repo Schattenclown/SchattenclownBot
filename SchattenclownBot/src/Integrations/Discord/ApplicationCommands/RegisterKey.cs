@@ -28,7 +28,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="key"></param>
         /// <returns></returns>
         [SlashCommand("RegisterKey", "Add Twitch notifier!")]
-        public static async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Info", "Information about the Key.")] string info, [Option("Platform", "Platform the Key.")] string platform, [Option("Key", "Key.")] string key)
+        public async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Info", "Information about the Key.")] string info, [Option("Platform", "Platform the Key.")] string platform, [Option("Key", "Key.")] string key)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -57,7 +57,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             await interactionContext.Channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordComponent));
         }
 
-        public static async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
+        public async Task ButtonPressEvent(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs)
         {
             switch (eventArgs.Id)
             {
@@ -82,7 +82,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             }
         }
 
-        private static string Encrypt(string textToEncrypt)
+        public string Encrypt(string textToEncrypt)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             }
         }
 
-        private static string Decrypt(string textToDecrypt)
+        public string Decrypt(string textToDecrypt)
         {
             try
             {

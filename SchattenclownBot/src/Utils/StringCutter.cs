@@ -5,7 +5,7 @@ namespace SchattenclownBot.Utils
     /// <summary>
     ///     Cuts a string until the keyWord given with variation given with an integer
     /// </summary>
-    public static class StringCutter
+    public class StringCutter
     {
         /// <summary>
         ///     Removes until keyWord.
@@ -14,7 +14,7 @@ namespace SchattenclownBot.Utils
         /// <param name="keyWord">The keyWord.</param>
         /// <param name="removeWordInt">The integer +/- from the keyWord.</param>
         /// <returns>A string.</returns>
-        public static string RemoveUntil(string inputString, string keyWord, int removeWordInt)
+        public string RemoveUntil(string inputString, string keyWord, int removeWordInt)
         {
             if (inputString == null)
             {
@@ -31,7 +31,7 @@ namespace SchattenclownBot.Utils
         /// <param name="keyWord">The keyWord.</param>
         /// <param name="keepWordInt">The integer +/- from the keyWord.</param>
         /// <returns>A string.</returns>
-        public static string RemoveAfter(string inputString, string keyWord, int keepWordInt)
+        public string RemoveAfter(string inputString, string keyWord, int keepWordInt)
         {
             if (!inputString.Contains(keyWord))
             {
