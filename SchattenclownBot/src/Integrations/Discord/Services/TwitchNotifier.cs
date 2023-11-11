@@ -81,8 +81,8 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 {
                             Settings =
                             {
-                                        ClientId = DiscordBot.Config["APIKeys:TwitchOAuth2ClientId"],
-                                        AccessToken = DiscordBot.Config["APIKeys:TwitchOAuth2ClientSecret"]
+                                        ClientId = Program.Config["APIKeys:TwitchOAuth2ClientId"],
+                                        AccessToken = Program.Config["APIKeys:TwitchOAuth2ClientSecret"]
                             }
                 };
 

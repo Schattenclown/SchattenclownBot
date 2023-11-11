@@ -53,9 +53,9 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
             new CustomLogger().Information("Creating table ScTimers...", ConsoleColor.Green);
 
 #if DEBUG
-            string database = new StringCutter().RemoveUntil(DiscordBot.Config["ConnectionStrings:MySqlDebug"], "Database=", "Database=".Length);
+            string database = new StringCutter().RemoveUntil(Program.Config["ConnectionStrings:MySqlDebug"], "Database=", "Database=".Length);
 #else
-            string database = new StringCutter().RemoveUntil(DiscordBot.Config["ConnectionStrings:MySql"], "Database=", "Database=".Length);
+            string database = new StringCutter().RemoveUntil(Program.Config["ConnectionStrings:MySql"], "Database=", "Database=".Length);
 #endif
             database = new StringCutter().RemoveAfter(database, "; Uid", 0);
 

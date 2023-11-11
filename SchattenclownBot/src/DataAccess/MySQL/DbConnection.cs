@@ -11,9 +11,9 @@ namespace SchattenclownBot.DataAccess.MySQL
 
         public MySqlConnection OpenDb()
         {
-            Token = DiscordBot.Config["ConnectionStrings:MySql"];
+            Token = Program.Config["ConnectionStrings:MySql"];
 #if DEBUG
-            Token = DiscordBot.Config["ConnectionStrings:MySqlDebug"];
+            Token = Program.Config["ConnectionStrings:MySqlDebug"];
 #endif
 
             MySqlConnection connection = new(Token);

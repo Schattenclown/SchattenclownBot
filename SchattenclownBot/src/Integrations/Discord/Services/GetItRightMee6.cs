@@ -51,13 +51,11 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     {
                         try
                         {
-                            if (discordChannelItem.Id != 982330147141218344)
+                            if (discordChannelItem.Id != 982330147141218344 && discordChannelItem.Bitrate != 384000)
                             {
-                                if (discordChannelItem.Bitrate != 384000)
-                                {
-                                    await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
-                                    new CustomLogger().Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", ConsoleColor.Green);
-                                }
+                                await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
+                                new CustomLogger().Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", ConsoleColor.Green);
+                                
                             }
                         }
                         catch
@@ -74,13 +72,10 @@ namespace SchattenclownBot.Integrations.Discord.Services
                         {
                             try
                             {
-                                if (discordChannelItem.Id != 982330147141218344)
+                                if (discordChannelItem.Id != 982330147141218344 && discordChannelItem.Bitrate != 256000)
                                 {
-                                    if (discordChannelItem.Bitrate != 256000)
-                                    {
-                                        await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
-                                        new CustomLogger().Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", ConsoleColor.Green);
-                                    }
+                                    await discordChannelItem.ModifyAsync(x => x.Bitrate = 256000);
+                                    new CustomLogger().Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 256000!", ConsoleColor.Green);
                                 }
                             }
                             catch

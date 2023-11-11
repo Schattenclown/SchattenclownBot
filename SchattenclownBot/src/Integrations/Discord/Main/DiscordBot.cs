@@ -23,7 +23,7 @@ namespace SchattenclownBot.Integrations.Discord.Main
 #if DEBUG
             Token = Config["APIKeys:DiscordAPIKeyDebug"];
 #else
-            Token = Config["APIKeys:DiscordAPIKey"];
+            Token = Program.Config["APIKeys:DiscordAPIKey"];
 #endif
 
             DiscordConfiguration discordConfiguration = new()
@@ -66,7 +66,6 @@ namespace SchattenclownBot.Integrations.Discord.Main
             RegisterCommands();
         }
 
-        public static IConfigurationRoot Config { get; } = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, true).Build();
         public static DiscordClient DiscordClient { get; set; }
         public static DiscordGuild EmojiDiscordGuild { get; set; }
         public static ApplicationCommandsExtension ApplicationCommandsExtension { get; set; }
