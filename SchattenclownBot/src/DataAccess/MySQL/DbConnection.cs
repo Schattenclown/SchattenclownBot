@@ -1,6 +1,5 @@
 ﻿using System;
 using MySql.Data.MySqlClient;
-using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.DataAccess.MySQL

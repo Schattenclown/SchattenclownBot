@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
-using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
@@ -26,7 +25,7 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
                                 DbEntryId = mySqlDataReader.GetInt32("DBEntryID"),
                                 NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"),
                                 ChannelId = mySqlDataReader.GetUInt64("ChannelId"),
-                                MemberId = mySqlDataReader.GetUInt64("MemberId")
+                                MemberId = mySqlDataReader.GetUInt64("DiscordMemberID")
                     };
                     botAlarmClockList.Add(botAlarmClock);
                 }
@@ -38,7 +37,7 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
 
         public void Add(BotAlarmClock botAlarmClock)
         {
-            string sql = "INSERT INTO ScAlarmClocks (NotificationTime, ChannelId, MemberId) " + $"VALUES ('{botAlarmClock.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botAlarmClock.ChannelId}, {botAlarmClock.MemberId})";
+            string sql = "INSERT INTO ScAlarmClocks (NotificationTime, ChannelId, DiscordMemberID) " + $"VALUES ('{botAlarmClock.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botAlarmClock.ChannelId}, {botAlarmClock.MemberId})";
             new DbConnection().ExecuteNonQuery(sql);
         }
 
@@ -60,7 +59,7 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
 #endif
             database = new StringCutter().RemoveAfter(database, "; Uid", 0);
 
-            string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + "CREATE TABLE IF NOT EXISTS `ScAlarmClocks` (" + "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," + "`NotificationTime` DATETIME NOT NULL," + "`ChannelId` bigint(20) NOT NULL," + "`MemberId` bigint(20) NOT NULL," + "PRIMARY KEY (`DBEntryID`)) " + "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
+            string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + "CREATE TABLE IF NOT EXISTS `ScAlarmClocks` (" + "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," + "`NotificationTime` DATETIME NOT NULL," + "`ChannelId` bigint(20) NOT NULL," + "`DiscordMemberID` bigint(20) NOT NULL," + "PRIMARY KEY (`DBEntryID`)) " + "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
 
             new DbConnection().ExecuteNonQuery(sql);
         }

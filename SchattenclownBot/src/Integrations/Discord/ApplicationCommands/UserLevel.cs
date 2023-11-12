@@ -7,6 +7,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using SchattenclownBot.DataAccess.MSSQL;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Models;
 
@@ -26,7 +27,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             userLevelSystemListSorted.Reverse();
             int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
@@ -35,7 +36,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
             await DiscordBot.DiscordClient.GetUserAsync(interactionContext.Member.Id);
 
-            foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == interactionContext.Member.Id))
+            foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.DiscordMemberID == interactionContext.Member.Id))
             {
                 rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
                 calculatedXpOverCurrentLevel = new UserLevelSystem().CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
@@ -87,14 +88,14 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             userLevelSystemListSorted.Reverse();
             int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
 
             string rank = "N/A";
 
-            foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == discordUser.Id))
+            foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.DiscordMemberID == discordUser.Id))
             {
                 rank = (userLevelSystemListSorted.IndexOf(userLevelSystemItem) + 1).ToString();
                 calculatedXpOverCurrentLevel = new UserLevelSystem().CalculateXpOverCurrentLevel(userLevelSystemItem.OnlineTicks);
@@ -149,7 +150,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             DiscordMember discordMember = null;
 
             //Create List where all users are listed.
-            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().Read(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(interactionContext.Guild.Id);
 
             //Order the list by online ticks.
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
@@ -163,7 +164,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             //Create the Leaderboard string
             foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSorted)
             {
-                foreach (DiscordMember discordMemberItem in discordMemberList.Where(discordMemberItem => discordMemberItem.Id == userLevelSystemItem.MemberId))
+                foreach (DiscordMember discordMemberItem in discordMemberList.Where(discordMemberItem => discordMemberItem.Id == userLevelSystemItem.DiscordMemberID))
                 {
                     discordMember = discordMemberItem;
                 }

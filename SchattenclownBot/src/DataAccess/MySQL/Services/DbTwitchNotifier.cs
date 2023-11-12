@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Utils;
 
@@ -44,7 +43,7 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
         /*
         public void Change(ulong guildId, UserLevelSystem userLevelSystem)
         {
-           string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE MemberId={userLevelSystem.MemberId}";
+           string sqlCommand = $"UPDATE `{guildId}_levelSystem` SET OnlineTicks={userLevelSystem.OnlineTicks} WHERE DiscordMemberID={userLevelSystem.DiscordMemberID}";
            DB_Connection.ExecuteNonQuery(sqlCommand);
         }*/
 

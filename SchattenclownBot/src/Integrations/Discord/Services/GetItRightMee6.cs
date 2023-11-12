@@ -55,7 +55,6 @@ namespace SchattenclownBot.Integrations.Discord.Services
                             {
                                 await discordChannelItem.ModifyAsync(x => x.Bitrate = 384000);
                                 new CustomLogger().Information($"Bit-rate for Channel {discordChannelItem.Name}, {discordChannelItem.Id} set to 384000!", ConsoleColor.Green);
-                                
                             }
                         }
                         catch

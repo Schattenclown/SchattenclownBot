@@ -141,40 +141,28 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                         description += "<:xx_talk:989518547803848704>" + "``" + username.PadRight(17).Remove(17) + "``";
                                         descriptionForConsole += "" + username.PadRight(17).Remove(17) + "   |   ";
 
-                                        if (discordMemberInChannelItem.VoiceState is
-                                            {
-                                                        IsSelfMuted: true
-                                            })
+                                        if (discordMemberInChannelItem.VoiceState is { IsSelfMuted: true })
                                         {
                                             descriptionLineBuilder += "<:xx_mute:989518546541346856>";
                                             descriptionLineBuilderForConsole += "M";
                                             counter--;
                                         }
 
-                                        if (discordMemberInChannelItem.VoiceState is
-                                            {
-                                                        IsSelfDeafened: true
-                                            })
+                                        if (discordMemberInChannelItem.VoiceState is { IsSelfDeafened: true })
                                         {
                                             descriptionLineBuilder += "<:xx_deaf:989518540400906270>";
                                             descriptionLineBuilderForConsole += "D";
                                             counter--;
                                         }
 
-                                        if (discordMemberInChannelItem.VoiceState is
-                                            {
-                                                        IsSelfVideo: true
-                                            })
+                                        if (discordMemberInChannelItem.VoiceState is { IsSelfVideo: true })
                                         {
                                             descriptionLineBuilder += "<:xx_cam:989518538819645460>";
                                             descriptionLineBuilderForConsole += "C";
                                             counter--;
                                         }
 
-                                        if (discordMemberInChannelItem.VoiceState is
-                                            {
-                                                        IsSelfStream: true
-                                            })
+                                        if (discordMemberInChannelItem.VoiceState is { IsSelfStream: true })
                                         {
                                             descriptionLineBuilder += "<:xx_live_li:989518543886356510><:xx_live_ve:989518545245327449>";
                                             descriptionLineBuilderForConsole += " L";

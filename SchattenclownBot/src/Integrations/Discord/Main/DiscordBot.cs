@@ -8,7 +8,6 @@ using DisCatSharp.Enums;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.Extensions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchattenclownBot.Integrations.Discord.ApplicationCommands;
 using SchattenclownBot.Integrations.Discord.Services;
@@ -21,7 +20,7 @@ namespace SchattenclownBot.Integrations.Discord.Main
         public DiscordBot()
         {
 #if DEBUG
-            Token = Config["APIKeys:DiscordAPIKeyDebug"];
+            Token = Program.Config["APIKeys:DiscordAPIKeyDebug"];
 #else
             Token = Program.Config["APIKeys:DiscordAPIKey"];
 #endif

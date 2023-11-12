@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
-using SchattenclownBot.DataAccess.MySQL.Services;
+using SchattenclownBot.DataAccess.MSSQL;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Utils;
@@ -12,30 +13,21 @@ namespace SchattenclownBot.Models
 {
     public class UserLevelSystem
     {
-        public ulong MemberId { get; set; }
-        public ulong GuildId { get; set; }
+        [Key]
+        public int ID { get; set; }
+
+        [Required]
+        public ulong DiscordMemberID { get; set; }
+
+        [Required]
+        public ulong DiscordGuildID { get; set; }
+
+        [Required]
         public int OnlineTicks { get; set; }
-        public TimeSpan OnlineTime { get; set; }
-        public double VoteRatingAvg { get; set; }
 
-        public List<UserLevelSystem> Read(ulong guildId)
+        public override string ToString()
         {
-            return new DbUserLevelSystem().Read(guildId);
-        }
-
-        public void Add(ulong guildId, UserLevelSystem userLevelSystem)
-        {
-            new DbUserLevelSystem().Add(guildId, userLevelSystem);
-        }
-
-        public void Change(ulong guildId, UserLevelSystem userLevelSystem)
-        {
-            new DbUserLevelSystem().Change(guildId, userLevelSystem);
-        }
-
-        public void CreateTable(ulong guildId)
-        {
-            new DbUserLevelSystem().CreateTable(guildId);
+            return $"ID: {ID} DiscordMemberID: {DiscordMemberID} DiscordGuildID: {DiscordGuildID} OnlineTicks: {OnlineTicks}";
         }
 
         public int CalculateLevel(int onlineTicks)
@@ -84,12 +76,6 @@ namespace SchattenclownBot.Models
                     {
                         if (levelSystemVirgin)
                         {
-                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
-                            foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
-                            {
-                                CreateTable(guildItem.Value.Id);
-                            }
-
                             levelSystemVirgin = false;
                         }
                     }
@@ -107,26 +93,24 @@ namespace SchattenclownBot.Models
                     List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        List<UserLevelSystem> userLevelSystemList = Read(guildItem.Value.Id);
+                        List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(guildItem.Value.Id);
 
                         IReadOnlyDictionary<ulong, DiscordMember> guildMembers = guildItem.Value.Members;
                         foreach (KeyValuePair<ulong, DiscordMember> memberItem in guildMembers)
                         {
-                            if (memberItem.Value.VoiceState is
-                                {
-                                            IsSelfDeafened: false, IsSuppressed: false
-                                } && !memberItem.Value.IsBot)
+                            if (memberItem.Value.VoiceState is { IsSelfDeafened: false, IsSuppressed: false } && !memberItem.Value.IsBot)
                             {
                                 UserLevelSystem userLevelSystemObj = new()
                                 {
-                                            MemberId = memberItem.Value.Id,
+                                            DiscordGuildID = guildItem.Value.Id,
+                                            DiscordMemberID = memberItem.Value.Id,
                                             OnlineTicks = 0
                                 };
                                 bool found = false;
 
                                 foreach (UserLevelSystem userLevelSystemItem in userLevelSystemList)
                                 {
-                                    if (memberItem.Value.Id == userLevelSystemItem.MemberId)
+                                    if (memberItem.Value.Id == userLevelSystemItem.DiscordMemberID)
                                     {
                                         userLevelSystemObj.OnlineTicks = userLevelSystemItem.OnlineTicks;
                                         found = true;
@@ -137,17 +121,13 @@ namespace SchattenclownBot.Models
                                 if (found)
                                 {
                                     userLevelSystemObj.OnlineTicks++;
-                                    Change(guildItem.Value.Id, userLevelSystemObj);
+                                    new UserLevelSystemDBA().AddOrUpdate(userLevelSystemObj);
                                 }
 
                                 if (!found)
                                 {
-                                    DateTime date1 = new(1969, 4, 20, 4, 20, 0);
-                                    DateTime date2 = new(1969, 4, 20, 4, 21, 0);
-                                    TimeSpan timeSpan = date2 - date1;
-                                    userLevelSystemObj.OnlineTime = timeSpan;
                                     userLevelSystemObj.OnlineTicks = 1;
-                                    Add(guildItem.Value.Id, userLevelSystemObj);
+                                    new UserLevelSystemDBA().AddOrUpdate(userLevelSystemObj);
                                 }
                             }
                         }
@@ -208,14 +188,14 @@ namespace SchattenclownBot.Models
                     try
                     {
                         //Create List where all users are listed.
-                        List<UserLevelSystem> userLevelSystemList = Read(guildObj.Id);
+                        List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(guildObj.Id);
                         //Order the list by online ticks.
                         List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
                         userLevelSystemListSorted.Reverse();
 
                         List<DiscordMember> guildMemberList = guildObj.Members.Values.ToList();
 
-                        List<UserLevelSystem> userLevelSystemListSortedOut = guildMemberList.SelectMany(guildMemberItem => userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.MemberId == guildMemberItem.Id)).ToList();
+                        List<UserLevelSystem> userLevelSystemListSortedOut = guildMemberList.SelectMany(guildMemberItem => userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.DiscordMemberID == guildMemberItem.Id)).ToList();
                         userLevelSystemListSortedOut = userLevelSystemListSortedOut.OrderBy(x => x.OnlineTicks).ToList();
 
                         /*zehnerRoles.Add(guildObj.GetRole(1023523454105952347)); //zehner 1
@@ -267,11 +247,11 @@ namespace SchattenclownBot.Models
 
                         foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSortedOut)
                         {
-                            if (userLevelSystemItem.MemberId is not 304366130238193664 and not 523765246104567808)
+                            if (userLevelSystemItem.DiscordMemberID is not 304366130238193664 and not 523765246104567808)
                             {
                                 List<DiscordRole> einerRoles = new(einerRolesOrg);
                                 List<DiscordRole> zehnerRoles = new(zehnerRolesOrg);
-                                DiscordMember discordMember = guildObj.GetMemberAsync(userLevelSystemItem.MemberId).Result;
+                                DiscordMember discordMember = guildObj.GetMemberAsync(userLevelSystemItem.DiscordMemberID).Result;
 
                                 int totalLevel = CalculateLevel(userLevelSystemItem.OnlineTicks);
                                 string zehnerString = "";
@@ -306,7 +286,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(zehnerRole);
 
-                                        new CustomLogger().Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", ConsoleColor.Green);
+                                        new CustomLogger().Information($"Granted {discordMember.DisplayName} DiscordMemberID Level {totalLevel} --- {discordMember.Id} Role {zehnerRole.Id} {zehnerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -319,7 +299,7 @@ namespace SchattenclownBot.Models
                                     {
                                         await discordMember.GrantRoleAsync(einerRole);
 
-                                        new CustomLogger().Information($"Granted {discordMember.DisplayName} MemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", ConsoleColor.Green);
+                                        new CustomLogger().Information($"Granted {discordMember.DisplayName} DiscordMemberID Level {totalLevel} --- {discordMember.Id} Role {einerRole.Id} {einerRole.Name}", ConsoleColor.Green);
                                     }
                                 }
 
@@ -327,7 +307,7 @@ namespace SchattenclownBot.Models
                                 {
                                     await discordMember.RevokeRoleAsync(revokeRoleItem);
 
-                                    new CustomLogger().Information($"Removed {discordMember.DisplayName} MemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", ConsoleColor.Green);
+                                    new CustomLogger().Information($"Removed {discordMember.DisplayName} DiscordMemberID {discordMember.Id} Role {revokeRoleItem.Id} {revokeRoleItem.Name}", ConsoleColor.Green);
                                 }
 
                                 DiscordRole discordLevelRole = guildObj.GetRole(1017937277307064340);
