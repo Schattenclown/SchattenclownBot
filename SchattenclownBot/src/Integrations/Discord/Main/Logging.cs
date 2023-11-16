@@ -25,7 +25,7 @@ namespace SchattenclownBot.Integrations.Discord.Main
 
         public Task Client_Resumed(DiscordClient discordClient, ReadyEventArgs readyEventArgs)
         {
-            new CustomLogger().Information("MusicController resumed!", ConsoleColor.Green);
+            new CustomLogger().Information("SchattenclownBot resumed!", ConsoleColor.Green);
             return Task.CompletedTask;
         }
 
