@@ -248,7 +248,7 @@ namespace SchattenclownBot.Models
 
 
                 string[] fileEntries = Directory.GetFiles(@"A:\binhex-nginx\nginx\html\TwitchNotifier\Images");
-                foreach (string fileName in fileEntries.Where(x => x.Contains(e.Stream.UserName)))
+                foreach (string fileName in fileEntries.Where(x => x.Contains(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{e.Stream.UserName}-")))
                 {
                     File.Delete(fileName);
                 }
@@ -399,7 +399,7 @@ namespace SchattenclownBot.Models
                         discordEmbedBuilder.AddField(new DiscordEmbedField("UpTime:", $"{upTimeSpan:hh\\:mm\\:ss}", true));
 
                         string[] fileEntries = Directory.GetFiles(@"A:\binhex-nginx\nginx\html\TwitchNotifier\Images");
-                        foreach (string fileName in fileEntries.Where(x => x.Contains(stream.UserLogin)))
+                        foreach (string fileName in fileEntries.Where(x => x.Contains(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{stream.UserLogin}-")))
                         {
                             File.Delete(fileName);
                         }
