@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
-namespace SchattenclownBot.DataAccess.MSSQL
+namespace SchattenclownBot.Persistence.DataAccess.MSSQL
 {
     public class UserLevelSystemDBA : DbContext
     {

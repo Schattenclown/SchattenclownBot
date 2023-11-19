@@ -3,7 +3,7 @@ using MySql.Data.MySqlClient;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
-namespace SchattenclownBot.DataAccess.MySQL.Services
+namespace SchattenclownBot.Persistence.DataAccess.MySQL.Services
 {
     public class DbSympathySystem
     {

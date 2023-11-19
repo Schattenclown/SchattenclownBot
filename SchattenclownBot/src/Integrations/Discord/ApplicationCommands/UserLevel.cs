@@ -7,7 +7,6 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SchattenclownBot.DataAccess.MSSQL;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Models;
 
@@ -27,7 +26,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().GetByGuildId(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             userLevelSystemListSorted.Reverse();
             int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
@@ -88,7 +87,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-            List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().GetByGuildId(interactionContext.Guild.Id);
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
             userLevelSystemListSorted.Reverse();
             int calculatedXpOverCurrentLevel = 0, calculatedXpSpanToReachNextLevel = 0, level = 0;
@@ -150,7 +149,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             DiscordMember discordMember = null;
 
             //Create List where all users are listed.
-            List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(interactionContext.Guild.Id);
+            List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().GetByGuildId(interactionContext.Guild.Id);
 
             //Order the list by online ticks.
             List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();

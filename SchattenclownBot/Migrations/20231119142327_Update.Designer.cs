@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SchattenclownBot.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DataAccess.MSSQL;
 
 #nullable disable
 
 namespace SchattenclownBot.Migrations
 {
-    [DbContext(typeof(UserLevelSystemDBA))]
-    [Migration("20231112151404_Update")]
+    [DbContext(typeof(TwitchNotifierDBA))]
+    [Migration("20231119142327_Update")]
     partial class Update
     {
         /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace SchattenclownBot.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SchattenclownBot.Models.UserLevelSystem", b =>
+            modelBuilder.Entity("SchattenclownBot.Integrations.Discord.Services.TwitchNotifier", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -32,18 +32,28 @@ namespace SchattenclownBot.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<decimal>("DiscordChannelID")
+                        .HasColumnType("decimal(20,0)");
+
                     b.Property<decimal>("DiscordGuildID")
                         .HasColumnType("decimal(20,0)");
 
                     b.Property<decimal>("DiscordMemberID")
                         .HasColumnType("decimal(20,0)");
 
-                    b.Property<int>("OnlineTicks")
-                        .HasColumnType("int");
+                    b.Property<decimal>("DiscordRoleID")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("TwitchChannelUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TwitchUserID")
+                        .HasColumnType("decimal(20,0)");
 
                     b.HasKey("ID");
 
-                    b.ToTable("UserLevelSystems");
+                    b.ToTable("TwitchNotifiers");
                 });
 #pragma warning restore 612, 618
         }

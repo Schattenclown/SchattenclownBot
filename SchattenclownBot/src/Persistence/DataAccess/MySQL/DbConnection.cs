@@ -2,7 +2,7 @@
 using MySql.Data.MySqlClient;
 using SchattenclownBot.Utils;
 
-namespace SchattenclownBot.DataAccess.MySQL
+namespace SchattenclownBot.Persistence.DataAccess.MySQL
 {
     public class DbConnection
     {

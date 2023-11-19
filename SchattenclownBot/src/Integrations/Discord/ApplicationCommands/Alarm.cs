@@ -8,8 +8,8 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Common;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SchattenclownBot.DataAccess.MySQL.Services;
 using SchattenclownBot.Models;
+using SchattenclownBot.Persistence.DataAccess.MySQL.Services;
 
 // ReSharper disable UnusedMember.Global
 

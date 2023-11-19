@@ -4,15 +4,15 @@ using MySql.Data.MySqlClient;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
-namespace SchattenclownBot.DataAccess.MySQL.Services
+namespace SchattenclownBot.Persistence.DataAccess.MySQL.Services
 {
-    public class DbBotAlarmClocks
+    public class DbBotTimer
     {
-        public List<BotAlarmClock> ReadAll()
+        public List<BotTimer> ReadAll()
         {
-            string sql = "SELECT * FROM ScAlarmClocks";
+            string sql = "SELECT * FROM ScTimers";
 
-            List<BotAlarmClock> botAlarmClockList = new();
+            List<BotTimer> botTimerList = new();
             MySqlConnection mySqlConnection = new DbConnection().OpenDb();
             MySqlDataReader mySqlDataReader = new DbConnection().ExecuteReader(sql, mySqlConnection);
 
@@ -20,46 +20,45 @@ namespace SchattenclownBot.DataAccess.MySQL.Services
             {
                 while (mySqlDataReader.Read())
                 {
-                    BotAlarmClock botAlarmClock = new()
+                    BotTimer botTimer = new()
                     {
                                 DbEntryId = mySqlDataReader.GetInt32("DBEntryID"),
                                 NotificationTime = mySqlDataReader.GetDateTime("NotificationTime"),
                                 ChannelId = mySqlDataReader.GetUInt64("ChannelId"),
                                 MemberId = mySqlDataReader.GetUInt64("DiscordMemberID")
                     };
-                    botAlarmClockList.Add(botAlarmClock);
+                    botTimerList.Add(botTimer);
                 }
             }
 
             new DbConnection().CloseDb(mySqlConnection);
-            return botAlarmClockList;
+            return botTimerList;
         }
 
-        public void Add(BotAlarmClock botAlarmClock)
+        public void Add(BotTimer botTimer)
         {
-            string sql = "INSERT INTO ScAlarmClocks (NotificationTime, ChannelId, DiscordMemberID) " + $"VALUES ('{botAlarmClock.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botAlarmClock.ChannelId}, {botAlarmClock.MemberId})";
+            string sql = "INSERT INTO ScTimers (NotificationTime, ChannelId, DiscordMemberID) " + $"VALUES ('{botTimer.NotificationTime:yyyy-MM-dd HH:mm:ss}', {botTimer.ChannelId}, {botTimer.MemberId})";
             new DbConnection().ExecuteNonQuery(sql);
         }
 
-        public void Delete(BotAlarmClock botAlarmClock)
+        public void Delete(BotTimer botTimer)
         {
-            string sql = $"DELETE FROM ScAlarmClocks WHERE `DBEntryID` = '{botAlarmClock.DbEntryId}'";
+            string sql = $"DELETE FROM ScTimers WHERE `DBEntryID` = '{botTimer.DbEntryId}'";
             new DbConnection().ExecuteNonQuery(sql);
         }
 
         public void CreateTable()
         {
-            new CustomLogger().Information("Creating table ScAlarmClocks...", ConsoleColor.Green);
+            new CustomLogger().Information("Creating table ScTimers...", ConsoleColor.Green);
 
 #if DEBUG
             string database = new StringCutter().RemoveUntil(Program.Config["ConnectionStrings:MySqlDebug"], "Database=", "Database=".Length);
 #else
             string database = new StringCutter().RemoveUntil(Program.Config["ConnectionStrings:MySql"], "Database=", "Database=".Length);
-
 #endif
             database = new StringCutter().RemoveAfter(database, "; Uid", 0);
 
-            string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + "CREATE TABLE IF NOT EXISTS `ScAlarmClocks` (" + "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," + "`NotificationTime` DATETIME NOT NULL," + "`ChannelId` bigint(20) NOT NULL," + "`DiscordMemberID` bigint(20) NOT NULL," + "PRIMARY KEY (`DBEntryID`)) " + "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
+            string sql = $"CREATE DATABASE IF NOT EXISTS `{database}`;" + $"USE `{database}`;" + "CREATE TABLE IF NOT EXISTS `ScTimers` (" + "`DBEntryID` int(12) NOT NULL AUTO_INCREMENT," + "`NotificationTime` DATETIME NOT NULL," + "`ChannelId` bigint(20) NOT NULL," + "`DiscordMemberID` bigint(20) NOT NULL," + "PRIMARY KEY (`DBEntryID`)) " + "ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;";
 
             new DbConnection().ExecuteNonQuery(sql);
         }

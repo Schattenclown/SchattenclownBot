@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
-using SchattenclownBot.DataAccess.MSSQL;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
+using SchattenclownBot.Persistence.DataAccess.MSSQL;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Models
@@ -28,6 +28,16 @@ namespace SchattenclownBot.Models
         public override string ToString()
         {
             return $"ID: {ID} DiscordMemberID: {DiscordMemberID} DiscordGuildID: {DiscordGuildID} OnlineTicks: {OnlineTicks}";
+        }
+
+        public void AddOrUpdate(UserLevelSystem userLevelSystem)
+        {
+            new UserLevelSystemDBA().AddOrUpdate(userLevelSystem);
+        }
+
+        public List<UserLevelSystem> GetByGuildId(ulong guildId)
+        {
+            return new UserLevelSystemDBA().GetByGuildId(guildId);
         }
 
         public int CalculateLevel(int onlineTicks)
@@ -93,7 +103,7 @@ namespace SchattenclownBot.Models
                     List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
                     {
-                        List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(guildItem.Value.Id);
+                        List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().GetByGuildId(guildItem.Value.Id);
 
                         IReadOnlyDictionary<ulong, DiscordMember> guildMembers = guildItem.Value.Members;
                         foreach (KeyValuePair<ulong, DiscordMember> memberItem in guildMembers)
@@ -121,13 +131,13 @@ namespace SchattenclownBot.Models
                                 if (found)
                                 {
                                     userLevelSystemObj.OnlineTicks++;
-                                    new UserLevelSystemDBA().AddOrUpdate(userLevelSystemObj);
+                                    new UserLevelSystem().AddOrUpdate(userLevelSystemObj);
                                 }
 
                                 if (!found)
                                 {
                                     userLevelSystemObj.OnlineTicks = 1;
-                                    new UserLevelSystemDBA().AddOrUpdate(userLevelSystemObj);
+                                    new UserLevelSystem().AddOrUpdate(userLevelSystemObj);
                                 }
                             }
                         }
@@ -188,7 +198,7 @@ namespace SchattenclownBot.Models
                     try
                     {
                         //Create List where all users are listed.
-                        List<UserLevelSystem> userLevelSystemList = new UserLevelSystemDBA().GetByGuildId(guildObj.Id);
+                        List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().GetByGuildId(guildObj.Id);
                         //Order the list by online ticks.
                         List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
                         userLevelSystemListSorted.Reverse();

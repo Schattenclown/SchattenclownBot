@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
-using SchattenclownBot.DataAccess.MySQL.Services;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
+using SchattenclownBot.Persistence.DataAccess.MySQL.Services;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Models

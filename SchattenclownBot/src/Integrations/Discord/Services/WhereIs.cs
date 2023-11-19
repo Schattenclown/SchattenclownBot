@@ -56,7 +56,6 @@ namespace SchattenclownBot.Integrations.Discord.Services
                 {
                             1088454540329746442,
                             918232272732319744,
-                            631177569021984811,
                             180745071656697856
                 };
 

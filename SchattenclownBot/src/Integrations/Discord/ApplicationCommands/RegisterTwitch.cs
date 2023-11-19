@@ -7,7 +7,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SchattenclownBot.Integrations.Discord.Services;
+using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
@@ -38,9 +38,9 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                 twitchThing = new StringCutter().RemoveUntil(twitchThing, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
             }
 
-            List<TwitchNotifier> twitchNotifiers = new TwitchNotifier().Read(interactionContext.Guild.Id);
+            List<TwitchNotifier> twitchNotifiers = new TwitchNotifier().ReadBasedOnGuild(interactionContext.Guild.Id);
 
-            if (twitchNotifiers.Any(x => x.DiscordGuildId == interactionContext.Guild.Id && x.TwitchChannelUrl.ToLower() == twitchThing && x.DiscordRoleId == discordTargetRole.Id && x.DiscordChannelId == discordTargetChannel.Id))
+            if (twitchNotifiers.Any(x => x.DiscordGuildID == interactionContext.Guild.Id && x.TwitchChannelUrl.ToLower() == twitchThing && x.DiscordRoleID == discordTargetRole.Id && x.DiscordChannelID == discordTargetChannel.Id))
             {
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Already registered"));
             }
@@ -48,17 +48,17 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             {
                 TwitchNotifier twitchNotifierObj = new()
                 {
-                            DiscordGuildId = interactionContext.Guild.Id,
-                            DiscordMemberId = interactionContext.Member.Id,
-                            DiscordChannelId = discordTargetChannel.Id,
-                            DiscordRoleId = discordTargetRole.Id
+                            DiscordGuildID = interactionContext.Guild.Id,
+                            DiscordMemberID = interactionContext.Member.Id,
+                            DiscordChannelID = discordTargetChannel.Id,
+                            DiscordRoleID = discordTargetRole.Id
                 };
 
                 try
                 {
                     if (Convert.ToUInt64(twitchThing) > 0)
                     {
-                        twitchNotifierObj.TwitchUserId = Convert.ToUInt64(twitchThing);
+                        twitchNotifierObj.TwitchUserID = Convert.ToUInt64(twitchThing);
                     }
                 }
                 catch

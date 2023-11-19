@@ -7,8 +7,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="Dependencies\**" />
 		<Compile Remove="FakesAssemblies\**" />
+		<EmbeddedResource Remove="Dependencies\**" />
 		<EmbeddedResource Remove="FakesAssemblies\**" />
+		<None Remove="Dependencies\**" />
 		<None Remove="FakesAssemblies\**" />
 	</ItemGroup>
 
@@ -48,11 +51,6 @@
 
 	<ItemGroup>
 		<Content Include="SchattenclownBot.ico" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Migrations\" />
-		<Folder Include="Dependencies\" />
 	</ItemGroup>
 
 </Project>
