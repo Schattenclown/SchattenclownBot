@@ -1,59 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
-using SchattenclownBot.Persistence.DataAccess.MySQL.Services;
+using SchattenclownBot.Persistence.DataAccess.MSSQL;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Models
 {
-    public class BotTimer
+    public class Timer
     {
-        public List<BotTimer> BotTimerList;
-        public int DbEntryId { get; set; }
+        [NotMapped]
+        public static List<Timer> TimerList;
+
+        [Key]
+        public int ID { get; set; }
+
+        [Required]
         public DateTime NotificationTime { get; set; }
-        public ulong ChannelId { get; set; }
-        public ulong MemberId { get; set; }
 
-        public void Add(BotTimer botTimer)
+        [Required]
+        public ulong ChannelID { get; set; }
+
+        [Required]
+        public ulong MemberID { get; set; }
+
+        public void Add(Timer timer)
         {
-            new DbBotTimer().Add(botTimer);
+            new TimerDBA().Add(timer);
             BotTimerDbRefresh();
         }
 
-        public void Delete(BotTimer botTimer)
+        public void Delete(Timer timer)
         {
-            new DbBotTimer().Delete(botTimer);
+            new TimerDBA().Delete(timer);
             BotTimerDbRefresh();
         }
 
-        public List<BotTimer> ReadAll()
+        public List<Timer> ReadAll()
         {
-            return new DbBotTimer().ReadAll();
+            return new TimerDBA().ReadAll();
         }
 
         public void RunAsync()
         {
-            new CustomLogger().Information("Starting BotTimer...", ConsoleColor.Green);
-            new DbBotTimer().CreateTable();
-            BotTimerList = new DbBotTimer().ReadAll();
+            new CustomLogger().Information("Starting Timer...", ConsoleColor.Green);
+            TimerList = new Timer().ReadAll();
 
             Task.Run(async () =>
             {
                 while (true)
                 {
-                    foreach (BotTimer botTimerItem in BotTimerList)
+                    foreach (Timer botTimerItem in TimerList)
                     {
                         if (botTimerItem.NotificationTime < DateTime.Now)
                         {
-                            DiscordChannel chn = await DiscordBot.DiscordClient.GetChannelAsync(botTimerItem.ChannelId);
+                            DiscordChannel chn = await DiscordBot.DiscordClient.GetChannelAsync(botTimerItem.ChannelID);
                             DiscordEmbedBuilder eb = new()
                             {
                                         Color = DiscordColor.Red
                             };
-                            eb.WithDescription($"<@{botTimerItem.MemberId}> Timer for {botTimerItem.NotificationTime} is up!");
+                            eb.WithDescription($"<@{botTimerItem.MemberID}> Timer for {botTimerItem.NotificationTime} is up!");
 
                             Delete(botTimerItem);
                             for (int i = 0; i < 3; i++)
@@ -66,7 +76,7 @@ namespace SchattenclownBot.Models
 
                     if (DateTime.Now.Second == 15)
                     {
-                        BotTimerList = new DbBotTimer().ReadAll();
+                        TimerList = new Timer().ReadAll();
                     }
 
                     await Task.Delay(1000 * 1);
@@ -80,7 +90,7 @@ namespace SchattenclownBot.Models
 
         public void BotTimerDbRefresh()
         {
-            BotTimerList = new DbBotTimer().ReadAll();
+            TimerList = new Timer().ReadAll();
         }
     }
 }

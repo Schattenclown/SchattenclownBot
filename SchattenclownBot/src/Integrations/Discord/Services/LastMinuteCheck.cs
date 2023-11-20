@@ -24,10 +24,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
             {
                 while (true)
                 {
-                    while (DateTime.Now.Second != executeSecond)
-                    {
-                        await Task.Delay(1000);
-                    }
+                    await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
 
                     while (true)
                     {

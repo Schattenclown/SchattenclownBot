@@ -32,6 +32,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             }
             else
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (interactionContext.Member.VoiceState.Channel != null)
                 {
                     DiscordChannel source = interactionContext.Member.VoiceState.Channel;

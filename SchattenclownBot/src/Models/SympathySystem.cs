@@ -1,234 +1,147 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
-using SchattenclownBot.Persistence.DataAccess.MySQL.Services;
+using SchattenclownBot.Persistence.DataAccess.MSSQL;
 using SchattenclownBot.Utils;
+
+#pragma warning disable CA1822
+#pragma warning disable CA1822
 
 namespace SchattenclownBot.Models
 {
     public class SympathySystem
     {
-        public int VoteTableId { get; set; }
-        public ulong VotingUserId { get; set; }
-        public ulong VotedUserId { get; set; }
-        public ulong GuildId { get; set; }
-        public int VoteRating { get; set; }
-        public int VotedRating { get; set; }
-        public RoleInfoSympathySystem RoleInfo { get; set; }
+        [Key]
+        public int ID { get; set; }
 
-        public List<SympathySystem> ReadAll(ulong guildId)
+        [Required]
+        public ulong VotingMemberID { get; set; }
+
+        [Required]
+        public ulong TargetMemberID { get; set; }
+
+        [Required]
+        public ulong GuildID { get; set; }
+
+        [Required]
+        public int Rating { get; set; }
+
+        public void AddOrUpdate(SympathySystem sympathySystem)
         {
-            return new DbSympathySystem().ReadAll(guildId);
+            new SympathySystemDBA().AddOrUpdate(sympathySystem);
         }
 
-        public void Add(SympathySystem sympathySystem)
+        public List<SympathySystem> ReadBasedOnTargetMemberID(ulong memberID)
         {
-            new DbSympathySystem().Add(sympathySystem);
+            return new SympathySystemDBA().ReadBasedOnTargetMemberID(memberID);
         }
 
-        public void Change(SympathySystem sympathySystem)
+        public int GetMemberRatingsByRatingValue(ulong memberID, int ratingValue)
         {
-            new DbSympathySystem().Change(sympathySystem);
-        }
-
-        public void CreateTable_SympathySystem(ulong guildId)
-        {
-            new DbSympathySystem().CreateTable(guildId);
-        }
-
-        public List<RoleInfoSympathySystem> ReadAllRoleInfo(ulong guildId)
-        {
-            return new DbSympathySystem().ReadAllRoleInfo(guildId);
-        }
-
-        public void AddRoleInfo(SympathySystem sympathySystem)
-        {
-            new DbSympathySystem().AddRoleInfo(sympathySystem);
-        }
-
-        public void ChangeRoleInfo(SympathySystem sympathySystem)
-        {
-            new DbSympathySystem().ChangeRoleInfo(sympathySystem);
-        }
-
-        public bool CheckRoleInfoExists(ulong guildId, int ratingValue)
-        {
-            return new DbSympathySystem().CheckRoleInfoExists(guildId, ratingValue);
-        }
-
-        public void CreateTable(ulong guildId)
-        {
-            new DbSympathySystem().CreateTable_RoleInfoSympathySystem(guildId);
-        }
-
-        public int GetUserRatings(ulong guildId, ulong votedUserId, int voteRating)
-        {
-            return new DbSympathySystem().GetUserRatings(guildId, votedUserId, voteRating);
+            return new SympathySystemDBA().GetMemberRatingsByRatingValue(memberID, ratingValue);
         }
 
         public void RunAsync(int executeSecond)
         {
             new CustomLogger().Information("Starting SympathySystem...", ConsoleColor.Green);
-            bool levelSystemVirgin = true;
 
             Task.Run(async () =>
             {
-                while (DateTime.Now.Second != executeSecond)
-                {
-                    await Task.Delay(1000);
-                }
-
-                do
-                {
-                    if (DiscordBot.DiscordClient.Guilds.ToList().Count != 0)
-                    {
-                        if (levelSystemVirgin)
-                        {
-                            List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
-                            foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
-                            {
-                                CreateTable_SympathySystem(guildItem.Value.Id);
-                                CreateTable(guildItem.Value.Id);
-                            }
-
-                            levelSystemVirgin = false;
-                        }
-                    }
-
-                    await Task.Delay(1000);
-                } while (levelSystemVirgin);
-
                 while (true)
                 {
-                    while (DateTime.Now.Second != executeSecond)
+                    await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
+
+                    DiscordGuild discordGuild = await DiscordBot.DiscordClient.GetGuildAsync(928930967140331590);
+                    IEnumerable<DiscordMember> discordMembers = discordGuild.Members.Values;
+
+                    List<DiscordRole> discordRoleList = new();
+                    discordRoleList.Clear();
+                    discordRoleList.Add(discordGuild.GetRole(949045281108922459));
+                    discordRoleList.Add(discordGuild.GetRole(949045284355342386));
+                    discordRoleList.Add(discordGuild.GetRole(949045286808981565));
+                    discordRoleList.Add(discordGuild.GetRole(949045289728233552));
+                    discordRoleList.Add(discordGuild.GetRole(949045292282544148));
+
+                    foreach (DiscordMember discordMember in discordMembers)
                     {
-                        await Task.Delay(1000);
-                    }
-
-                    List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
-                    foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
-                    {
-                        DiscordGuild discordGuildObj = DiscordBot.DiscordClient.GetGuildAsync(guildItem.Value.Id).Result;
-                        IReadOnlyDictionary<ulong, DiscordMember> discordMembers = discordGuildObj.Members;
-
-                        List<SympathySystem> sympathySystemsList = ReadAll(guildItem.Value.Id);
-                        List<RoleInfoSympathySystem> roleInfoSympathySystemsList = ReadAllRoleInfo(guildItem.Value.Id);
-                        List<DiscordRole> discordRoleList = new();
-
-                        foreach (KeyValuePair<ulong, DiscordMember> discordMemberItem in discordMembers)
+                        if (discordRoleList.Count != 5 || discordMember.Id == 523765246104567808)
                         {
-                            discordRoleList.Clear();
+                            continue;
+                        }
 
-                            foreach (RoleInfoSympathySystem item in roleInfoSympathySystemsList)
-                            {
-                                if (item.RatingOne != 0)
+                        List<SympathySystem> sympathySystemsTarget = new SympathySystem().ReadBasedOnTargetMemberID(discordMember.Id);
+                        if (sympathySystemsTarget.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        int count = sympathySystemsTarget.Count;
+                        int ratingsAdded = sympathySystemsTarget.Sum(sympathySystem => sympathySystem.Rating);
+                        double ratingDouble = Convert.ToDouble(ratingsAdded) / Convert.ToDouble(count);
+                        int rating = Convert.ToInt32(Math.Round(ratingDouble));
+
+                        switch (rating)
+                        {
+                            case 1:
+                                if (!discordMember.Roles.Contains(discordRoleList[0]))
                                 {
-                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingOne));
-                                }
-                                else if (item.RatingTwo != 0)
-                                {
-                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingTwo));
-                                }
-                                else if (item.RatingThree != 0)
-                                {
-                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingThree));
-                                }
-                                else if (item.RatingFour != 0)
-                                {
-                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingFour));
-                                }
-                                else if (item.RatingFive != 0)
-                                {
-                                    discordRoleList.Add(discordGuildObj.GetRole(item.RatingFive));
-                                }
-                            }
-
-                            if (discordRoleList.Count == 5 && discordMemberItem.Value.Id != 523765246104567808)
-                            {
-                                int counts = 1;
-                                int ratingsadded = 0;
-                                SympathySystem sympathySystemObj = new();
-
-                                foreach (SympathySystem sympathySystemItem in sympathySystemsList)
-                                {
-                                    if (discordMemberItem.Value.Id == sympathySystemItem.VotedUserId)
-                                    {
-                                        sympathySystemObj = sympathySystemItem;
-
-                                        ratingsadded += sympathySystemItem.VoteRating;
-                                        double rating = Convert.ToDouble(ratingsadded) / Convert.ToDouble(counts);
-
-                                        sympathySystemObj.VotedRating = Convert.ToInt32(Math.Round(rating));
-
-                                        if (rating == 1.5 || rating == 2.5 || rating == 3.5 || rating == 4.5)
-                                        {
-                                            sympathySystemObj.VotedRating = Convert.ToInt32(Math.Round(rating, 0, MidpointRounding.ToPositiveInfinity));
-                                        }
-
-                                        counts++;
-                                    }
+                                    await discordMember.GrantRoleAsync(discordRoleList[0]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[1]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[2]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[3]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[4]);
                                 }
 
-                                if (sympathySystemObj.VotedRating == 1)
+                                break;
+                            case 2:
+                                if (!discordMember.Roles.Contains(discordRoleList[1]))
                                 {
-                                    if (!discordMemberItem.Value.Roles.Contains(discordRoleList[0]))
-                                    {
-                                        await discordMemberItem.Value.GrantRoleAsync(discordRoleList[0]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[1]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[2]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[3]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
-                                    }
+                                    await discordMember.RevokeRoleAsync(discordRoleList[0]);
+                                    await discordMember.GrantRoleAsync(discordRoleList[1]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[2]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[3]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[4]);
                                 }
-                                else if (sympathySystemObj.VotedRating == 2)
+
+                                break;
+                            case 3:
+                                if (!discordMember.Roles.Contains(discordRoleList[2]))
                                 {
-                                    if (!discordMemberItem.Value.Roles.Contains(discordRoleList[1]))
-                                    {
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[0]);
-                                        await discordMemberItem.Value.GrantRoleAsync(discordRoleList[1]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[2]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[3]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
-                                    }
+                                    await discordMember.RevokeRoleAsync(discordRoleList[0]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[1]);
+                                    await discordMember.GrantRoleAsync(discordRoleList[2]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[3]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[4]);
                                 }
-                                else if (sympathySystemObj.VotedRating == 3)
+
+                                break;
+                            case 4:
+                                if (!discordMember.Roles.Contains(discordRoleList[3]))
                                 {
-                                    if (!discordMemberItem.Value.Roles.Contains(discordRoleList[2]))
-                                    {
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[0]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[1]);
-                                        await discordMemberItem.Value.GrantRoleAsync(discordRoleList[2]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[3]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
-                                    }
+                                    await discordMember.RevokeRoleAsync(discordRoleList[0]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[1]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[2]);
+                                    await discordMember.GrantRoleAsync(discordRoleList[3]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[4]);
                                 }
-                                else if (sympathySystemObj.VotedRating == 4)
+
+                                break;
+                            case 5:
+                                if (!discordMember.Roles.Contains(discordRoleList[4]))
                                 {
-                                    if (!discordMemberItem.Value.Roles.Contains(discordRoleList[3]))
-                                    {
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[0]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[1]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[2]);
-                                        await discordMemberItem.Value.GrantRoleAsync(discordRoleList[3]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[4]);
-                                    }
+                                    await discordMember.RevokeRoleAsync(discordRoleList[0]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[1]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[2]);
+                                    await discordMember.RevokeRoleAsync(discordRoleList[3]);
+                                    await discordMember.GrantRoleAsync(discordRoleList[4]);
                                 }
-                                else if (sympathySystemObj.VotedRating == 5)
-                                {
-                                    if (!discordMemberItem.Value.Roles.Contains(discordRoleList[4]))
-                                    {
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[0]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[1]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[2]);
-                                        await discordMemberItem.Value.RevokeRoleAsync(discordRoleList[3]);
-                                        await discordMemberItem.Value.GrantRoleAsync(discordRoleList[4]);
-                                    }
-                                }
-                            }
+
+                                break;
                         }
                     }
 

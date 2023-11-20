@@ -16,19 +16,6 @@ namespace SchattenclownBot.Integrations.Discord.Services
             List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
             List<KeyValuePair<ulong, DateTime>> birthdays = new();
 
-            bool levelSystemVirgin = true;
-            do
-            {
-                if (DiscordBot.DiscordClient.Guilds.ToList().Count != 0)
-                {
-                    guildsList = DiscordBot.DiscordClient.Guilds.ToList();
-
-                    levelSystemVirgin = false;
-                }
-
-                await Task.Delay(1000);
-            } while (levelSystemVirgin);
-
             foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)
             {
                 if (guildItem.Value.Id == 928930967140331590)

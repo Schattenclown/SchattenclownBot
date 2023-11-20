@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DisCatSharp;
@@ -16,7 +15,7 @@ using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    public class VoteSystem : ApplicationCommandsModule
+    public class SympathySystemAc : ApplicationCommandsModule
     {
         /// <summary>
         ///     Command to give an User a Rating.
@@ -93,9 +92,6 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         public async Task VoteRatingAsync(ComponentInteractionCreateEventArgs componentInteractionCreateEventArgs, int rating)
         {
             await componentInteractionCreateEventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-            List<SympathySystem> sympathySystemsList = new SympathySystem().ReadAll(componentInteractionCreateEventArgs.Guild.Id);
-
-            bool foundTargetMemberInDb = false;
 
             DiscordMember discordMember = componentInteractionCreateEventArgs.User.ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
             DiscordMember discordTargetMember;
@@ -112,28 +108,14 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
                 SympathySystem sympathySystemObj = new()
                 {
-                            VotingUserId = discordMember.Id,
-                            VotedUserId = discordTargetMemberUlong,
-                            GuildId = componentInteractionCreateEventArgs.Guild.Id,
-                            VoteRating = rating
+                            VotingMemberID = discordMember.Id,
+                            TargetMemberID = discordTargetMemberUlong,
+                            GuildID = componentInteractionCreateEventArgs.Guild.Id,
+                            Rating = rating
                 };
 
-                foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
-                {
-                    foundTargetMemberInDb = true;
-                }
-
-
-                switch (foundTargetMemberInDb)
-                {
-                    case false:
-                        await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent("User not in Database!"));
-                        break;
-                    case true:
-                        new SympathySystem().Change(sympathySystemObj);
-                        await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave <@{discordTargetMemberUlong}> the Rating {rating}!"));
-                        break;
-                }
+                new SympathySystem().AddOrUpdate(sympathySystemObj);
+                await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave <@{discordTargetMemberUlong}> the Rating {rating}!"));
 
                 return;
             }
@@ -171,29 +153,15 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                     {
                         SympathySystem sympathySystemObj = new()
                         {
-                                    VotingUserId = discordMember.Id,
-                                    VotedUserId = discordTargetMember.Id,
-                                    GuildId = componentInteractionCreateEventArgs.Guild.Id,
-                                    VoteRating = rating
+                                    VotingMemberID = discordMember.Id,
+                                    TargetMemberID = discordTargetMember.Id,
+                                    GuildID = componentInteractionCreateEventArgs.Guild.Id,
+                                    Rating = rating
                         };
 
-                        foreach (SympathySystem dummy in sympathySystemsList.Where(sympathySystemItem => sympathySystemItem.VotingUserId == sympathySystemObj.VotingUserId && sympathySystemItem.VotedUserId == sympathySystemObj.VotedUserId))
-                        {
-                            foundTargetMemberInDb = true;
-                        }
-
-                        switch (foundTargetMemberInDb)
-                        {
-                            case false:
-                                new SympathySystem().Add(sympathySystemObj);
-                                break;
-                            case true:
-                                new SympathySystem().Change(sympathySystemObj);
-                                break;
-                        }
+                        new SympathySystem().AddOrUpdate(sympathySystemObj);
 
                         await componentInteractionCreateEventArgs.Interaction.EditFollowupMessageAsync(componentInteractionCreateEventArgs.Message.Id, new DiscordWebhookBuilder().WithContent($"You gave {discordTargetMember.Mention} the Rating {rating}"));
-                        //await componentInteractionCreateEventArgs.User.SendMessageAsync($"You gave {discordTargetMember.Mention} the Rating {rating}");
                         return;
                     }
                 }
@@ -216,7 +184,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
             for (int i = 1; i < 6; i++)
             {
-                description += $"Rating with {i}: {new SympathySystem().GetUserRatings(interactionContext.Guild.Id, discordUser.Id, i)}\n";
+                description += $"Rating with {i}: {new SympathySystem().GetMemberRatingsByRatingValue(discordUser.Id, i)}\n";
             }
 
             description += "```";

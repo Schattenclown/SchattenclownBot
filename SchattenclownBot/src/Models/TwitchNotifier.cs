@@ -131,7 +131,7 @@ namespace SchattenclownBot.Models
 
                                 twitchNotifierObj.TwitchChannelUrl = new StringCutter().RemoveUntil(twitchUrl, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
 
-                                List<TwitchNotifier> twitchNotifiers = new TwitchNotifierDBA().ReadBasedOnGuild(discordMember.Presence.Guild.Id);
+                                List<TwitchNotifier> twitchNotifiers = new TwitchNotifier().ReadBasedOnGuild(discordMember.Presence.Guild.Id);
 
                                 if (twitchNotifiers.All(x => x.TwitchChannelUrl != twitchNotifierObj.TwitchChannelUrl))
                                 {
@@ -248,7 +248,7 @@ namespace SchattenclownBot.Models
 
 
                 string[] fileEntries = Directory.GetFiles(@"A:\binhex-nginx\nginx\html\TwitchNotifier\Images");
-                foreach (string fileName in fileEntries.Where(x => x.Contains(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{e.Stream.UserName}-")))
+                foreach (string fileName in fileEntries.Where(x => x.Contains(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{e.Stream.UserName.ToLower()}-")))
                 {
                     File.Delete(fileName);
                 }
@@ -260,13 +260,13 @@ namespace SchattenclownBot.Models
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
                         Bitmap image = new(memoryStream);
-                        image.Save(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{e.Stream.UserName}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
+                        image.Save(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{e.Stream.UserName.ToLower()}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
                     }
                 }
 
-                discordEmbedBuilder.WithImageUrl($"https://app.0x360x39.de/TwitchNotifier/Images/{e.Stream.UserName}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
+                discordEmbedBuilder.WithImageUrl($"https://app.0x360x39.de/TwitchNotifier/Images/{e.Stream.UserName.ToLower()}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
 
-                discordEmbedBuilder.WithUrl($"https://www.twitch.tv/{e.Channel}");
+                discordEmbedBuilder.WithUrl($"https://www.twitch.tv/{e.Channel.ToLower()}");
 
 
                 if (e.Stream.GameId != null)
@@ -399,7 +399,7 @@ namespace SchattenclownBot.Models
                         discordEmbedBuilder.AddField(new DiscordEmbedField("UpTime:", $"{upTimeSpan:hh\\:mm\\:ss}", true));
 
                         string[] fileEntries = Directory.GetFiles(@"A:\binhex-nginx\nginx\html\TwitchNotifier\Images");
-                        foreach (string fileName in fileEntries.Where(x => x.Contains(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{stream.UserLogin}-")))
+                        foreach (string fileName in fileEntries.Where(x => x.Contains(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{stream.UserLogin.ToLower()}-")))
                         {
                             File.Delete(fileName);
                         }
@@ -411,13 +411,13 @@ namespace SchattenclownBot.Models
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                             {
                                 Bitmap image = new(memoryStream);
-                                image.Save(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{stream.UserLogin}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
+                                image.Save(@$"A:\binhex-nginx\nginx\html\TwitchNotifier\Images\{stream.UserLogin.ToLower()}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
                             }
                         }
 
-                        discordEmbedBuilder.WithImageUrl($"https://app.0x360x39.de/TwitchNotifier/Images/{stream.UserLogin}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
+                        discordEmbedBuilder.WithImageUrl($"https://app.0x360x39.de/TwitchNotifier/Images/{stream.UserLogin.ToLower()}-{upTimeSpan.Hours}-{upTimeSpan.Minutes}.jpg");
 
-                        discordEmbedBuilder.WithUrl($"https://www.twitch.tv/{stream.UserLogin}");
+                        discordEmbedBuilder.WithUrl($"https://www.twitch.tv/{stream.UserLogin.ToLower()}");
 
 
                         if (stream.GameId != null)

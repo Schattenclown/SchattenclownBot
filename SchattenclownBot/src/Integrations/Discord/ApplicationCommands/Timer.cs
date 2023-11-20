@@ -8,8 +8,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Common;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SchattenclownBot.Models;
-using SchattenclownBot.Persistence.DataAccess.MySQL.Services;
+
 
 // ReSharper disable UnusedMember.Global
 
@@ -21,8 +20,8 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         ///     Set an Timer per Command.
         /// </summary>
         /// <param name="interactionContext">The interactionContext</param>
-        /// <param name="hour">The Hour of the Alarm in the Future.</param>
-        /// <param name="minute">The Minute of the Alarm in the Future.</param>
+        /// <param name="hour">The Hour of the AlarmAC in the Future.</param>
+        /// <param name="minute">The Minute of the AlarmAC in the Future.</param>
         /// <returns></returns>
         [SlashCommand("SetTimer", "Set a timer!")]
         public async Task SetTimerAsync(InteractionContext interactionContext, [Option("hours", "0-23")] int hour, [Option("minutes", "0-59")] int minute)
@@ -39,16 +38,16 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             }
 
             DateTime dateTimeNow = DateTime.Now;
-            BotTimer botTimer = new()
+            Models.Timer timer = new()
             {
-                        ChannelId = interactionContext.Channel.Id,
-                        MemberId = interactionContext.Member.Id,
+                        ChannelID = interactionContext.Channel.Id,
+                        MemberID = interactionContext.Member.Id,
                         NotificationTime = dateTimeNow.AddHours(hour).AddMinutes(minute)
             };
-            new BotTimer().Add(botTimer);
+            new Models.Timer().Add(timer);
 
             //Edit the Response and add the Embed.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {botTimer.NotificationTime}!"));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Timer set for {timer.NotificationTime}!"));
         }
 
         /// <summary>
@@ -63,7 +62,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create an List with all Timers that where found in the Database.
-            List<BotTimer> botTimerList = new DbBotTimer().ReadAll();
+            List<Models.Timer> botTimerList = new Models.Timer().ReadAll();
 
             //Create an Embed.
             DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -77,12 +76,12 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             bool noTimers = true;
 
             //Search for any Timers that match the Timer creator and Requesting User.
-            foreach (BotTimer botTimerItem in botTimerList.Where(botTimerItem => botTimerItem.MemberId == interactionContext.Member.Id))
+            foreach (Models.Timer botTimerItem in botTimerList.Where(botTimerItem => botTimerItem.MemberID == interactionContext.Member.Id))
             {
                 //Set the switch to false because at least one Timer was found.
                 noTimers = false;
                 //Add an field to the Embed with the Timer that was found.
-                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.DbEntryId}"));
+                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botTimerItem.NotificationTime}", $"Timer with ID {botTimerItem.ID}"));
             }
 
             //Set the Title so the User knows no Timers for him where found.

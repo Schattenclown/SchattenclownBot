@@ -71,34 +71,12 @@ namespace SchattenclownBot.Models
         public void LevelSystemRunAsync(int executeSecond)
         {
             new CustomLogger().Information("Starting LevelSystem...", ConsoleColor.Green);
-            bool levelSystemVirgin = true;
 
             Task.Run(async () =>
             {
-                while (DateTime.Now.Second != executeSecond)
-                {
-                    await Task.Delay(1000);
-                }
-
-                do
-                {
-                    if (DiscordBot.DiscordClient.Guilds.ToList().Count != 0)
-                    {
-                        if (levelSystemVirgin)
-                        {
-                            levelSystemVirgin = false;
-                        }
-                    }
-
-                    await Task.Delay(1000);
-                } while (levelSystemVirgin);
-
                 while (true)
                 {
-                    while (DateTime.Now.Second != executeSecond)
-                    {
-                        await Task.Delay(1000);
-                    }
+                    await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
 
                     List<KeyValuePair<ulong, DiscordGuild>> guildsList = DiscordBot.DiscordClient.Guilds.ToList();
                     foreach (KeyValuePair<ulong, DiscordGuild> guildItem in guildsList)

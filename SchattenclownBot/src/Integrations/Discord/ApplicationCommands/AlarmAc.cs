@@ -9,20 +9,19 @@ using DisCatSharp.Common;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SchattenclownBot.Models;
-using SchattenclownBot.Persistence.DataAccess.MySQL.Services;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 {
-    public class Alarm : ApplicationCommandsModule
+    public class AlarmAc : ApplicationCommandsModule
     {
         /// <summary>
-        ///     Set an Alarm clock per command.
+        ///     Set an AlarmAC clock per command.
         /// </summary>
         /// <param name="interactionContext">The interaction context.</param>
-        /// <param name="hour">The Hour of the Alarm in the Future.</param>
-        /// <param name="minute">The Minute of the Alarm in the Future.</param>
+        /// <param name="hour">The Hour of the AlarmAC in the Future.</param>
+        /// <param name="minute">The Minute of the AlarmAC in the Future.</param>
         /// <returns></returns>
         [SlashCommand("SetAlarm", "Set an alarm for a specific time!")]
         public async Task SetAlarmAsync(InteractionContext interactionContext, [Option("HourOfDay", "0-23")] int hour, [Option("MinuteOfDay", "0-59")] int minute)
@@ -40,29 +39,29 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
             //Create a DateTime Variable if the Time format was Valid.
             DateTime dateTimeNow = DateTime.Now;
-            DateTime alarm = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
+            DateTime dateTime = new(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, Convert.ToInt32(hour), Convert.ToInt32(minute), 0);
 
-            //RunAsync if the Alarm is a Time for Tomorrow, if it is in the Past already Today.
-            if (alarm < DateTime.Now)
+            //RunAsync if the AlarmAC is a Time for Tomorrow, if it is in the Past already Today.
+            if (dateTime < DateTime.Now)
             {
-                alarm = alarm.AddDays(1);
+                dateTime = dateTime.AddDays(1);
             }
 
             //Create an AlarmObject and add it to the Database.
-            BotAlarmClock botAlarmClock = new()
+            Alarm alarm = new()
             {
                         ChannelId = interactionContext.Channel.Id,
                         MemberId = interactionContext.Member.Id,
-                        NotificationTime = alarm
+                        NotificationTime = dateTime
             };
-            new BotAlarmClock().Add(botAlarmClock);
+            new Alarm().Add(alarm);
 
-            //Let the User know that the Alarm was set Successfully.
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Alarm set for {botAlarmClock.NotificationTime}!"));
+            //Let the User know that the AlarmAC was set Successfully.
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"AlarmAC set for {alarm.NotificationTime}!"));
         }
 
         /// <summary>
-        ///     To look up what Alarm´s have been set.
+        ///     To look up what AlarmAC´s have been set.
         /// </summary>
         /// <param name="interactionContext"></param>
         /// <returns></returns>
@@ -73,7 +72,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             //Create a List where all Alarms will be Listed if there are any set.
-            List<BotAlarmClock> botAlarmClockList = new DbBotAlarmClocks().ReadAll();
+            List<Alarm> botAlarmClockList = new Alarm().ReadAll();
 
             //Create an Embed.
             DiscordEmbedBuilder discordEmbedBuilder = new()
@@ -86,13 +85,13 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             //Switch to check if there are any Timers at all.
             bool noTimers = true;
 
-            //Search for any Alarms that match the Alarm creator and Requesting User.
-            foreach (BotAlarmClock botAlarmClockItem in botAlarmClockList.Where(botAlarmClockItem => botAlarmClockItem.MemberId == interactionContext.Member.Id))
+            //Search for any Alarms that match the AlarmAC creator and Requesting User.
+            foreach (Alarm botAlarmClockItem in botAlarmClockList.Where(botAlarmClockItem => botAlarmClockItem.MemberId == interactionContext.Member.Id))
             {
-                //Set the switch to false because at least one Alarm was found.
+                //Set the switch to false because at least one AlarmAC was found.
                 noTimers = false;
-                //Add an field to the Embed with the Alarm that was found.
-                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"Alarm with ID {botAlarmClockItem.DbEntryId}"));
+                //Add an field to the Embed with the AlarmAC that was found.
+                discordEmbedBuilder.AddField(new DiscordEmbedField($"{botAlarmClockItem.NotificationTime}", $"AlarmAC with ID {botAlarmClockItem.ID}"));
             }
 
             //Set the Title so the User knows no Alarms for him where found.

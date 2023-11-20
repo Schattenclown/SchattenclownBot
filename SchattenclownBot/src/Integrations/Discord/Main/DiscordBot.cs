@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using SchattenclownBot.Integrations.Discord.ApplicationCommands;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Models;
+using Timer = SchattenclownBot.Models.Timer;
 
 namespace SchattenclownBot.Integrations.Discord.Main
 {
@@ -91,8 +92,8 @@ namespace SchattenclownBot.Integrations.Discord.Main
             new BirthdayList().RunAsync(49);
             new SympathySystem().RunAsync(59);
             new TwitchNotifier().RunAsync();
-            new BotTimer().RunAsync();
-            new BotAlarmClock().RunAsync();
+            new Timer().RunAsync();
+            new Alarm().RunAsync();
             await new BirthdayList().GenerateBirthdayList();
         }
 
@@ -114,18 +115,18 @@ namespace SchattenclownBot.Integrations.Discord.Main
 
             DiscordClient.ChannelCreated += new GetItRightMee6().OnChannelCreated;
             DiscordClient.ComponentInteractionCreated += new RegisterKey().ButtonPressEvent;
-            DiscordClient.ComponentInteractionCreated += new VoteSystem().GaveRating;
+            DiscordClient.ComponentInteractionCreated += new SympathySystemAc().GaveRating;
         }
 
         public void RegisterCommands()
         {
-            ApplicationCommandsExtension.RegisterGlobalCommands<Alarm>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<AlarmAc>();
             ApplicationCommandsExtension.RegisterGlobalCommands<ApplicationCommands.Main>();
             ApplicationCommandsExtension.RegisterGlobalCommands<Move>();
             ApplicationCommandsExtension.RegisterGlobalCommands<Poke>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<Timer>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<ApplicationCommands.Timer>();
             ApplicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<VoteSystem>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<SympathySystemAc>();
             ApplicationCommandsExtension.RegisterGlobalCommands<RegisterTwitch>();
             ApplicationCommandsExtension.RegisterGlobalCommands<RegisterKey>();
         }

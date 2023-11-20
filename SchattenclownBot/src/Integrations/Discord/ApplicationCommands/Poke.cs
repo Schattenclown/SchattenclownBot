@@ -23,6 +23,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
             DiscordMember discordMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (discordMember.VoiceState == null)
             {
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Not connected"));

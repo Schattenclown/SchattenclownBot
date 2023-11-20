@@ -33,17 +33,9 @@ namespace SchattenclownBot.Integrations.Discord.Services
                     return;
                 }
 
-                while (DateTime.Now.Second != executeSecond)
-                {
-                    await Task.Delay(1000);
-                }
+                await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
 
-                List<DiscordGuild> guildList;
-                do
-                {
-                    guildList = DiscordBot.DiscordClient.Guilds.Values.ToList();
-                    await Task.Delay(1000);
-                } while (guildList.Count == 0);
+                List<DiscordGuild> guildList = DiscordBot.DiscordClient.Guilds.Values.ToList();
 
                 foreach (DiscordGuild guild in guildList)
                 {
