@@ -136,18 +136,12 @@ namespace SchattenclownBot.Models
             new CustomLogger().Information("Starting LevelSystemRoleDistribution...", ConsoleColor.Green);
             Task.Run(async () =>
             {
-                while (DateTime.Now.Second != executeSecond)
-                {
-                    await Task.Delay(1000);
-                }
+                await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
 
                 bool levelSystemRoleDistributionVirgin = true;
                 DiscordGuild guildObj = null;
 
-                while (DateTime.Now.Second != executeSecond)
-                {
-                    await Task.Delay(1000);
-                }
+                await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
 
                 do
                 {
@@ -168,10 +162,7 @@ namespace SchattenclownBot.Models
                 // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
                 while (guildObj != null)
                 {
-                    while (DateTime.Now.Second != executeSecond)
-                    {
-                        await Task.Delay(1000);
-                    }
+                    await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
 
                     try
                     {
@@ -320,6 +311,126 @@ namespace SchattenclownBot.Models
                     }
                 }
             });
+        }
+
+        public void BrixLevelSystemRoleDistributionRunAsync(int executeSecond)
+        {
+            new CustomLogger().Information("Starting BrixLevelSystemRoleDistribution...", ConsoleColor.Green);
+            Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
+
+                DiscordGuild guildObj = await DiscordBot.DiscordClient.GetGuildAsync(914177901178544148);
+
+                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                while (guildObj != null)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(executeSecond - DateTime.Now.Second % executeSecond));
+
+                    try
+                    {
+                        //Create List where all users are listed.
+                        List<UserLevelSystem> userLevelSystemList = new UserLevelSystem().GetByGuildId(guildObj.Id);
+                        //Order the list by online ticks.
+                        List<UserLevelSystem> userLevelSystemListSorted = userLevelSystemList.OrderBy(x => x.OnlineTicks).ToList();
+                        userLevelSystemListSorted.Reverse();
+
+                        List<DiscordMember> guildMemberList = guildObj.Members.Values.ToList();
+
+                        List<UserLevelSystem> userLevelSystemListSortedOut = guildMemberList.SelectMany(guildMemberItem => userLevelSystemListSorted.Where(userLevelSystemItem => userLevelSystemItem.DiscordMemberID == guildMemberItem.Id)).ToList();
+                        userLevelSystemListSortedOut = userLevelSystemListSortedOut.OrderBy(x => x.OnlineTicks).ToList();
+
+                        List<KeyValuePair<string, DiscordRole>> levelRoles = new()
+                        {
+                                    new KeyValuePair<string, DiscordRole>("bronze", guildObj.GetRole(1176101767168139304)),
+                                    new KeyValuePair<string, DiscordRole>("silber", guildObj.GetRole(1176101889469853757)),
+                                    new KeyValuePair<string, DiscordRole>("gold", guildObj.GetRole(1176101930905374729)),
+                                    new KeyValuePair<string, DiscordRole>("platin", guildObj.GetRole(1176101978158403667)),
+                                    new KeyValuePair<string, DiscordRole>("diamant", guildObj.GetRole(1176102030167789588)),
+                                    new KeyValuePair<string, DiscordRole>("master", guildObj.GetRole(1176102031870656522))
+                        };
+
+                        foreach (UserLevelSystem userLevelSystemItem in userLevelSystemListSortedOut)
+                        {
+                            DiscordMember discordMember = guildObj.GetMemberAsync(userLevelSystemItem.DiscordMemberID).Result;
+
+                            int totalLevel = CalculateLevel(userLevelSystemItem.OnlineTicks);
+
+                            switch (totalLevel)
+                            {
+                                case >= 100:
+                                {
+                                    const string targetRoleName = "master";
+                                    await SetRank(levelRoles, targetRoleName, discordMember, totalLevel);
+                                    break;
+                                }
+                                case >= 80:
+                                {
+                                    const string targetRoleName = "diamant";
+                                    await SetRank(levelRoles, targetRoleName, discordMember, totalLevel);
+                                    break;
+                                }
+                                case >= 50:
+                                {
+                                    const string targetRoleName = "platin";
+                                    await SetRank(levelRoles, targetRoleName, discordMember, totalLevel);
+                                    break;
+                                }
+                                case >= 15:
+                                {
+                                    const string targetRoleName = "gold";
+                                    await SetRank(levelRoles, targetRoleName, discordMember, totalLevel);
+                                    break;
+                                }
+                                case >= 10:
+                                {
+                                    const string targetRoleName = "silber";
+                                    await SetRank(levelRoles, targetRoleName, discordMember, totalLevel);
+                                    break;
+                                }
+                                case >= 5:
+                                {
+                                    const string targetRoleName = "bronze";
+                                    await SetRank(levelRoles, targetRoleName, discordMember, totalLevel);
+                                    break;
+                                }
+                            }
+                        }
+
+                        new CustomLogger().Information("Finished", ConsoleColor.Green);
+                    }
+                    catch (Exception exception)
+                    {
+                        new CustomLogger().Error(exception);
+                    }
+
+                    await Task.Delay(2000);
+                    if (!LastMinuteCheck.BrixLevelSystemRoleDistributionRunAsync)
+                    {
+                        LastMinuteCheck.BrixLevelSystemRoleDistributionRunAsync = true;
+                    }
+                }
+            });
+        }
+
+        private async Task SetRank(List<KeyValuePair<string, DiscordRole>> levelRoles, string targetRoleName, DiscordMember discordMember, int totalLevel)
+        {
+            KeyValuePair<string, DiscordRole> targetRole = levelRoles.FirstOrDefault(x => x.Key == targetRoleName);
+            foreach (KeyValuePair<string, DiscordRole> levelRole in levelRoles.Where(x => x.Key != targetRole.Key))
+            {
+                if (discordMember.Roles.Contains(levelRole.Value))
+                {
+                    await discordMember.RevokeRoleAsync(levelRole.Value);
+                    new CustomLogger().Information($"Revoked {discordMember.DisplayName} DiscordMemberID Level {totalLevel} --- {discordMember.Id} Role {targetRole.Value.Id} {targetRole.Value.Name}", ConsoleColor.Green);
+                }
+            }
+
+            if (!discordMember.Roles.Contains(targetRole.Value))
+            {
+                await discordMember.GrantRoleAsync(targetRole.Value);
+                new CustomLogger().Information($"Granted {discordMember.DisplayName} DiscordMemberID Level {totalLevel} --- {discordMember.Id} Role {targetRole.Value.Id} {targetRole.Value.Name}", ConsoleColor.Green);
+            }
         }
     }
 }

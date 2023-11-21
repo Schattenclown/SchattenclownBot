@@ -27,7 +27,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
         /// <param name="platform"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        [SlashCommand("RegisterKeyAC", "Add Twitch notifier!")]
+        [SlashCommand("RegisterKey", "Register an key!")]
         public async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Info", "Information about the Key.")] string info, [Option("Platform", "Platform the Key.")] string platform, [Option("Key", "Key.")] string key)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);

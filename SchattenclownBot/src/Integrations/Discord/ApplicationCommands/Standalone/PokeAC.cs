@@ -65,7 +65,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="discordUser">the discordUser</param>
         /// <returns></returns>
-        [SlashCommand("PokeAC", "PokeAC user!")]
+        [SlashCommand("Poke", "Poke user!")]
         public async Task Ww(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             InteractivityExtension interactivityExtension = interactionContext.Client.GetInteractivity();
@@ -97,7 +97,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
         /// </summary>
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
-        [ContextMenu(ApplicationCommandType.User, "PokeAC user!")]
+        [ContextMenu(ApplicationCommandType.User, "Poke user!")]
         public async Task PokeAsync(ContextMenuContext contextMenuContext)
         {
             InteractivityExtension interactivityExtension = contextMenuContext.Client.GetInteractivity();
@@ -128,7 +128,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
         /// </summary>
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
-        [ContextMenu(ApplicationCommandType.User, "PokeAC user Instant!")]
+        [ContextMenu(ApplicationCommandType.User, "Poke user Instant!")]
         public async Task InstantPokeAsync(ContextMenuContext contextMenuContext)
         {
             await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().WithContent($"PokeAC discordUser <@{contextMenuContext.TargetMember.Id}>!"));
@@ -152,7 +152,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
             // ReSharper disable HeuristicUnreachableCode
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
-                        Title = $"PokeAC {discordTargetMember.DisplayName}"
+                        Title = $"Poke {discordTargetMember.DisplayName}"
             };
 
             discordEmbedBuilder.WithFooter($"Requested by {discordMember.DisplayName}", discordMember.AvatarUrl);

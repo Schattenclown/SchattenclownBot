@@ -13,6 +13,7 @@ using SchattenclownBot.Integrations.Discord.ApplicationCommands.ModelBased;
 using SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Models;
+using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.Main
 {
@@ -83,12 +84,13 @@ namespace SchattenclownBot.Integrations.Discord.Main
 
             EmojiDiscordGuild = DiscordClient.Guilds.Values.FirstOrDefault(x => x.Id == 881868642600505354);
 
-            new LastMinuteCheck().RunAsync(0);
+            new LastMinuteCheck().RunAsync(1);
             new GreenCheck().RunAsync(5);
             new GetItRightMee6().RunAsync(9);
             new WhereIs().RunAsync(19);
             new UserLevelSystem().LevelSystemRunAsync(29);
             new UserLevelSystem().LevelSystemRoleDistributionRunAsync(39);
+            new UserLevelSystem().BrixLevelSystemRoleDistributionRunAsync(42);
             new BirthdayList().RunAsync(49);
             new SympathySystem().RunAsync(59);
             new TwitchNotifier().RunAsync();
@@ -118,7 +120,7 @@ namespace SchattenclownBot.Integrations.Discord.Main
             DiscordClient.ComponentInteractionCreated += new SympathySystemAC().GaveRating;
         }
 
-        public void RegisterCommands()
+        public async void RegisterCommands()
         {
             ApplicationCommandsExtension.RegisterGlobalCommands<AlarmAC>();
             ApplicationCommandsExtension.RegisterGlobalCommands<MainAC>();

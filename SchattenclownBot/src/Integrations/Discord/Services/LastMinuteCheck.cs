@@ -13,6 +13,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
         public static bool WhereIsClownRunAsync { get; set; }
         public static bool LevelSystemRunAsync { get; set; }
         public static bool LevelSystemRoleDistributionRunAsync { get; set; }
+        public static bool BrixLevelSystemRoleDistributionRunAsync { get; set; }
         public static bool CheckBirthdayGz { get; set; }
         public static bool SympathySystemRunAsync { get; set; }
         public static bool TwitchNotifier { get; set; }
@@ -35,6 +36,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                         WhereIsClownRunAsync = false;
                         LevelSystemRunAsync = false;
                         LevelSystemRoleDistributionRunAsync = false;
+                        BrixLevelSystemRoleDistributionRunAsync = false;
                         CheckBirthdayGz = false;
                         SympathySystemRunAsync = false;
                         TwitchNotifier = false;
@@ -96,6 +98,15 @@ namespace SchattenclownBot.Integrations.Discord.Services
                         }
 
                         if (LevelSystemRoleDistributionRunAsync)
+                        {
+                            new CustomLogger().Information("Last Minute RunAsync LevelSystemRoleDistributionRunAsync, Success", ConsoleColor.Green);
+                        }
+                        else
+                        {
+                            new CustomLogger().Information("Last Minute RunAsync LevelSystemRoleDistributionRunAsync, Failed", ConsoleColor.Red);
+                        }
+
+                        if (BrixLevelSystemRoleDistributionRunAsync)
                         {
                             new CustomLogger().Information("Last Minute RunAsync LevelSystemRoleDistributionRunAsync, Success", ConsoleColor.Green);
                         }

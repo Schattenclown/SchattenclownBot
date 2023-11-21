@@ -20,6 +20,7 @@ using TwitchLib.Api.Services;
 using TwitchLib.Api.Services.Events;
 using TwitchLib.Api.Services.Events.LiveStreamMonitor;
 using Stream = TwitchLib.Api.Helix.Models.Streams.GetStreams.Stream;
+
 #pragma warning disable CA1822
 
 namespace SchattenclownBot.Models
