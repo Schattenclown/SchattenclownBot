@@ -10,12 +10,12 @@ using DisCatSharp.Enums;
 using SchattenclownBot.Models;
 using SchattenclownBot.Utils;
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.ModelBased
 {
-    public class RegisterTwitch : ApplicationCommandsModule
+    public class TwitchNotifierAC : ApplicationCommandsModule
     {
         /// <summary>
-        ///     Poke an User per command.
+        ///     PokeAC an User per command.
         /// </summary>
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="discordTargetChannel"></param>

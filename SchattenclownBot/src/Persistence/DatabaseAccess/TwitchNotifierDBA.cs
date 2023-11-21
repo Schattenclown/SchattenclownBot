@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using SchattenclownBot.Models;
 
-namespace SchattenclownBot.Persistence.DataAccess.MSSQL
+namespace SchattenclownBot.Persistence.DatabaseAccess
 {
     internal class TwitchNotifierDBA : DbContext
     {

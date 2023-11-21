@@ -9,10 +9,10 @@ using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
-using SchattenclownBot.Integrations.Discord.ApplicationCommands;
+using SchattenclownBot.Integrations.Discord.ApplicationCommands.ModelBased;
+using SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Models;
-using Timer = SchattenclownBot.Models.Timer;
 
 namespace SchattenclownBot.Integrations.Discord.Main
 {
@@ -114,21 +114,21 @@ namespace SchattenclownBot.Integrations.Discord.Main
             ApplicationCommandsExtension.SlashCommandErrored += new Logging().Slash_SlashCommandError;
 
             DiscordClient.ChannelCreated += new GetItRightMee6().OnChannelCreated;
-            DiscordClient.ComponentInteractionCreated += new RegisterKey().ButtonPressEvent;
-            DiscordClient.ComponentInteractionCreated += new SympathySystemAc().GaveRating;
+            DiscordClient.ComponentInteractionCreated += new RegisterKeyAC().ButtonPressEvent;
+            DiscordClient.ComponentInteractionCreated += new SympathySystemAC().GaveRating;
         }
 
         public void RegisterCommands()
         {
-            ApplicationCommandsExtension.RegisterGlobalCommands<AlarmAc>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<ApplicationCommands.Main>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<Move>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<Poke>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<ApplicationCommands.Timer>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<UserLevel>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<SympathySystemAc>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<RegisterTwitch>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<RegisterKey>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<AlarmAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<MainAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<MoveAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<PokeAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<TimerAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<UserLevelSystemAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<SympathySystemAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<TwitchNotifierAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<RegisterKeyAC>();
         }
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SchattenclownBot.Persistence.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DatabaseAccess;
 
 #nullable disable
 
@@ -24,7 +24,7 @@ namespace SchattenclownBot.Migrations.SympathySystemDBAMigrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SchattenclownBot.Models.SympathySystem", b =>
+            modelBuilder.Entity("SchattenclownBot.Models.SympathySystemAC", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()

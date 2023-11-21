@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
-using SchattenclownBot.Persistence.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DatabaseAccess;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Models
@@ -47,7 +47,7 @@ namespace SchattenclownBot.Models
 
         public void RunAsync()
         {
-            new CustomLogger().Information("Starting Alarm...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting AlarmAC...", ConsoleColor.Green);
             AlarmList = new Alarm().ReadAll();
 
             Task.Run(async () =>
@@ -59,8 +59,10 @@ namespace SchattenclownBot.Models
                         if (botAlarmClockItem.NotificationTime < DateTime.Now)
                         {
                             DiscordChannel chn = await DiscordBot.DiscordClient.GetChannelAsync(botAlarmClockItem.ChannelId);
-                            DiscordEmbedBuilder eb = new();
-                            eb.Color = DiscordColor.Red;
+                            DiscordEmbedBuilder eb = new()
+                            {
+                                        Color = DiscordColor.Red
+                            };
                             eb.WithDescription($"<@{botAlarmClockItem.MemberId}> AlarmAC for {botAlarmClockItem.NotificationTime} rings!");
 
                             Delete(botAlarmClockItem);
@@ -86,7 +88,9 @@ namespace SchattenclownBot.Models
             });
         }
 
+#pragma warning disable CA1822
         public void BotAlarmClocksDbRefresh()
+#pragma warning restore CA1822
         {
             AlarmList = new Alarm().ReadAll();
         }

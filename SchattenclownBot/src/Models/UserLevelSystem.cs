@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
-using SchattenclownBot.Persistence.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DatabaseAccess;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Models

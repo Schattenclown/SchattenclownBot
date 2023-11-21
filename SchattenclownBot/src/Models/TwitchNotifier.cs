@@ -1,8 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
-using SchattenclownBot.Persistence.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DatabaseAccess;
 using SchattenclownBot.Utils;
 using TwitchLib.Api;
 using TwitchLib.Api.Helix.Models.Games;
@@ -20,16 +20,17 @@ using TwitchLib.Api.Services;
 using TwitchLib.Api.Services.Events;
 using TwitchLib.Api.Services.Events.LiveStreamMonitor;
 using Stream = TwitchLib.Api.Helix.Models.Streams.GetStreams.Stream;
+#pragma warning disable CA1822
 
 namespace SchattenclownBot.Models
 {
     public class TwitchNotifier
     {
         [NotMapped]
-        public static TwitchAPI Api { get; set; }
+        public static TwitchAPI TwitchAPI { get; set; } = null!;
 
         [NotMapped]
-        public static LiveStreamMonitorService Monitor { get; set; }
+        public static LiveStreamMonitorService LiveStreamMonitorService { get; set; } = null!;
 
         [NotMapped]
         public static List<TwitchNotifier> TwitchNotifiers { get; set; } = new();
@@ -46,17 +47,17 @@ namespace SchattenclownBot.Models
         [Required]
         public ulong DiscordChannelID { get; set; }
 
-        [AllowNull]
+        [Required]
         public ulong DiscordRoleID { get; set; }
 
         [Required]
         public ulong TwitchUserID { get; set; }
 
         [Required]
-        public string TwitchChannelUrl { get; set; }
+        public string TwitchChannelUrl { get; set; } = null!;
 
         [NotMapped]
-        public DiscordMessage DiscordMessage { get; set; }
+        public DiscordMessage? DiscordMessage { get; set; }
 
         public override string ToString()
         {
@@ -88,7 +89,7 @@ namespace SchattenclownBot.Models
             Task.Run(async () =>
             {
                 //https://twitchtokengenerator.com/
-                Api = new TwitchAPI
+                TwitchAPI = new TwitchAPI
                 {
                             Settings =
                             {
@@ -117,7 +118,8 @@ namespace SchattenclownBot.Models
                         DiscordGuild discordGuild = await DiscordBot.DiscordClient.GetGuildAsync(807254423592108032);
                         foreach (DiscordMember discordMember in discordGuild.Members.Values)
                         {
-                            if (discordMember.Presence != null && discordMember.Presence.Activities != null && discordMember.Presence.Activities.Any(x => x.StreamUrl != null! && x.StreamUrl.Contains("twitch")))
+                            // ReSharper disable ConditionIsAlwaysTrueOrFalse
+                            if (discordMember.Presence is { Activities: not null } && discordMember.Presence.Activities.Any(x => x.StreamUrl != null! && x.StreamUrl.Contains("twitch")))
                             {
                                 TwitchNotifier twitchNotifierObj = new()
                                 {
@@ -127,7 +129,7 @@ namespace SchattenclownBot.Models
                                             DiscordRoleID = 1052993779570839632
                                 };
 
-                                string twitchUrl = discordMember.Presence?.Activities?.FirstOrDefault(x => x.StreamUrl != null! && x.StreamUrl.Contains("twitch"))?.StreamUrl.ToString();
+                                string twitchUrl = discordMember.Presence.Activities.FirstOrDefault(x => x.StreamUrl != null! && x.StreamUrl.Contains("twitch"))?.StreamUrl.ToString()!;
 
                                 twitchNotifierObj.TwitchChannelUrl = new StringCutter().RemoveUntil(twitchUrl, "https://www.twitch.tv/", "https://www.twitch.tv/".Length);
 
@@ -139,6 +141,7 @@ namespace SchattenclownBot.Models
                                     new TwitchNotifier().SetMonitoring();
                                 }
                             }
+                            // ReSharper restore ConditionIsAlwaysTrueOrFalse
                         }
 
                         await Task.Delay(60000);
@@ -200,20 +203,20 @@ namespace SchattenclownBot.Models
 
             List<string> list = (from twitchNotifierItem in TwitchNotifiers where twitchNotifierItem.TwitchChannelUrl != "" select twitchNotifierItem.TwitchChannelUrl).ToList();
 
-            Monitor = new LiveStreamMonitorService(Api);
+            LiveStreamMonitorService = new LiveStreamMonitorService(TwitchAPI);
 
-            Monitor.SetChannelsByName(list);
-            Monitor.OnStreamOnline += new TwitchNotifier().Monitor_OnStreamOnline;
-            Monitor.OnStreamOffline += new TwitchNotifier().Monitor_OnStreamOffline;
-            Monitor.OnStreamUpdate += new TwitchNotifier().Monitor_OnStreamUpdate;
-            Monitor.OnServiceStarted += new TwitchNotifier().Monitor_OnServiceStarted;
-            Monitor.OnChannelsSet += new TwitchNotifier().Monitor_OnChannelsSet;
-            Monitor.OnServiceTick += new TwitchNotifier().MonitorOnServiceTick;
+            LiveStreamMonitorService.SetChannelsByName(list);
+            LiveStreamMonitorService.OnStreamOnline += new TwitchNotifier().Monitor_OnStreamOnline;
+            LiveStreamMonitorService.OnStreamOffline += new TwitchNotifier().Monitor_OnStreamOffline;
+            LiveStreamMonitorService.OnStreamUpdate += new TwitchNotifier().Monitor_OnStreamUpdate;
+            LiveStreamMonitorService.OnServiceStarted += new TwitchNotifier().Monitor_OnServiceStarted;
+            LiveStreamMonitorService.OnChannelsSet += new TwitchNotifier().Monitor_OnChannelsSet;
+            LiveStreamMonitorService.OnServiceTick += new TwitchNotifier().MonitorOnServiceTick;
 
-            Monitor.Start();
+            LiveStreamMonitorService.Start();
         }
 
-        public void Monitor_OnStreamOnline(object sender, OnStreamOnlineArgs e)
+        public void Monitor_OnStreamOnline(object? sender, OnStreamOnlineArgs e)
         {
             foreach (TwitchNotifier twitchNotifierItem in TwitchNotifiers)
             {
@@ -222,7 +225,7 @@ namespace SchattenclownBot.Models
                     continue;
                 }
 
-                if (twitchNotifierItem.DiscordMessage != null)
+                if (twitchNotifierItem.DiscordMessage! != null!)
                 {
                     continue;
                 }
@@ -255,8 +258,8 @@ namespace SchattenclownBot.Models
 
                 using (HttpClient client = new())
                 {
-                    byte[]? imageBytes = client.GetByteArrayAsync(e.Stream.ThumbnailUrl.Replace("{width}", "1920").Replace("{height}", "1080")).Result;
-                    using MemoryStream memoryStream = new(imageBytes!);
+                    byte[] imageBytes = client.GetByteArrayAsync(e.Stream.ThumbnailUrl.Replace("{width}", "1920").Replace("{height}", "1080")).Result;
+                    using MemoryStream memoryStream = new(imageBytes);
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
                         Bitmap image = new(memoryStream);
@@ -271,7 +274,7 @@ namespace SchattenclownBot.Models
 
                 if (e.Stream.GameId != null)
                 {
-                    GetGamesResponse getGamesResponse = Api.Helix.Games.GetGamesAsync(new List<string>
+                    GetGamesResponse getGamesResponse = TwitchAPI.Helix.Games.GetGamesAsync(new List<string>
                                 {
                                             e.Stream.GameId
                                 })
@@ -280,7 +283,7 @@ namespace SchattenclownBot.Models
                     discordEmbedBuilder.WithThumbnail(gameIconUrl);
                 }
 
-                GetUsersResponse getUsersResponse = Api.Helix.Users.GetUsersAsync(new List<string>
+                GetUsersResponse getUsersResponse = TwitchAPI.Helix.Users.GetUsersAsync(new List<string>
                             {
                                         e.Stream.UserId
                             })
@@ -291,7 +294,7 @@ namespace SchattenclownBot.Models
                 discordEmbedBuilder.WithTimestamp(DateTime.Now);
 
 
-                DiscordComponentEmoji discordComponentEmoji = new(DiscordBot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560));
+                DiscordComponentEmoji discordComponentEmoji = new(DiscordBot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560)!);
                 DiscordLinkButtonComponent discordLinkButtonComponent = new($"https://www.twitch.tv/{e.Channel}", "Open stream", false, discordComponentEmoji);
 
                 twitchNotifierItem.DiscordMessage = discordChannel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(discordEmbedBuilder.Build()).AddComponents(discordLinkButtonComponent).WithContent($"https://www.twitch.tv/{e.Channel}")).Result;
@@ -300,7 +303,7 @@ namespace SchattenclownBot.Models
             new CustomLogger().Information("Monitor_OnStreamOnline", ConsoleColor.Green);
         }
 
-        public void Monitor_OnStreamOffline(object sender, OnStreamOfflineArgs e)
+        public void Monitor_OnStreamOffline(object? sender, OnStreamOfflineArgs e)
         {
             foreach (TwitchNotifier twitchNotifierItem in TwitchNotifiers)
             {
@@ -309,7 +312,7 @@ namespace SchattenclownBot.Models
                     continue;
                 }
 
-                if (twitchNotifierItem.DiscordMessage == null)
+                if (twitchNotifierItem.DiscordMessage! == null!)
                 {
                     continue;
                 }
@@ -321,7 +324,7 @@ namespace SchattenclownBot.Models
                             Color = DiscordColor.Gray
                 };
 
-                GetUsersResponse getUsersResponse = Api.Helix.Users.GetUsersAsync(new List<string>
+                GetUsersResponse getUsersResponse = TwitchAPI.Helix.Users.GetUsersAsync(new List<string>
                             {
                                         e.Stream.UserId
                             })
@@ -342,7 +345,7 @@ namespace SchattenclownBot.Models
 
                 discordEmbedBuilder.WithTimestamp(DateTime.Now);
 
-                DiscordComponentEmoji discordComponentEmoji = new(DiscordBot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560));
+                DiscordComponentEmoji discordComponentEmoji = new(DiscordBot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560)!);
                 DiscordLinkButtonComponent discordLinkButtonComponent = new($"https://www.twitch.tv/{e.Channel}", "Open Twitch", false, discordComponentEmoji);
 
                 try
@@ -360,9 +363,9 @@ namespace SchattenclownBot.Models
             new CustomLogger().Information("Monitor_OnStreamOffline", ConsoleColor.Green);
         }
 
-        public void MonitorOnServiceTick(object sender, OnServiceTickArgs e)
+        public void MonitorOnServiceTick(object? sender, OnServiceTickArgs e)
         {
-            Dictionary<string, Stream>.ValueCollection liveStreamsValues = Monitor.LiveStreams.Values;
+            Dictionary<string, Stream>.ValueCollection liveStreamsValues = LiveStreamMonitorService.LiveStreams.Values;
 
             try
             {
@@ -375,7 +378,7 @@ namespace SchattenclownBot.Models
                             continue;
                         }
 
-                        if (twitchNotifierItem.DiscordMessage == null)
+                        if (twitchNotifierItem.DiscordMessage! == null!)
                         {
                             continue;
                         }
@@ -406,8 +409,8 @@ namespace SchattenclownBot.Models
 
                         using (HttpClient client = new())
                         {
-                            byte[]? imageBytes = client.GetByteArrayAsync(stream.ThumbnailUrl.Replace("{width}", "1920").Replace("{height}", "1080")).Result;
-                            using MemoryStream memoryStream = new(imageBytes!);
+                            byte[] imageBytes = client.GetByteArrayAsync(stream.ThumbnailUrl.Replace("{width}", "1920").Replace("{height}", "1080")).Result;
+                            using MemoryStream memoryStream = new(imageBytes);
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                             {
                                 Bitmap image = new(memoryStream);
@@ -422,7 +425,7 @@ namespace SchattenclownBot.Models
 
                         if (stream.GameId != null)
                         {
-                            GetGamesResponse getGamesResponse = Api.Helix.Games.GetGamesAsync(new List<string>
+                            GetGamesResponse getGamesResponse = TwitchAPI.Helix.Games.GetGamesAsync(new List<string>
                                         {
                                                     stream.GameId
                                         })
@@ -431,7 +434,7 @@ namespace SchattenclownBot.Models
                             discordEmbedBuilder.WithThumbnail(gameIconUrl);
                         }
 
-                        GetUsersResponse getUsersResponse = Api.Helix.Users.GetUsersAsync(new List<string>
+                        GetUsersResponse getUsersResponse = TwitchAPI.Helix.Users.GetUsersAsync(new List<string>
                                     {
                                                 stream.UserId
                                     })
@@ -442,7 +445,7 @@ namespace SchattenclownBot.Models
                         discordEmbedBuilder.WithTimestamp(DateTime.Now);
 
 
-                        DiscordComponentEmoji discordComponentEmoji = new(DiscordBot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560));
+                        DiscordComponentEmoji discordComponentEmoji = new(DiscordBot.EmojiDiscordGuild.GetEmojisAsync().Result.FirstOrDefault(x => x.Id == 1050340762459586560)!);
                         DiscordLinkButtonComponent discordLinkButtonComponent = new($"https://www.twitch.tv/{stream.UserLogin}", "Open stream", false, discordComponentEmoji);
 
                         try
@@ -467,7 +470,7 @@ namespace SchattenclownBot.Models
             new CustomLogger().Information("MonitorOnOnServiceTickChecked", ConsoleColor.Green);
         }
 
-        public void Monitor_OnStreamUpdate(object sender, OnStreamUpdateArgs e)
+        public void Monitor_OnStreamUpdate(object? sender, OnStreamUpdateArgs e)
         {
             /*try
             {
@@ -533,12 +536,12 @@ namespace SchattenclownBot.Models
             }*/
         }
 
-        public void Monitor_OnChannelsSet(object sender, OnChannelsSetArgs e)
+        public void Monitor_OnChannelsSet(object? sender, OnChannelsSetArgs e)
         {
             new CustomLogger().Information("Monitor_OnChannelsSet", ConsoleColor.Green);
         }
 
-        public void Monitor_OnServiceStarted(object sender, OnServiceStartedArgs e)
+        public void Monitor_OnServiceStarted(object? sender, OnServiceStartedArgs e)
         {
             new CustomLogger().Information("Monitor_OnServiceStarted", ConsoleColor.Green);
         }

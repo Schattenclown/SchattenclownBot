@@ -13,9 +13,9 @@ using SchattenclownBot.Utils;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.ModelBased
 {
-    public class SympathySystemAc : ApplicationCommandsModule
+    public class SympathySystemAC : ApplicationCommandsModule
     {
         /// <summary>
         ///     Command to give an User a Rating.
@@ -39,7 +39,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         }
 
         /// <summary>
-        ///     Poke an User with the Context Menu.
+        ///     PokeAC an User with the Context Menu.
         /// </summary>
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
@@ -97,6 +97,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             DiscordMember discordTargetMember;
             try
             {
+                // ReSharper disable once RedundantAssignment
                 discordTargetMember = componentInteractionCreateEventArgs.Message.MentionedUsers[0].ConvertToMember(componentInteractionCreateEventArgs.Guild).Result;
             }
             catch
@@ -206,13 +207,13 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <param name="discordRole">The discordRole.</param>
         /// <returns></returns>
         [SlashCommand("RatingSetup" + TwitchAPI.isDevBot, "Set up the roles for the Rating System!")]
-        public async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupChoiceProvider))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
+        public async Task RatingSetup(InteractionContext interactionContext, [ChoiceProvider(typeof(RatingSetupCP))][Option("Vote", "Setup")] string voteRating, [Option("Role", "@...")] DiscordRole discordRole)
         {
-            bool found = SympathySystem.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
+            bool found = SympathySystemAC.CheckRoleInfoExists(interactionContext.Guild.Id, Convert.ToInt32(voteRating));
 
             await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Setting Role!"));
 
-            SympathySystem sympathySystemObj = new()
+            SympathySystemAC sympathySystemObj = new()
             {
                 GuildID = interactionContext.Guild.Id,
                 RoleInfo = new RoleInfoSympathySystem()
@@ -240,10 +241,10 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             switch (found)
             {
                 case false:
-                    SympathySystem.AddRoleInfo(sympathySystemObj);
+                    SympathySystemAC.AddRoleInfo(sympathySystemObj);
                     break;
                 case true:
-                    SympathySystem.ChangeRoleInfo(sympathySystemObj);
+                    SympathySystemAC.ChangeRoleInfo(sympathySystemObj);
                     break;
             }
 

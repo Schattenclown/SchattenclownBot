@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
-using SchattenclownBot.Persistence.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DatabaseAccess;
 using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Models
@@ -47,7 +47,7 @@ namespace SchattenclownBot.Models
 
         public void RunAsync()
         {
-            new CustomLogger().Information("Starting Timer...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting TimerAC...", ConsoleColor.Green);
             TimerList = new Timer().ReadAll();
 
             Task.Run(async () =>
@@ -63,7 +63,7 @@ namespace SchattenclownBot.Models
                             {
                                         Color = DiscordColor.Red
                             };
-                            eb.WithDescription($"<@{botTimerItem.MemberID}> Timer for {botTimerItem.NotificationTime} is up!");
+                            eb.WithDescription($"<@{botTimerItem.MemberID}> TimerAC for {botTimerItem.NotificationTime} is up!");
 
                             Delete(botTimerItem);
                             for (int i = 0; i < 3; i++)

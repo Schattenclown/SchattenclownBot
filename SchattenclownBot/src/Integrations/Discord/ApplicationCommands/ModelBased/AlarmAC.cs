@@ -12,9 +12,9 @@ using SchattenclownBot.Models;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.ModelBased
 {
-    public class AlarmAc : ApplicationCommandsModule
+    public class AlarmAC : ApplicationCommandsModule
     {
         /// <summary>
         ///     Set an AlarmAC clock per command.

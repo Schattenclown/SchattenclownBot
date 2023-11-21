@@ -12,9 +12,9 @@ using SchattenclownBot.Models;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.ModelBased
 {
-    public class UserLevel : ApplicationCommandsModule
+    public class UserLevelSystemAC : ApplicationCommandsModule
     {
         /// <summary>
         ///     Command to view your connection time Level.

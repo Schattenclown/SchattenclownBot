@@ -9,11 +9,11 @@ using DisCatSharp.Enums;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
 {
-    public class Move : ApplicationCommandsModule
+    public class MoveAC : ApplicationCommandsModule
     {
-        [SlashCommand("Move", "MassMove the whole channel your in to a different one!")]
+        [SlashCommand("MoveAC", "MassMove the whole channel your in to a different one!")]
         public async Task MoveAsync(InteractionContext interactionContext, [Option("Channel", "#..."), ChannelTypes(ChannelType.Voice)] DiscordChannel discordTargetChannel)
         {
             List<DiscordRole> discordPermissions = interactionContext.Member.Roles.ToList();
@@ -32,6 +32,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             }
             else
             {
+                // ReSharper disable HeuristicUnreachableCode
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (interactionContext.Member.VoiceState.Channel != null)
                 {
@@ -49,6 +50,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                 {
                     await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("U are not connected!"));
                 }
+                // ReSharper restore HeuristicUnreachableCode
             }
         }
     }

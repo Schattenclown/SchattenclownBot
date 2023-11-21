@@ -8,12 +8,12 @@ using DisCatSharp.Enums;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
 {
     /// <summary>
     ///     The ApplicationCommandsExtension.
     /// </summary>
-    public class Main : ApplicationCommandsModule
+    public class MainAC : ApplicationCommandsModule
     {
         /// <summary>
         ///     HandlerReader the Avatar and Banner of an User.

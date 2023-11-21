@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DisCatSharp.Entities;
 using SchattenclownBot.Integrations.Discord.Main;
 using SchattenclownBot.Integrations.Discord.Services;
-using SchattenclownBot.Persistence.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DatabaseAccess;
 using SchattenclownBot.Utils;
 
 #pragma warning disable CA1822
@@ -48,7 +48,7 @@ namespace SchattenclownBot.Models
 
         public void RunAsync(int executeSecond)
         {
-            new CustomLogger().Information("Starting SympathySystem...", ConsoleColor.Green);
+            new CustomLogger().Information("Starting SympathySystemAC...", ConsoleColor.Green);
 
             Task.Run(async () =>
             {

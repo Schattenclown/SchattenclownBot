@@ -14,9 +14,9 @@ using SchattenclownBot.Integrations.Discord.Main;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
 {
-    public class Poke : ApplicationCommandsModule
+    public class PokeAC : ApplicationCommandsModule
     {
         [SlashCommand("DaddysPoke", "Harder daddy!")]
         public async Task DaddysPokeAsync(InteractionContext interactionContext, [Option("discordUser", "@...")] DiscordUser discordUser)
@@ -24,11 +24,13 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral());
             DiscordMember discordMember = await interactionContext.Guild.GetMemberAsync(discordUser.Id);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            // ReSharper disable HeuristicUnreachableCode
             if (discordMember.VoiceState == null)
             {
                 await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Not connected"));
                 return;
             }
+            // ReSharper restore HeuristicUnreachableCode
 
             try
             {
@@ -58,12 +60,12 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         }
 
         /// <summary>
-        ///     Poke an User per command.
+        ///     PokeAC an User per command.
         /// </summary>
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="discordUser">the discordUser</param>
         /// <returns></returns>
-        [SlashCommand("Poke", "Poke user!")]
+        [SlashCommand("PokeAC", "PokeAC user!")]
         public async Task Ww(InteractionContext interactionContext, [Option("User", "@...")] DiscordUser discordUser)
         {
             InteractivityExtension interactivityExtension = interactionContext.Client.GetInteractivity();
@@ -73,7 +75,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
             DiscordStringSelectComponent discordSelectComponent = new("Select a method!", discordSelectComponentOptionList, "force");
 
-            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"Poke discordUser <@{discordUser.Id}>!"));
+            await interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordSelectComponent).WithContent($"PokeAC discordUser <@{discordUser.Id}>!"));
             DiscordMessage discordMessage = await interactionContext.GetOriginalResponseAsync();
             InteractivityResult<ComponentInteractionCreateEventArgs> interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
             if (!interactivityResult.TimedOut)
@@ -91,11 +93,11 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         }
 
         /// <summary>
-        ///     Poke an User per contextmenu.
+        ///     PokeAC an User per contextmenu.
         /// </summary>
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
-        [ContextMenu(ApplicationCommandType.User, "Poke user!")]
+        [ContextMenu(ApplicationCommandType.User, "PokeAC user!")]
         public async Task PokeAsync(ContextMenuContext contextMenuContext)
         {
             InteractivityExtension interactivityExtension = contextMenuContext.Client.GetInteractivity();
@@ -105,7 +107,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
             DiscordStringSelectComponent discordStringSelectComponent = new("Select a method!", discordSelectComponentOptionList, "force");
 
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordStringSelectComponent).WithContent($"Poke discordUser <@{contextMenuContext.TargetMember.Id}>!"));
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().AddComponents(discordStringSelectComponent).WithContent($"PokeAC discordUser <@{contextMenuContext.TargetMember.Id}>!"));
             DiscordMessage discordMessage = await contextMenuContext.GetOriginalResponseAsync();
             InteractivityResult<ComponentInteractionCreateEventArgs> interactivityResult = await interactivityExtension.WaitForSelectAsync(discordMessage, "force", ComponentType.StringSelect, TimeSpan.FromMinutes(1));
             if (!interactivityResult.TimedOut)
@@ -122,20 +124,20 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         }
 
         /// <summary>
-        ///     Poke an User per contextmenu.
+        ///     PokeAC an User per contextmenu.
         /// </summary>
         /// <param name="contextMenuContext">The contextMenuContext</param>
         /// <returns></returns>
-        [ContextMenu(ApplicationCommandType.User, "Poke user Instant!")]
+        [ContextMenu(ApplicationCommandType.User, "PokeAC user Instant!")]
         public async Task InstantPokeAsync(ContextMenuContext contextMenuContext)
         {
-            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().WithContent($"Poke discordUser <@{contextMenuContext.TargetMember.Id}>!"));
+            await contextMenuContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral().WithContent($"PokeAC discordUser <@{contextMenuContext.TargetMember.Id}>!"));
 
             await PokeTask(contextMenuContext.Interaction, contextMenuContext.Member, contextMenuContext.TargetMember, false, 4, true);
         }
 
         /// <summary>
-        ///     The Poke function.
+        ///     The PokeAC function.
         /// </summary>
         /// <param name="discordTargetMember"></param>
         /// <param name="deleteResponseAsync">If the response should be Deleted after the poke action.</param>
@@ -146,9 +148,11 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
         /// <returns></returns>
         public async Task PokeTask(DiscordInteraction discordInteraction, DiscordMember discordMember, DiscordMember discordTargetMember, bool deleteResponseAsync, int pokeAmount, bool force)
         {
+            // ReSharper disable ConditionIsAlwaysTrueOrFalse
+            // ReSharper disable HeuristicUnreachableCode
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
-                        Title = $"Poke {discordTargetMember.DisplayName}"
+                        Title = $"PokeAC {discordTargetMember.DisplayName}"
             };
 
             discordEmbedBuilder.WithFooter($"Requested by {discordMember.DisplayName}", discordMember.AvatarUrl);
@@ -180,6 +184,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
                 presenceWasNull = true;
             }
 
+
             if (discordTargetMember.VoiceState != null && rightToMove && (force || presenceWasNull || ((desktopHasValue || webHasValue) && !mobileHasValue)))
             {
                 DiscordChannel currentChannel = default;
@@ -207,13 +212,25 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
                     for (int i = 0; i < pokeAmount; i++)
                     {
-                        await discordTargetMember.PlaceInAsync(tempChannel1);
+                        if (tempChannel1 != null)
+                        {
+                            await discordTargetMember.PlaceInAsync(tempChannel1);
+                        }
+
                         await Task.Delay(250);
-                        await discordTargetMember.PlaceInAsync(tempChannel2);
+                        if (tempChannel2 != null)
+                        {
+                            await discordTargetMember.PlaceInAsync(tempChannel2);
+                        }
+
                         await Task.Delay(250);
                     }
 
-                    await discordTargetMember.PlaceInAsync(tempChannel1);
+                    if (tempChannel1 != null)
+                    {
+                        await discordTargetMember.PlaceInAsync(tempChannel1);
+                    }
+
                     await Task.Delay(250);
                 }
                 catch
@@ -224,7 +241,10 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
                 try
                 {
-                    await discordTargetMember.PlaceInAsync(currentChannel);
+                    if (currentChannel != null)
+                    {
+                        await discordTargetMember.PlaceInAsync(currentChannel);
+                    }
                 }
                 catch
                 {
@@ -319,6 +339,8 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
 
                 await discordInteraction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(discordEmbedBuilder.Build()));
             }
+            // ReSharper restore ConditionIsAlwaysTrueOrFalse
+            // ReSharper restore HeuristicUnreachableCode
 
             if (deleteResponseAsync)
             {

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SchattenclownBot.Persistence.DataAccess.MSSQL;
+using SchattenclownBot.Persistence.DatabaseAccess;
 
 #nullable disable
 
@@ -25,7 +25,7 @@ namespace SchattenclownBot.Migrations.TimerDBAMigrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SchattenclownBot.Models.Timer", b =>
+            modelBuilder.Entity("SchattenclownBot.Models.TimerAC", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()

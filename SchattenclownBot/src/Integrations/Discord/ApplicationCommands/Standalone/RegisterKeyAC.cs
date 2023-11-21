@@ -15,19 +15,19 @@ using DisCatSharp.EventArgs;
 
 #pragma warning disable SYSLIB0021
 
-namespace SchattenclownBot.Integrations.Discord.ApplicationCommands
+namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
 {
-    public class RegisterKey : ApplicationCommandsModule
+    public class RegisterKeyAC : ApplicationCommandsModule
     {
         /// <summary>
-        ///     Poke an User per command.
+        ///     PokeAC an User per command.
         /// </summary>
         /// <param name="interactionContext">The interactionContext</param>
         /// <param name="info"></param>
         /// <param name="platform"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        [SlashCommand("RegisterKey", "Add Twitch notifier!")]
+        [SlashCommand("RegisterKeyAC", "Add Twitch notifier!")]
         public async Task RegisterKeyCommand(InteractionContext interactionContext, [Option("Info", "Information about the Key.")] string info, [Option("Platform", "Platform the Key.")] string platform, [Option("Key", "Key.")] string key)
         {
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
