@@ -21,7 +21,7 @@ namespace SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone
             }
 
             await interactionContext.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.Yellow).WithDescription("SchattenclownBot rebooting!")));
+            await interactionContext.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(new DiscordEmbedBuilder().WithColor(DiscordColor.DarkRed).WithDescription("SchattenclownBot rebooting!")));
             new CustomLogger().Information($"Reset command called by {interactionContext.User.Username}", ConsoleColor.DarkRed);
             new Reset().RestartProgram();
         }
