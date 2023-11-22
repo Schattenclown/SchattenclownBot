@@ -13,7 +13,6 @@ using SchattenclownBot.Integrations.Discord.ApplicationCommands.ModelBased;
 using SchattenclownBot.Integrations.Discord.ApplicationCommands.Standalone;
 using SchattenclownBot.Integrations.Discord.Services;
 using SchattenclownBot.Models;
-using SchattenclownBot.Utils;
 
 namespace SchattenclownBot.Integrations.Discord.Main
 {
@@ -120,17 +119,19 @@ namespace SchattenclownBot.Integrations.Discord.Main
             DiscordClient.ComponentInteractionCreated += new SympathySystemAC().GaveRating;
         }
 
-        public async void RegisterCommands()
+        public void RegisterCommands()
         {
             ApplicationCommandsExtension.RegisterGlobalCommands<AlarmAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<SympathySystemAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<TimerAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<TwitchNotifierAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<UserLevelSystemAC>();
+
             ApplicationCommandsExtension.RegisterGlobalCommands<MainAC>();
             ApplicationCommandsExtension.RegisterGlobalCommands<MoveAC>();
             ApplicationCommandsExtension.RegisterGlobalCommands<PokeAC>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<TimerAC>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<UserLevelSystemAC>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<SympathySystemAC>();
-            ApplicationCommandsExtension.RegisterGlobalCommands<TwitchNotifierAC>();
             ApplicationCommandsExtension.RegisterGlobalCommands<RegisterKeyAC>();
+            ApplicationCommandsExtension.RegisterGlobalCommands<ResetAC>();
         }
     }
 }

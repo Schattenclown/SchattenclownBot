@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using System.Threading;
 
 namespace SchattenclownBot.Utils
 {
@@ -12,21 +11,7 @@ namespace SchattenclownBot.Utils
         /// </summary>
         public void RestartProgram()
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            new ConsoleStringFormatter().Center(" ");
-            new ConsoleStringFormatter().Center(@"██████╗ ███████╗███████╗████████╗ █████╗ ██████╗ ████████╗██╗███╗   ██╗ ██████╗ ");
-            new ConsoleStringFormatter().Center(@"██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝ ");
-            new ConsoleStringFormatter().Center(@"██████╔╝█████╗  ███████╗   ██║   ███████║██████╔╝   ██║   ██║██╔██╗ ██║██║  ███╗");
-            new ConsoleStringFormatter().Center(@"██╔══██╗██╔══╝  ╚════██║   ██║   ██╔══██║██╔══██╗   ██║   ██║██║╚██╗██║██║   ██║");
-            new ConsoleStringFormatter().Center(@"██║  ██║███████╗███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝");
-            new ConsoleStringFormatter().Center(@"╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ");
-            new ConsoleStringFormatter().Center(" ");
-            Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            new ConsoleStringFormatter().Center("DB IS DEAD");
-            Console.WriteLine($"{"".PadRight(Console.WindowWidth - 2, '█')}");
-            Console.ForegroundColor = ConsoleColor.Gray;
-
+            new CustomLogger().Information("SchattenclownBot rebooting!", ConsoleColor.DarkRed);
             // HandlerReader file path of current process 
             string filePath = Assembly.GetExecutingAssembly().Location;
             string newFilepath = "";
@@ -35,17 +20,14 @@ namespace SchattenclownBot.Utils
             if (filePath.Contains("Debug"))
             {
                 filePath = new StringCutter().RemoveAfter(filePath, "Debug", 0);
-                newFilepath = filePath + "Debug\\net7.0\\SchattenclownBot.exe";
+                newFilepath = filePath + @"Debug\net7.0\SchattenclownBot.exe";
             }
             else if (filePath.Contains("Release"))
             {
                 filePath = new StringCutter().RemoveAfter(filePath, "Release", 0);
-                newFilepath = filePath + "Release\\net7.0\\SchattenclownBot.exe";
+                newFilepath = filePath + @"Release\net7.0\SchattenclownBot.exe";
             }
 
-            Console.WriteLine("Before 120 second sleep");
-            Thread.Sleep(1000 * 60);
-            Console.WriteLine("After 120 second sleep");
             // Start program
             Process.Start(newFilepath);
 
