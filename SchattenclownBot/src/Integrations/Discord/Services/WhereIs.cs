@@ -193,7 +193,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                     //if(discordChannelWhereIsMessageAny.Any())
 
                                     //string content = $"``                                                         ``\n|| https://discord.com/channels/{discordVoiceState.Guild.Id}/{discordVoiceState.Channel.Id} ||";
-                                    string content = $"\u2800\n|| https://discord.com/channels/{discordVoiceState.Guild.Id}/{discordVoiceState.Channel.Id} ||";
+                                    string content = $"\u2800\n[­\u2800](https://discord.com/channels/{discordVoiceState.Guild.Id}/{discordVoiceState.Channel.Id} )";
                                     if (discordMessagesList != null)
                                     {
                                         foreach (DiscordMessage messageItem in discordMessagesList.Where(x => x.Content.Contains(content)))
@@ -264,6 +264,7 @@ namespace SchattenclownBot.Integrations.Discord.Services
                                 mentionedChannel = new StringCutter().RemoveUntil(discordMessage.Content, "https://discord.com/channels/", "https://discord.com/channels/".Length);
                                 mentionedChannel = new StringCutter().RemoveUntil(mentionedChannel, "/", 1);
                                 mentionedChannel = new StringCutter().RemoveAfter(mentionedChannel, " ||", 0);
+                                mentionedChannel = new StringCutter().RemoveAfter(mentionedChannel, " )", 0);
                             }
                             catch
                             {
