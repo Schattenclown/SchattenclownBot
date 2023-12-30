@@ -37,8 +37,7 @@ namespace SchattenclownBot.Integrations.Discord.Main
                         ShardId = 0,
                         Intents = DiscordIntents.All,
                         MobileStatus = false,
-                        UseCanary = true,
-                        UsePtb = false,
+                        ApiChannel = ApiChannel.Canary,
                         AutoRefreshChannelCache = false,
                         HttpTimeout = TimeSpan.FromSeconds(60),
                         ReconnectIndefinitely = true
