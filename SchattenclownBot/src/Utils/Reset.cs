@@ -20,12 +20,12 @@ namespace SchattenclownBot.Utils
             if (filePath.Contains("Debug"))
             {
                 filePath = new StringCutter().RemoveAfter(filePath, "Debug", 0);
-                newFilepath = filePath + @"Debug\net7.0\SchattenclownBot.exe";
+                newFilepath = filePath + @"Debug\net8.0\SchattenclownBot.exe";
             }
             else if (filePath.Contains("Release"))
             {
                 filePath = new StringCutter().RemoveAfter(filePath, "Release", 0);
-                newFilepath = filePath + @"Release\net7.0\SchattenclownBot.exe";
+                newFilepath = filePath + @"Release\net8.0\SchattenclownBot.exe";
             }
 
             // Start program
