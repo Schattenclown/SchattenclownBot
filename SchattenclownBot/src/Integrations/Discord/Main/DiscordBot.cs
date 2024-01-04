@@ -49,7 +49,6 @@ namespace SchattenclownBot.Integrations.Discord.Main
             {
                         EnableDefaultHelp = false,
                         DebugStartup = false,
-                        ManualOverride = true,
                         CheckAllGuilds = true
             });
 
